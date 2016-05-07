@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_settings">
+        <ListPreference
+            android:key="pref_common_refresh_rate"
+            android:title="@string/pref_refresh_interval_title"
+            android:summary="@string/pref_refresh_interval_summary"
+            android:entries="@array/refresh_interval_entries"
+            android:entryValues="@array/refresh_interval_values"
+            android:defaultValue="30"/>
+        <SwitchPreference
+            android:key="pref_common_unmetered_only"
+            android:title="@string/pref_unmetered_only_title"
+            android:summary="@string/pref_unmetered_only_summary"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_about">
+        <Preference
+            android:key="pref_about_twitter"
+            android:title="@string/pref_about_twitter"
+            android:summary="\@crossbowffs"/>
+        <Preference
+            android:key="pref_about_github"
+            android:title="@string/pref_about_github"
+            android:summary="github.com/apsun/QuoteLock"/>
+        <Preference
+            android:key="pref_about_vnaas"
+            android:title="@string/pref_about_vnaas"
+            android:summary="vnaas.apsun.xyz"/>
+        <Preference
+            android:key="pref_about_version"
+            android:title="@string/pref_about_version"/>
+    </PreferenceCategory>
+</PreferenceScreen>

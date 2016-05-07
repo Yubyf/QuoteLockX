@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:2.1.0"
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+apply plugin: "com.android.application"
+
+dependencies {
+    compile "com.crossbowffs.remotepreferences:remotepreferences:0.1"
+    provided "de.robv.android.xposed:api:53"
+}
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        versionCode 1
+        versionName "1.0"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "AndroidManifest.xml"
+            res.srcDirs = ["res"]
+            java.srcDirs = ["src"]
+            assets.srcDirs = ["assets"]
+        }
+    }
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.crossbowffs.quotelock">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="23"/>
+    <application
+        android:label="@string/quotelock"
+        android:icon="@mipmap/ic_launcher">
+        <activity android:name=".app.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <service
+            android:name="com.crossbowffs.quotelock.app.QuoteDownloaderService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <receiver android:name=".app.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+        <provider
+            android:name="com.crossbowffs.quotelock.provider.QuoteProvider"
+            android:authorities="com.crossbowffs.quotelock.preferences"
+            android:exported="true"/>
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true"/>
+        <meta-data
+            android:name="xposeddescription"
+            android:value="Displays quotes from VNaaS on the lockscreen"/>
+        <meta-data
+            android:name="xposedminversion"
+            android:value="53"/>
+    </application>
+</manifest>
