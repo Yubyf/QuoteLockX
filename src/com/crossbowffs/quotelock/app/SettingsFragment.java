@@ -21,7 +21,6 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     private static final String VNAAS_URL = "http://vnaas.apsun.xyz/";
 
     private int mVersionTapCount = 0;
-    private long mVersionTapTime = -1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,7 +28,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         getPreferenceManager().setSharedPreferencesName(PrefKeys.PREF_COMMON);
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         addPreferencesFromResource(R.xml.settings);
-        findPreference(PrefKeys.PREF_ABOUT_VERSION).setSummary(BuildConfig.VERSION_NAME);
+        String version = String.format("%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE);
+        findPreference(PrefKeys.PREF_ABOUT_VERSION).setSummary(version);
     }
 
     @Override

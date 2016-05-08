@@ -24,7 +24,7 @@ public class QuoteDownloaderService extends JobService implements SharedPreferen
 
         @Override
         protected VnaasQuote doInBackground(Void... params) {
-            Xlog.i(TAG, "Attempting download of new VNaaS quote...");
+            Xlog.i(TAG, "Attempting to download new VNaaS quote...");
 
             VnaasQuoteQueryParams query = new VnaasQuoteQueryParams();
             SharedPreferences preferences = getSharedPreferences(PrefKeys.PREF_COMMON, MODE_PRIVATE);
@@ -57,6 +57,7 @@ public class QuoteDownloaderService extends JobService implements SharedPreferen
             try {
                 return mApiManager.getRandomQuote(query);
             } catch (IOException e) {
+                Xlog.e(TAG, "Quote download failed", e);
                 return null;
             }
         }

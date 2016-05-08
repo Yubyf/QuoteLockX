@@ -19,7 +19,7 @@
         <Preference
             android:key="pref_about_twitter"
             android:title="@string/pref_about_twitter"
-            android:summary="\@crossbowffs"/>
+            android:summary="crossbowffs"/>
         <Preference
             android:key="pref_about_github"
             android:title="@string/pref_about_github"
