@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.model.VnaasQuote;
+import com.crossbowffs.quotelock.utils.JobUtils;
 
 public class MainActivity extends Activity {
     private class ActivityQuoteDownloaderTask extends QuoteDownloaderTask {
@@ -48,6 +49,12 @@ public class MainActivity extends Activity {
             .beginTransaction()
             .replace(R.id.content_frame, new SettingsFragment())
             .commit();
+
+        // In case the user opens the app for the first time *after* rebooting,
+        // we want to make sure the background job has been created. This has the
+        // side effect of resetting the time until the next refresh, but for most
+        // users that won't be noticable.
+        JobUtils.createQuoteDownloadJob(this);
     }
 
     @Override
