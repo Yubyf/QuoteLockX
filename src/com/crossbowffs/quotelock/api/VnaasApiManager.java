@@ -87,7 +87,7 @@ public class VnaasApiManager {
         try {
             return new JSONObject(jsonString);
         } catch (JSONException e) {
-            throw new AssertionError(e);
+            throw new IOException(e);
         }
     }
 
@@ -96,7 +96,7 @@ public class VnaasApiManager {
         try {
             return new JSONArray(jsonString);
         } catch (JSONException e) {
-            throw new AssertionError(e);
+            throw new IOException(e);
         }
     }
 

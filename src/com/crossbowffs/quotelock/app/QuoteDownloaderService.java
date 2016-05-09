@@ -8,11 +8,12 @@ import com.crossbowffs.quotelock.api.VnaasApiManager;
 import com.crossbowffs.quotelock.api.VnaasQuoteQueryParams;
 import com.crossbowffs.quotelock.model.VnaasQuote;
 import com.crossbowffs.quotelock.preferences.PrefKeys;
+import com.crossbowffs.quotelock.utils.JobUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
 
 import java.io.IOException;
 
-public class QuoteDownloaderService extends JobService implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class QuoteDownloaderService extends JobService {
     private static final String TAG = QuoteDownloaderService.class.getSimpleName();
 
     private class QuoteUpdaterTask extends AsyncTask<Void, Void, VnaasQuote> {
@@ -74,30 +75,28 @@ public class QuoteDownloaderService extends JobService implements SharedPreferen
                     .putString(PrefKeys.PREF_QUOTES_CHARACTER, vnaasQuote.getCharacter().getName())
                     .putString(PrefKeys.PREF_QUOTES_NOVEL, vnaasQuote.getNovel().getName())
                     .apply();
+                JobUtils.createQuoteDownloadJob(QuoteDownloaderService.this);
             }
         }
 
         @Override
         protected void onCancelled(VnaasQuote vnaasQuote) {
-            jobFinished(mJobParameters, true);
             mUpdaterTask = null;
         }
     }
 
-    private SharedPreferences mPreferences;
     private VnaasApiManager mApiManager;
     private QuoteUpdaterTask mUpdaterTask;
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        mPreferences = getSharedPreferences(PrefKeys.PREF_COMMON, MODE_PRIVATE);
-        mPreferences.registerOnSharedPreferenceChangeListener(this);
-        createApiManager();
-    }
-
-    @Override
     public boolean onStartJob(JobParameters params) {
+        if (params.getJobId() != JobUtils.JOB_ID) {
+            // For some reason old jobs aren't cleared when updating the app,
+            // so this is a workaround to make sure we don't kill our server :-(
+            // Sadly, there's no way to get rid of the old job, so we just ignore it
+            return false;
+        }
+        createApiManager();
         mUpdaterTask = new QuoteUpdaterTask(params);
         mUpdaterTask.execute();
         return true;
@@ -107,21 +106,14 @@ public class QuoteDownloaderService extends JobService implements SharedPreferen
     public boolean onStopJob(JobParameters params) {
         if (mUpdaterTask != null && mUpdaterTask.getStatus() != AsyncTask.Status.FINISHED) {
             mUpdaterTask.cancel(true);
-            mUpdaterTask = null; // TODO: Is this neccessary?
             return true;
         }
         return false;
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (PrefKeys.PREF_COMMON_API_URL.equals(key)) {
-            createApiManager();
-        }
-    }
-
     private void createApiManager() {
-        String apiUrl = mPreferences.getString(PrefKeys.PREF_COMMON_API_URL, PrefKeys.PREF_COMMON_API_URL_DEFAULT);
+        SharedPreferences preferences = getSharedPreferences(PrefKeys.PREF_COMMON, MODE_PRIVATE);
+        String apiUrl = preferences.getString(PrefKeys.PREF_COMMON_API_URL, PrefKeys.PREF_COMMON_API_URL_DEFAULT);
         mApiManager = new VnaasApiManager(apiUrl);
         Xlog.i(TAG, "Created API manager with base URL: %s", apiUrl);
     }
