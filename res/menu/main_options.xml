@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/refesh_quote"
+        android:title="@string/refesh_quote"
+        android:icon="@drawable/ic_refresh_white_24dp"
+        android:showAsAction="ifRoom"/>
+</menu>

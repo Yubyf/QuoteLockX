@@ -11,5 +11,7 @@
     <string name="pref_about_github">GitHub</string>
     <string name="pref_about_vnaas">Visual Novel as a Service</string>
     <string name="pref_about_version">Version</string>
-    <string name="pref_about_easter_egg">¯\\_(ツ)_/¯</string>
+    <string name="pref_about_easter_egg">ぽい～</string>
+    <string name="refesh_quote">Refresh quote</string>
+    <string name="downloading_quote">Downloading quote…</string>
 </resources>

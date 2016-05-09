@@ -14,8 +14,6 @@ import com.crossbowffs.quotelock.preferences.PrefKeys;
 import com.crossbowffs.quotelock.utils.JobUtils;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-    private static final String TAG = SettingsFragment.class.getSimpleName();
-
     private static final String TWITTER_URL = "https://twitter.com/crossbowffs";
     private static final String GITHUB_URL = "https://github.com/apsun/QuoteLock";
     private static final String VNAAS_URL = "http://vnaas.apsun.xyz/";
