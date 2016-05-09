@@ -3,6 +3,7 @@ package com.crossbowffs.quotelock.app;
 import android.app.Activity;
 import android.os.Bundle;
 import com.crossbowffs.quotelock.R;
+import com.crossbowffs.quotelock.preferences.PrefKeys;
 
 public class MainActivity extends Activity {
     @Override

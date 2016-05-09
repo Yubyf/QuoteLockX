@@ -75,7 +75,6 @@ public class QuoteDownloaderService extends JobService {
                     .putString(PrefKeys.PREF_QUOTES_CHARACTER, vnaasQuote.getCharacter().getName())
                     .putString(PrefKeys.PREF_QUOTES_NOVEL, vnaasQuote.getNovel().getName())
                     .apply();
-                JobUtils.createQuoteDownloadJob(QuoteDownloaderService.this);
             }
         }
 
@@ -91,9 +90,6 @@ public class QuoteDownloaderService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         if (params.getJobId() != JobUtils.JOB_ID) {
-            // For some reason old jobs aren't cleared when updating the app,
-            // so this is a workaround to make sure we don't kill our server :-(
-            // Sadly, there's no way to get rid of the old job, so we just ignore it
             return false;
         }
         createApiManager();

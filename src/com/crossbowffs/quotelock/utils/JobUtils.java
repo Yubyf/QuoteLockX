@@ -10,7 +10,7 @@ import com.crossbowffs.quotelock.preferences.PrefKeys;
 
 public class JobUtils {
     private static final String TAG = JobUtils.class.getSimpleName();
-    public static final int JOB_ID = 1;
+    public static final int JOB_ID = 0;
 
     public static void createQuoteDownloadJob(Context context) {
         SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
@@ -25,7 +25,7 @@ public class JobUtils {
         int networkType = unmeteredOnly ? JobInfo.NETWORK_TYPE_UNMETERED : JobInfo.NETWORK_TYPE_ANY;
 
         JobInfo jobInfo = new JobInfo.Builder(JOB_ID, new ComponentName(context, QuoteDownloaderService.class))
-            .setMinimumLatency(refreshPeriodMs)
+            .setPeriodic(refreshPeriodMs)
             .setRequiredNetworkType(networkType)
             .build();
         JobScheduler scheduler = (JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
