@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.api;
+package com.crossbowffs.quotelock.modules.vnaas.api;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;

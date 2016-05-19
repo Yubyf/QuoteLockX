@@ -1,6 +1,6 @@
-package com.crossbowffs.quotelock.api;
+package com.crossbowffs.quotelock.modules.vnaas.api;
 
-import com.crossbowffs.quotelock.model.VnaasNovel;
+import com.crossbowffs.quotelock.modules.vnaas.model.VnaasNovel;
 
 public class VnaasCharacterQueryParams extends QueryParams {
     private static final String KEY_NOVEL_ID = "novel_id";

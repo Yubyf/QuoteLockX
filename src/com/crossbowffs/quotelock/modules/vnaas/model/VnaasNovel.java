@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.model;
+package com.crossbowffs.quotelock.modules.vnaas.model;
 
 public class VnaasNovel {
     private final long mId;

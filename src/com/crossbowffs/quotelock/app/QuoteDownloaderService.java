@@ -3,7 +3,7 @@ package com.crossbowffs.quotelock.app;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.os.AsyncTask;
-import com.crossbowffs.quotelock.model.VnaasQuote;
+import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.utils.JobUtils;
 
 public class QuoteDownloaderService extends JobService {
@@ -16,14 +16,15 @@ public class QuoteDownloaderService extends JobService {
         }
 
         @Override
-        protected void onPostExecute(VnaasQuote vnaasQuote) {
-            super.onPostExecute(vnaasQuote);
-            jobFinished(mJobParameters, vnaasQuote == null);
+        protected void onPostExecute(QuoteData quote) {
+            super.onPostExecute(quote);
+            jobFinished(mJobParameters, quote == null);
             mUpdaterTask = null;
         }
 
         @Override
-        protected void onCancelled(VnaasQuote vnaasQuote) {
+        protected void onCancelled(QuoteData quote) {
+            super.onCancelled(quote);
             mUpdaterTask = null;
         }
     }

@@ -1,8 +1,8 @@
-package com.crossbowffs.quotelock.api;
+package com.crossbowffs.quotelock.modules.vnaas.api;
 
-import com.crossbowffs.quotelock.model.VnaasCharacter;
-import com.crossbowffs.quotelock.model.VnaasNovel;
-import com.crossbowffs.quotelock.model.VnaasQuote;
+import com.crossbowffs.quotelock.modules.vnaas.model.VnaasCharacter;
+import com.crossbowffs.quotelock.modules.vnaas.model.VnaasNovel;
+import com.crossbowffs.quotelock.modules.vnaas.model.VnaasQuote;
 import com.crossbowffs.quotelock.utils.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,12 +14,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class VnaasApiManager {
-    private static final String API_URL = "/api/v1";
-    private static final String NOVELS_URL = API_URL + "/novels";
-    private static final String CHARACTERS_URL = API_URL + "/characters";
-    private static final String RANDOM_QUOTE_URL = API_URL + "/random_quote";
+    private static final String DEFAULT_API_URL = "http://vnaas.apsun.xyz/api/v1";
+    private static final String NOVELS_URL = "/novels";
+    private static final String CHARACTERS_URL = "/characters";
+    private static final String RANDOM_QUOTE_URL = "/random_quote";
 
     private final String mBaseUrl;
+
+    public VnaasApiManager() {
+        this(DEFAULT_API_URL);
+    }
 
     public VnaasApiManager(String baseUrl) {
         mBaseUrl = baseUrl;

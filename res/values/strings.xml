@@ -6,12 +6,19 @@
     <string name="pref_refresh_interval_summary">How often to refresh the quote</string>
     <string name="pref_unmetered_only_title">Unmetered only</string>
     <string name="pref_unmetered_only_summary">Don\'t update on metered connections</string>
+    <string name="pref_quote_module_title">Quote provider</string>
+    <string name="pref_quote_module_summary">Coming soon…</string>
+    <string name="pref_module_preferences_title">Quote provider</string>
+    <string name="pref_module_preferences_summary">Configure TODO</string>
     <string name="pref_about">About</string>
     <string name="pref_about_twitter">Twitter</string>
     <string name="pref_about_github">GitHub</string>
     <string name="pref_about_vnaas">Visual Novel as a Service</string>
     <string name="pref_about_version">Version</string>
-    <string name="pref_about_easter_egg">ぽい～</string>
+    <string name="pref_about_easter_egg">おっぱいなのです！</string>
     <string name="refesh_quote">Refresh quote</string>
     <string name="downloading_quote">Downloading quote…</string>
+    <string name="quote_download_failed">Failed to download quote</string>
+    <string name="quote_download_success">Quote downloaded successfully</string>
+    <string name="module_vnaas_name">Visual Novel as a Service</string>
 </resources>

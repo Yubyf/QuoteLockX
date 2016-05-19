@@ -6,8 +6,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 import com.crossbowffs.quotelock.R;
-import com.crossbowffs.quotelock.model.VnaasQuote;
+import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.utils.JobUtils;
 
 public class MainActivity extends Activity {
@@ -21,16 +22,21 @@ public class MainActivity extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mDialog = new ProgressDialog(MainActivity.this);
+            mDialog = new ProgressDialog(mContext);
             mDialog.setMessage(getString(R.string.downloading_quote));
             mDialog.setIndeterminate(true);
             mDialog.show();
         }
 
         @Override
-        protected void onPostExecute(VnaasQuote vnaasQuote) {
-            super.onPostExecute(vnaasQuote);
+        protected void onPostExecute(QuoteData quote) {
+            super.onPostExecute(quote);
             mDialog.dismiss();
+            if (quote == null) {
+                Toast.makeText(mContext, R.string.quote_download_failed, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(mContext, R.string.quote_download_success, Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override

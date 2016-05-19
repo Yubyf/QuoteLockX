@@ -14,6 +14,14 @@
             android:title="@string/pref_unmetered_only_title"
             android:summary="@string/pref_unmetered_only_summary"
             android:defaultValue="false"/>
+        <ListPreference
+            android:key="pref_common_quote_module"
+            android:title="@string/pref_quote_module_title"
+            android:summary="@string/pref_quote_module_summary"/>
+        <Preference
+            android:key="pref_module_preferences"
+            android:title="@string/pref_module_preferences_title"
+            android:summary="@string/pref_module_preferences_summary"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about">
         <Preference

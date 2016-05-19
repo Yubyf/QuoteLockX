@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.model;
+package com.crossbowffs.quotelock.modules.vnaas.model;
 
 public class VnaasQuote {
     private final String mText;
