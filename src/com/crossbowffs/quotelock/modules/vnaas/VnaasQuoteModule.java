@@ -10,7 +10,6 @@ import com.crossbowffs.quotelock.modules.vnaas.api.VnaasApiManager;
 import com.crossbowffs.quotelock.modules.vnaas.api.VnaasQuoteQueryParams;
 import com.crossbowffs.quotelock.modules.vnaas.model.VnaasQuote;
 import com.crossbowffs.quotelock.modules.vnaas.preferences.VnaasPrefKeys;
-import com.crossbowffs.quotelock.preferences.PrefKeys;
 
 import java.io.IOException;
 
@@ -28,7 +27,7 @@ public class VnaasQuoteModule implements QuoteModule {
     @Override
     public QuoteData getQuote(Context context) throws IOException {
         VnaasQuoteQueryParams query = new VnaasQuoteQueryParams();
-        SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(VnaasPrefKeys.PREF_VNAAS, Context.MODE_PRIVATE);
 
         String novelIdsStr = preferences.getString(VnaasPrefKeys.PREF_VNAAS_ENABLED_NOVELS, null);
         if (novelIdsStr != null) {
