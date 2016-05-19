@@ -8,6 +8,8 @@ public class PrefKeys {
     public static final String PREF_COMMON_QUOTE_MODULE = "pref_common_quote_module";
     public static final String PREF_COMMON_QUOTE_MODULE_DEFAULT = VnaasQuoteModule.class.getName();
 
+    public static final String PREF_COMMON_MODULE_PREFERENCES = "pref_module_preferences";
+
     public static final String PREF_COMMON_UNMETERED_ONLY = "pref_common_unmetered_only";
     public static final boolean PREF_COMMON_UNMETERED_ONLY_DEFAULT = false;
 

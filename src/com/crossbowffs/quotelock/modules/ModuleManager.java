@@ -3,11 +3,11 @@ package com.crossbowffs.quotelock.modules;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ModuleManager {
     private static final List<Class<? extends QuoteModule>> sModules = new ArrayList<>();
+    private static final Map<Class<? extends QuoteModule>, QuoteModule> sInstanceCache = new WeakHashMap<>();
 
     static {
         addModule(VnaasQuoteModule.class);
@@ -17,14 +17,23 @@ public class ModuleManager {
         sModules.add(module);
     }
 
+    private static QuoteModule getOrCreateModule(Class<? extends QuoteModule> moduleCls) {
+        QuoteModule module = sInstanceCache.get(moduleCls);
+        if (module == null) {
+            try {
+                module = moduleCls.newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
+                throw new AssertionError(e);
+            }
+            sInstanceCache.put(moduleCls, module);
+        }
+        return module;
+    }
+
     public static QuoteModule getModule(String className) {
-        for (Class<?> cls : sModules) {
+        for (Class<? extends QuoteModule> cls : sModules) {
             if (cls.getName().equals(className)) {
-                try {
-                    return (QuoteModule)cls.newInstance();
-                } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
-                    throw new AssertionError(e);
-                }
+                return getOrCreateModule(cls);
             }
         }
         throw new AssertionError("Module not found for class: " + className);
@@ -32,12 +41,8 @@ public class ModuleManager {
 
     public static List<QuoteModule> getAllModules() {
         ArrayList<QuoteModule> modules = new ArrayList<>();
-        for (Class<?> cls : sModules) {
-            try {
-                modules.add((QuoteModule)cls.newInstance());
-            } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
-                throw new AssertionError(e);
-            }
+        for (Class<? extends QuoteModule> cls : sModules) {
+            modules.add(getOrCreateModule(cls));
         }
         return modules;
     }
