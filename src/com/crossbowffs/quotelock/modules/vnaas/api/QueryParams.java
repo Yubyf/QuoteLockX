@@ -12,10 +12,6 @@ public class QueryParams {
         mParams.put(key, value);
     }
 
-    protected void setArrayParam(String key, Object value) {
-        mParams.put(key, value);
-    }
-
     public String buildUrl(String baseUrl) {
         try {
             if (mParams.size() == 0) {

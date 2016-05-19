@@ -8,4 +8,7 @@ public class VnaasPrefKeys {
 
     public static final String PREF_VNAAS_SOURCE_FORMAT = "pref_vnaas_source_format";
     public static final String PREF_VNAAS_SOURCE_FORMAT_DEFAULT = "\u2015%1$s\u3001%2$s";
+
+    public static final String PREF_VNAAS_API_URL = "pref_vnaas_api_url";
+    public static final String PREF_VNAAS_API_URL_DEFAULT = "http://vnaas.apsun.xyz/api/v1";
 }

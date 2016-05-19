@@ -5,7 +5,7 @@ import com.crossbowffs.quotelock.modules.vnaas.model.VnaasNovel;
 
 public class VnaasQuoteQueryParams extends QueryParams {
     public VnaasQuoteQueryParams setCharacters(long... characterIds) {
-        setArrayParam("character_id", characterIds);
+        setParam("character_id", characterIds);
         return this;
     }
 
@@ -18,7 +18,7 @@ public class VnaasQuoteQueryParams extends QueryParams {
     }
 
     public VnaasQuoteQueryParams setNovels(long... novelIds) {
-        setArrayParam("novel_id", novelIds);
+        setParam("novel_id", novelIds);
         return this;
     }
 

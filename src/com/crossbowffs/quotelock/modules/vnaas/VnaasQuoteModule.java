@@ -55,7 +55,8 @@ public class VnaasQuoteModule implements QuoteModule {
             query.setContains(contains);
         }
 
-        VnaasApiManager apiManager = new VnaasApiManager();
+        String apiUrl = preferences.getString(VnaasPrefKeys.PREF_VNAAS_API_URL, VnaasPrefKeys.PREF_VNAAS_API_URL_DEFAULT);
+        VnaasApiManager apiManager = new VnaasApiManager(apiUrl);
         VnaasQuote quote = apiManager.getRandomQuote(query);
         String quoteText = quote.getText().replaceAll("\\[(.+?)\\|(.+?)\\]", "$2");
         String charName = quote.getCharacter().getName();

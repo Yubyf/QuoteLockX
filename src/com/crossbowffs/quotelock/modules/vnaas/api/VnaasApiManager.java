@@ -14,16 +14,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class VnaasApiManager {
-    private static final String DEFAULT_API_URL = "http://vnaas.apsun.xyz/api/v1";
     private static final String NOVELS_URL = "/novels";
     private static final String CHARACTERS_URL = "/characters";
     private static final String RANDOM_QUOTE_URL = "/random_quote";
 
     private final String mBaseUrl;
-
-    public VnaasApiManager() {
-        this(DEFAULT_API_URL);
-    }
 
     public VnaasApiManager(String baseUrl) {
         mBaseUrl = baseUrl;
