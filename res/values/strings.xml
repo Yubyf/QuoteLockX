@@ -21,6 +21,6 @@
     <string name="quote_download_failed">Failed to download quote</string>
     <string name="quote_download_success">Quote downloaded successfully</string>
     <string name="module_vnaas_name">Visual Novel as a Service</string>
-    <string name="module_goodreadsQotd_name">Goodreads QOTD RSS</string>
-    <string name="module_Hitokoto_name">Hitokoto 一言</string>
+    <string name="module_goodreads_name">Goodreads QOTD RSS</string>
+    <string name="module_hitokoto_name">Hitokoto 一言</string>
 </resources>
