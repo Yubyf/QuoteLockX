@@ -67,9 +67,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         switch (preference.getKey()) {
         case PrefKeys.PREF_COMMON_MODULE_PREFERENCES:
-            Intent intent = new Intent();
-            intent.setComponent(mModuleConfigActivity);
-            startActivity(intent);
+            if (mModuleConfigActivity != null) {
+                Intent intent = new Intent();
+                intent.setComponent(mModuleConfigActivity);
+                startActivity(intent);
+            }
             return true;
         case PrefKeys.PREF_ABOUT_TWITTER:
             startBrowserActivity(TWITTER_URL);
@@ -105,6 +107,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         QuoteModule module = ModuleManager.getModule(moduleClsName);
         ComponentName configActivity = module.getConfigActivity(getActivity());
         Preference configActivityLink = findPreference(PrefKeys.PREF_COMMON_MODULE_PREFERENCES);
+        if (configActivityLink == null) {
+            // Workaround for a weird crash bug on initial app run
+            return;
+        }
         if (configActivity == null) {
             configActivityLink.setEnabled(false);
             mModuleConfigActivity = null;
