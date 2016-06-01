@@ -8,17 +8,13 @@ import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.utils.IOUtils;
-import com.crossbowffs.quotelock.utils.Xlog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class HitokotoQuoteModule implements QuoteModule {
-
     private static final String TAG = HitokotoQuoteModule.class.getSimpleName();
 
     @Override
@@ -33,7 +29,6 @@ public class HitokotoQuoteModule implements QuoteModule {
 
     @Override
     public QuoteData getQuote(Context context) throws IOException, JSONException {
-
         String quoteJson = IOUtils.downloadString("http://api.hitokoto.us/rand");
 
         JSONObject quoteJsonObject = new JSONObject(quoteJson);

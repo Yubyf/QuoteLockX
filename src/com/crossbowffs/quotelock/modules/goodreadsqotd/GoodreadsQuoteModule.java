@@ -10,9 +10,6 @@ import com.crossbowffs.quotelock.utils.IOUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +28,6 @@ public class GoodreadsQuoteModule implements QuoteModule {
 
     @Override
     public QuoteData getQuote(Context context) throws IOException {
-
         String quoteAllText = IOUtils.downloadString("http://www.goodreads.com/quotes_of_the_day/rss");
 
         String regexQuoteText = "(?<=<div>\n).*?(?=\n</div>)";
@@ -45,16 +41,16 @@ public class GoodreadsQuoteModule implements QuoteModule {
         boolean quoteTextStatus = quoteTextMatcher.find();
         boolean quoteCharacterStatus = quoteCharacterMatcher.find();
         Xlog.i(TAG, "Quote Text 提取成功？：%s", quoteTextStatus);
-        Xlog.i(TAG, "Quote Text：%s", quoteTextMatcher.group(0));
         Xlog.i(TAG, "Quote Character 提取成功？：%s", quoteCharacterStatus);
-        Xlog.i(TAG, "Quote Character ：%s", quoteCharacterMatcher.group(0));
 
-        if (quoteTextStatus || quoteCharacterStatus) {
+        if (quoteTextStatus && quoteCharacterStatus) {
             String quoteText = quoteTextMatcher.group(0);
             String quoteSource = String.format("― %s", quoteCharacterMatcher.group(0));
+            Xlog.i(TAG, "Quote Text：%s", quoteText);
+            Xlog.i(TAG, "Quote Source ：%s", quoteSource);
             return new QuoteData(quoteText, quoteSource);
         } else {
-            return  null;
+            return null;
         }
     }
 }
