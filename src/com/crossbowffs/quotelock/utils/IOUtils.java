@@ -26,7 +26,7 @@ public class IOUtils {
 
     public static String downloadString(String urlString) throws IOException {
         URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         int responseCode = connection.getResponseCode();
         if (responseCode == 200) {
             return streamToString(connection.getInputStream());

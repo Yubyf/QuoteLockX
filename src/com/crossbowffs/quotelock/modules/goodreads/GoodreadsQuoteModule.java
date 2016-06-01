@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.modules.wikiquote;
+package com.crossbowffs.quotelock.modules.goodreads;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,12 +13,12 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WikiquoteQuoteModule implements QuoteModule {
-    private static final String TAG = WikiquoteQuoteModule.class.getSimpleName();
+public class GoodreadsQuoteModule implements QuoteModule {
+    private static final String TAG = GoodreadsQuoteModule.class.getSimpleName();
 
     @Override
     public String getDisplayName(Context context) {
-        return context.getString(R.string.module_wikiquote_name);
+        return context.getString(R.string.module_goodreads_name);
     }
 
     @Override
@@ -28,24 +28,17 @@ public class WikiquoteQuoteModule implements QuoteModule {
 
     @Override
     public QuoteData getQuote(Context context) throws IOException {
-        String quotePage = IOUtils.downloadString("https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5");
+        String quoteAllText = IOUtils.downloadString("http://www.goodreads.com/quotes_of_the_day/rss");
 
-        Matcher quoteAllTextMatcher = Pattern.compile("(?<=<td>).*?(?=</td>)").matcher(quotePage);
-        if (!quoteAllTextMatcher.find()) {
-            Xlog.e(TAG, "Failed to parse quote data");
-            return null;
-        }
-        String quoteAllText = quoteAllTextMatcher.group(0).replaceAll("<.*?>", "");
-
-        Matcher quoteTextMatcher = Pattern.compile("^.*?(?=(\\s|)(——|--))").matcher(quoteAllText);
+        Matcher quoteTextMatcher = Pattern.compile("(?<=<div>\n).*?(?=\n</div>)").matcher(quoteAllText);
         if (!quoteTextMatcher.find()) {
             Xlog.e(TAG, "Failed to parse quote text");
             return null;
         }
 
-        Matcher quoteSourceMatcher = Pattern.compile("(?<=(——|--)\\s).*?$").matcher(quoteAllText);
+        Matcher quoteSourceMatcher = Pattern.compile("(?<=\">).+?(?=</a>)").matcher(quoteAllText);
         if (!quoteSourceMatcher.find()) {
-            Xlog.e(TAG, "Failed to parse quote text");
+            Xlog.e(TAG, "Failed to parse quote source");
             return null;
         }
 

@@ -1,7 +1,7 @@
 package com.crossbowffs.quotelock.modules;
 
 import com.crossbowffs.quotelock.api.QuoteModule;
-import com.crossbowffs.quotelock.modules.goodreadsqotd.GoodreadsQuoteModule;
+import com.crossbowffs.quotelock.modules.goodreads.GoodreadsQuoteModule;
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;
 import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
 import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule;
@@ -14,8 +14,8 @@ public class ModuleManager {
 
     static {
         addModule(VnaasQuoteModule.class);
-        addModule(GoodreadsQuoteModule.class);
         addModule(HitokotoQuoteModule.class);
+        addModule(GoodreadsQuoteModule.class);
         addModule(WikiquoteQuoteModule.class);
     }
 
@@ -28,7 +28,7 @@ public class ModuleManager {
         if (module == null) {
             try {
                 module = moduleCls.newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                 throw new AssertionError(e);
             }
             sInstanceCache.put(moduleCls, module);

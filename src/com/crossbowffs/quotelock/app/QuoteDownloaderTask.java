@@ -37,6 +37,8 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
     protected void onPostExecute(QuoteData quote) {
         if (quote != null) {
             Xlog.i(TAG, "Downloaded new quote");
+            Xlog.i(TAG, "  Text: %s", quote.getQuoteText());
+            Xlog.i(TAG, "  Source: %s", quote.getQuoteSource());
             mContext.getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE)
                 .edit()
                 .putString(PrefKeys.PREF_QUOTES_TEXT, quote.getQuoteText())
