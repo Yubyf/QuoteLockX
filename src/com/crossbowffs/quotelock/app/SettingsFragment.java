@@ -20,10 +20,6 @@ import com.crossbowffs.quotelock.utils.JobUtils;
 import java.util.List;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-    private static final String TWITTER_URL = "https://twitter.com/crossbowffs";
-    private static final String GITHUB_URL = "https://github.com/apsun/QuoteLock";
-    private static final String VNAAS_URL = "http://vnaas.apsun.xyz/";
-
     private int mVersionTapCount = 0;
     private ComponentName mModuleConfigActivity = null;
 
@@ -31,8 +27,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getPreferenceManager().setSharedPreferencesName(PrefKeys.PREF_COMMON);
-        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         addPreferencesFromResource(R.xml.settings);
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
         // Update version info
         String version = String.format("%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE);
@@ -67,20 +63,16 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         switch (preference.getKey()) {
         case PrefKeys.PREF_COMMON_MODULE_PREFERENCES:
-            if (mModuleConfigActivity != null) {
-                Intent intent = new Intent();
-                intent.setComponent(mModuleConfigActivity);
-                startActivity(intent);
-            }
+            startActivity(mModuleConfigActivity);
             return true;
-        case PrefKeys.PREF_ABOUT_TWITTER:
-            startBrowserActivity(TWITTER_URL);
+        case PrefKeys.PREF_ABOUT_AUTHOR_CROSSBOWFFS:
+            startBrowserActivity("https://twitter.com/crossbowffs");
+            return true;
+        case PrefKeys.PREF_ABOUT_AUTHOR_YUBYF:
+            startBrowserActivity("https://github.com/Yubyf");
             return true;
         case PrefKeys.PREF_ABOUT_GITHUB:
-            startBrowserActivity(GITHUB_URL);
-            return true;
-        case PrefKeys.PREF_ABOUT_VNAAS:
-            startBrowserActivity(VNAAS_URL);
+            startBrowserActivity("https://github.com/apsun/QuoteLock");
             return true;
         case PrefKeys.PREF_ABOUT_VERSION:
             if (++mVersionTapCount == 7) {
@@ -107,16 +99,20 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         QuoteModule module = ModuleManager.getModule(moduleClsName);
         ComponentName configActivity = module.getConfigActivity(getActivity());
         Preference configActivityLink = findPreference(PrefKeys.PREF_COMMON_MODULE_PREFERENCES);
-        if (configActivityLink == null) {
-            // Workaround for a weird crash bug on initial app run
-            return;
-        }
         if (configActivity == null) {
             configActivityLink.setEnabled(false);
             mModuleConfigActivity = null;
         } else {
             configActivityLink.setEnabled(true);
             mModuleConfigActivity = configActivity;
+        }
+    }
+
+    private void startActivity(ComponentName componentName) {
+        if (componentName != null) {
+            Intent intent = new Intent();
+            intent.setComponent(componentName);
+            startActivity(intent);
         }
     }
 
