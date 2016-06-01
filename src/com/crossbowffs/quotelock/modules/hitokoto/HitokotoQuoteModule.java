@@ -41,10 +41,8 @@ public class HitokotoQuoteModule implements QuoteModule {
         String quoteText = quoteJsonObject.getString("hitokoto");
         String quoteSource = "";
 
-        if (quoteSourceProject == null || TextUtils.isEmpty(quoteSourceProject)) {
-            Xlog.i(TAG, "Hitokoto Quote: 来源为空");
-        } else {
-            quoteSource = String.format("― %1$s", quoteSourceProject);
+        if (!TextUtils.isEmpty(quoteSourceProject)) {
+            quoteSource = String.format("― %s", quoteSourceProject);
         }
 
         return new QuoteData(quoteText, quoteSource);
@@ -57,19 +55,16 @@ public class HitokotoQuoteModule implements QuoteModule {
      * @throws IOException
      */
     public String getHitokotoApi() throws IOException {
-        URL urlToHandle;
-        int responsecode;
-        HttpURLConnection urlConnection;
-        urlToHandle = new URL("http://api.hitokoto.us/rand");
-        urlConnection = (HttpURLConnection) urlToHandle.openConnection();
-        responsecode = urlConnection.getResponseCode();
-        if (responsecode == 200) {
+        URL urlToHandle = new URL("http://api.hitokoto.us/rand");
+        HttpURLConnection urlConnection = (HttpURLConnection) urlToHandle.openConnection();
+        int responseCode = urlConnection.getResponseCode();
+        if (responseCode == 200) {
             String xml = IOUtils.streamToString(urlConnection.getInputStream());
             Xlog.i(TAG, "获取到的源码：%s", xml);
             return xml;
         } else {
-            Xlog.i(TAG, "获取不到网页的源码，服务器响应代码为：%s", responsecode);
-            return null;
+            Xlog.i(TAG, "获取不到网页的源码，服务器响应代码为：%s", responseCode);
+            throw new IOException();
         }
 
     }
