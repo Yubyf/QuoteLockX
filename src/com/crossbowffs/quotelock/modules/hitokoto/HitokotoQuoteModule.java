@@ -34,7 +34,7 @@ public class HitokotoQuoteModule implements QuoteModule {
     @Override
     public QuoteData getQuote(Context context) throws IOException, JSONException {
 
-        String quoteJson = getHitokotoApi();
+        String quoteJson = IOUtils.downloadString("http://api.hitokoto.us/rand");
 
         JSONObject quoteJsonObject = new JSONObject(quoteJson);
         String quoteSourceProject = quoteJsonObject.getString("source");
@@ -46,26 +46,5 @@ public class HitokotoQuoteModule implements QuoteModule {
         }
 
         return new QuoteData(quoteText, quoteSource);
-    }
-
-    /**
-     * Get the json from the api of Hitokoto.us.
-     *
-     * @return the string of json
-     * @throws IOException
-     */
-    public String getHitokotoApi() throws IOException {
-        URL urlToHandle = new URL("http://api.hitokoto.us/rand");
-        HttpURLConnection urlConnection = (HttpURLConnection) urlToHandle.openConnection();
-        int responseCode = urlConnection.getResponseCode();
-        if (responseCode == 200) {
-            String xml = IOUtils.streamToString(urlConnection.getInputStream());
-            Xlog.i(TAG, "获取到的源码：%s", xml);
-            return xml;
-        } else {
-            Xlog.i(TAG, "获取不到网页的源码，服务器响应代码为：%s", responseCode);
-            throw new IOException();
-        }
-
     }
 }

@@ -23,5 +23,5 @@
     <string name="module_vnaas_name">Visual Novel as a Service</string>
     <string name="module_goodreads_name">Goodreads QOTD RSS</string>
     <string name="module_hitokoto_name">Hitokoto 一言</string>
-    <string name="module_wikiquote_name">Wikiquote QOTD</string>
+    <string name="module_wikiquote_name">Wikiquote QOTD (zh)</string>
 </resources>

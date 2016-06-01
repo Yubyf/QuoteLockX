@@ -32,7 +32,7 @@ public class GoodreadsQuoteModule implements QuoteModule {
     @Override
     public QuoteData getQuote(Context context) throws IOException {
 
-        String quoteAllText = getRss();
+        String quoteAllText = IOUtils.downloadString("http://www.goodreads.com/quotes_of_the_day/rss");
 
         String regexQuoteText = "(?<=<div>\n).*?(?=\n</div>)";
         Pattern quoteTextPattern = Pattern.compile(regexQuoteText);
@@ -49,32 +49,12 @@ public class GoodreadsQuoteModule implements QuoteModule {
         Xlog.i(TAG, "Quote Character 提取成功？：%s", quoteCharacterStatus);
         Xlog.i(TAG, "Quote Character ：%s", quoteCharacterMatcher.group(0));
 
-        if (quoteTextStatus | quoteCharacterStatus) {
+        if (quoteTextStatus || quoteCharacterStatus) {
             String quoteText = quoteTextMatcher.group(0);
             String quoteSource = String.format("― %s", quoteCharacterMatcher.group(0));
             return new QuoteData(quoteText, quoteSource);
         } else {
             return  null;
-        }
-    }
-
-    /**
-     * Get the quotes_of_the_day rss feed from the Goodreads.com
-     *
-     * @return the string of xml
-     * @throws IOException
-     */
-    public String getRss() throws IOException {
-        URL urlToHandle = new URL("http://www.goodreads.com/quotes_of_the_day/rss");
-        HttpURLConnection urlConnection = (HttpURLConnection) urlToHandle.openConnection();
-        int responseCode = urlConnection.getResponseCode();
-        if (responseCode == 200) {
-            String xml = IOUtils.streamToString(urlConnection.getInputStream());
-            Xlog.i(TAG, "获取到的源码：%s", xml);
-            return xml;
-        } else {
-            Xlog.i(TAG, "获取不到网页的源码，服务器响应代码为：%s", responseCode);
-            throw new IOException();
         }
     }
 }

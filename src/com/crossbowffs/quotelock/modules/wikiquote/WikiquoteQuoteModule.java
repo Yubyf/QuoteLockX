@@ -33,7 +33,7 @@ public class WikiquoteQuoteModule implements QuoteModule {
     @Override
     public QuoteData getQuote(Context context) throws IOException {
 
-        String quotePage = getWikiquote();
+        String quotePage = IOUtils.downloadString("https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5");
         Xlog.i(TAG, "Quote page 提取：%s", quotePage);
 
         String regexQuoteAllText = "(?<=<td>).*?(?=</td>)";
@@ -59,32 +59,12 @@ public class WikiquoteQuoteModule implements QuoteModule {
         Xlog.i(TAG, "Quote Character 提取成功？：%s", quoteCharacterStatus);
         Xlog.i(TAG, "Quote Character ：%s", quoteCharacterMatcher.group(0));
 
-        if (quoteTextStatus | quoteCharacterStatus) {
+        if (quoteTextStatus || quoteCharacterStatus) {
             String quoteText = quoteTextMatcher.group(0);
             String quoteSource = String.format("―%s", quoteCharacterMatcher.group(0));
             return new QuoteData(quoteText, quoteSource);
         } else {
             return null;
-        }
-    }
-
-    /**
-     * Get the quotes_of_the_day html from the Wikiquote.org
-     *
-     * @return the string of html
-     * @throws IOException
-     */
-    public String getWikiquote() throws IOException {
-        URL urlToHandle = new URL("https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5");
-        HttpURLConnection urlConnection = (HttpURLConnection) urlToHandle.openConnection();
-        int responseCode = urlConnection.getResponseCode();
-        if (responseCode == 200) {
-            String html = IOUtils.streamToString(urlConnection.getInputStream());
-            Xlog.i(TAG, "获取到的源码：%s", html);
-            return html;
-        } else {
-            Xlog.i(TAG, "获取不到网页的源码，服务器响应代码为：%s", responseCode);
-            throw new IOException();
         }
     }
 }
