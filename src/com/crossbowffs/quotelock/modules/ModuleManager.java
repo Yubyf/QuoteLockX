@@ -4,6 +4,7 @@ import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.goodreadsqotd.GoodreadsQuoteModule;
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;
 import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
+import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule;
 
 import java.util.*;
 
@@ -15,6 +16,7 @@ public class ModuleManager {
         addModule(VnaasQuoteModule.class);
         addModule(GoodreadsQuoteModule.class);
         addModule(HitokotoQuoteModule.class);
+        addModule(WikiquoteQuoteModule.class);
     }
 
     private static void addModule(Class<? extends QuoteModule> module) {
