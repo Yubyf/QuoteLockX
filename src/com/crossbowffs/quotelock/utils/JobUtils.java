@@ -18,6 +18,7 @@ public class JobUtils {
         if (refreshPeriodSecs < 60) {
             Xlog.i(TAG, "Refresh period too short, setting to 60 seconds");
             refreshPeriodSecs = 60;
+            preferences.edit().putString(PrefKeys.PREF_COMMON_REFRESH_RATE, String.valueOf(refreshPeriodSecs)).apply();
         }
         boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
 
@@ -32,7 +33,7 @@ public class JobUtils {
         scheduler.schedule(jobInfo);
 
         Xlog.i(TAG, "Scheduled recurring quote download task");
-        Xlog.i(TAG, "  Refresh period: %d", refreshPeriodSecs);
-        Xlog.i(TAG, "  Unmetered only: %s", unmeteredOnly);
+        Xlog.i(TAG, "Refresh period: %d", refreshPeriodSecs);
+        Xlog.i(TAG, "Unmetered only: %s", unmeteredOnly);
     }
 }
