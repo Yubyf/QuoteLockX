@@ -45,12 +45,12 @@ public class WikiquoteQuoteModule implements QuoteModule {
 
         Matcher quoteSourceMatcher = Pattern.compile("(?<=(——|--)\\s).*?$").matcher(quoteAllText);
         if (!quoteSourceMatcher.find()) {
-            Xlog.e(TAG, "Failed to parse quote text");
+            Xlog.e(TAG, "Failed to parse quote source");
             return null;
         }
 
         String quoteText = quoteTextMatcher.group(0);
-        String quoteSource = String.format("― %s", quoteSourceMatcher.group(0));
+        String quoteSource = String.format("―%s", quoteSourceMatcher.group(0));
         return new QuoteData(quoteText, quoteSource);
     }
 }

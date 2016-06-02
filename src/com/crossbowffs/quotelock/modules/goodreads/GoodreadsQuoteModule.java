@@ -43,7 +43,7 @@ public class GoodreadsQuoteModule implements QuoteModule {
         }
 
         String quoteText = quoteTextMatcher.group(0);
-        String quoteSource = String.format("― %s", quoteSourceMatcher.group(0));
+        String quoteSource = String.format("―%s", quoteSourceMatcher.group(0));
         return new QuoteData(quoteText, quoteSource);
     }
 }
