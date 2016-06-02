@@ -11,11 +11,11 @@
     <string name="pref_module_preferences_title">Quote provider preferences</string>
     <string name="pref_module_preferences_summary">Manage provider-specific settings</string>
     <string name="pref_about">About</string>
-    <string name="pref_about_author_crossbowffs">App and VNaaS provider</string>
+    <string name="pref_about_author_crossbowffs">App and VNaaS quote provider</string>
     <string name="pref_about_author_yubyf">Additional quote providers</string>
     <string name="pref_about_github">View project on GitHub</string>
     <string name="pref_about_version">Version</string>
-    <string name="pref_about_easter_egg">おっぱいなのです！</string>
+    <string name="pref_about_easter_egg">今日のあなたはバカバカね…</string>
     <string name="refesh_quote">Refresh quote</string>
     <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>

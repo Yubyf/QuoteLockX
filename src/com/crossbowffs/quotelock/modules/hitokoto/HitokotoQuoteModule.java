@@ -37,7 +37,7 @@ public class HitokotoQuoteModule implements QuoteModule {
         String quoteSource = "";
 
         if (!TextUtils.isEmpty(quoteSourceProject)) {
-            quoteSource = String.format("― %s", quoteSourceProject);
+            quoteSource = String.format("―%s", quoteSourceProject);
         }
 
         return new QuoteData(quoteText, quoteSource);
