@@ -13,7 +13,6 @@ public class PrefKeys {
     public static final String PREF_COMMON_MODULE_PREFERENCES = "pref_module_preferences";
 
     public static final String PREF_QUOTES = "quotes";
-    public static final String PREF_QUOTES_LAST_UPDATED = "pref_quotes_last_updated";
     public static final String PREF_QUOTES_TEXT = "pref_quotes_text";
     public static final String PREF_QUOTES_SOURCE = "pref_quotes_source";
 

@@ -42,7 +42,6 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
             Xlog.i(TAG, "  Source: %s", quote.getQuoteSource());
             mContext.getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE)
                 .edit()
-                .putLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, System.currentTimeMillis())
                 .putString(PrefKeys.PREF_QUOTES_TEXT, quote.getQuoteText())
                 .putString(PrefKeys.PREF_QUOTES_SOURCE, quote.getQuoteSource())
                 .apply();
