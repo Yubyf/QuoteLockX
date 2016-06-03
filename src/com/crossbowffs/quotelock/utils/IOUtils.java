@@ -27,11 +27,15 @@ public class IOUtils {
     public static String downloadString(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        int responseCode = connection.getResponseCode();
-        if (responseCode == 200) {
-            return streamToString(connection.getInputStream());
-        } else {
-            throw new IOException("Server returned non-200 status code: " + responseCode);
+        try {
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                return streamToString(connection.getInputStream());
+            } else {
+                throw new IOException("Server returned non-200 status code: " + responseCode);
+            }
+        } finally {
+            connection.disconnect();
         }
     }
 }

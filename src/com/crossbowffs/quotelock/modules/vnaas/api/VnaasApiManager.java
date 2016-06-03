@@ -9,9 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class VnaasApiManager {
     private static final String NOVELS_URL = "/novels";
@@ -74,15 +71,8 @@ public class VnaasApiManager {
         }
     }
 
-    private String fetchString(String urlString) throws IOException {
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        InputStream inputStream = connection.getInputStream();
-        return IOUtils.streamToString(inputStream);
-    }
-
     private JSONObject fetchJsonObject(String urlString) throws IOException {
-        String jsonString = fetchString(urlString);
+        String jsonString = IOUtils.downloadString(urlString);
         try {
             return new JSONObject(jsonString);
         } catch (JSONException e) {
@@ -91,7 +81,7 @@ public class VnaasApiManager {
     }
 
     private JSONArray fetchJsonArray(String urlString) throws IOException {
-        String jsonString = fetchString(urlString);
+        String jsonString = IOUtils.downloadString(urlString);
         try {
             return new JSONArray(jsonString);
         } catch (JSONException e) {

@@ -2,12 +2,8 @@ package com.crossbowffs.quotelock.app;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import com.crossbowffs.quotelock.api.QuoteData;
-import com.crossbowffs.quotelock.preferences.PrefKeys;
 import com.crossbowffs.quotelock.utils.JobUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
 
@@ -49,11 +45,6 @@ public class QuoteDownloaderService extends JobService {
             return false;
         }
 
-        if (checkMeteredNetwork()) {
-            Xlog.i(TAG, "Current network is metered, ignoring");
-            return false;
-        }
-
         mUpdaterTask = new ServiceQuoteDownloaderTask(params);
         mUpdaterTask.execute();
         return true;
@@ -66,16 +57,5 @@ public class QuoteDownloaderService extends JobService {
             return true;
         }
         return false;
-    }
-
-    private boolean checkMeteredNetwork() {
-        SharedPreferences preferences = getSharedPreferences(PrefKeys.PREF_COMMON, MODE_PRIVATE);
-        boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
-        if (!unmeteredOnly) {
-            return false;
-        }
-
-        ConnectivityManager manager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        return manager.isActiveNetworkMetered();
     }
 }

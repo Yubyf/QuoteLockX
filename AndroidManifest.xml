@@ -20,9 +20,10 @@
         <service
             android:name="com.crossbowffs.quotelock.app.QuoteDownloaderService"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
-        <receiver android:name=".app.BootReceiver">
+        <receiver android:name=".app.CommonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
