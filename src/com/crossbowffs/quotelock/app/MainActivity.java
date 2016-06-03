@@ -57,10 +57,8 @@ public class MainActivity extends Activity {
             .commit();
 
         // In case the user opens the app for the first time *after* rebooting,
-        // we want to make sure the background job has been created. This has the
-        // side effect of resetting the time until the next refresh, but for most
-        // users that won't be noticable.
-        JobUtils.createQuoteDownloadJob(this);
+        // we want to make sure the background job has been created.
+        JobUtils.createQuoteDownloadJob(this, false);
     }
 
     @Override

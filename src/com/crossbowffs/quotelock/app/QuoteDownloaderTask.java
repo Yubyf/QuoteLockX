@@ -25,7 +25,7 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
     @Override
     protected QuoteData doInBackground(Void... params) {
         Xlog.i(TAG, "Attempting to download new quote...");
-        Xlog.i(TAG, "  Source: %s", mModule.getDisplayName(mContext));
+        Xlog.i(TAG, "Source: %s", mModule.getDisplayName(mContext));
         try {
             return mModule.getQuote(mContext);
         } catch (Exception e) {
@@ -38,8 +38,8 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
     protected void onPostExecute(QuoteData quote) {
         if (quote != null) {
             Xlog.i(TAG, "Downloaded new quote");
-            Xlog.i(TAG, "  Text: %s", quote.getQuoteText());
-            Xlog.i(TAG, "  Source: %s", quote.getQuoteSource());
+            Xlog.i(TAG, "Text: %s", quote.getQuoteText());
+            Xlog.i(TAG, "Source: %s", quote.getQuoteSource());
             mContext.getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE)
                 .edit()
                 .putString(PrefKeys.PREF_QUOTES_TEXT, quote.getQuoteText())
