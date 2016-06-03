@@ -61,7 +61,7 @@ public class QuoteDownloaderService extends JobService {
     public boolean onStopJob(JobParameters params) {
         if (mUpdaterTask != null && mUpdaterTask.getStatus() != AsyncTask.Status.FINISHED) {
             mUpdaterTask.cancel(true);
-            return true;
+            Xlog.e(TAG, "Aborted download job");
         }
         return false;
     }
