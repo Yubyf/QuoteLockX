@@ -58,9 +58,8 @@ public class JobUtils {
             refreshPeriodSecs = 60;
             preferences.edit().putString(PrefKeys.PREF_COMMON_REFRESH_RATE, String.valueOf(refreshPeriodSecs)).apply();
         }
-        boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
-
         long refreshPeriodMs = refreshPeriodSecs * 1000;
+        boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
         int networkType = unmeteredOnly ? JobInfo.NETWORK_TYPE_UNMETERED : JobInfo.NETWORK_TYPE_ANY;
 
         JobInfo jobInfo = new JobInfo.Builder(JOB_ID, new ComponentName(context, QuoteDownloaderService.class))
