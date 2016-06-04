@@ -28,6 +28,11 @@ public class HitokotoQuoteModule implements QuoteModule {
     }
 
     @Override
+    public int getMinimumRefreshInterval(Context context) {
+        return 0;
+    }
+
+    @Override
     public QuoteData getQuote(Context context) throws IOException, JSONException {
         String quoteJson = IOUtils.downloadString("http://api.hitokoto.us/rand");
 

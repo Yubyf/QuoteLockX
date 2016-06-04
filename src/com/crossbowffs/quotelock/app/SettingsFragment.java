@@ -49,8 +49,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         quoteModulesPref.setEntries(moduleNames);
         quoteModulesPref.setEntryValues(moduleClsNames);
 
-        // Update quote module config link
-        updateConfigActivityLink();
+        // Update preferences related to module
+        onSelectedModuleChanged();
     }
 
     @Override
@@ -89,22 +89,40 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         JobUtils.createQuoteDownloadJob(getActivity(), true);
         if (PrefKeys.PREF_COMMON_QUOTE_MODULE.equals(key)) {
-            updateConfigActivityLink();
+            onSelectedModuleChanged();
         }
     }
 
-    private void updateConfigActivityLink() {
+    private void onSelectedModuleChanged() {
         SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
         String moduleClsName = prefs.getString(PrefKeys.PREF_COMMON_QUOTE_MODULE, PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
         QuoteModule module = ModuleManager.getModule(moduleClsName);
+
+        // Update config activity preference
         ComponentName configActivity = module.getConfigActivity(getActivity());
-        Preference configActivityLink = findPreference(PrefKeys.PREF_COMMON_MODULE_PREFERENCES);
+        Preference configActivityPref = findPreference(PrefKeys.PREF_COMMON_MODULE_PREFERENCES);
         if (configActivity == null) {
-            configActivityLink.setEnabled(false);
+            configActivityPref.setEnabled(false);
+            configActivityPref.setSummary(getString(R.string.pref_module_preferences_summary_alt));
             mModuleConfigActivity = null;
         } else {
-            configActivityLink.setEnabled(true);
+            configActivityPref.setEnabled(true);
+            configActivityPref.setSummary(getString(R.string.pref_module_preferences_summary));
             mModuleConfigActivity = configActivity;
+        }
+
+        // Set refresh interval override and disable preference if necessary.
+        // This is kind of a lazy solution, but it's better than nothing.
+        int minRefreshInterval = module.getMinimumRefreshInterval(getActivity());
+        Preference refreshIntervalPref = findPreference(PrefKeys.PREF_COMMON_REFRESH_RATE);
+        if (minRefreshInterval != 0) {
+            prefs.edit().putInt(PrefKeys.PREF_COMMON_REFRESH_RATE_OVERRIDE, minRefreshInterval).apply();
+            refreshIntervalPref.setEnabled(false);
+            refreshIntervalPref.setSummary(getString(R.string.pref_refresh_interval_summary_alt));
+        } else {
+            prefs.edit().remove(PrefKeys.PREF_COMMON_REFRESH_RATE_OVERRIDE).apply();
+            refreshIntervalPref.setEnabled(true);
+            refreshIntervalPref.setSummary(getString(R.string.pref_refresh_interval_summary));
         }
     }
 

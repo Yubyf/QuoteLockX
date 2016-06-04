@@ -52,24 +52,19 @@ public class JobUtils {
         }
 
         SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
-        int refreshPeriodSecs = Integer.parseInt(preferences.getString(PrefKeys.PREF_COMMON_REFRESH_RATE, PrefKeys.PREF_COMMON_REFRESH_RATE_DEFAULT));
-        if (refreshPeriodSecs < 60) {
-            Xlog.i(TAG, "Refresh period too short, setting to 60 seconds");
-            refreshPeriodSecs = 60;
-            preferences.edit().putString(PrefKeys.PREF_COMMON_REFRESH_RATE, String.valueOf(refreshPeriodSecs)).apply();
-        }
-        long refreshPeriodMs = refreshPeriodSecs * 1000;
+        int refreshInterval = getRefreshInterval(preferences);
+        long refreshIntervalMs = refreshInterval * 1000;
         boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
         int networkType = unmeteredOnly ? JobInfo.NETWORK_TYPE_UNMETERED : JobInfo.NETWORK_TYPE_ANY;
 
         JobInfo jobInfo = new JobInfo.Builder(JOB_ID, new ComponentName(context, QuoteDownloaderService.class))
-            .setPeriodic(refreshPeriodMs)
+            .setPeriodic(refreshIntervalMs)
             .setRequiredNetworkType(networkType)
             .build();
         scheduler.schedule(jobInfo);
 
         Xlog.i(TAG, "Scheduled quote download job");
-        Xlog.i(TAG, "Refresh period: %d", refreshPeriodSecs);
+        Xlog.i(TAG, "Refresh period: %d", refreshInterval);
         Xlog.i(TAG, "Unmetered only: %s", unmeteredOnly);
     }
 
@@ -77,5 +72,18 @@ public class JobUtils {
         JobScheduler scheduler = (JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         scheduler.cancel(JOB_ID);
         Xlog.i(TAG, "Canceled quote download job");
+    }
+
+    public static int getRefreshInterval(SharedPreferences preferences) {
+        int refreshInterval = preferences.getInt(PrefKeys.PREF_COMMON_REFRESH_RATE_OVERRIDE, 0);
+        if (refreshInterval == 0) {
+            String refreshIntervalStr = preferences.getString(PrefKeys.PREF_COMMON_REFRESH_RATE, PrefKeys.PREF_COMMON_REFRESH_RATE_DEFAULT);
+            refreshInterval = Integer.parseInt(refreshIntervalStr);
+        }
+        if (refreshInterval < 60) {
+            Xlog.w(TAG, "Refresh period too short, clamping to 60 seconds");
+            refreshInterval = 60;
+        }
+        return refreshInterval;
     }
 }
