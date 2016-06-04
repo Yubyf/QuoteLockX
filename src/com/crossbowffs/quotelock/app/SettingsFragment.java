@@ -90,6 +90,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         JobUtils.createQuoteDownloadJob(getActivity(), true);
         if (PrefKeys.PREF_COMMON_QUOTE_MODULE.equals(key)) {
             onSelectedModuleChanged();
+            ((MainActivity)getActivity()).refreshQuote();
         }
     }
 

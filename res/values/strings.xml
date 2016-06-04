@@ -26,4 +26,6 @@
     <string name="module_hitokoto_name">Hitokoto 一言</string>
     <string name="module_goodreads_name">Goodreads QotD</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
+    <string name="open_quotelock_app_line1">Welcome to QuoteLock!</string>
+    <string name="open_quotelock_app_line2">Please open the configuration app</string>
 </resources>

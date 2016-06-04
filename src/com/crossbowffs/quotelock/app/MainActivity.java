@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
             mDialog = new ProgressDialog(mContext);
             mDialog.setMessage(getString(R.string.downloading_quote));
             mDialog.setIndeterminate(true);
+            mDialog.setCancelable(false);
             mDialog.show();
         }
 
@@ -72,10 +73,14 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case R.id.refesh_quote:
-            new ActivityQuoteDownloaderTask().execute();
+            refreshQuote();
             return true;
         default:
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void refreshQuote() {
+        new ActivityQuoteDownloaderTask().execute();
     }
 }
