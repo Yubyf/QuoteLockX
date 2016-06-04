@@ -17,6 +17,12 @@ public interface QuoteModule {
     ComponentName getConfigActivity(Context context);
 
     /**
+     * Returns a minimum refresh interval (in seconds) for the quote source.
+     * If there is no minimum refresh interval, returns 0.
+     */
+    int getMinimumRefreshInterval(Context context);
+
+    /**
      * Gets a new quote from the quote provider. This method is executed on a
      * background thread, so you should not need to use any async calls.
      * May return {@code null} or throw an exception in the case of an error.

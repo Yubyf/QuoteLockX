@@ -27,6 +27,11 @@ public class GoodreadsQuoteModule implements QuoteModule {
     }
 
     @Override
+    public int getMinimumRefreshInterval(Context context) {
+        return 86400;
+    }
+
+    @Override
     public QuoteData getQuote(Context context) throws IOException {
         String quoteAllText = IOUtils.downloadString("http://www.goodreads.com/quotes_of_the_day/rss");
 

@@ -72,11 +72,9 @@ public class QuoteDownloaderService extends JobService {
         // executed too frequently (sometimes once every few seconds)
         // I'm not sure what the cause is; it's either incorrect API usage
         // or an Android bug.
-        SharedPreferences quotePrefs = getSharedPreferences(PrefKeys.PREF_QUOTES, MODE_PRIVATE);
-        long lastUpdated = quotePrefs.getLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, 0);
         SharedPreferences commonPrefs = getSharedPreferences(PrefKeys.PREF_COMMON, MODE_PRIVATE);
-        String refreshRateStr = commonPrefs.getString(PrefKeys.PREF_COMMON_REFRESH_RATE, PrefKeys.PREF_COMMON_REFRESH_RATE_DEFAULT);
-        int refreshRate = Integer.parseInt(refreshRateStr);
+        long lastUpdated = commonPrefs.getLong(PrefKeys.PREF_COMMON_QUOTE_LAST_UPDATED, 0);
+        int refreshRate = JobUtils.getRefreshInterval(commonPrefs);
         long currentTime = System.currentTimeMillis();
         Xlog.d(TAG, "Last update time: " + lastUpdated);
         Xlog.d(TAG, "Current time: " + currentTime);
@@ -87,7 +85,7 @@ public class QuoteDownloaderService extends JobService {
         if (Math.abs(currentTime - lastUpdated) < refreshRate * 800) {
             return true;
         } else {
-            quotePrefs.edit().putLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, currentTime).apply();
+            commonPrefs.edit().putLong(PrefKeys.PREF_COMMON_QUOTE_LAST_UPDATED, currentTime).apply();
             return false;
         }
     }

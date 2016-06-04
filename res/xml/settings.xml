@@ -3,6 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/pref_settings">
         <ListPreference
+            android:key="pref_common_quote_module"
+            android:title="@string/pref_quote_module_title"
+            android:summary="@string/pref_quote_module_summary"
+            android:defaultValue="com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule"/>
+        <Preference
+            android:key="pref_module_preferences"
+            android:title="@string/pref_module_preferences_title"
+            android:summary="@string/pref_module_preferences_summary"/>
+        <ListPreference
             android:key="pref_common_refresh_rate"
             android:title="@string/pref_refresh_interval_title"
             android:summary="@string/pref_refresh_interval_summary"
@@ -14,15 +23,6 @@
             android:title="@string/pref_unmetered_only_title"
             android:summary="@string/pref_unmetered_only_summary"
             android:defaultValue="false"/>
-        <ListPreference
-            android:key="pref_common_quote_module"
-            android:title="@string/pref_quote_module_title"
-            android:summary="@string/pref_quote_module_summary"
-            android:defaultValue="com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule"/>
-        <Preference
-            android:key="pref_module_preferences"
-            android:title="@string/pref_module_preferences_title"
-            android:summary="@string/pref_module_preferences_summary"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about">
         <Preference

@@ -25,28 +25,23 @@ public class VnaasQuoteModule implements QuoteModule {
     }
 
     @Override
+    public int getMinimumRefreshInterval(Context context) {
+        return 0;
+    }
+
+    @Override
     public QuoteData getQuote(Context context) throws IOException {
         VnaasQuoteQueryParams query = new VnaasQuoteQueryParams();
         SharedPreferences preferences = context.getSharedPreferences(VnaasPrefKeys.PREF_VNAAS, Context.MODE_PRIVATE);
 
         String novelIdsStr = preferences.getString(VnaasPrefKeys.PREF_VNAAS_ENABLED_NOVELS, null);
         if (novelIdsStr != null) {
-            String[] novelIdsSplit = novelIdsStr.split(",");
-            long[] novelIds = new long[novelIdsSplit.length];
-            for (int i = 0; i < novelIds.length; ++i) {
-                novelIds[i] = Long.parseLong(novelIdsSplit[i]);
-            }
-            query.setNovels(novelIds);
+            query.setNovels(splitLongString(novelIdsStr));
         }
 
         String characterIdsStr = preferences.getString(VnaasPrefKeys.PREF_VNAAS_ENABLED_CHARACTERS, null);
         if (characterIdsStr != null) {
-            String[] characterIdsSplit = characterIdsStr.split(",");
-            long[] characterIds = new long[characterIdsSplit.length];
-            for (int i = 0; i < characterIds.length; ++i) {
-                characterIds[i] = Long.parseLong(characterIdsSplit[i]);
-            }
-            query.setCharacters(characterIds);
+            query.setCharacters(splitLongString(characterIdsStr));
         }
 
         String contains = preferences.getString(VnaasPrefKeys.PREF_VNAAS_QUOTE_CONTAINS, null);
@@ -63,5 +58,14 @@ public class VnaasQuoteModule implements QuoteModule {
         String sourceFormat = preferences.getString(VnaasPrefKeys.PREF_VNAAS_SOURCE_FORMAT, VnaasPrefKeys.PREF_VNAAS_SOURCE_FORMAT_DEFAULT);
         String quoteSource = String.format(sourceFormat, charName, novelName);
         return new QuoteData(quoteText, quoteSource);
+    }
+
+    private long[] splitLongString(String str) {
+        String[] strSplit = str.split(",");
+        long[] longs = new long[strSplit.length];
+        for (int i = 0; i < longs.length; ++i) {
+            longs[i] = Long.parseLong(strSplit[i]);
+        }
+        return longs;
     }
 }

@@ -27,6 +27,11 @@ public class WikiquoteQuoteModule implements QuoteModule {
     }
 
     @Override
+    public int getMinimumRefreshInterval(Context context) {
+        return 86400;
+    }
+
+    @Override
     public QuoteData getQuote(Context context) throws IOException {
         String quotePage = IOUtils.downloadString("https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5");
 

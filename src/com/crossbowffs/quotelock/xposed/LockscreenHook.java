@@ -26,11 +26,11 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     private TextView mSourceTextView;
 
     private static String getQuoteText(SharedPreferences preferences) {
-        return preferences.getString(PrefKeys.PREF_QUOTES_TEXT, null);
+        return preferences.getString(PrefKeys.PREF_QUOTES_TEXT, sModuleResources.getString(R.string.open_quotelock_app_line1));
     }
 
     private static String getQuoteSource(SharedPreferences preferences) {
-        return preferences.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
+        return preferences.getString(PrefKeys.PREF_QUOTES_SOURCE, sModuleResources.getString(R.string.open_quotelock_app_line2));
     }
 
     private void refreshQuote(SharedPreferences preferences) {
