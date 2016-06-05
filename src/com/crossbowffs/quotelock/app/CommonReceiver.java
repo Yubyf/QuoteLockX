@@ -13,11 +13,7 @@ public class CommonReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (Intent.ACTION_BOOT_COMPLETED.equals(action) || ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
-            if (JobUtils.shouldRefreshQuote(context)) {
-                JobUtils.createQuoteDownloadJob(context, false);
-            } else {
-                JobUtils.cancelQuoteDownloadJob(context);
-            }
+            JobUtils.updateQuoteDownloadJob(context, false);
         }
     }
 }

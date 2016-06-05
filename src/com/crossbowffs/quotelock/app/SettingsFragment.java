@@ -87,7 +87,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        JobUtils.createQuoteDownloadJob(getActivity(), true);
+        JobUtils.updateQuoteDownloadJob(getActivity(), true);
         if (PrefKeys.PREF_COMMON_QUOTE_MODULE.equals(key)) {
             onSelectedModuleChanged();
             ((MainActivity)getActivity()).refreshQuote();
