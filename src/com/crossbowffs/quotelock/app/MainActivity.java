@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
 
         // In case the user opens the app for the first time *after* rebooting,
         // we want to make sure the background job has been created.
-        JobUtils.createQuoteDownloadJob(this, false);
+        JobUtils.updateQuoteDownloadJob(this, false);
     }
 
     @Override

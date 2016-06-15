@@ -14,7 +14,15 @@ public class JobUtils {
     private static final String TAG = JobUtils.class.getSimpleName();
     public static final int JOB_ID = 0;
 
-    public static boolean shouldRefreshQuote(Context context) {
+    public static void updateQuoteDownloadJob(Context context, boolean forceCreateIfNecessary) {
+        if (shouldRefreshQuote(context)) {
+            createQuoteDownloadJob(context, forceCreateIfNecessary);
+        } else {
+            cancelQuoteDownloadJob(context);
+        }
+    }
+
+    private static boolean shouldRefreshQuote(Context context) {
         ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = manager.getActiveNetworkInfo();
         if (netInfo == null || !netInfo.isConnected()) {
@@ -30,7 +38,7 @@ public class JobUtils {
         return true;
     }
 
-    public static void createQuoteDownloadJob(Context context, boolean forceCreate) {
+    private static void createQuoteDownloadJob(Context context, boolean forceCreate) {
         JobScheduler scheduler = (JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
         // If we're not forcing a job refresh (e.g. when a setting changes),
@@ -42,13 +50,6 @@ public class JobUtils {
                     return;
                 }
             }
-        }
-
-        // Don't create the job if we haven't met the requirements
-        // (e.g. no network connectivity or metered network)
-        if (!shouldRefreshQuote(context)) {
-            Xlog.i(TAG, "Should not refresh quote under current conditions, ignoring");
-            return;
         }
 
         SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
@@ -68,7 +69,7 @@ public class JobUtils {
         Xlog.i(TAG, "Unmetered only: %s", unmeteredOnly);
     }
 
-    public static void cancelQuoteDownloadJob(Context context) {
+    private static void cancelQuoteDownloadJob(Context context) {
         JobScheduler scheduler = (JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         scheduler.cancel(JOB_ID);
         Xlog.i(TAG, "Canceled quote download job");
