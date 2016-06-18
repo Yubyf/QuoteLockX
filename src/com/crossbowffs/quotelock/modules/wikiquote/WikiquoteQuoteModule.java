@@ -42,20 +42,14 @@ public class WikiquoteQuoteModule implements QuoteModule {
         }
         String quoteAllText = quoteAllTextMatcher.group(0).replaceAll("<.*?>", "");
 
-        Matcher quoteTextMatcher = Pattern.compile("^.*?(?=(\\s|)(——|--))").matcher(quoteAllText);
-        if (!quoteTextMatcher.find()) {
+        Matcher quoteMatcher = Pattern.compile("^(.*?)(\\s|)(——|--|──)(\\s|)(.*?)$").matcher(quoteAllText);
+        if (!quoteMatcher.find()) {
             Xlog.e(TAG, "Failed to parse quote text");
             return null;
         }
 
-        Matcher quoteSourceMatcher = Pattern.compile("(?<=(——|--)\\s).*?$").matcher(quoteAllText);
-        if (!quoteSourceMatcher.find()) {
-            Xlog.e(TAG, "Failed to parse quote source");
-            return null;
-        }
-
-        String quoteText = quoteTextMatcher.group(0);
-        String quoteSource = String.format("―%s", quoteSourceMatcher.group(0));
+        String quoteText = quoteMatcher.group(1);
+        String quoteSource = String.format("―%s", quoteMatcher.group(5));
         return new QuoteData(quoteText, quoteSource);
     }
 }
