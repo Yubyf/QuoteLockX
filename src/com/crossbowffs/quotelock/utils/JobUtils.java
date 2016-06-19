@@ -31,6 +31,11 @@ public class JobUtils {
     }
 
     public static void createQuoteDownloadJob(Context context, boolean forceCreate) {
+        // Instead of canceling the job whenever we disconnect from the
+        // internet, we wait until the job executes. Upon execution, we re-check
+        // the condition -- if network connectivity has been restored, we just
+        // proceed as normal, otherwise, we do not reschedule the task until
+        // we receive a network connectivity event.
         if (!shouldRefreshQuote(context)) {
             Xlog.i(TAG, "Should not create job under current conditions, ignoring");
             return;

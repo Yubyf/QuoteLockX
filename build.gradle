@@ -27,7 +27,7 @@ android {
         versionCode 6
         versionName "1.2.0"
         minSdkVersion 21
-        targetSdkVersion 23
+        targetSdkVersion 24
     }
 
     sourceSets {
