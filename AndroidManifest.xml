@@ -14,6 +14,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".modules.custom.app.CustomQuoteConfigActivity"
+            android:label="@string/module_custom_activity_label"/>
+        <provider
+            android:authorities="${applicationId}.modules.custom.provider"
+            android:name=".modules.custom.provider.CustomQuoteProvider"
+            android:exported="false"/>
         <service
             android:name="com.crossbowffs.quotelock.app.QuoteDownloaderService"
             android:permission="android.permission.BIND_JOB_SERVICE"/>

@@ -15,13 +15,23 @@ public class JobUtils {
     public static final int JOB_ID = 0;
 
     public static boolean shouldRefreshQuote(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
+
+        // If our provider doesn't require internet access, we should always be
+        // refreshing the quote.
+        if (!preferences.getBoolean(PrefKeys.PREF_COMMON_REQUIRES_INTERNET, true)) {
+            return true;
+        }
+
+        // If we're not connected to the internet, we shouldn't refresh the quote.
         ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = manager.getActiveNetworkInfo();
         if (netInfo == null || !netInfo.isConnected()) {
             return false;
         }
 
-        SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
+        // Check if we're on a metered connection and act according to the
+        // user's preference.
         boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
         if (unmeteredOnly && manager.isActiveNetworkMetered()) {
             return false;
@@ -31,6 +41,8 @@ public class JobUtils {
     }
 
     public static void createQuoteDownloadJob(Context context, boolean forceCreate) {
+        Xlog.i(TAG, "Called createQuoteDownloadJob, forceCreate == %s", forceCreate);
+
         // Instead of canceling the job whenever we disconnect from the
         // internet, we wait until the job executes. Upon execution, we re-check
         // the condition -- if network connectivity has been restored, we just
@@ -63,7 +75,7 @@ public class JobUtils {
             .build();
         scheduler.schedule(jobInfo);
 
-        Xlog.i(TAG, "Scheduled quote download job");
+        Xlog.i(TAG, "Scheduled quote download job with delay: %d", delay);
     }
 
     private static int getUpdateDelay(Context context) {
@@ -108,6 +120,9 @@ public class JobUtils {
 
     private static int getNetworkType(Context context) {
         SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
+        if (!preferences.getBoolean(PrefKeys.PREF_COMMON_REQUIRES_INTERNET, true)) {
+            return JobInfo.NETWORK_TYPE_NONE;
+        }
         boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
         int networkType = unmeteredOnly ? JobInfo.NETWORK_TYPE_UNMETERED : JobInfo.NETWORK_TYPE_ANY;
         return networkType;

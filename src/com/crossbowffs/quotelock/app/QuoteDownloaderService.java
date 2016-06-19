@@ -82,7 +82,9 @@ public class QuoteDownloaderService extends JobService {
             // Since the task is null, we either aborted the job in #onStartJob
             // (so we shouldn't reschedule) or the job already finished
             // (so rescheduling has already been taken care of).
-            Xlog.e(TAG, "Attempted to abort job, but updater task is null");
+            // Apparently, this always happens when we create a new job, so we can
+            // ignore this warning.
+            Xlog.w(TAG, "Attempted to abort job, but updater task is null");
             return false;
         }
     }

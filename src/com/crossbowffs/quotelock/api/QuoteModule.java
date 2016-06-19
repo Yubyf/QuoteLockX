@@ -24,6 +24,13 @@ public interface QuoteModule {
     int getMinimumRefreshInterval(Context context);
 
     /**
+     * Whether the provider needs to download data from the internet.
+     * Returns {@code false} for providers which store data locally on the
+     * device.
+     */
+    boolean requiresInternetConnectivity(Context context);
+
+    /**
      * Gets a new quote from the quote provider. This method is executed on a
      * background thread, so you should not need to use any async calls.
      * May return {@code null} or throw an exception in the case of an error.

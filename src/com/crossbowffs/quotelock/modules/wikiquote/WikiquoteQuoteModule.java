@@ -32,6 +32,11 @@ public class WikiquoteQuoteModule implements QuoteModule {
     }
 
     @Override
+    public boolean requiresInternetConnectivity(Context context) {
+        return true;
+    }
+
+    @Override
     public QuoteData getQuote(Context context) throws IOException {
         String quotePage = IOUtils.downloadString("https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5");
 

@@ -33,6 +33,11 @@ public class HitokotoQuoteModule implements QuoteModule {
     }
 
     @Override
+    public boolean requiresInternetConnectivity(Context context) {
+        return true;
+    }
+
+    @Override
     public QuoteData getQuote(Context context) throws IOException, JSONException {
         String quoteJson = IOUtils.downloadString("http://api.hitokoto.us/rand");
 

@@ -16,10 +16,13 @@ import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.preferences.PrefKeys;
 import com.crossbowffs.quotelock.utils.JobUtils;
+import com.crossbowffs.quotelock.utils.Xlog;
 
 import java.util.List;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private static final String TAG = SettingsFragment.class.getSimpleName();
+
     private int mVersionTapCount = 0;
     private ComponentName mModuleConfigActivity = null;
 
@@ -87,6 +90,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Xlog.i(TAG, "Preference changed: %s", key);
         if (PrefKeys.PREF_COMMON_QUOTE_MODULE.equals(key)) {
             onSelectedModuleChanged();
             ((MainActivity)getActivity()).refreshQuote();
@@ -125,6 +129,20 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             prefs.edit().remove(PrefKeys.PREF_COMMON_REFRESH_RATE_OVERRIDE).apply();
             refreshIntervalPref.setEnabled(true);
             refreshIntervalPref.setSummary(getString(R.string.pref_refresh_interval_summary));
+        }
+
+        // If the module doesn't require internet connectivity, disable the
+        // unmeterd only toggle and set the requires internet preference to false.
+        boolean requiresInternet = module.requiresInternetConnectivity(getActivity());
+        Preference unmeteredOnlyPref = findPreference(PrefKeys.PREF_COMMON_UNMETERED_ONLY);
+        if (!requiresInternet) {
+            prefs.edit().putBoolean(PrefKeys.PREF_COMMON_REQUIRES_INTERNET, false).apply();
+            unmeteredOnlyPref.setEnabled(false);
+            unmeteredOnlyPref.setSummary(getString(R.string.pref_unmetered_only_summary_alt));
+        } else {
+            prefs.edit().remove(PrefKeys.PREF_COMMON_REQUIRES_INTERNET).apply();
+            unmeteredOnlyPref.setEnabled(true);
+            unmeteredOnlyPref.setSummary(getString(R.string.pref_unmetered_only_summary));
         }
     }
 
