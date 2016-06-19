@@ -5,6 +5,7 @@ import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.content.*;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -120,8 +121,9 @@ public class CustomQuoteConfigActivity extends ListActivity implements LoaderMan
         values.put(CustomQuoteContract.Quotes.SOURCE, source);
         ContentResolver resolver = getContentResolver();
         if (rowId >= 0) {
+            Uri uri = ContentUris.withAppendedId(CustomQuoteContract.Quotes.CONTENT_URI, rowId);
             values.put(CustomQuoteContract.Quotes._ID, rowId);
-            resolver.update(CustomQuoteContract.Quotes.CONTENT_URI, values, null, null);
+            resolver.update(uri, values, null, null);
         } else {
             resolver.insert(CustomQuoteContract.Quotes.CONTENT_URI, values);
         }
@@ -129,9 +131,8 @@ public class CustomQuoteConfigActivity extends ListActivity implements LoaderMan
     }
 
     private void deleteQuote(long rowId) {
-        getContentResolver().delete(
-            CustomQuoteContract.Quotes.CONTENT_URI,
-            CustomQuoteContract.Quotes._ID + "=?", new String[] {String.valueOf(rowId)});
+        Uri uri = ContentUris.withAppendedId(CustomQuoteContract.Quotes.CONTENT_URI, rowId);
+        getContentResolver().delete(uri, null, null);
         Toast.makeText(this, R.string.module_custom_deleted_quote, Toast.LENGTH_SHORT).show();
     }
 
