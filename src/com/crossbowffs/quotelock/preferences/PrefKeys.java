@@ -12,11 +12,11 @@ public class PrefKeys {
     public static final String PREF_COMMON_QUOTE_MODULE_DEFAULT = VnaasQuoteModule.class.getName();
     public static final String PREF_COMMON_MODULE_PREFERENCES = "pref_module_preferences";
     public static final String PREF_COMMON_REFRESH_RATE_OVERRIDE = "pref_common_refresh_rate_override";
-    public static final String PREF_COMMON_QUOTE_LAST_UPDATED = "pref_common_quote_last_updated";
 
     public static final String PREF_QUOTES = "quotes";
     public static final String PREF_QUOTES_TEXT = "pref_quotes_text";
     public static final String PREF_QUOTES_SOURCE = "pref_quotes_source";
+    public static final String PREF_QUOTES_LAST_UPDATED = "pref_quotes_last_updated";
 
     public static final String PREF_ABOUT_AUTHOR_CROSSBOWFFS = "pref_about_author_crossbowffs";
     public static final String PREF_ABOUT_AUTHOR_YUBYF = "pref_about_author_yubyf";

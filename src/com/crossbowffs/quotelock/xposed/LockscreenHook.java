@@ -1,6 +1,7 @@
 package com.crossbowffs.quotelock.xposed;
 
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.content.res.XModuleResources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,12 +26,29 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     private TextView mQuoteTextView;
     private TextView mSourceTextView;
 
+    private static String tryGetString(int resId) {
+        try {
+            return sModuleResources.getString(resId);
+        } catch (Resources.NotFoundException e) {
+            Xlog.e(TAG, "Could not find resource: %x", resId);
+            return null;
+        }
+    }
+
     private static String getQuoteText(SharedPreferences preferences) {
-        return preferences.getString(PrefKeys.PREF_QUOTES_TEXT, sModuleResources.getString(R.string.open_quotelock_app_line1));
+        String text = preferences.getString(PrefKeys.PREF_QUOTES_TEXT, null);
+        if (text == null) {
+            text = tryGetString(R.string.open_quotelock_app_line1);
+        }
+        return text;
     }
 
     private static String getQuoteSource(SharedPreferences preferences) {
-        return preferences.getString(PrefKeys.PREF_QUOTES_SOURCE, sModuleResources.getString(R.string.open_quotelock_app_line2));
+        String source = preferences.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
+        if (source == null) {
+            source = tryGetString(R.string.open_quotelock_app_line2);
+        }
+        return source;
     }
 
     private void refreshQuote(SharedPreferences preferences) {

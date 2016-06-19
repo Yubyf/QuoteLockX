@@ -14,15 +14,7 @@ public class JobUtils {
     private static final String TAG = JobUtils.class.getSimpleName();
     public static final int JOB_ID = 0;
 
-    public static void updateQuoteDownloadJob(Context context, boolean forceCreateIfNecessary) {
-        if (shouldRefreshQuote(context)) {
-            createQuoteDownloadJob(context, forceCreateIfNecessary);
-        } else {
-            cancelQuoteDownloadJob(context);
-        }
-    }
-
-    private static boolean shouldRefreshQuote(Context context) {
+    public static boolean shouldRefreshQuote(Context context) {
         ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = manager.getActiveNetworkInfo();
         if (netInfo == null || !netInfo.isConnected()) {
@@ -38,7 +30,12 @@ public class JobUtils {
         return true;
     }
 
-    private static void createQuoteDownloadJob(Context context, boolean forceCreate) {
+    public static void createQuoteDownloadJob(Context context, boolean forceCreate) {
+        if (!shouldRefreshQuote(context)) {
+            Xlog.i(TAG, "Should not create job under current conditions, ignoring");
+            return;
+        }
+
         JobScheduler scheduler = (JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
         // If we're not forcing a job refresh (e.g. when a setting changes),
@@ -52,33 +49,49 @@ public class JobUtils {
             }
         }
 
-        SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
-        int refreshInterval = getRefreshInterval(preferences);
-        long refreshIntervalMs = refreshInterval * 1000;
-        boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
-        int networkType = unmeteredOnly ? JobInfo.NETWORK_TYPE_UNMETERED : JobInfo.NETWORK_TYPE_ANY;
-
+        int delay = getUpdateDelay(context);
+        int networkType = getNetworkType(context);
         JobInfo jobInfo = new JobInfo.Builder(JOB_ID, new ComponentName(context, QuoteDownloaderService.class))
-            .setPeriodic(refreshIntervalMs)
+            .setMinimumLatency(delay * 1000)
+            .setOverrideDeadline(delay * 1200) // Good balance between battery life and time accuracy
             .setRequiredNetworkType(networkType)
             .build();
         scheduler.schedule(jobInfo);
 
         Xlog.i(TAG, "Scheduled quote download job");
-        Xlog.i(TAG, "Refresh period: %d", refreshInterval);
-        Xlog.i(TAG, "Unmetered only: %s", unmeteredOnly);
     }
 
-    private static void cancelQuoteDownloadJob(Context context) {
-        JobScheduler scheduler = (JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        scheduler.cancel(JOB_ID);
-        Xlog.i(TAG, "Canceled quote download job");
+    private static int getUpdateDelay(Context context) {
+        // This compensates for the time since the last update in order
+        // to ensure that the quote will be updated in a reasonable time
+        // window. If the quote was updated >= refreshInterval time ago,
+        // the update will be scheduled with zero delay.
+        SharedPreferences commonPrefs = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
+        SharedPreferences quotePrefs = context.getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE);
+        int refreshInterval = getRefreshInterval(commonPrefs);
+        long currentTime = System.currentTimeMillis();
+        long lastUpdateTime = quotePrefs.getLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, currentTime);
+        Xlog.i(TAG, "Current time: %d", currentTime);
+        Xlog.i(TAG, "Last update time: %d", lastUpdateTime);
+        int deltaSecs = (int)((currentTime - lastUpdateTime) / 1000);
+        if (deltaSecs < 0) {
+            // In case the user has a time machine or
+            // changes the system clock back in time
+            deltaSecs = 0;
+        }
+        int delay = refreshInterval - deltaSecs;
+        if (delay < 0) {
+            // This occurs if the user has been offline for
+            // longer than the refresh interval
+            delay = 0;
+        }
+        return delay;
     }
 
-    public static int getRefreshInterval(SharedPreferences preferences) {
-        int refreshInterval = preferences.getInt(PrefKeys.PREF_COMMON_REFRESH_RATE_OVERRIDE, 0);
+    private static int getRefreshInterval(SharedPreferences commonPrefs) {
+        int refreshInterval = commonPrefs.getInt(PrefKeys.PREF_COMMON_REFRESH_RATE_OVERRIDE, 0);
         if (refreshInterval == 0) {
-            String refreshIntervalStr = preferences.getString(PrefKeys.PREF_COMMON_REFRESH_RATE, PrefKeys.PREF_COMMON_REFRESH_RATE_DEFAULT);
+            String refreshIntervalStr = commonPrefs.getString(PrefKeys.PREF_COMMON_REFRESH_RATE, PrefKeys.PREF_COMMON_REFRESH_RATE_DEFAULT);
             refreshInterval = Integer.parseInt(refreshIntervalStr);
         }
         if (refreshInterval < 60) {
@@ -86,5 +99,12 @@ public class JobUtils {
             refreshInterval = 60;
         }
         return refreshInterval;
+    }
+
+    private static int getNetworkType(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
+        boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
+        int networkType = unmeteredOnly ? JobInfo.NETWORK_TYPE_UNMETERED : JobInfo.NETWORK_TYPE_ANY;
+        return networkType;
     }
 }

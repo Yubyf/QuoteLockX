@@ -15,7 +15,7 @@ public class CommonReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         Xlog.i(TAG, "Received action: %s", action);
         if (Intent.ACTION_BOOT_COMPLETED.equals(action) || ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
-            JobUtils.updateQuoteDownloadJob(context, false);
+            JobUtils.createQuoteDownloadJob(context, false);
         }
     }
 }

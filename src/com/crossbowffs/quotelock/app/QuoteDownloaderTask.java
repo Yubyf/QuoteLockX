@@ -44,6 +44,7 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
                 .edit()
                 .putString(PrefKeys.PREF_QUOTES_TEXT, quote.getQuoteText())
                 .putString(PrefKeys.PREF_QUOTES_SOURCE, quote.getQuoteSource())
+                .putLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, System.currentTimeMillis())
                 .apply();
         }
     }

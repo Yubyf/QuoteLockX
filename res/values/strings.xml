@@ -17,7 +17,7 @@
     <string name="pref_about_author_yubyf">Additional quote providers</string>
     <string name="pref_about_github">View project on GitHub</string>
     <string name="pref_about_version">Version</string>
-    <string name="pref_about_easter_egg">お兄ちゃん、葉月を大人にしてくれる？</string>
+    <string name="pref_about_easter_egg">絶対に許しません！</string>
     <string name="refesh_quote">Refresh quote</string>
     <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>
@@ -26,6 +26,7 @@
     <string name="module_hitokoto_name">Hitokoto 一言</string>
     <string name="module_goodreads_name">Goodreads QotD</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
+    <string name="module_custom_name">Custom</string>
     <string name="open_quotelock_app_line1">Welcome to QuoteLock!</string>
     <string name="open_quotelock_app_line2">Please open the configuration app</string>
 </resources>

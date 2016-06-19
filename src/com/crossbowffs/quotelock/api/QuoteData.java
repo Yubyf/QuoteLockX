@@ -10,10 +10,18 @@ public class QuoteData {
     }
 
     public String getQuoteText() {
-        return mQuoteText;
+        String text = mQuoteText;
+        if (text == null) {
+            text = "";
+        }
+        return text;
     }
 
     public String getQuoteSource() {
-        return mQuoteSource;
+        String source = mQuoteSource;
+        if (source == null) {
+            source = "";
+        }
+        return source;
     }
 }
