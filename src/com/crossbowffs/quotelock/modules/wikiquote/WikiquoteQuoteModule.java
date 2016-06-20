@@ -51,7 +51,7 @@ public class WikiquoteQuoteModule implements QuoteModule {
         }
 
         String quoteText = quoteMatcher.group(1);
-        String quoteSource = String.format("―%s", quoteMatcher.group(2));
+        String quoteSource = "―" + quoteMatcher.group(2);
         return new QuoteData(quoteText, quoteSource);
     }
 }

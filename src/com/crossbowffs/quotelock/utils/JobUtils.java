@@ -20,6 +20,7 @@ public class JobUtils {
         // If our provider doesn't require internet access, we should always be
         // refreshing the quote.
         if (!preferences.getBoolean(PrefKeys.PREF_COMMON_REQUIRES_INTERNET, true)) {
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: provider doesn't require internet");
             return true;
         }
 
@@ -27,6 +28,7 @@ public class JobUtils {
         ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = manager.getActiveNetworkInfo();
         if (netInfo == null || !netInfo.isConnected()) {
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: not connected to internet");
             return false;
         }
 
@@ -34,14 +36,16 @@ public class JobUtils {
         // user's preference.
         boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
         if (unmeteredOnly && manager.isActiveNetworkMetered()) {
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: can only update on unmetered connections");
             return false;
         }
 
+        Xlog.d(TAG, "JobUtils#shouldRefreshQuote: YES");
         return true;
     }
 
     public static void createQuoteDownloadJob(Context context, boolean forceCreate) {
-        Xlog.i(TAG, "Called createQuoteDownloadJob, forceCreate == %s", forceCreate);
+        Xlog.d(TAG, "JobUtils#createQuoteDownloadJob called, forceCreate == %s", forceCreate);
 
         // Instead of canceling the job whenever we disconnect from the
         // internet, we wait until the job executes. Upon execution, we re-check
@@ -49,7 +53,7 @@ public class JobUtils {
         // proceed as normal, otherwise, we do not reschedule the task until
         // we receive a network connectivity event.
         if (!shouldRefreshQuote(context)) {
-            Xlog.i(TAG, "Should not create job under current conditions, ignoring");
+            Xlog.d(TAG, "Should not create job under current conditions, ignoring");
             return;
         }
 
@@ -60,7 +64,7 @@ public class JobUtils {
         if (!forceCreate) {
             for (JobInfo job : scheduler.getAllPendingJobs()) {
                 if (job.getId() == JOB_ID) {
-                    Xlog.i(TAG, "Job already exists and forceCreate == false, ignoring");
+                    Xlog.d(TAG, "Job already exists and forceCreate == false, ignoring");
                     return;
                 }
             }
@@ -88,8 +92,8 @@ public class JobUtils {
         int refreshInterval = getRefreshInterval(commonPrefs);
         long currentTime = System.currentTimeMillis();
         long lastUpdateTime = quotePrefs.getLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, currentTime);
-        Xlog.i(TAG, "Current time: %d", currentTime);
-        Xlog.i(TAG, "Last update time: %d", lastUpdateTime);
+        Xlog.d(TAG, "Current time: %d", currentTime);
+        Xlog.d(TAG, "Last update time: %d", lastUpdateTime);
         int deltaSecs = (int)((currentTime - lastUpdateTime) / 1000);
         if (deltaSecs < 0) {
             // In case the user has a time machine or

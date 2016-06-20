@@ -14,7 +14,7 @@
     <string name="pref_module_preferences_summary">Manage provider-specific settings</string>
     <string name="pref_module_preferences_summary_alt">No preferences for selected provider</string>
     <string name="pref_about">About</string>
-    <string name="pref_about_author_crossbowffs">App and VNaaS quote provider</string>
+    <string name="pref_about_author_crossbowffs">App and quote providers</string>
     <string name="pref_about_author_yubyf">Additional quote providers</string>
     <string name="pref_about_github">View project on GitHub</string>
     <string name="pref_about_version">Version</string>

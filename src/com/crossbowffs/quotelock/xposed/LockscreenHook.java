@@ -52,7 +52,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     }
 
     private void refreshQuote(SharedPreferences preferences) {
-        Xlog.i(TAG, "Quote changed, updating lockscreen layout");
+        Xlog.d(TAG, "Quote changed, updating lockscreen layout");
         mQuoteTextView.setText(getQuoteText(preferences));
         mSourceTextView.setText(getQuoteSource(preferences));
     }

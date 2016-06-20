@@ -44,10 +44,10 @@ public class HitokotoQuoteModule implements QuoteModule {
         JSONObject quoteJsonObject = new JSONObject(quoteJson);
         String quoteSourceProject = quoteJsonObject.getString("source");
         String quoteText = quoteJsonObject.getString("hitokoto");
-        String quoteSource = "";
 
+        String quoteSource = "";
         if (!TextUtils.isEmpty(quoteSourceProject)) {
-            quoteSource = String.format("―%s", quoteSourceProject);
+            quoteSource = "―" + quoteSourceProject;
         }
 
         return new QuoteData(quoteText, quoteSource);

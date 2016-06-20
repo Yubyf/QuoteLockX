@@ -7,7 +7,10 @@ import com.crossbowffs.quotelock.provider.AutoContentProvider;
 public class CustomQuoteProvider extends AutoContentProvider {
     public CustomQuoteProvider() {
         super(CustomQuoteContract.AUTHORITY, new ProviderTable[] {
-            new ProviderTable(CustomQuoteContract.Quotes.TABLE, CustomQuoteContract.Quotes.CONTENT_ITEM_TYPE, CustomQuoteContract.Quotes.CONTENT_TYPE)
+            new ProviderTable(
+                CustomQuoteContract.Quotes.TABLE,
+                CustomQuoteContract.Quotes.CONTENT_ITEM_TYPE,
+                CustomQuoteContract.Quotes.CONTENT_TYPE)
         });
     }
 

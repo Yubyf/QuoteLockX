@@ -19,6 +19,7 @@ public class QuoteDownloaderService extends JobService {
 
         @Override
         protected void onPostExecute(QuoteData quote) {
+            Xlog.d(TAG, "ServiceQuoteDownloaderTask#onPostExecute called, success: %s", (quote != null));
             super.onPostExecute(quote);
             // We must back-off the job upon failure instead of creating
             // a new one; otherwise, the update time compensation algorithm
@@ -32,6 +33,7 @@ public class QuoteDownloaderService extends JobService {
 
         @Override
         protected void onCancelled(QuoteData quote) {
+            Xlog.d(TAG, "Called ServiceQuoteDownloaderTask#onCancelled called");
             super.onCancelled(quote);
             // No need to call #jobFinished, since #onStopJob will
             // handle the back-off for us.
