@@ -30,6 +30,8 @@
     <string name="module_goodreads_name">Goodreads QotD</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
     <string name="module_custom_name">Custom</string>
+    <string name="module_custom_setup_line1">No custom quotes set</string>
+    <string name="module_custom_setup_line2">Please open the configuration app</string>
     <string name="module_custom_activity_label">Custom quotes</string>
     <string name="module_custom_enter_quote">Enter quote</string>
     <string name="module_custom_save">Save</string>

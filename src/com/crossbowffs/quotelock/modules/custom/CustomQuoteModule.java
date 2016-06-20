@@ -39,7 +39,9 @@ public class CustomQuoteModule implements QuoteModule {
             if (cursor != null && cursor.moveToFirst()) {
                 return new QuoteData(cursor.getString(0), cursor.getString(1));
             } else {
-                return null;
+                return new QuoteData(
+                    context.getString(R.string.module_custom_setup_line1),
+                    context.getString(R.string.module_custom_setup_line2));
             }
         } finally {
             if (cursor != null) {
