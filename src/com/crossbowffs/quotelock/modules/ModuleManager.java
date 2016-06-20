@@ -2,6 +2,7 @@ package com.crossbowffs.quotelock.modules;
 
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.custom.CustomQuoteModule;
+import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule;
 import com.crossbowffs.quotelock.modules.goodreads.GoodreadsQuoteModule;
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;
 import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
@@ -18,6 +19,7 @@ public class ModuleManager {
         addModule(HitokotoQuoteModule.class);
         addModule(GoodreadsQuoteModule.class);
         addModule(WikiquoteQuoteModule.class);
+        addModule(FreakuotesQuoteModule.class);
         addModule(CustomQuoteModule.class);
     }
 

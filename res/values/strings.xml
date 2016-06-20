@@ -25,10 +25,11 @@
     <string name="quote_download_success">Quote downloaded successfully</string>
     <string name="open_quotelock_app_line1">Welcome to QuoteLock!</string>
     <string name="open_quotelock_app_line2">Please open the configuration app</string>
-    <string name="module_vnaas_name">Visual Novel as a Service</string>
-    <string name="module_hitokoto_name">Hitokoto 一言</string>
-    <string name="module_goodreads_name">Goodreads QotD</string>
+    <string name="module_vnaas_name">Visual Novel as a Service (日本語)</string>
+    <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
+    <string name="module_goodreads_name">Goodreads QotD (English)</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
+    <string name="module_freakuotes_name">Freakuotes (Español)</string>
     <string name="module_custom_name">Custom</string>
     <string name="module_custom_setup_line1">No custom quotes set</string>
     <string name="module_custom_setup_line2">Please open the configuration app</string>
