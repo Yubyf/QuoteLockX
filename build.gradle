@@ -16,6 +16,7 @@ apply plugin: "com.android.application"
 
 dependencies {
     compile "com.crossbowffs.remotepreferences:remotepreferences:0.1"
+    compile "org.jsoup:jsoup:1.9.2"
     provided "de.robv.android.xposed:api:53"
 }
 
@@ -27,7 +28,7 @@ android {
         versionCode 6
         versionName "1.2.0"
         minSdkVersion 21
-        targetSdkVersion 24
+        targetSdkVersion 23
     }
 
     sourceSets {

@@ -25,7 +25,7 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
     @Override
     protected QuoteData doInBackground(Void... params) {
         Xlog.i(TAG, "Attempting to download new quote...");
-        Xlog.i(TAG, "Source: %s", mModule.getDisplayName(mContext));
+        Xlog.i(TAG, "Provider: %s", mModule.getDisplayName(mContext));
         try {
             return mModule.getQuote(mContext);
         } catch (Exception e) {

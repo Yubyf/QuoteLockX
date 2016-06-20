@@ -99,9 +99,9 @@ public class CustomQuoteConfigActivity extends ListActivity implements LoaderMan
             return null;
         }
 
-        Cursor cursor = getContentResolver().query(CustomQuoteContract.Quotes.CONTENT_URI,
-            new String[] {CustomQuoteContract.Quotes.TEXT, CustomQuoteContract.Quotes.SOURCE},
-            CustomQuoteContract.Quotes._ID + "=?", new String[] {String.valueOf(rowId)}, null);
+        Uri uri = ContentUris.withAppendedId(CustomQuoteContract.Quotes.CONTENT_URI, rowId);
+        String[] columns = {CustomQuoteContract.Quotes.TEXT, CustomQuoteContract.Quotes.SOURCE};
+        Cursor cursor = getContentResolver().query(uri, columns, null, null, null);
         try {
             if (cursor != null && cursor.moveToFirst()) {
                 return new QuoteData(cursor.getString(0), cursor.getString(1));

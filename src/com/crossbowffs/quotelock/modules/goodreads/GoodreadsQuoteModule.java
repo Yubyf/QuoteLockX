@@ -2,12 +2,13 @@ package com.crossbowffs.quotelock.modules.goodreads;
 
 import android.content.ComponentName;
 import android.content.Context;
-
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.utils.IOUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -38,22 +39,21 @@ public class GoodreadsQuoteModule implements QuoteModule {
 
     @Override
     public QuoteData getQuote(Context context) throws IOException {
-        String quoteAllText = IOUtils.downloadString("http://www.goodreads.com/quotes_of_the_day/rss");
+        String rssXml = IOUtils.downloadString("http://www.goodreads.com/quotes_of_the_day/rss");
+        Document document = Jsoup.parse(rssXml);
+        String quoteXml = document.select("item > description").first().text();
+        Document quoteDocument = Jsoup.parse(quoteXml);
+        String quoteAllText = quoteDocument.text();
+        Xlog.d(TAG, "Downloaded text: %s", quoteAllText);
 
-        Matcher quoteTextMatcher = Pattern.compile("(?<=<div>\n).*?(?=\n</div>)").matcher(quoteAllText);
-        if (!quoteTextMatcher.find()) {
-            Xlog.e(TAG, "Failed to parse quote text");
+        Matcher quoteMatcher = Pattern.compile("(.*?) - (.*?)").matcher(quoteAllText);
+        if (!quoteMatcher.matches()) {
+            Xlog.e(TAG, "Failed to parse quote");
             return null;
         }
 
-        Matcher quoteSourceMatcher = Pattern.compile("(?<=\">).+?(?=</a>)").matcher(quoteAllText);
-        if (!quoteSourceMatcher.find()) {
-            Xlog.e(TAG, "Failed to parse quote source");
-            return null;
-        }
-
-        String quoteText = quoteTextMatcher.group(0);
-        String quoteSource = String.format("―%s", quoteSourceMatcher.group(0));
+        String quoteText = quoteMatcher.group(1);
+        String quoteSource = String.format("―%s", quoteMatcher.group(2));
         return new QuoteData(quoteText, quoteSource);
     }
 }
