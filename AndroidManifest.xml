@@ -40,7 +40,7 @@
             android:value="true"/>
         <meta-data
             android:name="xposeddescription"
-            android:value="Displays quotes from VNaaS on the lockscreen"/>
+            android:value="Displays quotes on your phone lockscreen"/>
         <meta-data
             android:name="xposedminversion"
             android:value="53"/>
