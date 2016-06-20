@@ -144,13 +144,13 @@ public class CustomQuoteConfigActivity extends ListActivity implements LoaderMan
         final AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle(R.string.module_custom_enter_quote)
             .setView(dialogView)
-            .setPositiveButton(R.string.module_custom_save, new DialogInterface.OnClickListener() {
+            .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     persistQuote(rowId, textEditText.getText().toString(), sourceEditText.getText().toString());
                 }
             })
-            .setNegativeButton(R.string.module_custom_cancel, null)
+            .setNegativeButton(R.string.cancel, null)
             .create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();

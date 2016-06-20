@@ -29,6 +29,8 @@ android {
         versionName "1.2.0"
         minSdkVersion 21
         targetSdkVersion 23
+        buildConfigField("int", "MODULE_VERSION", "1")
+        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "1")
     }
 
     sourceSets {
@@ -37,6 +39,14 @@ android {
             res.srcDirs = ["res"]
             java.srcDirs = ["src"]
             assets.srcDirs = ["assets"]
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
 }

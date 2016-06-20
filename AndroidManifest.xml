@@ -18,11 +18,11 @@
             android:name=".modules.custom.app.CustomQuoteConfigActivity"
             android:label="@string/module_custom_activity_label"/>
         <provider
-            android:authorities="${applicationId}.modules.custom.provider"
             android:name=".modules.custom.provider.CustomQuoteProvider"
+            android:authorities="${applicationId}.modules.custom.provider"
             android:exported="false"/>
         <service
-            android:name="com.crossbowffs.quotelock.app.QuoteDownloaderService"
+            android:name=".app.QuoteDownloaderService"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
         <receiver android:name=".app.CommonReceiver">
             <intent-filter>
@@ -32,8 +32,8 @@
             </intent-filter>
         </receiver>
         <provider
-            android:name="com.crossbowffs.quotelock.provider.QuoteProvider"
-            android:authorities="com.crossbowffs.quotelock.preferences"
+            android:name=".provider.QuoteProvider"
+            android:authorities="${applicationId}.preferences"
             android:exported="true"/>
         <meta-data
             android:name="xposedmodule"

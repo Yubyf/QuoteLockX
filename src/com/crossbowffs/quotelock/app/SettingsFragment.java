@@ -69,13 +69,13 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             startActivity(mModuleConfigActivity);
             return true;
         case PrefKeys.PREF_ABOUT_AUTHOR_CROSSBOWFFS:
-            startBrowserActivity("https://twitter.com/crossbowffs");
+            startBrowserActivity(Urls.TWITTER_CROSSBOWFFS);
             return true;
         case PrefKeys.PREF_ABOUT_AUTHOR_YUBYF:
-            startBrowserActivity("https://github.com/Yubyf");
+            startBrowserActivity(Urls.GITHUB_YUBYF);
             return true;
         case PrefKeys.PREF_ABOUT_GITHUB:
-            startBrowserActivity("https://github.com/apsun/QuoteLock");
+            startBrowserActivity(Urls.GITHUB_QUOTELOCK);
             return true;
         case PrefKeys.PREF_ABOUT_VERSION:
             if (++mVersionTapCount == 7) {

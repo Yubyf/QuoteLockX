@@ -1,1 +1,2 @@
 com.crossbowffs.quotelock.xposed.LockscreenHook
+com.crossbowffs.quotelock.xposed.XposedUtilsHook

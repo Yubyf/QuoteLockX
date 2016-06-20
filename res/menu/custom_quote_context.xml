@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/edit_quote"
-        android:title="@string/module_custom_edit"/>
+        android:title="@string/edit"/>
     <item
         android:id="@+id/delete_quote"
-        android:title="@string/module_custom_delete"/>
+        android:title="@string/delete"/>
 </menu>

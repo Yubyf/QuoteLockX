@@ -3,10 +3,11 @@ package com.crossbowffs.quotelock.modules.custom.provider;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.crossbowffs.quotelock.BuildConfig;
 
 public class CustomQuoteHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "custom_quotes.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = BuildConfig.CUSTOM_QUOTES_DB_VERSION;
 
     private static final String CREATE_QUOTES_TABLE =
         "CREATE TABLE " + CustomQuoteContract.Quotes.TABLE + "(" +
