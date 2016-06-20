@@ -30,6 +30,11 @@ public class VnaasQuoteModule implements QuoteModule {
     }
 
     @Override
+    public boolean requiresInternetConnectivity(Context context) {
+        return true;
+    }
+
+    @Override
     public QuoteData getQuote(Context context) throws IOException {
         VnaasQuoteQueryParams query = new VnaasQuoteQueryParams();
         SharedPreferences preferences = context.getSharedPreferences(VnaasPrefKeys.PREF_VNAAS, Context.MODE_PRIVATE);

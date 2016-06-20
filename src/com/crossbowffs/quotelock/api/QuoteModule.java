@@ -6,7 +6,7 @@ import android.content.Context;
 public interface QuoteModule {
     /**
      * Gets the user-friendly name of the quote provider that this module uses.
-     * Must not be {@code null}.
+     * Must not return {@code null}.
      */
     String getDisplayName(Context context);
 
@@ -18,9 +18,17 @@ public interface QuoteModule {
 
     /**
      * Returns a minimum refresh interval (in seconds) for the quote source.
-     * If there is no minimum refresh interval, returns 0.
+     * If there is no minimum refresh interval, returns 0. If the quote should
+     * never automatically be refreshed, returns {@link Integer#MAX_VALUE}.
      */
     int getMinimumRefreshInterval(Context context);
+
+    /**
+     * Whether the provider needs to download data from the internet.
+     * Returns {@code false} for providers which store data locally on the
+     * device.
+     */
+    boolean requiresInternetConnectivity(Context context);
 
     /**
      * Gets a new quote from the quote provider. This method is executed on a

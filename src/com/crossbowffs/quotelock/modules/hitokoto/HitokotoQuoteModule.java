@@ -33,16 +33,21 @@ public class HitokotoQuoteModule implements QuoteModule {
     }
 
     @Override
+    public boolean requiresInternetConnectivity(Context context) {
+        return true;
+    }
+
+    @Override
     public QuoteData getQuote(Context context) throws IOException, JSONException {
         String quoteJson = IOUtils.downloadString("http://api.hitokoto.us/rand");
 
         JSONObject quoteJsonObject = new JSONObject(quoteJson);
         String quoteSourceProject = quoteJsonObject.getString("source");
         String quoteText = quoteJsonObject.getString("hitokoto");
-        String quoteSource = "";
 
+        String quoteSource = "";
         if (!TextUtils.isEmpty(quoteSourceProject)) {
-            quoteSource = String.format("―%s", quoteSourceProject);
+            quoteSource = "―" + quoteSourceProject;
         }
 
         return new QuoteData(quoteText, quoteSource);

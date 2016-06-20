@@ -16,16 +16,21 @@ apply plugin: "com.android.application"
 
 dependencies {
     compile "com.crossbowffs.remotepreferences:remotepreferences:0.1"
+    compile "org.jsoup:jsoup:1.9.2"
     provided "de.robv.android.xposed:api:53"
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion "24"
 
     defaultConfig {
-        versionCode 5
-        versionName "1.1.2"
+        versionCode 6
+        versionName "1.2.0"
+        minSdkVersion 21
+        targetSdkVersion 23
+        buildConfigField("int", "MODULE_VERSION", "1")
+        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "1")
     }
 
     sourceSets {
@@ -34,6 +39,14 @@ android {
             res.srcDirs = ["res"]
             java.srcDirs = ["src"]
             assets.srcDirs = ["assets"]
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
 }

@@ -5,9 +5,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-sdk
-        android:minSdkVersion="21"
-        android:targetSdkVersion="23"/>
     <application
         android:label="@string/quotelock"
         android:icon="@mipmap/ic_launcher">
@@ -17,8 +14,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".modules.custom.app.CustomQuoteConfigActivity"
+            android:label="@string/module_custom_activity_label"/>
+        <provider
+            android:name=".modules.custom.provider.CustomQuoteProvider"
+            android:authorities="${applicationId}.modules.custom.provider"
+            android:exported="false"/>
         <service
-            android:name="com.crossbowffs.quotelock.app.QuoteDownloaderService"
+            android:name=".app.QuoteDownloaderService"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
         <receiver android:name=".app.CommonReceiver">
             <intent-filter>
@@ -28,15 +32,15 @@
             </intent-filter>
         </receiver>
         <provider
-            android:name="com.crossbowffs.quotelock.provider.QuoteProvider"
-            android:authorities="com.crossbowffs.quotelock.preferences"
+            android:name=".provider.QuoteProvider"
+            android:authorities="${applicationId}.preferences"
             android:exported="true"/>
         <meta-data
             android:name="xposedmodule"
             android:value="true"/>
         <meta-data
             android:name="xposeddescription"
-            android:value="Displays quotes from VNaaS on the lockscreen"/>
+            android:value="Displays quotes on your phone lockscreen"/>
         <meta-data
             android:name="xposedminversion"
             android:value="53"/>

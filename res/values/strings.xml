@@ -1,31 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="quotelock">QuoteLock</string>
-    <string name="pref_settings">Settings</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="enable">Enable</string>
+    <string name="reboot">Reboot</string>
+    <string name="ignore">Ignore</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+    <string name="enable_xposed_module_title">Enable Xposed module</string>
+    <string name="enable_xposed_module_message">
+        Android does not normally allow apps to add text to the lockscreen.\n\n
+        For QuoteLock to function correctly, you must enable the included Xposed
+        module.
+    </string>
+    <string name="module_outdated_title">Xposed module updated</string>
+    <string name="module_outdated_message">Please reboot your device for changes to take effect.</string>
+    <string name="xposed_not_installed">Xposed not installed</string>
+    <string name="report_bug">Report bug</string>
     <string name="pref_refresh_interval_title">Refresh interval</string>
     <string name="pref_refresh_interval_summary">How often to refresh the quote</string>
     <string name="pref_refresh_interval_summary_alt">Cannot set refresh rate for selected provider</string>
     <string name="pref_unmetered_only_title">Unmetered only</string>
     <string name="pref_unmetered_only_summary">Don\'t update on metered connections</string>
+    <string name="pref_unmetered_only_summary_alt">Selected provider does not require internet</string>
     <string name="pref_quote_module_title">Quote provider</string>
     <string name="pref_quote_module_summary">Select a quote source</string>
     <string name="pref_module_preferences_title">Quote provider preferences</string>
     <string name="pref_module_preferences_summary">Manage provider-specific settings</string>
     <string name="pref_module_preferences_summary_alt">No preferences for selected provider</string>
-    <string name="pref_about">About</string>
-    <string name="pref_about_author_crossbowffs">App and VNaaS quote provider</string>
+    <string name="pref_about_author_crossbowffs">App and quote providers</string>
     <string name="pref_about_author_yubyf">Additional quote providers</string>
     <string name="pref_about_github">View project on GitHub</string>
     <string name="pref_about_version">Version</string>
-    <string name="pref_about_easter_egg">お兄ちゃん、葉月を大人にしてくれる？</string>
+    <string name="pref_about_easter_egg">絶対に許しません！</string>
     <string name="refesh_quote">Refresh quote</string>
     <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>
     <string name="quote_download_success">Quote downloaded successfully</string>
-    <string name="module_vnaas_name">Visual Novel as a Service</string>
-    <string name="module_hitokoto_name">Hitokoto 一言</string>
-    <string name="module_goodreads_name">Goodreads QotD</string>
-    <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
     <string name="open_quotelock_app_line1">Welcome to QuoteLock!</string>
     <string name="open_quotelock_app_line2">Please open the configuration app</string>
+    <string name="module_vnaas_name">Visual Novel as a Service (日本語)</string>
+    <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
+    <string name="module_goodreads_name">Goodreads QotD (English)</string>
+    <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
+    <string name="module_freakuotes_name">Freakuotes (Español)</string>
+    <string name="module_custom_name">Custom</string>
+    <string name="module_custom_setup_line1">No custom quotes set</string>
+    <string name="module_custom_setup_line2">Please open the configuration app</string>
+    <string name="module_custom_activity_label">Custom quotes</string>
+    <string name="module_custom_enter_quote">Enter quote</string>
+    <string name="module_custom_create_quote">Create quote</string>
+    <string name="module_custom_text">Text</string>
+    <string name="module_custom_source">Source</string>
+    <string name="module_custom_saved_quote">Saved quote</string>
+    <string name="module_custom_deleted_quote">Deleted quote</string>
 </resources>
