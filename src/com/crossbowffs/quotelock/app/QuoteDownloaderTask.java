@@ -36,8 +36,8 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
 
     @Override
     protected void onPostExecute(QuoteData quote) {
+        Xlog.d(TAG, "QuoteDownloaderTask#onPostExecute called, success: %s", (quote != null));
         if (quote != null) {
-            Xlog.i(TAG, "Successfully downloaded new quote");
             Xlog.i(TAG, "Text: %s", quote.getQuoteText());
             Xlog.i(TAG, "Source: %s", quote.getQuoteSource());
             mContext.getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE)
@@ -47,5 +47,10 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
                 .putLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, System.currentTimeMillis())
                 .apply();
         }
+    }
+
+    @Override
+    protected void onCancelled(QuoteData quoteData) {
+        Xlog.d(TAG, "QuoteDownloaderTask#onCancelled called");
     }
 }

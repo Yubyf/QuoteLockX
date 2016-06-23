@@ -20,7 +20,7 @@ public class JobUtils {
         // If our provider doesn't require internet access, we should always be
         // refreshing the quote.
         if (!preferences.getBoolean(PrefKeys.PREF_COMMON_REQUIRES_INTERNET, true)) {
-            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: provider doesn't require internet");
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: YES (provider doesn't require internet)");
             return true;
         }
 
@@ -28,7 +28,7 @@ public class JobUtils {
         ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = manager.getActiveNetworkInfo();
         if (netInfo == null || !netInfo.isConnected()) {
-            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: not connected to internet");
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: NO (not connected to internet)");
             return false;
         }
 
@@ -36,7 +36,7 @@ public class JobUtils {
         // user's preference.
         boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
         if (unmeteredOnly && manager.isActiveNetworkMetered()) {
-            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: can only update on unmetered connections");
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: NO (can only update on unmetered connections)");
             return false;
         }
 
@@ -44,8 +44,8 @@ public class JobUtils {
         return true;
     }
 
-    public static void createQuoteDownloadJob(Context context, boolean forceCreate) {
-        Xlog.d(TAG, "JobUtils#createQuoteDownloadJob called, forceCreate == %s", forceCreate);
+    public static void createQuoteDownloadJob(Context context, boolean recreate) {
+        Xlog.d(TAG, "JobUtils#createQuoteDownloadJob called, recreate == %s", recreate);
 
         // Instead of canceling the job whenever we disconnect from the
         // internet, we wait until the job executes. Upon execution, we re-check
@@ -61,10 +61,10 @@ public class JobUtils {
 
         // If we're not forcing a job refresh (e.g. when a setting changes),
         // ignore the request if the job already exists
-        if (!forceCreate) {
+        if (!recreate) {
             for (JobInfo job : scheduler.getAllPendingJobs()) {
                 if (job.getId() == JOB_ID) {
-                    Xlog.d(TAG, "Job already exists and forceCreate == false, ignoring");
+                    Xlog.d(TAG, "Job already exists and recreate == false, ignoring");
                     return;
                 }
             }
