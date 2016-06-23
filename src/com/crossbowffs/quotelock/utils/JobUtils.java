@@ -20,7 +20,7 @@ public class JobUtils {
         // If our provider doesn't require internet access, we should always be
         // refreshing the quote.
         if (!preferences.getBoolean(PrefKeys.PREF_COMMON_REQUIRES_INTERNET, true)) {
-            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: provider doesn't require internet");
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: YES (provider doesn't require internet)");
             return true;
         }
 
@@ -28,7 +28,7 @@ public class JobUtils {
         ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = manager.getActiveNetworkInfo();
         if (netInfo == null || !netInfo.isConnected()) {
-            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: not connected to internet");
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: NO (not connected to internet)");
             return false;
         }
 
@@ -36,7 +36,7 @@ public class JobUtils {
         // user's preference.
         boolean unmeteredOnly = preferences.getBoolean(PrefKeys.PREF_COMMON_UNMETERED_ONLY, PrefKeys.PREF_COMMON_UNMETERED_ONLY_DEFAULT);
         if (unmeteredOnly && manager.isActiveNetworkMetered()) {
-            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: can only update on unmetered connections");
+            Xlog.d(TAG, "JobUtils#shouldRefreshQuote: NO (can only update on unmetered connections)");
             return false;
         }
 
