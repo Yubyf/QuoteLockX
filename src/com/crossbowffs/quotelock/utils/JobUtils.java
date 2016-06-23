@@ -44,8 +44,8 @@ public class JobUtils {
         return true;
     }
 
-    public static void createQuoteDownloadJob(Context context, boolean forceCreate) {
-        Xlog.d(TAG, "JobUtils#createQuoteDownloadJob called, forceCreate == %s", forceCreate);
+    public static void createQuoteDownloadJob(Context context, boolean recreate) {
+        Xlog.d(TAG, "JobUtils#createQuoteDownloadJob called, recreate == %s", recreate);
 
         // Instead of canceling the job whenever we disconnect from the
         // internet, we wait until the job executes. Upon execution, we re-check
@@ -61,10 +61,10 @@ public class JobUtils {
 
         // If we're not forcing a job refresh (e.g. when a setting changes),
         // ignore the request if the job already exists
-        if (!forceCreate) {
+        if (!recreate) {
             for (JobInfo job : scheduler.getAllPendingJobs()) {
                 if (job.getId() == JOB_ID) {
-                    Xlog.d(TAG, "Job already exists and forceCreate == false, ignoring");
+                    Xlog.d(TAG, "Job already exists and recreate == false, ignoring");
                     return;
                 }
             }

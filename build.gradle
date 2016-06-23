@@ -25,8 +25,8 @@ android {
     buildToolsVersion "24"
 
     defaultConfig {
-        versionCode 6
-        versionName "1.2.0"
+        versionCode 7
+        versionName "1.2.1"
         minSdkVersion 21
         targetSdkVersion 23
         buildConfigField("int", "MODULE_VERSION", "1")
