@@ -22,7 +22,7 @@ dependencies {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "24"
+    buildToolsVersion "24.0.0"
 
     defaultConfig {
         versionCode 7
@@ -36,9 +36,9 @@ android {
     sourceSets {
         main {
             manifest.srcFile "AndroidManifest.xml"
-            res.srcDirs = ["res"]
-            java.srcDirs = ["src"]
-            assets.srcDirs = ["assets"]
+            res.srcDir "res"
+            java.srcDir "src"
+            assets.srcDir "assets"
         }
     }
 
