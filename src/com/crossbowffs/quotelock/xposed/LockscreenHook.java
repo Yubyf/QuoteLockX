@@ -1,11 +1,11 @@
 package com.crossbowffs.quotelock.xposed;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.TextView;
-import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.preferences.PrefKeys;
 import com.crossbowffs.quotelock.provider.QuoteProvider;
 import com.crossbowffs.quotelock.utils.Xlog;
@@ -21,6 +21,8 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     private static final String RES_LAYOUT_QUOTE_LAYOUT = "quote_layout";
     private static final String RES_STRING_OPEN_APP_1 = "open_quotelock_app_line1";
     private static final String RES_STRING_OPEN_APP_2 = "open_quotelock_app_line2";
+    private static final String RES_ID_QUOTE_TEXTVIEW = "quote_textview";
+    private static final String RES_ID_SOURCE_TEXTVIEW = "source_textview";
 
     private static String sModulePath;
     private static XSafeModuleResources sModuleRes;
@@ -58,15 +60,17 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                     Xlog.i(TAG, "KeyguardStatusView#onFinishInflate() called, injecting views...");
 
                     GridLayout self = (GridLayout)param.thisObject;
-                    LayoutInflater layoutInflater = LayoutInflater.from(self.getContext());
+                    Context context = self.getContext();
+
+                    LayoutInflater layoutInflater = LayoutInflater.from(context);
                     XmlPullParser parser = sModuleRes.getLayout(RES_LAYOUT_QUOTE_LAYOUT);
                     View view = layoutInflater.inflate(parser, null);
                     self.addView(view);
 
-                    mQuoteTextView = (TextView)view.findViewById(R.id.quote_textview);
-                    mSourceTextView = (TextView)view.findViewById(R.id.source_textview);
+                    mQuoteTextView = (TextView)sModuleRes.findViewById(view, RES_ID_QUOTE_TEXTVIEW);
+                    mSourceTextView = (TextView)sModuleRes.findViewById(view, RES_ID_SOURCE_TEXTVIEW);
 
-                    RemotePreferences prefs = new RemotePreferences(self.getContext(), QuoteProvider.AUTHORITY, PrefKeys.PREF_QUOTES);
+                    RemotePreferences prefs = new RemotePreferences(context, QuoteProvider.AUTHORITY, PrefKeys.PREF_QUOTES);
                     refreshQuote(prefs);
                     prefs.registerOnSharedPreferenceChangeListener(LockscreenHook.this);
 

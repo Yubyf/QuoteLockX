@@ -1,7 +1,9 @@
 package com.crossbowffs.quotelock.xposed;
 
+import android.content.res.Resources;
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
+import android.view.View;
 import com.crossbowffs.quotelock.BuildConfig;
 import org.xmlpull.v1.XmlPullParser;
 
@@ -22,7 +24,7 @@ public class XSafeModuleResources {
     private int getResId(String resName, String resType) {
         int resId = mModuleRes.getIdentifier(resName, resType, PACKAGE_NAME);
         if (resId == 0) {
-            throw new AssertionError("Could not find " + resType + ": " + resName);
+            throw new Resources.NotFoundException("Could not find " + resType + ": " + resName);
         }
         return resId;
     }
@@ -35,5 +37,10 @@ public class XSafeModuleResources {
     public XmlPullParser getLayout(String resName) {
         int resId = getResId(resName, "layout");
         return mModuleRes.getLayout(resId);
+    }
+
+    public View findViewById(View view, String idName) {
+        int id = getResId(idName, "id");
+        return view.findViewById(id);
     }
 }
