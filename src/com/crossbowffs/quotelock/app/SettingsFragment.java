@@ -38,7 +38,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         findPreference(PrefKeys.PREF_ABOUT_VERSION).setSummary(version);
 
         // Get quote module list
-        List<QuoteModule> quoteModules = ModuleManager.getAllModules();
+        List<QuoteModule> quoteModules = ModuleManager.getAllModules(getActivity());
         String[] moduleNames = new String[quoteModules.size()];
         String[] moduleClsNames = new String[quoteModules.size()];
         for (int i = 0; i < moduleNames.length; ++i) {
@@ -102,7 +102,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     private void onSelectedModuleChanged() {
         SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
         String moduleClsName = prefs.getString(PrefKeys.PREF_COMMON_QUOTE_MODULE, PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
-        QuoteModule module = ModuleManager.getModule(moduleClsName);
+        QuoteModule module = ModuleManager.getModule(getActivity(), moduleClsName);
 
         // Update config activity preference
         ComponentName configActivity = module.getConfigActivity(getActivity());

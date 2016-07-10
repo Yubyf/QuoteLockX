@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.modules;
 
+import android.content.Context;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.custom.CustomQuoteModule;
 import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule;
@@ -11,49 +12,39 @@ import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule;
 import java.util.*;
 
 public class ModuleManager {
-    private static final List<Class<? extends QuoteModule>> sModules = new ArrayList<>();
-    private static final Map<Class<? extends QuoteModule>, QuoteModule> sInstanceCache = new WeakHashMap<>();
+    private static final Map<String, QuoteModule> sModules = new HashMap<>();
 
     static {
-        addModule(VnaasQuoteModule.class);
-        addModule(HitokotoQuoteModule.class);
-        addModule(GoodreadsQuoteModule.class);
-        addModule(WikiquoteQuoteModule.class);
-        addModule(FreakuotesQuoteModule.class);
-        addModule(CustomQuoteModule.class);
+        addLocalModule(VnaasQuoteModule.class);
+        addLocalModule(HitokotoQuoteModule.class);
+        addLocalModule(GoodreadsQuoteModule.class);
+        addLocalModule(WikiquoteQuoteModule.class);
+        addLocalModule(FreakuotesQuoteModule.class);
+        addLocalModule(CustomQuoteModule.class);
     }
 
-    private static void addModule(Class<? extends QuoteModule> module) {
-        sModules.add(module);
+    private static void addLocalModule(Class<? extends QuoteModule> moduleCls) {
+        String className = moduleCls.getName();
+        sModules.put(className, newLocalModule(moduleCls));
     }
 
-    private static QuoteModule getOrCreateModule(Class<? extends QuoteModule> moduleCls) {
-        QuoteModule module = sInstanceCache.get(moduleCls);
-        if (module == null) {
-            try {
-                module = moduleCls.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new AssertionError(e);
-            }
-            sInstanceCache.put(moduleCls, module);
+    private static QuoteModule newLocalModule(Class<? extends QuoteModule> moduleCls) {
+        try {
+            return moduleCls.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new AssertionError(e);
         }
-        return module;
     }
 
-    public static QuoteModule getModule(String className) {
-        for (Class<? extends QuoteModule> cls : sModules) {
-            if (cls.getName().equals(className)) {
-                return getOrCreateModule(cls);
-            }
+    public static QuoteModule getModule(Context context, String className) {
+        QuoteModule module = sModules.get(className);
+        if (module != null) {
+            return module;
         }
         throw new AssertionError("Module not found for class: " + className);
     }
 
-    public static List<QuoteModule> getAllModules() {
-        ArrayList<QuoteModule> modules = new ArrayList<>();
-        for (Class<? extends QuoteModule> cls : sModules) {
-            modules.add(getOrCreateModule(cls));
-        }
-        return modules;
+    public static List<QuoteModule> getAllModules(Context context) {
+        return new ArrayList<>(sModules.values());
     }
 }

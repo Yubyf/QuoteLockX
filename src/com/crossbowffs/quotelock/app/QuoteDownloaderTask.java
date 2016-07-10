@@ -19,7 +19,7 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
         mContext = context;
         SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
         String moduleClsName = preferences.getString(PrefKeys.PREF_COMMON_QUOTE_MODULE, PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
-        mModule = ModuleManager.getModule(moduleClsName);
+        mModule = ModuleManager.getModule(context, moduleClsName);
     }
 
     @Override
