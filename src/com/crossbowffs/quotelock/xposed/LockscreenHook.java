@@ -1,8 +1,6 @@
 package com.crossbowffs.quotelock.xposed;
 
 import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.content.res.XModuleResources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridLayout;
@@ -20,41 +18,25 @@ import org.xmlpull.v1.XmlPullParser;
 public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPackageResources,
                                        IXposedHookLoadPackage, SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = LockscreenHook.class.getSimpleName();
+    private static final String RES_LAYOUT_QUOTE_LAYOUT = "quote_layout";
+    private static final String RES_STRING_OPEN_APP_1 = "open_quotelock_app_line1";
+    private static final String RES_STRING_OPEN_APP_2 = "open_quotelock_app_line2";
 
     private static String sModulePath;
-    private static XModuleResources sModuleResources;
+    private static XSafeModuleResources sModuleRes;
     private TextView mQuoteTextView;
     private TextView mSourceTextView;
 
-    private static String tryGetString(int resId) {
-        try {
-            return sModuleResources.getString(resId);
-        } catch (Resources.NotFoundException e) {
-            Xlog.e(TAG, "Could not find resource: %x", resId);
-            return null;
-        }
-    }
-
-    private static String getQuoteText(SharedPreferences preferences) {
-        String text = preferences.getString(PrefKeys.PREF_QUOTES_TEXT, null);
-        if (text == null) {
-            text = tryGetString(R.string.open_quotelock_app_line1);
-        }
-        return text;
-    }
-
-    private static String getQuoteSource(SharedPreferences preferences) {
-        String source = preferences.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
-        if (source == null) {
-            source = tryGetString(R.string.open_quotelock_app_line2);
-        }
-        return source;
-    }
-
     private void refreshQuote(SharedPreferences preferences) {
         Xlog.d(TAG, "Quote changed, updating lockscreen layout");
-        mQuoteTextView.setText(getQuoteText(preferences));
-        mSourceTextView.setText(getQuoteSource(preferences));
+        String text = preferences.getString(PrefKeys.PREF_QUOTES_TEXT, null);
+        String source = preferences.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
+        if (text == null || source == null) {
+            text = sModuleRes.getString(RES_STRING_OPEN_APP_1);
+            source = sModuleRes.getString(RES_STRING_OPEN_APP_2);
+        }
+        mQuoteTextView.setText(text);
+        mSourceTextView.setText(source);
     }
 
     @Override
@@ -77,7 +59,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
 
                     GridLayout self = (GridLayout)param.thisObject;
                     LayoutInflater layoutInflater = LayoutInflater.from(self.getContext());
-                    XmlPullParser parser = sModuleResources.getLayout(R.layout.quote_layout);
+                    XmlPullParser parser = sModuleRes.getLayout(RES_LAYOUT_QUOTE_LAYOUT);
                     View view = layoutInflater.inflate(parser, null);
                     self.addView(view);
 
@@ -97,7 +79,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
 
     @Override
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
-        sModuleResources = XModuleResources.createInstance(sModulePath, resparam.res);
+        sModuleRes = XSafeModuleResources.createInstance(sModulePath, resparam.res);
     }
 
     @Override
