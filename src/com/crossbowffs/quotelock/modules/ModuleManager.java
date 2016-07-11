@@ -12,7 +12,7 @@ import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule;
 import java.util.*;
 
 public class ModuleManager {
-    private static final Map<String, QuoteModule> sModules = new HashMap<>();
+    private static final Map<String, QuoteModule> sModules = new LinkedHashMap<>();
 
     static {
         addLocalModule(VnaasQuoteModule.class);
