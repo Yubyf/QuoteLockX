@@ -29,10 +29,10 @@ public class IOUtils {
 
     public static String downloadString(String urlString) throws IOException {
         URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         String ua = String.format("QuoteLock/%s (+%s)", BuildConfig.VERSION_NAME, Urls.GITHUB_QUOTELOCK);
-        connection.setRequestProperty("User-Agent",  ua);
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         try {
+            connection.setRequestProperty("User-Agent",  ua);
             int responseCode = connection.getResponseCode();
             if (responseCode == 200) {
                 return streamToString(connection.getInputStream());
