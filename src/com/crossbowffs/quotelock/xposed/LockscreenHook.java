@@ -2,6 +2,7 @@ package com.crossbowffs.quotelock.xposed;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridLayout;
@@ -38,6 +39,11 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
             source = sModuleRes.getString(RES_STRING_OPEN_APP_2);
         }
         mQuoteTextView.setText(text);
+        if (TextUtils.isEmpty(source)) {
+            mSourceTextView.setVisibility(View.GONE);
+        } else {
+            mSourceTextView.setVisibility(View.VISIBLE);
+        }
         mSourceTextView.setText(source);
     }
 

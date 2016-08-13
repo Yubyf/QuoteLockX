@@ -26,10 +26,10 @@ android {
 
     defaultConfig {
         versionCode 8
-        versionName "1.2.2-dev"
+        versionName "1.2.2"
         minSdkVersion 21
         targetSdkVersion 23
-        buildConfigField("int", "MODULE_VERSION", "1")
+        buildConfigField("int", "MODULE_VERSION", "2")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "1")
     }
 
