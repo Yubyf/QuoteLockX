@@ -1,5 +1,8 @@
 package com.crossbowffs.quotelock.utils;
 
+import com.crossbowffs.quotelock.BuildConfig;
+import com.crossbowffs.quotelock.consts.Urls;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,6 +30,8 @@ public class IOUtils {
     public static String downloadString(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        String ua = String.format("QuoteLock/%s (%s)", BuildConfig.VERSION_NAME, Urls.GITHUB_QUOTELOCK);
+        connection.setRequestProperty("User-Agent",  ua);
         try {
             int responseCode = connection.getResponseCode();
             if (responseCode == 200) {

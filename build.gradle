@@ -15,18 +15,18 @@ repositories {
 apply plugin: "com.android.application"
 
 dependencies {
-    compile "com.crossbowffs.remotepreferences:remotepreferences:0.1"
+    compile "com.crossbowffs.remotepreferences:remotepreferences:0.2"
     compile "org.jsoup:jsoup:1.9.2"
     provided "de.robv.android.xposed:api:53"
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "24.0.0"
+    buildToolsVersion "24.0.1"
 
     defaultConfig {
-        versionCode 7
-        versionName "1.2.1"
+        versionCode 8
+        versionName "1.2.2-dev"
         minSdkVersion 21
         targetSdkVersion 23
         buildConfigField("int", "MODULE_VERSION", "1")

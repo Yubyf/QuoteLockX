@@ -1,8 +1,8 @@
-package com.crossbowffs.quotelock.preferences;
+package com.crossbowffs.quotelock.consts;
 
 import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
 
-public class PrefKeys {
+public final class PrefKeys {
     public static final String PREF_COMMON = "common";
     public static final String PREF_COMMON_REFRESH_RATE = "pref_common_refresh_rate";
     public static final String PREF_COMMON_REFRESH_RATE_DEFAULT = "300";
@@ -23,4 +23,6 @@ public class PrefKeys {
     public static final String PREF_ABOUT_AUTHOR_YUBYF = "pref_about_author_yubyf";
     public static final String PREF_ABOUT_GITHUB = "pref_about_github";
     public static final String PREF_ABOUT_VERSION = "pref_about_version";
+
+    private PrefKeys() { }
 }

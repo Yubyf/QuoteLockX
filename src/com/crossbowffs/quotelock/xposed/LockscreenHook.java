@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.TextView;
-import com.crossbowffs.quotelock.preferences.PrefKeys;
+import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.quotelock.provider.QuoteProvider;
 import com.crossbowffs.quotelock.utils.Xlog;
 import com.crossbowffs.remotepreferences.RemotePreferences;

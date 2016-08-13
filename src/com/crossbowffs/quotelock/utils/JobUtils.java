@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.crossbowffs.quotelock.app.QuoteDownloaderService;
-import com.crossbowffs.quotelock.preferences.PrefKeys;
+import com.crossbowffs.quotelock.consts.PrefKeys;
 
 public class JobUtils {
     private static final String TAG = JobUtils.class.getSimpleName();

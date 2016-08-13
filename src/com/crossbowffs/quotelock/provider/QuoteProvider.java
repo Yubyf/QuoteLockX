@@ -1,7 +1,7 @@
 package com.crossbowffs.quotelock.provider;
 
 import com.crossbowffs.quotelock.BuildConfig;
-import com.crossbowffs.quotelock.preferences.PrefKeys;
+import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.remotepreferences.RemotePreferenceProvider;
 
 public class QuoteProvider extends RemotePreferenceProvider {
