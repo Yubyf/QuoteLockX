@@ -165,7 +165,7 @@ public class CustomQuoteConfigActivity extends ListActivity implements LoaderMan
             @Override
             public void afterTextChanged(Editable s) {
                 Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                boolean canSave = !TextUtils.isEmpty(textEditText.getText()) && !TextUtils.isEmpty(sourceEditText.getText());
+                boolean canSave = !TextUtils.isEmpty(textEditText.getText());
                 button.setEnabled(canSave);
             }
         };
