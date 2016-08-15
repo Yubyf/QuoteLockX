@@ -25,8 +25,8 @@ android {
     buildToolsVersion "24.0.1"
 
     defaultConfig {
-        versionCode 8
-        versionName "1.2.2"
+        versionCode 9
+        versionName "1.2.3"
         minSdkVersion 21
         targetSdkVersion 23
         buildConfigField("int", "MODULE_VERSION", "2")
@@ -39,14 +39,6 @@ android {
             res.srcDir "res"
             java.srcDir "src"
             assets.srcDir "assets"
-        }
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
 }
