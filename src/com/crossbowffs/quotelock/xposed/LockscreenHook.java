@@ -2,6 +2,7 @@ package com.crossbowffs.quotelock.xposed;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,17 +40,24 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
         String text = mQuotePrefs.getString(PrefKeys.PREF_QUOTES_TEXT, null);
         String source = mQuotePrefs.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
         if (text == null || source == null) {
-            text = sModuleRes.getString(RES_STRING_OPEN_APP_1);
-            source = sModuleRes.getString(RES_STRING_OPEN_APP_2);
+            try {
+                text = sModuleRes.getString(RES_STRING_OPEN_APP_1);
+                source = sModuleRes.getString(RES_STRING_OPEN_APP_2);
+            } catch (Resources.NotFoundException e) {
+                Xlog.e(TAG, "Could not load string resource", e);
+                text = null;
+                source = null;
+            }
         }
         mQuoteTextView.setText(text);
+        mSourceTextView.setText(source);
+
         // Hide source textview if there is no source
         if (TextUtils.isEmpty(source)) {
             mSourceTextView.setVisibility(View.GONE);
         } else {
             mSourceTextView.setVisibility(View.VISIBLE);
         }
-        mSourceTextView.setText(source);
 
         // Update font size
         int textFontSize = Integer.parseInt(mCommonPrefs.getString(
@@ -80,12 +88,23 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                     GridLayout self = (GridLayout)param.thisObject;
                     Context context = self.getContext();
                     LayoutInflater layoutInflater = LayoutInflater.from(context);
-                    XmlPullParser parser = sModuleRes.getLayout(RES_LAYOUT_QUOTE_LAYOUT);
+                    XmlPullParser parser;
+                    try {
+                        parser = sModuleRes.getLayout(RES_LAYOUT_QUOTE_LAYOUT);
+                    } catch (Resources.NotFoundException e) {
+                        Xlog.e(TAG, "Could not find quote layout, aborting", e);
+                        return;
+                    }
                     View view = layoutInflater.inflate(parser, null);
                     self.addView(view);
 
-                    mQuoteTextView = (TextView)sModuleRes.findViewById(view, RES_ID_QUOTE_TEXTVIEW);
-                    mSourceTextView = (TextView)sModuleRes.findViewById(view, RES_ID_SOURCE_TEXTVIEW);
+                    try {
+                        mQuoteTextView = (TextView)sModuleRes.findViewById(view, RES_ID_QUOTE_TEXTVIEW);
+                        mSourceTextView = (TextView)sModuleRes.findViewById(view, RES_ID_SOURCE_TEXTVIEW);
+                    } catch (Resources.NotFoundException e) {
+                        Xlog.e(TAG, "Could not find text views, aborting", e);
+                        return;
+                    }
 
                     Xlog.i(TAG, "View injection complete, registering preferences...");
                     mCommonPrefs = new RemotePreferences(context, PreferenceProvider.AUTHORITY, PrefKeys.PREF_COMMON);
