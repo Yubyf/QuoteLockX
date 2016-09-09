@@ -2,11 +2,14 @@
 
 [Displays quotes on your lockscreen, because why not.](http://i.imgur.com/EXzpNWA.jpg)
 
-**Only stock Android is supported!** This is due to the heavy lockscreen
+**Only near-AOSP Android ROMs are supported!** This is due to the heavy lockscreen
 modifications made by different OEMs.
 
 **After installing, please open the app at least once** to allow the quote downloader service
 to run in the background.
+
+**Make sure to whitelist QuoteLock if you are using a task-killer app!** They can interfere
+with the download service.
 
 ## Requirements
 
