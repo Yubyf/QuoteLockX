@@ -16,7 +16,7 @@ to run in the background.
 ## Providers
 
 - [Visual Novel as a Service (日本語)](http://vnaas.apsun.xyz/)
-- [Hitokoto (中文)](http://hitokoto.us/)
+- [Hitokoto (unofficial) (中文)](https://blog.lwl12.com/read/hitokoto-api.html)
 - [Goodreads QotD (English)](http://www.goodreads.com/)
 - [Wikiquote QotD (中文)](https://www.wikiquote.org/)
 - [Freakuotes (Español)](https://freakuotes.com/)
