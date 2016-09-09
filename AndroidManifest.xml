@@ -32,7 +32,7 @@
             </intent-filter>
         </receiver>
         <provider
-            android:name=".provider.QuoteProvider"
+            android:name=".provider.PreferenceProvider"
             android:authorities="${applicationId}.preferences"
             android:exported="true"/>
         <meta-data

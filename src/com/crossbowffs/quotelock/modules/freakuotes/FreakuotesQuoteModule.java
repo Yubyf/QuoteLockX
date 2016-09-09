@@ -54,11 +54,11 @@ public class FreakuotesQuoteModule implements QuoteModule {
             Xlog.w(TAG, "Quote source not found");
             quoteSource = "";
         } else if (TextUtils.isEmpty(sourceLeft)) {
-            quoteSource = "―" + sourceRight;
+            quoteSource = "― " + sourceRight;
         } else if (TextUtils.isEmpty(sourceRight)) {
-            quoteSource = "―" + sourceLeft;
+            quoteSource = "― " + sourceLeft;
         } else {
-            quoteSource = String.format("―%s, %s", sourceLeft, sourceRight);
+            quoteSource = String.format("― %s, %s", sourceLeft, sourceRight);
         }
 
         return new QuoteData(quoteText, quoteSource);

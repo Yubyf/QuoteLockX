@@ -26,6 +26,10 @@
     <string name="pref_unmetered_only_title">Unmetered only</string>
     <string name="pref_unmetered_only_summary">Don\'t update on metered connections</string>
     <string name="pref_unmetered_only_summary_alt">Selected provider does not require internet</string>
+    <string name="pref_font_size_text_title">Quote font size</string>
+    <string name="pref_font_size_text_summary">The size of the quote text</string>
+    <string name="pref_font_size_source_title">Source font size</string>
+    <string name="pref_font_size_source_summary">The size of the source text</string>
     <string name="pref_quote_module_title">Quote provider</string>
     <string name="pref_quote_module_summary">Select a quote source</string>
     <string name="pref_module_preferences_title">Quote provider preferences</string>
@@ -48,6 +52,7 @@
     <string name="module_goodreads_name">Goodreads QotD (English)</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
     <string name="module_freakuotes_name">Freakuotes (Español)</string>
+    <string name="module_natune_name">Natune.net (Deutsch)</string>
     <string name="module_custom_name">Custom</string>
     <string name="module_custom_setup_line1">No custom quotes set</string>
     <string name="module_custom_setup_line2">Please open the configuration app</string>

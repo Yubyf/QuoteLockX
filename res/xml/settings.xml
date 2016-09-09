@@ -23,6 +23,20 @@
             android:title="@string/pref_unmetered_only_title"
             android:summary="@string/pref_unmetered_only_summary"
             android:defaultValue="false"/>
+        <ListPreference
+            android:key="pref_common_font_size_text"
+            android:title="@string/pref_font_size_text_title"
+            android:summary="@string/pref_font_size_text_summary"
+            android:entries="@array/font_size_entries"
+            android:entryValues="@array/font_size_values"
+            android:defaultValue="20"/>
+        <ListPreference
+            android:key="pref_common_font_size_source"
+            android:title="@string/pref_font_size_source_title"
+            android:summary="@string/pref_font_size_source_summary"
+            android:entries="@array/font_size_entries"
+            android:entryValues="@array/font_size_values"
+            android:defaultValue="18"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/about">
         <Preference

@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import com.crossbowffs.quotelock.consts.PrefKeys;
-import com.crossbowffs.quotelock.provider.QuoteProvider;
+import com.crossbowffs.quotelock.provider.PreferenceProvider;
 import com.crossbowffs.quotelock.utils.Xlog;
 import com.crossbowffs.remotepreferences.RemotePreferences;
 import de.robv.android.xposed.*;
@@ -29,27 +29,40 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     private static XSafeModuleResources sModuleRes;
     private TextView mQuoteTextView;
     private TextView mSourceTextView;
+    private RemotePreferences mCommonPrefs;
+    private RemotePreferences mQuotePrefs;
 
-    private void refreshQuote(SharedPreferences preferences) {
+    private void refreshQuote() {
         Xlog.d(TAG, "Quote changed, updating lockscreen layout");
-        String text = preferences.getString(PrefKeys.PREF_QUOTES_TEXT, null);
-        String source = preferences.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
+
+        // Update quote text
+        String text = mQuotePrefs.getString(PrefKeys.PREF_QUOTES_TEXT, null);
+        String source = mQuotePrefs.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
         if (text == null || source == null) {
             text = sModuleRes.getString(RES_STRING_OPEN_APP_1);
             source = sModuleRes.getString(RES_STRING_OPEN_APP_2);
         }
         mQuoteTextView.setText(text);
+        // Hide source textview if there is no source
         if (TextUtils.isEmpty(source)) {
             mSourceTextView.setVisibility(View.GONE);
         } else {
             mSourceTextView.setVisibility(View.VISIBLE);
         }
         mSourceTextView.setText(source);
+
+        // Update font size
+        int textFontSize = Integer.parseInt(mCommonPrefs.getString(
+            PrefKeys.PREF_COMMON_FONT_SIZE_TEXT, PrefKeys.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT));
+        int sourceFontSize = Integer.parseInt(mCommonPrefs.getString(
+            PrefKeys.PREF_COMMON_FONT_SIZE_SOURCE, PrefKeys.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT));
+        mQuoteTextView.setTextSize(textFontSize);
+        mSourceTextView.setTextSize(sourceFontSize);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        refreshQuote(sharedPreferences);
+        refreshQuote();
     }
 
     @Override
@@ -64,10 +77,8 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     Xlog.i(TAG, "KeyguardStatusView#onFinishInflate() called, injecting views...");
-
                     GridLayout self = (GridLayout)param.thisObject;
                     Context context = self.getContext();
-
                     LayoutInflater layoutInflater = LayoutInflater.from(context);
                     XmlPullParser parser = sModuleRes.getLayout(RES_LAYOUT_QUOTE_LAYOUT);
                     View view = layoutInflater.inflate(parser, null);
@@ -76,11 +87,14 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                     mQuoteTextView = (TextView)sModuleRes.findViewById(view, RES_ID_QUOTE_TEXTVIEW);
                     mSourceTextView = (TextView)sModuleRes.findViewById(view, RES_ID_SOURCE_TEXTVIEW);
 
-                    RemotePreferences prefs = new RemotePreferences(context, QuoteProvider.AUTHORITY, PrefKeys.PREF_QUOTES);
-                    refreshQuote(prefs);
-                    prefs.registerOnSharedPreferenceChangeListener(LockscreenHook.this);
+                    Xlog.i(TAG, "View injection complete, registering preferences...");
+                    mCommonPrefs = new RemotePreferences(context, PreferenceProvider.AUTHORITY, PrefKeys.PREF_COMMON);
+                    mCommonPrefs.registerOnSharedPreferenceChangeListener(LockscreenHook.this);
+                    mQuotePrefs = new RemotePreferences(context, PreferenceProvider.AUTHORITY, PrefKeys.PREF_QUOTES);
+                    mQuotePrefs.registerOnSharedPreferenceChangeListener(LockscreenHook.this);
 
-                    Xlog.i(TAG, "View injection complete!");
+                    Xlog.i(TAG, "Preferences registered, performing initial refresh...");
+                    refreshQuote();
                 }
             });
 
