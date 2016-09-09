@@ -20,6 +20,7 @@ to run in the background.
 - [Goodreads QotD (English)](http://www.goodreads.com/)
 - [Wikiquote QotD (中文)](https://www.wikiquote.org/)
 - [Freakuotes (Español)](https://freakuotes.com/)
+- [Natune.net (Deutsch)](http://natune.net/zitate/)
 - Custom (write your own!)
 
 ## License
