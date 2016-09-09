@@ -14,7 +14,7 @@ public final class PrefKeys {
     public static final String PREF_COMMON_REQUIRES_INTERNET = "pref_common_requires_internet";
     public static final String PREF_COMMON_REFRESH_RATE_OVERRIDE = "pref_common_refresh_rate_override";
     public static final String PREF_COMMON_FONT_SIZE_TEXT = "pref_common_font_size_text";
-    public static final String PREF_COMMON_FONT_SIZE_TEXT_DEFAULT = "20";
+    public static final String PREF_COMMON_FONT_SIZE_TEXT_DEFAULT = "18";
     public static final String PREF_COMMON_FONT_SIZE_SOURCE = "pref_common_font_size_source";
     public static final String PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT = "18";
 

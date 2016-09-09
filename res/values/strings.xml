@@ -39,7 +39,7 @@
     <string name="pref_about_author_yubyf">Additional quote providers</string>
     <string name="pref_about_github">View project on GitHub</string>
     <string name="pref_about_version">Version</string>
-    <string name="pref_about_easter_egg">お兄ちゃん、葉月の気持ちいいとこ、さわってみて……？</string>
+    <string name="pref_about_easter_egg">一回百円で心穏やかになれるのです…</string>
     <string name="refesh_quote">Refresh quote</string>
     <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>
@@ -55,7 +55,7 @@
     <string name="module_natune_name">Natune.net (Deutsch)</string>
     <string name="module_custom_name">Custom</string>
     <string name="module_custom_setup_line1">No custom quotes set</string>
-    <string name="module_custom_setup_line2">Please open the configuration app</string>
+    <string name="module_custom_setup_line2">Please open the provider settings</string>
     <string name="module_custom_activity_label">Custom quotes</string>
     <string name="module_custom_enter_quote">Enter quote</string>
     <string name="module_custom_create_quote">Create quote</string>
