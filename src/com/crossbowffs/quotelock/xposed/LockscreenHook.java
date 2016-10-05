@@ -1,15 +1,15 @@
 package com.crossbowffs.quotelock.xposed;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.content.res.XModuleResources;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.TextView;
-import com.crossbowffs.quotelock.R;
-import com.crossbowffs.quotelock.preferences.PrefKeys;
-import com.crossbowffs.quotelock.provider.QuoteProvider;
+import com.crossbowffs.quotelock.consts.PrefKeys;
+import com.crossbowffs.quotelock.provider.PreferenceProvider;
 import com.crossbowffs.quotelock.utils.Xlog;
 import com.crossbowffs.remotepreferences.RemotePreferences;
 import de.robv.android.xposed.*;
@@ -20,46 +20,57 @@ import org.xmlpull.v1.XmlPullParser;
 public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPackageResources,
                                        IXposedHookLoadPackage, SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = LockscreenHook.class.getSimpleName();
+    private static final String RES_LAYOUT_QUOTE_LAYOUT = "quote_layout";
+    private static final String RES_STRING_OPEN_APP_1 = "open_quotelock_app_line1";
+    private static final String RES_STRING_OPEN_APP_2 = "open_quotelock_app_line2";
+    private static final String RES_ID_QUOTE_TEXTVIEW = "quote_textview";
+    private static final String RES_ID_SOURCE_TEXTVIEW = "source_textview";
 
     private static String sModulePath;
-    private static XModuleResources sModuleResources;
+    private static XSafeModuleResources sModuleRes;
     private TextView mQuoteTextView;
     private TextView mSourceTextView;
+    private RemotePreferences mCommonPrefs;
+    private RemotePreferences mQuotePrefs;
 
-    private static String tryGetString(int resId) {
-        try {
-            return sModuleResources.getString(resId);
-        } catch (Resources.NotFoundException e) {
-            Xlog.e(TAG, "Could not find resource: %x", resId);
-            return null;
-        }
-    }
-
-    private static String getQuoteText(SharedPreferences preferences) {
-        String text = preferences.getString(PrefKeys.PREF_QUOTES_TEXT, null);
-        if (text == null) {
-            text = tryGetString(R.string.open_quotelock_app_line1);
-        }
-        return text;
-    }
-
-    private static String getQuoteSource(SharedPreferences preferences) {
-        String source = preferences.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
-        if (source == null) {
-            source = tryGetString(R.string.open_quotelock_app_line2);
-        }
-        return source;
-    }
-
-    private void refreshQuote(SharedPreferences preferences) {
+    private void refreshQuote() {
         Xlog.d(TAG, "Quote changed, updating lockscreen layout");
-        mQuoteTextView.setText(getQuoteText(preferences));
-        mSourceTextView.setText(getQuoteSource(preferences));
+
+        // Update quote text
+        String text = mQuotePrefs.getString(PrefKeys.PREF_QUOTES_TEXT, null);
+        String source = mQuotePrefs.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
+        if (text == null || source == null) {
+            try {
+                text = sModuleRes.getString(RES_STRING_OPEN_APP_1);
+                source = sModuleRes.getString(RES_STRING_OPEN_APP_2);
+            } catch (Resources.NotFoundException e) {
+                Xlog.e(TAG, "Could not load string resource", e);
+                text = null;
+                source = null;
+            }
+        }
+        mQuoteTextView.setText(text);
+        mSourceTextView.setText(source);
+
+        // Hide source textview if there is no source
+        if (TextUtils.isEmpty(source)) {
+            mSourceTextView.setVisibility(View.GONE);
+        } else {
+            mSourceTextView.setVisibility(View.VISIBLE);
+        }
+
+        // Update font size
+        int textFontSize = Integer.parseInt(mCommonPrefs.getString(
+            PrefKeys.PREF_COMMON_FONT_SIZE_TEXT, PrefKeys.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT));
+        int sourceFontSize = Integer.parseInt(mCommonPrefs.getString(
+            PrefKeys.PREF_COMMON_FONT_SIZE_SOURCE, PrefKeys.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT));
+        mQuoteTextView.setTextSize(textFontSize);
+        mSourceTextView.setTextSize(sourceFontSize);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        refreshQuote(sharedPreferences);
+        refreshQuote();
     }
 
     @Override
@@ -74,21 +85,35 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     Xlog.i(TAG, "KeyguardStatusView#onFinishInflate() called, injecting views...");
-
                     GridLayout self = (GridLayout)param.thisObject;
-                    LayoutInflater layoutInflater = LayoutInflater.from(self.getContext());
-                    XmlPullParser parser = sModuleResources.getLayout(R.layout.quote_layout);
+                    Context context = self.getContext();
+                    LayoutInflater layoutInflater = LayoutInflater.from(context);
+                    XmlPullParser parser;
+                    try {
+                        parser = sModuleRes.getLayout(RES_LAYOUT_QUOTE_LAYOUT);
+                    } catch (Resources.NotFoundException e) {
+                        Xlog.e(TAG, "Could not find quote layout, aborting", e);
+                        return;
+                    }
                     View view = layoutInflater.inflate(parser, null);
                     self.addView(view);
 
-                    mQuoteTextView = (TextView)view.findViewById(R.id.quote_textview);
-                    mSourceTextView = (TextView)view.findViewById(R.id.source_textview);
+                    try {
+                        mQuoteTextView = (TextView)sModuleRes.findViewById(view, RES_ID_QUOTE_TEXTVIEW);
+                        mSourceTextView = (TextView)sModuleRes.findViewById(view, RES_ID_SOURCE_TEXTVIEW);
+                    } catch (Resources.NotFoundException e) {
+                        Xlog.e(TAG, "Could not find text views, aborting", e);
+                        return;
+                    }
 
-                    RemotePreferences prefs = new RemotePreferences(self.getContext(), QuoteProvider.AUTHORITY, PrefKeys.PREF_QUOTES);
-                    refreshQuote(prefs);
-                    prefs.registerOnSharedPreferenceChangeListener(LockscreenHook.this);
+                    Xlog.i(TAG, "View injection complete, registering preferences...");
+                    mCommonPrefs = new RemotePreferences(context, PreferenceProvider.AUTHORITY, PrefKeys.PREF_COMMON);
+                    mCommonPrefs.registerOnSharedPreferenceChangeListener(LockscreenHook.this);
+                    mQuotePrefs = new RemotePreferences(context, PreferenceProvider.AUTHORITY, PrefKeys.PREF_QUOTES);
+                    mQuotePrefs.registerOnSharedPreferenceChangeListener(LockscreenHook.this);
 
-                    Xlog.i(TAG, "View injection complete!");
+                    Xlog.i(TAG, "Preferences registered, performing initial refresh...");
+                    refreshQuote();
                 }
             });
 
@@ -97,7 +122,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
 
     @Override
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
-        sModuleResources = XModuleResources.createInstance(sModulePath, resparam.res);
+        sModuleRes = XSafeModuleResources.createInstance(sModulePath, resparam.res);
     }
 
     @Override

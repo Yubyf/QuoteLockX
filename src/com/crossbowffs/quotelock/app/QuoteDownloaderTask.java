@@ -6,28 +6,35 @@ import android.os.AsyncTask;
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.ModuleManager;
-import com.crossbowffs.quotelock.preferences.PrefKeys;
+import com.crossbowffs.quotelock.consts.PrefKeys;
+import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
 import com.crossbowffs.quotelock.utils.Xlog;
 
 public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
     private static final String TAG = QuoteDownloaderTask.class.getSimpleName();
 
     protected final Context mContext;
-    private final QuoteModule mModule;
+    private final String mModuleName;
 
     public QuoteDownloaderTask(Context context) {
         mContext = context;
         SharedPreferences preferences = context.getSharedPreferences(PrefKeys.PREF_COMMON, Context.MODE_PRIVATE);
-        String moduleClsName = preferences.getString(PrefKeys.PREF_COMMON_QUOTE_MODULE, PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
-        mModule = ModuleManager.getModule(moduleClsName);
+        mModuleName = preferences.getString(PrefKeys.PREF_COMMON_QUOTE_MODULE, PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
     }
 
     @Override
     protected QuoteData doInBackground(Void... params) {
         Xlog.i(TAG, "Attempting to download new quote...");
-        Xlog.i(TAG, "Provider: %s", mModule.getDisplayName(mContext));
+        QuoteModule module;
         try {
-            return mModule.getQuote(mContext);
+            module = ModuleManager.getModule(mContext, mModuleName);
+        } catch (ModuleNotFoundException e) {
+            Xlog.e(TAG, "Selected module not found", e);
+            return null;
+        }
+        Xlog.i(TAG, "Provider: %s", module.getDisplayName(mContext));
+        try {
+            return module.getQuote(mContext);
         } catch (Exception e) {
             Xlog.e(TAG, "Quote download failed", e);
             return null;

@@ -1,59 +1,47 @@
 package com.crossbowffs.quotelock.modules;
 
+import android.content.Context;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.custom.CustomQuoteModule;
 import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule;
 import com.crossbowffs.quotelock.modules.goodreads.GoodreadsQuoteModule;
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;
+import com.crossbowffs.quotelock.modules.natune.NatuneQuoteModule;
 import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
 import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ModuleManager {
-    private static final List<Class<? extends QuoteModule>> sModules = new ArrayList<>();
-    private static final Map<Class<? extends QuoteModule>, QuoteModule> sInstanceCache = new WeakHashMap<>();
+    private static final Map<String, QuoteModule> sModules = new LinkedHashMap<>();
 
     static {
-        addModule(VnaasQuoteModule.class);
-        addModule(HitokotoQuoteModule.class);
-        addModule(GoodreadsQuoteModule.class);
-        addModule(WikiquoteQuoteModule.class);
-        addModule(FreakuotesQuoteModule.class);
-        addModule(CustomQuoteModule.class);
+        addLocalModule(new VnaasQuoteModule());
+        addLocalModule(new HitokotoQuoteModule());
+        addLocalModule(new GoodreadsQuoteModule());
+        addLocalModule(new WikiquoteQuoteModule());
+        addLocalModule(new FreakuotesQuoteModule());
+        addLocalModule(new NatuneQuoteModule());
+        addLocalModule(new CustomQuoteModule());
     }
 
-    private static void addModule(Class<? extends QuoteModule> module) {
-        sModules.add(module);
+    private static void addLocalModule(QuoteModule module) {
+        String className = module.getClass().getName();
+        sModules.put(className, module);
     }
 
-    private static QuoteModule getOrCreateModule(Class<? extends QuoteModule> moduleCls) {
-        QuoteModule module = sInstanceCache.get(moduleCls);
-        if (module == null) {
-            try {
-                module = moduleCls.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new AssertionError(e);
-            }
-            sInstanceCache.put(moduleCls, module);
+    public static QuoteModule getModule(Context context, String className) {
+        QuoteModule module = sModules.get(className);
+        if (module != null) {
+            return module;
         }
-        return module;
+        throw new ModuleNotFoundException("Module not found for class: " + className);
     }
 
-    public static QuoteModule getModule(String className) {
-        for (Class<? extends QuoteModule> cls : sModules) {
-            if (cls.getName().equals(className)) {
-                return getOrCreateModule(cls);
-            }
-        }
-        throw new AssertionError("Module not found for class: " + className);
-    }
-
-    public static List<QuoteModule> getAllModules() {
-        ArrayList<QuoteModule> modules = new ArrayList<>();
-        for (Class<? extends QuoteModule> cls : sModules) {
-            modules.add(getOrCreateModule(cls));
-        }
-        return modules;
+    public static List<QuoteModule> getAllModules(Context context) {
+        return new ArrayList<>(sModules.values());
     }
 }

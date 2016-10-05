@@ -9,7 +9,6 @@
         <item>6 hours</item>
         <item>24 hours</item>
     </string-array>
-
     <string-array name="refresh_interval_values">
         <item>60</item>
         <item>300</item>
@@ -18,5 +17,21 @@
         <item>3600</item>
         <item>21600</item>
         <item>86400</item>
+    </string-array>
+    <string-array name="font_size_entries">
+        <item>14 pt</item>
+        <item>16 pt</item>
+        <item>18 pt</item>
+        <item>20 pt</item>
+        <item>22 pt</item>
+        <item>24 pt</item>
+    </string-array>
+    <string-array name="font_size_values">
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+        <item>20</item>
+        <item>22</item>
+        <item>24</item>
     </string-array>
 </resources>

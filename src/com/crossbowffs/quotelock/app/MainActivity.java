@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.utils.JobUtils;
+import com.crossbowffs.quotelock.consts.Urls;
 import com.crossbowffs.quotelock.utils.XposedUtils;
 
 public class MainActivity extends Activity {

@@ -2,11 +2,14 @@
 
 [Displays quotes on your lockscreen, because why not.](http://i.imgur.com/EXzpNWA.jpg)
 
-**Only stock Android is supported!** This is due to the heavy lockscreen
+**Only near-AOSP Android ROMs are supported!** This is due to the heavy lockscreen
 modifications made by different OEMs.
 
 **After installing, please open the app at least once** to allow the quote downloader service
 to run in the background.
+
+**Make sure to whitelist QuoteLock if you are using a task-killer app!** They can interfere
+with the download service.
 
 ## Requirements
 
@@ -16,10 +19,11 @@ to run in the background.
 ## Providers
 
 - [Visual Novel as a Service (日本語)](http://vnaas.apsun.xyz/)
-- [Hitokoto (中文)](http://hitokoto.us/)
+- [Hitokoto (unofficial) (中文)](https://blog.lwl12.com/read/hitokoto-api.html)
 - [Goodreads QotD (English)](http://www.goodreads.com/)
 - [Wikiquote QotD (中文)](https://www.wikiquote.org/)
 - [Freakuotes (Español)](https://freakuotes.com/)
+- [Natune.net (Deutsch)](http://natune.net/zitate/)
 - Custom (write your own!)
 
 ## License

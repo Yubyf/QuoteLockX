@@ -14,8 +14,10 @@ import com.crossbowffs.quotelock.BuildConfig;
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.ModuleManager;
-import com.crossbowffs.quotelock.preferences.PrefKeys;
+import com.crossbowffs.quotelock.consts.PrefKeys;
+import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
 import com.crossbowffs.quotelock.utils.JobUtils;
+import com.crossbowffs.quotelock.consts.Urls;
 import com.crossbowffs.quotelock.utils.Xlog;
 
 import java.util.List;
@@ -38,7 +40,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         findPreference(PrefKeys.PREF_ABOUT_VERSION).setSummary(version);
 
         // Get quote module list
-        List<QuoteModule> quoteModules = ModuleManager.getAllModules();
+        List<QuoteModule> quoteModules = ModuleManager.getAllModules(getActivity());
         String[] moduleNames = new String[quoteModules.size()];
         String[] moduleClsNames = new String[quoteModules.size()];
         for (int i = 0; i < moduleNames.length; ++i) {
@@ -93,16 +95,29 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         Xlog.i(TAG, "Preference changed: %s", key);
         if (PrefKeys.PREF_COMMON_QUOTE_MODULE.equals(key)) {
             onSelectedModuleChanged();
-            ((MainActivity)getActivity()).refreshQuote();
         } else {
             JobUtils.createQuoteDownloadJob(getActivity(), true);
         }
     }
 
+    private QuoteModule loadSelectedModule(SharedPreferences prefs) {
+        String moduleClsName = prefs.getString(PrefKeys.PREF_COMMON_QUOTE_MODULE, PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
+        try {
+            return ModuleManager.getModule(getActivity(), moduleClsName);
+        } catch (ModuleNotFoundException e) {
+            // Reset to the default module if the currently
+            // selected one was not found. Change through the
+            // ListPreference so that it updates its value.
+            ListPreference quoteModulesPref = (ListPreference)findPreference(PrefKeys.PREF_COMMON_QUOTE_MODULE);
+            quoteModulesPref.setValue(PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
+            Toast.makeText(getActivity(), R.string.selected_module_not_found, Toast.LENGTH_SHORT).show();
+            return loadSelectedModule(prefs);
+        }
+    }
+
     private void onSelectedModuleChanged() {
         SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
-        String moduleClsName = prefs.getString(PrefKeys.PREF_COMMON_QUOTE_MODULE, PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
-        QuoteModule module = ModuleManager.getModule(moduleClsName);
+        QuoteModule module = loadSelectedModule(prefs);
 
         // Update config activity preference
         ComponentName configActivity = module.getConfigActivity(getActivity());
