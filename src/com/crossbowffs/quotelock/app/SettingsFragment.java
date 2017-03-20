@@ -159,6 +159,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             unmeteredOnlyPref.setEnabled(true);
             unmeteredOnlyPref.setSummary(getString(R.string.pref_unmetered_only_summary));
         }
+
+        // Update internet module initially
+        if (module.requiresInternetConnectivity(getActivity())) {
+            new QuoteDownloaderTask(getActivity()).execute();
+        }
     }
 
     private void startActivity(ComponentName componentName) {

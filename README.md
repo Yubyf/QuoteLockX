@@ -24,6 +24,7 @@ with the download service.
 - [Wikiquote QotD (中文)](https://www.wikiquote.org/)
 - [Freakuotes (Español)](https://freakuotes.com/)
 - [Natune.net (Deutsch)](http://natune.net/zitate/)
+- [BrainyQuote.com (English)](https://www.brainyquote.com/)
 - Custom (write your own!)
 
 ## License

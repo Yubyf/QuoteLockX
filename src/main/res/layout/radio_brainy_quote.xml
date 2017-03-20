@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+ >
+
+    <RadioGroup
+        android:id="@+id/module_brainy_activity_radiogroup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:checkedButton="@+id/module_brainy_activity_type_general"
+        android:divider="?android:attr/dividerHorizontal"
+        android:showDividers="middle"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_brainy_activity_type_general"
+            android:text="@string/module_brainy_activity_type_general"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_brainy_activity_type_art"
+            android:text="@string/module_brainy_activity_type_art"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_brainy_activity_type_funny"
+            android:text="@string/module_brainy_activity_type_funny"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_brainy_activity_type_love"
+            android:text="@string/module_brainy_activity_type_love"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_brainy_activity_type_nature"
+            android:text="@string/module_brainy_activity_type_nature"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </RadioGroup>
+
+</LinearLayout>

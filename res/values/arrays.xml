@@ -34,4 +34,11 @@
         <item>22</item>
         <item>24</item>
     </string-array>
+    <string-array name="brainy_quote_type_values">
+        <item>BR</item>
+        <item>AR</item>
+        <item>FU</item>
+        <item>LO</item>
+        <item>NA</item>
+    </string-array>
 </resources>

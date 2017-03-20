@@ -46,7 +46,7 @@
         <Preference
             android:key="pref_about_author_yubyf"
             android:title="@string/pref_about_author_yubyf"
-            android:summary="Yubyf"/>
+            android:summary="Yubyf, Hual"/>
         <Preference
             android:key="pref_about_github"
             android:title="@string/pref_about_github"

@@ -11,11 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/module_custom_text"
-        android:singleLine="true"/>
+        android:maxLines="1"/>
     <EditText
         android:id="@+id/dialog_custom_quote_source"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/module_custom_source"
-        android:singleLine="true"/>
+        android:maxLines="1"/>
 </LinearLayout>

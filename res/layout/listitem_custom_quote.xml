@@ -10,13 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:singleLine="true"
+        android:maxLines="1"
         android:ellipsize="end"/>
     <TextView
         android:id="@+id/listitem_custom_quote_source"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:singleLine="true"
+        android:maxLines="1"
         android:ellipsize="end"/>
 </LinearLayout>

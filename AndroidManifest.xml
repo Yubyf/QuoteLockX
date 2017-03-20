@@ -21,6 +21,9 @@
             android:name=".modules.custom.provider.CustomQuoteProvider"
             android:authorities="${applicationId}.modules.custom.provider"
             android:exported="false"/>
+        <activity
+            android:name=".modules.brainyquote.app.BrainyquoteQuoteConfigActivity"
+            android:label="@string/module_brainyquote_activity_label" />
         <service
             android:name=".app.QuoteDownloaderService"
             android:permission="android.permission.BIND_JOB_SERVICE"/>

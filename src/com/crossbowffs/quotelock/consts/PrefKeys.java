@@ -22,6 +22,8 @@ public final class PrefKeys {
     public static final String PREF_QUOTES_TEXT = "pref_quotes_text";
     public static final String PREF_QUOTES_SOURCE = "pref_quotes_source";
     public static final String PREF_QUOTES_LAST_UPDATED = "pref_quotes_last_updated";
+    public static final String PREF_QUOTES_BRAINY_TYPE_INT = "pref_quotes_brainy_type_int";
+    public static final String PREF_QUOTES_BRAINY_TYPE_STRING = "pref_quotes_brainy_type_string";
 
     public static final String PREF_ABOUT_AUTHOR_CROSSBOWFFS = "pref_about_author_crossbowffs";
     public static final String PREF_ABOUT_AUTHOR_YUBYF = "pref_about_author_yubyf";
