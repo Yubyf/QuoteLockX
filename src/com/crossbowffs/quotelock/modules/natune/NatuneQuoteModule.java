@@ -33,7 +33,7 @@ public class NatuneQuoteModule implements QuoteModule {
 
     @Override
     public QuoteData getQuote(Context context) throws Exception {
-        String html = IOUtils.downloadString("http://natune.net/zitate/Zufalls5");
+        String html = IOUtils.downloadString("https://natune.net/zitate/Zufalls5");
         Document document = Jsoup.parse(html);
         Element quoteLi = document.select(".quotes > li").first();
         String quoteText = quoteLi.getElementsByClass("quote_text").first().text();
