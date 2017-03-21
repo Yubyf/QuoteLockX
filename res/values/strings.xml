@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Common strings -->
     <string name="quotelock">QuoteLock</string>
+    <string name="easter_egg">▲ + ▼ = ◆</string>
+
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="enable">Enable</string>
@@ -10,6 +13,7 @@
     <string name="cancel">Cancel</string>
     <string name="settings">Settings</string>
     <string name="about">About</string>
+    <string name="close">Close</string>
     <string name="enable_xposed_module_title">Enable Xposed module</string>
     <string name="enable_xposed_module_message">
         Android does not normally allow apps to add text to the lockscreen.\n\n
@@ -27,19 +31,18 @@
     <string name="pref_unmetered_only_summary">Don\'t update on metered connections</string>
     <string name="pref_unmetered_only_summary_alt">Selected provider does not require internet</string>
     <string name="pref_font_size_text_title">Quote font size</string>
-    <string name="pref_font_size_text_summary">The size of the quote text</string>
+    <string name="pref_font_size_text_summary">Size of the quote text</string>
     <string name="pref_font_size_source_title">Source font size</string>
-    <string name="pref_font_size_source_summary">The size of the source text</string>
+    <string name="pref_font_size_source_summary">Size of the source text</string>
     <string name="pref_quote_module_title">Quote provider</string>
     <string name="pref_quote_module_summary">Select a quote source</string>
     <string name="pref_module_preferences_title">Quote provider preferences</string>
     <string name="pref_module_preferences_summary">Manage provider-specific settings</string>
     <string name="pref_module_preferences_summary_alt">No preferences for selected provider</string>
-    <string name="pref_about_author_crossbowffs">App and quote providers</string>
-    <string name="pref_about_author_yubyf">Additional quote providers</string>
+    <string name="pref_about_credits_title">Credits</string>
+    <string name="pref_about_credits_summary">Who did what?</string>
     <string name="pref_about_github">View project on GitHub</string>
     <string name="pref_about_version">Version</string>
-    <string name="pref_about_easter_egg">一回百円で心穏やかになれるのです…</string>
     <string name="refesh_quote">Refresh quote</string>
     <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>
@@ -47,14 +50,40 @@
     <string name="open_quotelock_app_line1">Welcome to QuoteLock!</string>
     <string name="open_quotelock_app_line2">Please open the configuration app</string>
     <string name="selected_module_not_found">Selected module could not be found</string>
+    <string name="credits_title">Credits</string>
+    <string name="credits_message">
+        <![CDATA[
+            <b>App development</b><br>
+            - <a href="https://twitter.com/crossbowffs">crossbowffs</a><br>
+            - <a href="https://github.com/Yubyf">Yubyf</a><br>
+            - <a href="https://github.com/Hual">Hual</a><br>
+
+            <br><b>Quote providers</b><br>
+            - <a href="http://vnaas.apsun.xyz/">Visual Novel as a Service</a><br>
+            - <a href="https://blog.lwl12.com/read/hitokoto-api.html">Hitokoto</a><br>
+            - <a href="http://www.goodreads.com/">Goodreads QotD</a><br>
+            - <a href="https://www.wikiquote.org/">Wikiquote QotD</a><br>
+            - <a href="https://freakuotes.com/">Freakuotes</a><br>
+            - <a href="https://natune.net/zitate/">Natune.net</a><br>
+            - <a href="https://www.brainyquote.com/">BrainyQuote</a><br>
+
+            <br><b>Libraries used</b><br>
+            - <a href="https://jsoup.org/">Jsoup</a><br>
+            - <a href="https://github.com/apsun/RemotePreferences">RemotePreferences</a>
+        ]]>
+    </string>
+
+    <!-- Provider-specific strings -->
     <string name="module_vnaas_name">Visual Novel as a Service (日本語)</string>
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
     <string name="module_goodreads_name">Goodreads QotD (English)</string>
-    <string name="module_brainy_name">BrainyQuote (English)</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
     <string name="module_freakuotes_name">Freakuotes (Español)</string>
     <string name="module_natune_name">Natune.net (Deutsch)</string>
+    <string name="module_brainy_name">BrainyQuote (English)</string>
     <string name="module_custom_name">Custom</string>
+
+    <!-- Custom quotes -->
     <string name="module_custom_setup_line1">No custom quotes set</string>
     <string name="module_custom_setup_line2">Please open the provider settings</string>
     <string name="module_custom_activity_label">Custom quotes</string>
@@ -64,8 +93,9 @@
     <string name="module_custom_source">Source</string>
     <string name="module_custom_saved_quote">Saved quote</string>
     <string name="module_custom_deleted_quote">Deleted quote</string>
-    <string name="module_brainyquote_activity_label">BrainyQuote setup</string>
-    <string name="module_brainy_activity_hint">Quote type</string>
+
+    <!-- BrainyQuote -->
+    <string name="module_brainy_activity_label">BrainyQuote setup</string>
     <string name="module_brainy_activity_type_general">QotD - General</string>
     <string name="module_brainy_activity_type_art">QotD - Art</string>
     <string name="module_brainy_activity_type_funny">QotD - Funny</string>

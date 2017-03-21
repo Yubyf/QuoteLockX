@@ -1,21 +1,18 @@
 package com.crossbowffs.quotelock.utils;
 
 import android.util.Log;
+import com.crossbowffs.quotelock.BuildConfig;
 
 public final class Xlog {
-    private static final int LOG_LEVEL = Log.VERBOSE;
-    private static final boolean MERGE_TAGS = true;
-    private static final String APPLICATION_TAG = "QuoteLock";
+    private static final String LOG_TAG = BuildConfig.LOG_TAG;
+    private static final int LOG_LEVEL = BuildConfig.LOG_LEVEL;
+    private static final boolean LOG_TO_XPOSED = BuildConfig.LOG_TO_XPOSED;
 
     private Xlog() { }
 
     private static void log(int priority, String tag, String message, Object... args) {
         if (priority < LOG_LEVEL) {
             return;
-        }
-
-        if (MERGE_TAGS) {
-            tag = APPLICATION_TAG;
         }
 
         message = String.format(message, args);
@@ -25,7 +22,10 @@ public final class Xlog {
             message = message + '\n' + stacktraceStr;
         }
 
-        Log.println(priority, tag, message);
+        Log.println(priority, LOG_TAG, tag + ": " + message);
+        if (LOG_TO_XPOSED) {
+            Log.println(priority, "Xposed", LOG_TAG + ": " + tag + ": " + message);
+        }
     }
 
     public static void v(String tag, String message, Object... args) {

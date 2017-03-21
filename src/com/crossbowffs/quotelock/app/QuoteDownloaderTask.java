@@ -24,7 +24,7 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
 
     @Override
     protected QuoteData doInBackground(Void... params) {
-        Xlog.i(TAG, "Attempting to download new quote...");
+        Xlog.d(TAG, "Attempting to download new quote...");
         QuoteModule module;
         try {
             module = ModuleManager.getModule(mContext, mModuleName);
@@ -32,7 +32,7 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
             Xlog.e(TAG, "Selected module not found", e);
             return null;
         }
-        Xlog.i(TAG, "Provider: %s", module.getDisplayName(mContext));
+        Xlog.d(TAG, "Provider: %s", module.getDisplayName(mContext));
         try {
             return module.getQuote(mContext);
         } catch (Exception e) {
@@ -45,8 +45,8 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
     protected void onPostExecute(QuoteData quote) {
         Xlog.d(TAG, "QuoteDownloaderTask#onPostExecute called, success: %s", (quote != null));
         if (quote != null) {
-            Xlog.i(TAG, "Text: %s", quote.getQuoteText());
-            Xlog.i(TAG, "Source: %s", quote.getQuoteSource());
+            Xlog.d(TAG, "Text: %s", quote.getQuoteText());
+            Xlog.d(TAG, "Source: %s", quote.getQuoteSource());
             mContext.getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE)
                 .edit()
                 .putString(PrefKeys.PREF_QUOTES_TEXT, quote.getQuoteText())

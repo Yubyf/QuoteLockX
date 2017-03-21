@@ -3,21 +3,20 @@ package com.crossbowffs.quotelock.modules.brainyquote;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
-
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.api.QuoteModule;
-import com.crossbowffs.quotelock.modules.brainyquote.app.BrainyquoteQuoteConfigActivity;
+import com.crossbowffs.quotelock.modules.brainyquote.app.BrainyQuoteConfigActivity;
 import com.crossbowffs.quotelock.utils.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
 import java.io.IOException;
 
-import static com.crossbowffs.quotelock.consts.PrefKeys.PREF_QUOTES;
-import static com.crossbowffs.quotelock.consts.PrefKeys.PREF_QUOTES_BRAINY_TYPE_STRING;
+import static com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys.PREF_BRAINY;
+import static com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys.PREF_BRAINY_TYPE_STRING;
 
-public class BrainyquoteQuoteModule implements QuoteModule {
+public class BrainyQuoteQuoteModule implements QuoteModule {
 
     @Override
     public String getDisplayName(Context context) {
@@ -26,7 +25,7 @@ public class BrainyquoteQuoteModule implements QuoteModule {
 
     @Override
     public ComponentName getConfigActivity(Context context) {
-        return new ComponentName(context, BrainyquoteQuoteConfigActivity.class);
+        return new ComponentName(context, BrainyQuoteConfigActivity.class);
     }
 
     @Override
@@ -41,10 +40,9 @@ public class BrainyquoteQuoteModule implements QuoteModule {
 
     @Override
     public QuoteData getQuote(Context context) throws IOException {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE);
-
-        String URL = String.format("http://feeds.feedburner.com/brainyquote/QUOTE%s",
-                sharedPreferences.getString(PREF_QUOTES_BRAINY_TYPE_STRING, "BR"));
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_BRAINY, Context.MODE_PRIVATE);
+        String type = sharedPreferences.getString(PREF_BRAINY_TYPE_STRING, "BR");
+        String URL = String.format("http://feeds.feedburner.com/brainyquote/QUOTE%s", type);
 
         String rssXml = IOUtils.downloadString(URL);
         Document document = Jsoup.parse(rssXml);

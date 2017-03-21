@@ -13,7 +13,7 @@ public class CommonReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        Xlog.i(TAG, "Received action: %s", action);
+        Xlog.d(TAG, "Received action: %s", action);
         if (Intent.ACTION_BOOT_COMPLETED.equals(action) || ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
             JobUtils.createQuoteDownloadJob(context, false);
         }
