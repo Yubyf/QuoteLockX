@@ -40,7 +40,7 @@
     <string name="pref_module_preferences_summary">Manage provider-specific settings</string>
     <string name="pref_module_preferences_summary_alt">No preferences for selected provider</string>
     <string name="pref_about_credits_title">Credits</string>
-    <string name="pref_about_credits_summary">Who did what?</string>
+    <string name="pref_about_credits_summary">Who did what now?</string>
     <string name="pref_about_github">View project on GitHub</string>
     <string name="pref_about_version">Version</string>
     <string name="refesh_quote">Refresh quote</string>
@@ -61,7 +61,7 @@
             <br><b>Quote providers</b><br>
             - <a href="http://vnaas.apsun.xyz/">Visual Novel as a Service</a><br>
             - <a href="https://blog.lwl12.com/read/hitokoto-api.html">Hitokoto</a><br>
-            - <a href="http://www.goodreads.com/">Goodreads QotD</a><br>
+            - <a href="https://www.goodreads.com/">Goodreads QotD</a><br>
             - <a href="https://www.wikiquote.org/">Wikiquote QotD</a><br>
             - <a href="https://freakuotes.com/">Freakuotes</a><br>
             - <a href="https://natune.net/zitate/">Natune.net</a><br>

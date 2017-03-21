@@ -20,11 +20,11 @@ with the download service.
 
 - [Visual Novel as a Service (日本語)](http://vnaas.apsun.xyz/)
 - [Hitokoto (unofficial) (中文)](https://blog.lwl12.com/read/hitokoto-api.html)
-- [Goodreads QotD (English)](http://www.goodreads.com/)
+- [Goodreads QotD (English)](https://www.goodreads.com/)
 - [Wikiquote QotD (中文)](https://www.wikiquote.org/)
 - [Freakuotes (Español)](https://freakuotes.com/)
-- [Natune.net (Deutsch)](http://natune.net/zitate/)
-- [BrainyQuote.com (English)](https://www.brainyquote.com/)
+- [Natune.net (Deutsch)](https://natune.net/zitate/)
+- [BrainyQuote (English)](https://www.brainyquote.com/)
 - Custom (write your own!)
 
 ## License
