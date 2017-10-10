@@ -40,13 +40,9 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/about">
         <Preference
-            android:key="pref_about_author_crossbowffs"
-            android:title="@string/pref_about_author_crossbowffs"
-            android:summary="crossbowffs"/>
-        <Preference
-            android:key="pref_about_author_yubyf"
-            android:title="@string/pref_about_author_yubyf"
-            android:summary="Yubyf"/>
+            android:key="pref_about_credits"
+            android:title="@string/pref_about_credits_title"
+            android:summary="@string/pref_about_credits_summary"/>
         <Preference
             android:key="pref_about_github"
             android:title="@string/pref_about_github"

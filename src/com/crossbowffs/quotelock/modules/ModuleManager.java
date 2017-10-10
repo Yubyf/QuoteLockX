@@ -2,6 +2,7 @@ package com.crossbowffs.quotelock.modules;
 
 import android.content.Context;
 import com.crossbowffs.quotelock.api.QuoteModule;
+import com.crossbowffs.quotelock.modules.brainyquote.BrainyQuoteQuoteModule;
 import com.crossbowffs.quotelock.modules.custom.CustomQuoteModule;
 import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule;
 import com.crossbowffs.quotelock.modules.goodreads.GoodreadsQuoteModule;
@@ -25,6 +26,7 @@ public class ModuleManager {
         addLocalModule(new WikiquoteQuoteModule());
         addLocalModule(new FreakuotesQuoteModule());
         addLocalModule(new NatuneQuoteModule());
+        addLocalModule(new BrainyQuoteQuoteModule());
         addLocalModule(new CustomQuoteModule());
     }
 

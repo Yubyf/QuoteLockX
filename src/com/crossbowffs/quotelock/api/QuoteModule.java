@@ -3,6 +3,13 @@ package com.crossbowffs.quotelock.api;
 import android.content.ComponentName;
 import android.content.Context;
 
+/**
+ * Provides an API for querying the information of a
+ * quote provider and fetching quotes from that provider. Note that
+ * all functions other than {@link QuoteModule#getQuote(Context)}
+ * should return immediately, since they will be called on the
+ * UI thread.
+ */
 public interface QuoteModule {
     /**
      * Gets the user-friendly name of the quote provider that this module uses.
@@ -11,7 +18,8 @@ public interface QuoteModule {
     String getDisplayName(Context context);
 
     /**
-     * Gets the configuration {@link android.app.Activity} for this module.
+     * Gets a {@link ComponentName} representing the configuration
+     * {@link android.app.Activity} for this module.
      * Returns {@code null} if there is no configuration activity.
      */
     ComponentName getConfigActivity(Context context);

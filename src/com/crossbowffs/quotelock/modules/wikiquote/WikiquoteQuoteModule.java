@@ -41,7 +41,7 @@ public class WikiquoteQuoteModule implements QuoteModule {
     public QuoteData getQuote(Context context) throws IOException {
         String html = IOUtils.downloadString("https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5");
         Document document = Jsoup.parse(html);
-        String quoteAllText = document.select("#mf-qotd td").get(1).text();
+        String quoteAllText = document.select("#mp-tfa").text();
         Xlog.d(TAG, "Downloaded text: %s", quoteAllText);
 
         Matcher quoteMatcher = Pattern.compile("(.*?)\\s*[\\u2500\\u2014\\u002D]{2}\\s*(.*?)").matcher(quoteAllText);

@@ -23,8 +23,7 @@ public final class PrefKeys {
     public static final String PREF_QUOTES_SOURCE = "pref_quotes_source";
     public static final String PREF_QUOTES_LAST_UPDATED = "pref_quotes_last_updated";
 
-    public static final String PREF_ABOUT_AUTHOR_CROSSBOWFFS = "pref_about_author_crossbowffs";
-    public static final String PREF_ABOUT_AUTHOR_YUBYF = "pref_about_author_yubyf";
+    public static final String PREF_ABOUT_CREDITS = "pref_about_credits";
     public static final String PREF_ABOUT_GITHUB = "pref_about_github";
     public static final String PREF_ABOUT_VERSION = "pref_about_version";
 

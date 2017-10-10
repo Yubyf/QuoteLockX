@@ -79,7 +79,7 @@ public class JobUtils {
             .build();
         scheduler.schedule(jobInfo);
 
-        Xlog.i(TAG, "Scheduled quote download job with delay: %d", delay);
+        Xlog.d(TAG, "Scheduled quote download job with delay: %d", delay);
     }
 
     private static int getUpdateDelay(Context context) {

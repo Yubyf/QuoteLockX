@@ -17,6 +17,9 @@
         <activity
             android:name=".modules.custom.app.CustomQuoteConfigActivity"
             android:label="@string/module_custom_activity_label"/>
+        <activity
+            android:name=".modules.brainyquote.app.BrainyQuoteConfigActivity"
+            android:label="@string/module_brainy_activity_label"/>
         <provider
             android:name=".modules.custom.provider.CustomQuoteProvider"
             android:authorities="${applicationId}.modules.custom.provider"

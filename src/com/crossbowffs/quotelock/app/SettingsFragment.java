@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.app;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,15 +10,18 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.crossbowffs.quotelock.BuildConfig;
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteModule;
-import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.consts.PrefKeys;
+import com.crossbowffs.quotelock.consts.Urls;
+import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
 import com.crossbowffs.quotelock.utils.JobUtils;
-import com.crossbowffs.quotelock.consts.Urls;
 import com.crossbowffs.quotelock.utils.Xlog;
 
 import java.util.List;
@@ -70,11 +74,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         case PrefKeys.PREF_COMMON_MODULE_PREFERENCES:
             startActivity(mModuleConfigActivity);
             return true;
-        case PrefKeys.PREF_ABOUT_AUTHOR_CROSSBOWFFS:
-            startBrowserActivity(Urls.TWITTER_CROSSBOWFFS);
-            return true;
-        case PrefKeys.PREF_ABOUT_AUTHOR_YUBYF:
-            startBrowserActivity(Urls.GITHUB_YUBYF);
+        case PrefKeys.PREF_ABOUT_CREDITS:
+            showCreditsDialog();
             return true;
         case PrefKeys.PREF_ABOUT_GITHUB:
             startBrowserActivity(Urls.GITHUB_QUOTELOCK);
@@ -82,7 +83,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         case PrefKeys.PREF_ABOUT_VERSION:
             if (++mVersionTapCount == 7) {
                 mVersionTapCount = 0;
-                Toast.makeText(getActivity(), R.string.pref_about_easter_egg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.easter_egg, Toast.LENGTH_SHORT).show();
             }
             return true;
         default:
@@ -113,6 +114,16 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             Toast.makeText(getActivity(), R.string.selected_module_not_found, Toast.LENGTH_SHORT).show();
             return loadSelectedModule(prefs);
         }
+    }
+
+    private void showCreditsDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+            .setTitle(R.string.credits_title)
+            .setMessage(Html.fromHtml(getString(R.string.credits_message)))
+            .setPositiveButton(R.string.close, null)
+            .show();
+        TextView textView = (TextView)dialog.findViewById(android.R.id.message);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void onSelectedModuleChanged() {
@@ -158,6 +169,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             prefs.edit().remove(PrefKeys.PREF_COMMON_REQUIRES_INTERNET).apply();
             unmeteredOnlyPref.setEnabled(true);
             unmeteredOnlyPref.setSummary(getString(R.string.pref_unmetered_only_summary));
+        }
+
+        // Update internet module initially
+        if (module.requiresInternetConnectivity(getActivity())) {
+            new QuoteDownloaderTask(getActivity()).execute();
         }
     }
 

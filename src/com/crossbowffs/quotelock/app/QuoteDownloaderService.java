@@ -44,7 +44,7 @@ public class QuoteDownloaderService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        Xlog.i(TAG, "Quote downloader job started");
+        Xlog.d(TAG, "Quote downloader job started");
 
         if (params.getJobId() != JobUtils.JOB_ID) {
             Xlog.e(TAG, "Job ID mismatch, ignoring");
@@ -52,7 +52,7 @@ public class QuoteDownloaderService extends JobService {
         }
 
         if (!JobUtils.shouldRefreshQuote(this)) {
-            Xlog.i(TAG, "Should not refresh quote now, ignoring");
+            Xlog.d(TAG, "Should not refresh quote now, ignoring");
             return false;
         }
 
