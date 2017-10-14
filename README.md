@@ -19,7 +19,7 @@ with the download service.
 ## Providers
 
 - [Visual Novel as a Service (日本語)](http://vnaas.apsun.xyz/)
-- [Hitokoto (unofficial) (中文)](https://blog.lwl12.com/read/hitokoto-api.html)
+- [Hitokoto (unofficial) (中文)](http://hitokoto.cn/)
 - [Goodreads QotD (English)](https://www.goodreads.com/)
 - [Wikiquote QotD (中文)](https://www.wikiquote.org/)
 - [Freakuotes (Español)](https://freakuotes.com/)

@@ -7,6 +7,7 @@ import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.utils.IOUtils;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -35,7 +36,12 @@ public class HitokotoQuoteModule implements QuoteModule {
 
     @Override
     public QuoteData getQuote(Context context) throws IOException, JSONException {
-        String quote = IOUtils.downloadString("https://api.lwl12.com/hitokoto/main/get");
-        return new QuoteData(quote, "");
+        String quoteJson = IOUtils.downloadString("https://sslapi.hitokoto.cn/");
+
+        JSONObject quoteJsonObject = new JSONObject(quoteJson);
+        String quoteText = quoteJsonObject.getString("hitokoto");
+        String quoteSource = "―" + quoteJsonObject.getString("from");
+
+        return new QuoteData(quoteText, quoteSource);
     }
 }
