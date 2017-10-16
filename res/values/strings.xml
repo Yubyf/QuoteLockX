@@ -101,4 +101,15 @@
     <string name="module_brainy_activity_type_funny">QotD - Funny</string>
     <string name="module_brainy_activity_type_love">QotD - Love</string>
     <string name="module_brainy_activity_type_nature">QotD - Nature</string>
+
+    <!-- Hitokoto -->
+    <string name="module_hitokoto_activity_label">Hitokoto setup</string>
+    <string name="module_hitokoto_activity_type_random">Random</string>
+    <string name="module_hitokoto_activity_type_anime">Anime</string>
+    <string name="module_hitokoto_activity_type_comic">Comic</string>
+    <string name="module_hitokoto_activity_type_game">Game</string>
+    <string name="module_hitokoto_activity_type_novel">Novel</string>
+    <string name="module_hitokoto_activity_type_myself">Myself</string>
+    <string name="module_hitokoto_activity_type_internet">From Internet</string>
+    <string name="module_hitokoto_activity_type_other">Other</string>
 </resources>
