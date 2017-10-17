@@ -41,4 +41,15 @@
         <item>LO</item>
         <item>NA</item>
     </string-array>
+
+    <string-array name="hitokoto_type_values">
+        <item>r</item>
+        <item>a</item>
+        <item>b</item>
+        <item>c</item>
+        <item>d</item>
+        <item>e</item>
+        <item>f</item>
+        <item>g</item>
+    </string-array>
 </resources>

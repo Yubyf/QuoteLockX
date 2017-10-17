@@ -20,6 +20,9 @@
         <activity
             android:name=".modules.brainyquote.app.BrainyQuoteConfigActivity"
             android:label="@string/module_brainy_activity_label"/>
+        <activity android:name=".modules.hitokoto.app.HitkotoConfigActivity"
+            android:label="@string/module_hitokoto_activity_label"/>
+
         <provider
             android:name=".modules.custom.provider.CustomQuoteProvider"
             android:authorities="${applicationId}.modules.custom.provider"
