@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.quotelock.provider.PreferenceProvider;
@@ -86,7 +87,11 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                 protected void afterHookedMethod(MethodHookParam param) {
                     Xlog.i(TAG, "KeyguardStatusView#onFinishInflate() called, injecting views...");
                     GridLayout self = (GridLayout)param.thisObject;
-                    Context context = self.getContext();
+                    if (self.getChildCount() != 1) {
+                        return;
+                    }
+                    LinearLayout linearLayout = (LinearLayout) self.getChildAt(0);
+                    Context context = linearLayout.getContext();
                     LayoutInflater layoutInflater = LayoutInflater.from(context);
                     XmlPullParser parser;
                     try {
@@ -96,7 +101,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                         return;
                     }
                     View view = layoutInflater.inflate(parser, null);
-                    self.addView(view);
+                    linearLayout.addView(view);
 
                     try {
                         mQuoteTextView = (TextView)sModuleRes.findViewById(view, RES_ID_QUOTE_TEXTVIEW);
