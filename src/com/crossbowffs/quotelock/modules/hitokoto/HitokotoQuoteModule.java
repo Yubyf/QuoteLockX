@@ -43,8 +43,8 @@ public class HitokotoQuoteModule implements QuoteModule {
     @Override
     public QuoteData getQuote(Context context) throws IOException, JSONException {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_HITOKOTO, Context.MODE_PRIVATE);
-        String type = sharedPreferences.getString(PREF_HITOKOTO_TYPE_STRING, "r");
-        String URL = String.format("https://sslapi.hitokoto.cn/?c=%s", type);
+        String type = sharedPreferences.getString(PREF_HITOKOTO_TYPE_STRING, "a");
+        String URL = String.format("https://v1.hitokoto.cn/?c=%s", type);
 
         String quoteJson = IOUtils.downloadString(URL);
 

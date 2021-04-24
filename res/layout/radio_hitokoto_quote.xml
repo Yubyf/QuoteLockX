@@ -17,13 +17,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:id="@+id/module_hitokoto_activity_type_random"
-            android:text="@string/module_hitokoto_activity_type_random"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
-        <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_anime"
             android:text="@string/module_hitokoto_activity_type_anime"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
@@ -68,6 +61,41 @@
             android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_other"
             android:text="@string/module_hitokoto_activity_type_other"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_hitokoto_activity_type_film"
+            android:text="@string/module_hitokoto_activity_type_film"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_hitokoto_activity_type_poem"
+            android:text="@string/module_hitokoto_activity_type_poem"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_hitokoto_activity_type_netease_cloud"
+            android:text="@string/module_hitokoto_activity_type_netease_cloud"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_hitokoto_activity_type_philosophy"
+            android:text="@string/module_hitokoto_activity_type_philosophy"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/module_hitokoto_activity_type_one_line"
+            android:text="@string/module_hitokoto_activity_type_one_line"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
     </RadioGroup>
 </LinearLayout>

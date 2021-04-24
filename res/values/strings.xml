@@ -104,7 +104,6 @@
 
     <!-- Hitokoto -->
     <string name="module_hitokoto_activity_label">Hitokoto setup</string>
-    <string name="module_hitokoto_activity_type_random">Random</string>
     <string name="module_hitokoto_activity_type_anime">Anime</string>
     <string name="module_hitokoto_activity_type_comic">Comic</string>
     <string name="module_hitokoto_activity_type_game">Game</string>
@@ -112,4 +111,9 @@
     <string name="module_hitokoto_activity_type_myself">Myself</string>
     <string name="module_hitokoto_activity_type_internet">From Internet</string>
     <string name="module_hitokoto_activity_type_other">Other</string>
+    <string name="module_hitokoto_activity_type_film">Film</string>
+    <string name="module_hitokoto_activity_type_poem">poem</string>
+    <string name="module_hitokoto_activity_type_netease_cloud">NetEase Cloud</string>
+    <string name="module_hitokoto_activity_type_philosophy">Philosophy</string>
+    <string name="module_hitokoto_activity_type_one_line">One-Line</string>
 </resources>
