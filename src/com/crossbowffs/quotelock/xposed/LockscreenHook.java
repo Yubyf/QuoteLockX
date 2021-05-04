@@ -6,9 +6,9 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -255,23 +255,19 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                 }
             });
         XposedHelpers.findAndHookMethod(
-                "com.android.systemui.statusbar.phone.NotificationPanelView", lpparam.classLoader,
-                "onTouchEvent", MotionEvent.class, new XC_MethodHook() {
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.R ?
+                        "com.android.systemui.statusbar.phone.PanelView" :
+                        "com.android.systemui.statusbar.phone.PanelViewController",
+                lpparam.classLoader,
+                "onEmptySpaceClick", float.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) {
-                        MotionEvent event = (MotionEvent) param.args[0];
-                        if (event == null) {
-                            return;
-                        }
-                        Xlog.i(TAG, "NotificationPanelView#onTouchEvent() called, reset QuoteContainer position...");
+                        Xlog.i(TAG, "PanelViewController#onEmptySpaceClick() called, reset QuoteContainer position...");
                         if (mQuoteContainer == null || !mQuoteContainer.isAttachedToWindow()) {
                             Xlog.e(TAG, "QuoteContainer is empty or not attached to window");
                             return;
                         }
-                        if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                            resetTranslationAnimator();
-                            Xlog.d(TAG, "QuoteContainer position reset completely");
-                        }
+                        resetTranslationAnimator();
                     }
                 });
         Xlog.i(TAG, "QuoteLock Xposed module initialized!");
