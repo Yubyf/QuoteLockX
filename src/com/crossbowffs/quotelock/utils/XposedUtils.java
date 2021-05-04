@@ -1,6 +1,7 @@
 package com.crossbowffs.quotelock.utils;
 
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -44,6 +45,22 @@ public final class XposedUtils {
     public static boolean startXposedActivity(Context context, String section) {
         Intent intent = new Intent(XPOSED_ACTION);
         intent.putExtra(XPOSED_EXTRA_SECTION, section);
+        try {
+            context.startActivity(intent);
+            return true;
+        } catch (ActivityNotFoundException e) {
+            return startEdXposedActivity(context);
+        }
+    }
+
+    private static boolean startEdXposedActivity(Context context) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setPackage("org.meowcat.edxposed.manager");
+        intent.setComponent(new ComponentName(
+                "org.meowcat.edxposed.manager",
+                "org.meowcat.edxposed.manager.WelcomeActivity")
+        );
+        intent.putExtra("fragment", 2);
         try {
             context.startActivity(intent);
             return true;
