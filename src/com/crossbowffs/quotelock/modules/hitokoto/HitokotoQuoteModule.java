@@ -3,6 +3,7 @@ package com.crossbowffs.quotelock.modules.hitokoto;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
@@ -14,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO;
 import static com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING;
@@ -50,7 +52,14 @@ public class HitokotoQuoteModule implements QuoteModule {
 
         JSONObject quoteJsonObject = new JSONObject(quoteJson);
         String quoteText = quoteJsonObject.getString("hitokoto");
-        String quoteSource = "―" + quoteJsonObject.getString("from");
+        String quoteSource = "―";
+        String quoteSourceFrom = quoteJsonObject.getString("from");
+        String quoteSourceAuthor = quoteJsonObject.getString("from_who");
+        if (TextUtils.isEmpty(quoteSourceAuthor) || Objects.equals(quoteSourceAuthor, "null")) {
+            quoteSource += quoteSourceFrom;
+        } else {
+            quoteSource += quoteSourceAuthor + " " + quoteSourceFrom;
+        }
 
         return new QuoteData(quoteText, quoteSource);
     }
