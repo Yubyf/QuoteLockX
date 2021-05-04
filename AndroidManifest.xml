@@ -41,6 +41,10 @@
             android:name=".provider.PreferenceProvider"
             android:authorities="${applicationId}.preferences"
             android:exported="true"/>
+        <provider
+            android:name=".provider.ActionProvider"
+            android:authorities="${applicationId}.action"
+            android:exported="true"/>
         <meta-data
             android:name="xposedmodule"
             android:value="true"/>

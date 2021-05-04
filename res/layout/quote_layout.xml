@@ -1,26 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="24dp"
-    android:paddingLeft="24dp"
-    android:paddingRight="24dp">
-    <TextView
-        android:id="@+id/quote_textview"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/quote_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@android:color/primary_text_dark"/>
-    <TextView
-        android:id="@+id/source_textview"
+        android:gravity="end"
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingTop="24dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="24dp"
+        tools:background="@android:color/black">
+
+        <TextView
+            android:id="@+id/quote_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@android:color/white"
+            tools:text="@string/open_quotelock_app_line1" />
+
+        <TextView
+            android:id="@+id/source_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#bebebe"
+            tools:text="@string/open_quotelock_app_line2" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/action_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/quote_textview"
-        android:layout_alignEnd="@id/quote_textview"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@android:color/secondary_text_dark"/>
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="-49dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="48dp"
+            android:alpha="0.5"
+            android:background="@android:color/darker_gray" />
+
+        <ImageView
+            android:id="@+id/refresh_image_view"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
+            tools:ignore="ContentDescription"
+            tools:src="@drawable/ic_refresh_white_24dp" />
+    </LinearLayout>
 </RelativeLayout>

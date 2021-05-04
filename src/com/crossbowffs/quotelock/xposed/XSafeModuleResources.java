@@ -1,8 +1,10 @@
 package com.crossbowffs.quotelock.xposed;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import com.crossbowffs.quotelock.BuildConfig;
 import org.xmlpull.v1.XmlPullParser;
@@ -32,6 +34,12 @@ public class XSafeModuleResources {
     public String getString(String resName) {
         int resId = getResId(resName, "string");
         return mModuleRes.getString(resId);
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    public Drawable getDrawable(String resName) {
+        int resId = getResId(resName, "drawable");
+        return mModuleRes.getDrawable(resId, null);
     }
 
     public XmlPullParser getLayout(String resName) {
