@@ -124,7 +124,7 @@ public class MainActivity extends Activity {
             .setNeutralButton(R.string.report_bug, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    startBrowserActivity(Urls.GITHUB_QUOTELOCK_ISSUES);
+                    startBrowserActivity(Urls.GITHUB_QUOTELOCK_CURRENT_ISSUES);
                 }
             })
             .setNegativeButton(R.string.ignore, null)

@@ -53,6 +53,10 @@
             android:title="@string/pref_about_github"
             android:summary="github.com/apsun/QuoteLock"/>
         <Preference
+            android:key="pref_about_github_current"
+            android:title="@string/pref_about_github_current"
+            android:summary="github.com/Yubyf/QuoteLock"/>
+        <Preference
             android:key="pref_about_version"
             android:title="@string/pref_about_version"/>
     </PreferenceCategory>

@@ -84,6 +84,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         case PrefKeys.PREF_ABOUT_GITHUB:
             startBrowserActivity(Urls.GITHUB_QUOTELOCK);
             return true;
+        case PrefKeys.PREF_ABOUT_GITHUB_CURRENT:
+            startBrowserActivity(Urls.GITHUB_QUOTELOCK_CURRENT);
+            return true;
         case PrefKeys.PREF_ABOUT_VERSION:
             if (++mVersionTapCount == 7) {
                 mVersionTapCount = 0;

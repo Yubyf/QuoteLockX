@@ -29,6 +29,7 @@ public final class PrefKeys {
 
     public static final String PREF_ABOUT_CREDITS = "pref_about_credits";
     public static final String PREF_ABOUT_GITHUB = "pref_about_github";
+    public static final String PREF_ABOUT_GITHUB_CURRENT = "pref_about_github_current";
     public static final String PREF_ABOUT_VERSION = "pref_about_version";
 
     private PrefKeys() { }

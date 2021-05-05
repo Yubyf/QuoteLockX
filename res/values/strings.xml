@@ -43,7 +43,8 @@
     <string name="pref_collection_title">Collection</string>
     <string name="pref_about_credits_title">Credits</string>
     <string name="pref_about_credits_summary">Who did what now?</string>
-    <string name="pref_about_github">View project on GitHub</string>
+    <string name="pref_about_github">View project on GitHub (Original|Archived)</string>
+    <string name="pref_about_github_current">View project on GitHub (Active)</string>
     <string name="pref_about_version">Version</string>
     <string name="refesh_quote">Refresh quote</string>
     <string name="downloading_quote">Downloading quote…</string>
