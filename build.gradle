@@ -1,28 +1,31 @@
 buildscript {
     repositories {
+        google()
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:3.6.2'
     }
 }
 
 repositories {
+    google()
     jcenter()
 }
 
 apply plugin: "com.android.application"
 
 dependencies {
-    compile "com.crossbowffs.remotepreferences:remotepreferences:0.5"
-    compile "org.jsoup:jsoup:1.10.2"
-    provided "de.robv.android.xposed:api:53"
+    implementation "com.crossbowffs.remotepreferences:remotepreferences:0.8"
+    implementation "org.jsoup:jsoup:1.10.2"
+    compileOnly "de.robv.android.xposed:api:82"
+    compileOnly "de.robv.android.xposed:api:82:sources"
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         versionCode 11
