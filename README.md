@@ -18,10 +18,10 @@ with the download service.
 
 ## Providers
 
-- [Visual Novel as a Service (日本語)](http://vnaas.apsun.xyz/)
+- [Visual Novel as a Service (Invalid) (日本語)](http://vnaas.apsun.xyz/)
 - [Hitokoto (unofficial) (中文)](http://hitokoto.cn/)
-- [Goodreads QotD (English)](https://www.goodreads.com/)
 - [Wikiquote QotD (中文)](https://www.wikiquote.org/)
+- [Jinrishici 今日诗词 (中文)](https://www.jinrishici.com/)
 - [Freakuotes (Español)](https://freakuotes.com/)
 - [Natune.net (Deutsch)](https://natune.net/zitate/)
 - [BrainyQuote (English)](https://www.brainyquote.com/)
