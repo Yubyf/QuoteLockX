@@ -10,6 +10,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AutoContentProvider extends ContentProvider {
     protected static class ProviderTable {
@@ -33,8 +34,9 @@ public abstract class AutoContentProvider extends ContentProvider {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         for (int i = 0; i < tables.length; ++i) {
             String table = tables[i].mTableName;
-            mUriMatcher.addURI(authority, table, i * 2);
-            mUriMatcher.addURI(authority, table + "/#", i * 2 + 1);
+            mUriMatcher.addURI(authority, table, i * 3);
+            mUriMatcher.addURI(authority, table + "/#", i * 3 + 1);
+            mUriMatcher.addURI(authority, table + "/*/*", i * 3 + 2);
         }
     }
 
@@ -53,6 +55,9 @@ public abstract class AutoContentProvider extends ContentProvider {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         if (isItemUri(matchCode)) {
             queryBuilder.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+        } else if (isOtherUri(matchCode)) {
+            List<String> segments = uri.getPathSegments();
+            queryBuilder.appendWhere(segments.get(segments.size() - 2) + "='" + uri.getLastPathSegment() + "'");
         }
         queryBuilder.setTables(getTableName(matchCode));
         SQLiteDatabase db = getDatabase(false);
@@ -73,7 +78,7 @@ public abstract class AutoContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         int matchCode = mUriMatcher.match(uri);
-        if (matchCode < 0 || isItemUri(matchCode)) {
+        if (matchCode < 0 || isItemUri(matchCode) || isOtherUri(matchCode)) {
             throw new IllegalArgumentException("Invalid insert URI: " + uri);
         }
         SQLiteDatabase db = getDatabase(true);
@@ -88,7 +93,7 @@ public abstract class AutoContentProvider extends ContentProvider {
     @Override
     public int bulkInsert(Uri uri, ContentValues[] bulkValues) {
         int matchCode = mUriMatcher.match(uri);
-        if (matchCode < 0 || isItemUri(matchCode)) {
+        if (matchCode < 0 || isItemUri(matchCode) || isOtherUri(matchCode)) {
             throw new IllegalArgumentException("Invalid insert URI: " + uri);
         }
 
@@ -164,15 +169,19 @@ public abstract class AutoContentProvider extends ContentProvider {
     }
 
     private boolean isItemUri(int matchCode) {
-        return matchCode % 2 == 1;
+        return matchCode % 3 == 1;
+    }
+
+    private boolean isOtherUri(int matchCode) {
+        return matchCode % 3 == 2;
     }
 
     private String getTableName(int matchCode) {
-        return mTables[matchCode / 2].mTableName;
+        return mTables[matchCode / 3].mTableName;
     }
 
     private String getType(int matchCode) {
-        ProviderTable table = mTables[matchCode / 2];
+        ProviderTable table = mTables[matchCode / 3];
         if (isItemUri(matchCode)) {
             return table.mItemType;
         } else {

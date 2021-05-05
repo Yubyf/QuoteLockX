@@ -1,5 +1,7 @@
 package com.crossbowffs.quotelock.xposed;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -16,16 +18,21 @@ import android.view.animation.LinearInterpolator;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.crossbowffs.quotelock.collection.provider.QuoteCollectionContract;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.quotelock.provider.ActionProvider;
 import com.crossbowffs.quotelock.provider.PreferenceProvider;
 import com.crossbowffs.quotelock.utils.DpUtils;
+import com.crossbowffs.quotelock.utils.Md5Utils;
 import com.crossbowffs.quotelock.utils.Xlog;
 import com.crossbowffs.remotepreferences.RemotePreferences;
 
 import org.xmlpull.v1.XmlPullParser;
+
+import java.util.Objects;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -46,9 +53,11 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     private static final String RES_ID_SOURCE_TEXTVIEW = "source_textview";
     private static final String RES_ID_ACTION_CONTAINER = "action_container";
     private static final String RES_ID_REFRESH_IMAGE_VIEW = "refresh_image_view";
+    private static final String RES_ID_COLLECT_IMAGE_VIEW = "collect_image_view";
 
     private static final String RES_ID_REFRESH_ICON = "ic_refresh_white_24dp";
-    private static final float LAYOUT_TRANSLATION = -(16F + 32F + 16F);
+    private static final String RES_ID_COLLECT_ICON = "selector_star";
+    private  float mLayoutTranslation = -(16F + 32F + 16F + 32F + 16F);
     private static final long LAYOUT_ANIMATION_DURATION = 500;
 
     private static String sModulePath;
@@ -58,6 +67,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     private TextView mSourceTextView;
     private LinearLayout mActionContainer;
     private ImageView mRefreshImageView;
+    private ImageView mCollectImageView;
     private RemotePreferences mCommonPrefs;
     private RemotePreferences mQuotePrefs;
 
@@ -67,6 +77,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
         // Update quote text
         String text = mQuotePrefs.getString(PrefKeys.PREF_QUOTES_TEXT, null);
         String source = mQuotePrefs.getString(PrefKeys.PREF_QUOTES_SOURCE, null);
+        boolean collectionState = mQuotePrefs.getBoolean(PrefKeys.PREF_QUOTES_COLLECTION_STATE, false);
         if (text == null || source == null) {
             try {
                 text = sModuleRes.getString(RES_STRING_OPEN_APP_1);
@@ -76,9 +87,18 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                 text = null;
                 source = null;
             }
+            mCollectImageView.setVisibility(View.GONE);
+            mLayoutTranslation = -(16F + 32F + 16F + 1F);
+        } else {
+            mCollectImageView.setVisibility(View.VISIBLE);
+            mLayoutTranslation = -(16F + 32F + 16F + 32F + 16F + 1F);
         }
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mActionContainer.getLayoutParams();
+        params.rightMargin = (int) DpUtils.dp2px(mActionContainer.getContext(), mLayoutTranslation + 16F);
+        mActionContainer.setLayoutParams(params);
         mQuoteTextView.setText(text);
         mSourceTextView.setText(source);
+        mCollectImageView.setSelected(collectionState);
 
         // Hide source textview if there is no source
         if (TextUtils.isEmpty(source)) {
@@ -102,6 +122,36 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
         if (cursor != null) {
             cursor.close();
+        }
+    }
+
+    private void collectQuoteRemote(Context context) {
+        String text = mQuoteTextView.getText().toString();
+        String source = mSourceTextView.getText().toString().replace("―", "").trim();
+
+        Uri uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build();
+        ContentValues values = new ContentValues(3);
+        values.put(QuoteCollectionContract.Collection.TEXT, text);
+        values.put(QuoteCollectionContract.Collection.SOURCE, source);
+        values.put(QuoteCollectionContract.Collection.MD5, Md5Utils.md5(text + source));
+        ContentResolver resolver = context.getContentResolver();
+        Uri resultUri = resolver.insert(uri, values);
+        if (Objects.equals(resultUri.getLastPathSegment(), "-1")) {
+            resetTranslationAnimator();
+        }
+    }
+
+    private void deleteCollectedQuoteRemote(Context context) {
+        String text = mQuoteTextView.getText().toString();
+        String source = mSourceTextView.getText().toString().replace("―", "").trim();
+
+        Uri uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build();
+        ContentResolver resolver = context.getContentResolver();
+        int result = resolver.delete(uri,
+                QuoteCollectionContract.Collection.MD5 + "='" + Md5Utils.md5(text + source) + "'",
+                null);
+        if (result < 0) {
+            resetTranslationAnimator();
         }
     }
 
@@ -146,12 +196,12 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     private void setTranslationAnimator() {
         Context context = mQuoteContainer.getContext();
         mQuoteContainer.animate()
-                .translationX(DpUtils.dp2px(context, LAYOUT_TRANSLATION))
+                .translationX(DpUtils.dp2px(context, mLayoutTranslation))
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setDuration(LAYOUT_ANIMATION_DURATION)
                 .start();
         mActionContainer.animate()
-                .translationX(DpUtils.dp2px(context, LAYOUT_TRANSLATION))
+                .translationX(DpUtils.dp2px(context, mLayoutTranslation))
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setDuration(LAYOUT_ANIMATION_DURATION)
                 .start();
@@ -214,9 +264,14 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                         mSourceTextView = (TextView)sModuleRes.findViewById(view, RES_ID_SOURCE_TEXTVIEW);
                         mActionContainer = (LinearLayout) sModuleRes.findViewById(view, RES_ID_ACTION_CONTAINER);
                         mRefreshImageView = (ImageView)sModuleRes.findViewById(view, RES_ID_REFRESH_IMAGE_VIEW);
-                        Drawable drawable = sModuleRes.getDrawable(RES_ID_REFRESH_ICON);
-                        if (drawable != null) {
-                            mRefreshImageView.setImageDrawable(drawable);
+                        Drawable refreshIcon = sModuleRes.getDrawable(RES_ID_REFRESH_ICON);
+                        if (refreshIcon != null) {
+                            mRefreshImageView.setImageDrawable(refreshIcon);
+                        }
+                        mCollectImageView = (ImageView)sModuleRes.findViewById(view, RES_ID_COLLECT_IMAGE_VIEW);
+                        Drawable collectIcon = sModuleRes.getDrawable(RES_ID_COLLECT_ICON);
+                        if (collectIcon != null) {
+                            mCollectImageView.setImageDrawable(collectIcon);
                         }
                     } catch (Resources.NotFoundException e) {
                         Xlog.e(TAG, "Could not find text views, aborting", e);
@@ -241,6 +296,17 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                         public void onClick(View v) {
                             setRefreshAnimator();
                             refreshQuoteRemote(v.getContext());
+                        }
+                    });
+
+                    mCollectImageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (v.isSelected()) {
+                                deleteCollectedQuoteRemote(v.getContext());
+                            } else {
+                                collectQuoteRemote(v.getContext());
+                            }
                         }
                     });
 

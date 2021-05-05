@@ -42,6 +42,7 @@ android {
         targetSdkVersion 23
         buildConfigField("int", "MODULE_VERSION", "3")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "1")
+        buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "1")
         buildConfigField("String", "LOG_TAG", "\"QuoteLock\"")
     }
 

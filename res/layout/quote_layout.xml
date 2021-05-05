@@ -11,9 +11,9 @@
         android:gravity="end"
         android:orientation="vertical"
         android:paddingLeft="24dp"
-        android:paddingTop="24dp"
+        android:paddingTop="8dp"
         android:paddingRight="24dp"
-        android:paddingBottom="24dp"
+        android:paddingBottom="8dp"
         tools:background="@android:color/black">
 
         <TextView
@@ -44,7 +44,7 @@
         android:orientation="horizontal">
 
         <View
-            android:layout_width="0.5dp"
+            android:layout_width="1dp"
             android:layout_height="48dp"
             android:alpha="0.5"
             android:background="@android:color/darker_gray" />
@@ -56,5 +56,14 @@
             android:layout_marginStart="16dp"
             tools:ignore="ContentDescription"
             tools:src="@drawable/ic_refresh_white_24dp" />
+
+        <ImageView
+            android:id="@+id/collect_image_view"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
+            android:visibility="gone"
+            tools:ignore="ContentDescription"
+            tools:src="@drawable/selector_star" />
     </LinearLayout>
 </RelativeLayout>

@@ -38,6 +38,11 @@
             android:entryValues="@array/font_size_values"
             android:defaultValue="18"/>
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/features">
+        <Preference
+            android:key="pref_collection"
+            android:title="@string/pref_collection_title"/>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/about">
         <Preference
             android:key="pref_about_credits"

@@ -22,7 +22,10 @@ public final class PrefKeys {
     public static final String PREF_QUOTES = "quotes";
     public static final String PREF_QUOTES_TEXT = "pref_quotes_text";
     public static final String PREF_QUOTES_SOURCE = "pref_quotes_source";
+    public static final String PREF_QUOTES_COLLECTION_STATE = "pref_quotes_collection_state";
     public static final String PREF_QUOTES_LAST_UPDATED = "pref_quotes_last_updated";
+
+    public static final String PREF_FEATURES_COLLECTION = "pref_collection";
 
     public static final String PREF_ABOUT_CREDITS = "pref_about_credits";
     public static final String PREF_ABOUT_GITHUB = "pref_about_github";

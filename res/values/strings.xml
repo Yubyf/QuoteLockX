@@ -12,6 +12,7 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="settings">Settings</string>
+    <string name="features">Features</string>
     <string name="about">About</string>
     <string name="close">Close</string>
     <string name="enable_xposed_module_title">Enable Xposed module</string>
@@ -39,6 +40,7 @@
     <string name="pref_module_preferences_title">Quote provider preferences</string>
     <string name="pref_module_preferences_summary">Manage provider-specific settings</string>
     <string name="pref_module_preferences_summary_alt">No preferences for selected provider</string>
+    <string name="pref_collection_title">Collection</string>
     <string name="pref_about_credits_title">Credits</string>
     <string name="pref_about_credits_summary">Who did what now?</string>
     <string name="pref_about_github">View project on GitHub</string>
@@ -117,4 +119,7 @@
     <string name="module_hitokoto_activity_type_netease_cloud">NetEase Cloud</string>
     <string name="module_hitokoto_activity_type_philosophy">Philosophy</string>
     <string name="module_hitokoto_activity_type_one_line">One-Line</string>
+
+    <!-- Quotes collection -->
+    <string name="quote_collection_activity_label">Quotes collection</string>
 </resources>
