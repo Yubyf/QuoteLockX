@@ -61,15 +61,16 @@
             <br><b>Quote providers</b><br>
             - <a href="http://vnaas.apsun.xyz/">Visual Novel as a Service</a><br>
             - <a href="http://hitokoto.cn/">Hitokoto</a><br>
-            - <a href="https://www.goodreads.com/">Goodreads QotD</a><br>
             - <a href="https://www.wikiquote.org/">Wikiquote QotD</a><br>
+            - <a href="https://www.jinrishici.com/">Jinrishici 今日诗词</a><br>
             - <a href="https://freakuotes.com/">Freakuotes</a><br>
             - <a href="https://natune.net/zitate/">Natune.net</a><br>
             - <a href="https://www.brainyquote.com/">BrainyQuote</a><br>
 
             <br><b>Libraries used</b><br>
             - <a href="https://jsoup.org/">Jsoup</a><br>
-            - <a href="https://github.com/apsun/RemotePreferences">RemotePreferences</a>
+            - <a href="https://github.com/apsun/RemotePreferences">RemotePreferences</a><br>
+            - <a href="https://github.com/xenv/jinrishici-sdk-android/">jinrishici-sdk-android</a>
         ]]>
     </string>
 
@@ -77,6 +78,7 @@
     <string name="module_vnaas_name">Visual Novel as a Service (日本語)</string>
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
+    <string name="module_jinrishici_name">Jinrishici 今日诗词 (中文)</string>
     <string name="module_freakuotes_name">Freakuotes (Español)</string>
     <string name="module_natune_name">Natune.net (Deutsch)</string>
     <string name="module_brainy_name">BrainyQuote (English)</string>

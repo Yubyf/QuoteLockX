@@ -6,6 +6,7 @@ import com.crossbowffs.quotelock.modules.brainyquote.BrainyQuoteQuoteModule;
 import com.crossbowffs.quotelock.modules.custom.CustomQuoteModule;
 import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule;
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;
+import com.crossbowffs.quotelock.modules.jinrishici.JinrishiciQuoteModule;
 import com.crossbowffs.quotelock.modules.natune.NatuneQuoteModule;
 import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule;
 
@@ -20,6 +21,7 @@ public class ModuleManager {
     static {
         addLocalModule(new HitokotoQuoteModule());
         addLocalModule(new WikiquoteQuoteModule());
+        addLocalModule(new JinrishiciQuoteModule());
         addLocalModule(new FreakuotesQuoteModule());
         addLocalModule(new NatuneQuoteModule());
         addLocalModule(new BrainyQuoteQuoteModule());
