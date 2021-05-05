@@ -5,10 +5,8 @@ import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.brainyquote.BrainyQuoteQuoteModule;
 import com.crossbowffs.quotelock.modules.custom.CustomQuoteModule;
 import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule;
-import com.crossbowffs.quotelock.modules.goodreads.GoodreadsQuoteModule;
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;
 import com.crossbowffs.quotelock.modules.natune.NatuneQuoteModule;
-import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
 import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule;
 
 import java.util.ArrayList;
@@ -20,9 +18,7 @@ public class ModuleManager {
     private static final Map<String, QuoteModule> sModules = new LinkedHashMap<>();
 
     static {
-        addLocalModule(new VnaasQuoteModule());
         addLocalModule(new HitokotoQuoteModule());
-        addLocalModule(new GoodreadsQuoteModule());
         addLocalModule(new WikiquoteQuoteModule());
         addLocalModule(new FreakuotesQuoteModule());
         addLocalModule(new NatuneQuoteModule());

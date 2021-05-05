@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.consts;
 
+import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;
 import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
 
 public final class PrefKeys {
@@ -9,7 +10,7 @@ public final class PrefKeys {
     public static final String PREF_COMMON_UNMETERED_ONLY = "pref_common_unmetered_only";
     public static final boolean PREF_COMMON_UNMETERED_ONLY_DEFAULT = false;
     public static final String PREF_COMMON_QUOTE_MODULE = "pref_common_quote_module";
-    public static final String PREF_COMMON_QUOTE_MODULE_DEFAULT = VnaasQuoteModule.class.getName();
+    public static final String PREF_COMMON_QUOTE_MODULE_DEFAULT = HitokotoQuoteModule.class.getName();
     public static final String PREF_COMMON_MODULE_PREFERENCES = "pref_module_preferences";
     public static final String PREF_COMMON_REQUIRES_INTERNET = "pref_common_requires_internet";
     public static final String PREF_COMMON_REFRESH_RATE_OVERRIDE = "pref_common_refresh_rate_override";

@@ -76,7 +76,6 @@
     <!-- Provider-specific strings -->
     <string name="module_vnaas_name">Visual Novel as a Service (日本語)</string>
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
-    <string name="module_goodreads_name">Goodreads QotD (English)</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
     <string name="module_freakuotes_name">Freakuotes (Español)</string>
     <string name="module_natune_name">Natune.net (Deutsch)</string>
