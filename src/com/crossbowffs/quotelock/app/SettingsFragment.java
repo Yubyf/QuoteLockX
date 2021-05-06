@@ -2,6 +2,7 @@ package com.crossbowffs.quotelock.app;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -25,13 +26,19 @@ import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
 import com.crossbowffs.quotelock.utils.JobUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
     private int mVersionTapCount = 0;
     private ComponentName mModuleConfigActivity = null;
+
+    private SharedPreferences mQuotesPreferences;
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,9 +47,18 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         addPreferencesFromResource(R.xml.settings);
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
+        mQuotesPreferences = getActivity().getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE);
+        mQuotesPreferences.registerOnSharedPreferenceChangeListener(this);
+
         // Update version info
         String version = String.format("%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE);
         findPreference(PrefKeys.PREF_ABOUT_VERSION).setSummary(version);
+
+        // Last update info
+        long lastUpdate = mQuotesPreferences.getLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, -1);
+        findPreference(PrefKeys.PREF_COMMON_UPDATE_INFO).setSummary(
+                getString(R.string.pref_refresh_info_summary, lastUpdate > 0 ?
+                        DATE_FORMATTER.format(new Date(lastUpdate)) : "-"));
 
         // Get quote module list
         List<QuoteModule> quoteModules = ModuleManager.getAllModules(getActivity());
@@ -66,6 +82,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     @Override
     public void onDestroy() {
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        mQuotesPreferences.unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
     }
 
@@ -103,6 +120,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         Xlog.i(TAG, "Preference changed: %s", key);
         if (PrefKeys.PREF_COMMON_QUOTE_MODULE.equals(key)) {
             onSelectedModuleChanged();
+        } else if (PrefKeys.PREF_QUOTES_LAST_UPDATED.equals(key)) {
+            long lastUpdate = mQuotesPreferences.getLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, -1);
+            findPreference(PrefKeys.PREF_COMMON_UPDATE_INFO).setSummary(
+                    getString(R.string.pref_refresh_info_summary, lastUpdate > 0 ?
+                            DATE_FORMATTER.format(new Date(lastUpdate)) : "-"));
         } else {
             JobUtils.createQuoteDownloadJob(getActivity(), true);
         }

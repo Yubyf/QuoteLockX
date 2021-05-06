@@ -18,6 +18,11 @@
             android:entries="@array/refresh_interval_entries"
             android:entryValues="@array/refresh_interval_values"
             android:defaultValue="900"/>
+        <Preference
+            android:key="pref_common_update_info"
+            android:enabled="false"
+            android:title="@string/pref_refresh_info_title"
+            android:summary="@string/pref_refresh_info_summary"/>
         <SwitchPreference
             android:key="pref_common_unmetered_only"
             android:title="@string/pref_unmetered_only_title"
