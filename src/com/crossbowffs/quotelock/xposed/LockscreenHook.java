@@ -21,7 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.crossbowffs.quotelock.collection.provider.QuoteCollectionContract;
+import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.quotelock.provider.ActionProvider;
 import com.crossbowffs.quotelock.provider.PreferenceProvider;
@@ -131,9 +131,9 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
 
         Uri uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build();
         ContentValues values = new ContentValues(3);
-        values.put(QuoteCollectionContract.Collection.TEXT, text);
-        values.put(QuoteCollectionContract.Collection.SOURCE, source);
-        values.put(QuoteCollectionContract.Collection.MD5, Md5Utils.md5(text + source));
+        values.put(QuoteCollectionContract.Collections.TEXT, text);
+        values.put(QuoteCollectionContract.Collections.SOURCE, source);
+        values.put(QuoteCollectionContract.Collections.MD5, Md5Utils.md5(text + source));
         ContentResolver resolver = context.getContentResolver();
         Uri resultUri = resolver.insert(uri, values);
         if (Objects.equals(resultUri.getLastPathSegment(), "-1")) {
@@ -148,7 +148,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
         Uri uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build();
         ContentResolver resolver = context.getContentResolver();
         int result = resolver.delete(uri,
-                QuoteCollectionContract.Collection.MD5 + "='" + Md5Utils.md5(text + source) + "'",
+                QuoteCollectionContract.Collections.MD5 + "='" + Md5Utils.md5(text + source) + "'",
                 null);
         if (result < 0) {
             resetTranslationAnimator();

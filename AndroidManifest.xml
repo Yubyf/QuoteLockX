@@ -24,15 +24,15 @@
         <activity android:name=".modules.hitokoto.app.HitkotoConfigActivity"
             android:label="@string/module_hitokoto_activity_label"/>
         <activity
-            android:name=".collection.app.QuoteCollectionActivity"
-            android:label="@string/quote_collection_activity_label"/>
+            android:name=".collections.app.QuoteCollectionActivity"
+            android:label="@string/quote_collections_activity_label"/>
 
         <provider
             android:name=".modules.custom.provider.CustomQuoteProvider"
             android:authorities="${applicationId}.modules.custom.provider"
             android:exported="false"/>
         <provider
-            android:name=".collection.provider.QuoteCollectionProvider"
+            android:name=".collections.provider.QuoteCollectionProvider"
             android:authorities="${applicationId}.collection.provider"
             android:exported="true"/>
         <service

@@ -9,7 +9,7 @@ import android.text.TextUtils;
 
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.api.QuoteModule;
-import com.crossbowffs.quotelock.collection.provider.QuoteCollectionContract;
+import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract;
 import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
@@ -68,8 +68,8 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
     }
 
     private boolean queryQuoteCollectionState(String text, String source) {
-        Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(QuoteCollectionContract.Collection.CONTENT_URI, QuoteCollectionContract.Collection.MD5), Md5Utils.md5(text + source));
-        String[] columns = {QuoteCollectionContract.Collection._ID};
+        Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(QuoteCollectionContract.Collections.CONTENT_URI, QuoteCollectionContract.Collections.MD5), Md5Utils.md5(text + source));
+        String[] columns = {QuoteCollectionContract.Collections._ID};
         try (Cursor cursor = mContext.getContentResolver().query(uri, columns, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 int has = cursor.getInt(0);

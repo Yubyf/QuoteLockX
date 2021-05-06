@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.collection.app;
+package com.crossbowffs.quotelock.collections.app;
 
 import android.app.ListActivity;
 import android.app.LoaderManager;
@@ -19,7 +19,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.crossbowffs.quotelock.R;
-import com.crossbowffs.quotelock.collection.provider.QuoteCollectionContract;
+import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 
 /**
@@ -32,7 +32,7 @@ public class QuoteCollectionActivity extends ListActivity implements LoaderManag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String[] from = {QuoteCollectionContract.Collection.TEXT, QuoteCollectionContract.Collection.SOURCE};
+        String[] from = {QuoteCollectionContract.Collections.TEXT, QuoteCollectionContract.Collections.SOURCE};
         int[] to = {R.id.listitem_custom_quote_text, R.id.listitem_custom_quote_source};
         mAdapter = new SimpleCursorAdapter(this, R.layout.listitem_custom_quote, null, from, to, 0);
         setListAdapter(mAdapter);
@@ -66,8 +66,8 @@ public class QuoteCollectionActivity extends ListActivity implements LoaderManag
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
-                QuoteCollectionContract.Collection.CONTENT_URI,
-                QuoteCollectionContract.Collection.ALL,
+                QuoteCollectionContract.Collections.CONTENT_URI,
+                QuoteCollectionContract.Collections.ALL,
                 null, null, null);
     }
 
@@ -82,7 +82,7 @@ public class QuoteCollectionActivity extends ListActivity implements LoaderManag
     }
 
     private void deleteQuote(long rowId) {
-        Uri uri = ContentUris.withAppendedId(QuoteCollectionContract.Collection.CONTENT_URI, rowId);
+        Uri uri = ContentUris.withAppendedId(QuoteCollectionContract.Collections.CONTENT_URI, rowId);
         int result = getContentResolver().delete(uri, null, null);
         if (result >= 0) {
             getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE)

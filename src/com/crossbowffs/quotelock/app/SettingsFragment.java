@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.crossbowffs.quotelock.BuildConfig;
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteModule;
-import com.crossbowffs.quotelock.collection.app.QuoteCollectionActivity;
+import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.quotelock.consts.Urls;
 import com.crossbowffs.quotelock.modules.ModuleManager;

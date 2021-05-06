@@ -10,7 +10,7 @@ import android.net.Uri;
 
 import com.crossbowffs.quotelock.BuildConfig;
 import com.crossbowffs.quotelock.app.QuoteDownloaderTask;
-import com.crossbowffs.quotelock.collection.provider.QuoteCollectionContract;
+import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 
 import java.util.Objects;
@@ -91,11 +91,11 @@ public class ActionProvider extends ContentProvider {
 
     private Uri collectQuote(ContentValues values) {
         ContentResolver resolver = getContext().getContentResolver();
-        return resolver.insert(QuoteCollectionContract.Collection.CONTENT_URI, values);
+        return resolver.insert(QuoteCollectionContract.Collections.CONTENT_URI, values);
     }
 
     private int deleteCollectedQuote(String selection) {
-        return getContext().getContentResolver().delete(QuoteCollectionContract.Collection.CONTENT_URI,
+        return getContext().getContentResolver().delete(QuoteCollectionContract.Collections.CONTENT_URI,
                 selection, null);
     }
 }
