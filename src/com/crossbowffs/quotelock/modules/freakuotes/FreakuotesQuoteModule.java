@@ -63,4 +63,9 @@ public class FreakuotesQuoteModule implements QuoteModule {
 
         return new QuoteData(quoteText, quoteSource);
     }
+
+    @Override
+    public int getCharacterType() {
+        return CHARACTER_TYPE_LATIN;
+    }
 }

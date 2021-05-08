@@ -3,6 +3,7 @@ package com.crossbowffs.quotelock.modules.vnaas;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.api.QuoteModule;
@@ -72,5 +73,10 @@ public class VnaasQuoteModule implements QuoteModule {
             longs[i] = Long.parseLong(strSplit[i]);
         }
         return longs;
+    }
+
+    @Override
+    public int getCharacterType() {
+        return CHARACTER_TYPE_CJK;
     }
 }

@@ -49,4 +49,9 @@ public class CustomQuoteModule implements QuoteModule {
             }
         }
     }
+
+    @Override
+    public int getCharacterType() {
+        return CHARACTER_TYPE_DEFAULT;
+    }
 }

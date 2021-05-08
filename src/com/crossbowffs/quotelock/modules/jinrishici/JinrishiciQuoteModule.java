@@ -71,4 +71,9 @@ public class JinrishiciQuoteModule implements QuoteModule {
             return null;
         }
     }
+
+    @Override
+    public int getCharacterType() {
+        return CHARACTER_TYPE_CJK;
+    }
 }

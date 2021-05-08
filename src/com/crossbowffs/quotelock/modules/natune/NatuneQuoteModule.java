@@ -40,4 +40,9 @@ public class NatuneQuoteModule implements QuoteModule {
         String quoteAuthor = quoteLi.getElementsByClass("quote_author").first().text();
         return new QuoteData(quoteText, "― " + quoteAuthor);
     }
+
+    @Override
+    public int getCharacterType() {
+        return CHARACTER_TYPE_LATIN;
+    }
 }

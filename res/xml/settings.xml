@@ -42,6 +42,13 @@
             android:entries="@array/font_size_entries"
             android:entryValues="@array/font_size_values"
             android:defaultValue="18"/>
+        <ListPreference
+            android:key="pref_common_font_family"
+            android:title="@string/pref_font_family_title"
+            android:summary="@string/pref_font_family_summary"
+            android:entries="@array/font_family_entries"
+            android:entryValues="@array/font_family_values"
+            android:defaultValue="system"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/features">
         <Preference

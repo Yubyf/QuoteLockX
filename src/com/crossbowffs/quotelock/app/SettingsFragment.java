@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +51,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
         mQuotesPreferences = getActivity().getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE);
         mQuotesPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        // Only enable font family above API26
+        findPreference(PrefKeys.PREF_COMMON_FONT_FAMILY).setEnabled(
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O);
 
         // Update version info
         String version = String.format("%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE);
@@ -203,6 +209,23 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         // Update internet module initially
         if (module.requiresInternetConnectivity(getActivity())) {
             new QuoteDownloaderTask(getActivity()).execute();
+        }
+
+        // Update font family options
+        ListPreference fontFamilyPref = (ListPreference) findPreference(PrefKeys.PREF_COMMON_FONT_FAMILY);
+        int entries = R.array.font_family_entries;
+        int values = R.array.font_family_values;
+        if (QuoteModule.CHARACTER_TYPE_LATIN == module.getCharacterType()) {
+            entries = R.array.font_family_latin_entries;
+            values = R.array.font_family_latin_values;
+        } else if (QuoteModule.CHARACTER_TYPE_CJK == module.getCharacterType()) {
+            entries = R.array.font_family_cjk_entries;
+            values = R.array.font_family_cjk_values;
+        }
+        fontFamilyPref.setEntries(entries);
+        fontFamilyPref.setEntryValues(values);
+        if (fontFamilyPref.findIndexOfValue(fontFamilyPref.getValue()) < 0) {
+            fontFamilyPref.setValueIndex(0);
         }
     }
 

@@ -114,6 +114,18 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
             PrefKeys.PREF_COMMON_FONT_SIZE_SOURCE, PrefKeys.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT));
         mQuoteTextView.setTextSize(textFontSize);
         mSourceTextView.setTextSize(sourceFontSize);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String font = mCommonPrefs.getString(
+                    PrefKeys.PREF_COMMON_FONT_FAMILY, PrefKeys.PREF_COMMON_FONT_FAMILY_DEFAULT);
+            if (!PrefKeys.PREF_COMMON_FONT_FAMILY_DEFAULT.equals(font)) {
+                mQuoteTextView.setTypeface(sModuleRes.getFont(font));
+                mSourceTextView.setTypeface(sModuleRes.getFont(font));
+            } else {
+                mQuoteTextView.setTypeface(null);
+                mSourceTextView.setTypeface(null);
+            }
+        }
     }
 
     private void refreshQuoteRemote(Context context) {

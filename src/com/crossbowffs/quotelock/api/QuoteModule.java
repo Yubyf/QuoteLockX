@@ -3,6 +3,11 @@ package com.crossbowffs.quotelock.api;
 import android.content.ComponentName;
 import android.content.Context;
 
+import androidx.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Provides an API for querying the information of a
  * quote provider and fetching quotes from that provider. Note that
@@ -44,4 +49,18 @@ public interface QuoteModule {
      * May return {@code null} or throw an exception in the case of an error.
      */
     QuoteData getQuote(Context context) throws Exception;
+
+    int CHARACTER_TYPE_DEFAULT = 0;
+    int CHARACTER_TYPE_LATIN = 1;
+    int CHARACTER_TYPE_CJK = 2;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({CHARACTER_TYPE_DEFAULT, CHARACTER_TYPE_LATIN, CHARACTER_TYPE_CJK})
+    @interface CharacterType {}
+
+    /**
+     * @return 0 - Default, 1 - Latin, 2 - CJK.
+     */
+    @CharacterType
+    int getCharacterType();
 }

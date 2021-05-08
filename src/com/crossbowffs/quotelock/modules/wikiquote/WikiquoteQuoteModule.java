@@ -54,4 +54,9 @@ public class WikiquoteQuoteModule implements QuoteModule {
         String quoteSource = "―" + quoteMatcher.group(2);
         return new QuoteData(quoteText, quoteSource);
     }
+
+    @Override
+    public int getCharacterType() {
+        return CHARACTER_TYPE_CJK;
+    }
 }

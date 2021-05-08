@@ -63,4 +63,9 @@ public class HitokotoQuoteModule implements QuoteModule {
 
         return new QuoteData(quoteText, quoteSource);
     }
+
+    @Override
+    public int getCharacterType() {
+        return CHARACTER_TYPE_CJK;
+    }
 }

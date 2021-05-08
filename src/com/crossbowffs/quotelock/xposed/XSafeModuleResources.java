@@ -4,8 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
+
 import com.crossbowffs.quotelock.BuildConfig;
 import org.xmlpull.v1.XmlPullParser;
 
@@ -40,6 +45,13 @@ public class XSafeModuleResources {
     public Drawable getDrawable(String resName) {
         int resId = getResId(resName, "drawable");
         return mModuleRes.getDrawable(resId, null);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @SuppressLint("UseCompatLoadingForDrawables")
+    public Typeface getFont(String resName) {
+        int resId = getResId(resName, "font");
+        return mModuleRes.getFont(resId);
     }
 
     public XmlPullParser getLayout(String resName) {

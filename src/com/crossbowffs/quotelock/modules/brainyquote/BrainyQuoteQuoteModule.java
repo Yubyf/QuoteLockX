@@ -52,4 +52,9 @@ public class BrainyQuoteQuoteModule implements QuoteModule {
 
         return new QuoteData(quoteText.substring(1, quoteText.length()-1), quoteSource);
     }
+
+    @Override
+    public int getCharacterType() {
+        return CHARACTER_TYPE_LATIN;
+    }
 }
