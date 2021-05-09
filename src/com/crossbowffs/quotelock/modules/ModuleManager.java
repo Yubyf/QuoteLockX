@@ -3,7 +3,7 @@ package com.crossbowffs.quotelock.modules;
 import android.content.Context;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.modules.brainyquote.BrainyQuoteQuoteModule;
-import com.crossbowffs.quotelock.modules.collections.custom.CollectionsQuoteModule;
+import com.crossbowffs.quotelock.modules.collections.CollectionsQuoteModule;
 import com.crossbowffs.quotelock.modules.custom.CustomQuoteModule;
 import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule;
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;

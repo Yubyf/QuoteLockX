@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.modules.collections.custom;
+package com.crossbowffs.quotelock.modules.collections;
 
 import android.content.ComponentName;
 import android.content.Context;
