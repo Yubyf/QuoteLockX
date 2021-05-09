@@ -10,7 +10,7 @@ import com.crossbowffs.quotelock.BuildConfig;
  * @author Yubyf
  */
 public class QuoteCollectionHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "quote_collections.db";
+    public static final String DATABASE_NAME = "quote_collections.db";
     private static final int DATABASE_VERSION = BuildConfig.QUOTE_COLLECTIONS_DB_VERSION;
 
     private static final String CREATE_QUOTE_COLLECTIONS_TABLE =

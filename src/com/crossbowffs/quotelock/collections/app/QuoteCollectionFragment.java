@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +25,9 @@ import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
 import com.crossbowffs.quotelock.R;
+import com.crossbowffs.quotelock.backup.LocalBackup;
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract;
+import com.crossbowffs.quotelock.collections.provider.QuoteCollectionHelper;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 
 /**
@@ -53,6 +56,28 @@ public class QuoteCollectionFragment extends ListFragment implements LoaderManag
 
         ListView listView = getListView();
         registerForContextMenu(listView);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.collections_options, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.backup) {
+            LocalBackup.performBackup(requireActivity(), QuoteCollectionHelper.DATABASE_NAME);
+            return true;
+        } else if (item.getItemId() == R.id.restore) {
+            boolean result = LocalBackup.performRestore(requireActivity(),
+                    QuoteCollectionHelper.DATABASE_NAME);
+            if (result) {
+                LoaderManager.getInstance(this).restartLoader(0, null, this);
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

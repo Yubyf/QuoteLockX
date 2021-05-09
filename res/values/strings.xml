@@ -15,6 +15,8 @@
     <string name="features">Features</string>
     <string name="about">About</string>
     <string name="close">Close</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Restore</string>
     <string name="enable_xposed_module_title">Enable Xposed module</string>
     <string name="enable_xposed_module_message">
         Android does not normally allow apps to add text to the lockscreen.\n\n
