@@ -8,15 +8,16 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
 import android.text.Html;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
 import com.crossbowffs.quotelock.BuildConfig;
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteModule;
@@ -28,12 +29,13 @@ import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
 import com.crossbowffs.quotelock.utils.JobUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
     private int mVersionTapCount = 0;
@@ -43,13 +45,12 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         getPreferenceManager().setSharedPreferencesName(PrefKeys.PREF_COMMON);
-        addPreferencesFromResource(R.xml.settings);
+        setPreferencesFromResource(R.xml.settings, rootKey);
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
-        mQuotesPreferences = getActivity().getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE);
+        mQuotesPreferences = requireContext().getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE);
         mQuotesPreferences.registerOnSharedPreferenceChangeListener(this);
 
         // Only enable font family above API26
@@ -57,7 +58,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O);
 
         // Update version info
-        String version = String.format("%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE);
+        String version = String.format(Locale.getDefault(),
+                "%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE);
         findPreference(PrefKeys.PREF_ABOUT_VERSION).setSummary(version);
 
         // Last update info
@@ -67,17 +69,17 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                         DATE_FORMATTER.format(new Date(lastUpdate)) : "-"));
 
         // Get quote module list
-        List<QuoteModule> quoteModules = ModuleManager.getAllModules(getActivity());
+        List<QuoteModule> quoteModules = ModuleManager.getAllModules(requireContext());
         String[] moduleNames = new String[quoteModules.size()];
         String[] moduleClsNames = new String[quoteModules.size()];
         for (int i = 0; i < moduleNames.length; ++i) {
             QuoteModule module = quoteModules.get(i);
-            moduleNames[i] = module.getDisplayName(getActivity());
+            moduleNames[i] = module.getDisplayName(requireContext());
             moduleClsNames[i] = module.getClass().getName();
         }
 
         // Update quote module list
-        ListPreference quoteModulesPref = (ListPreference)findPreference(PrefKeys.PREF_COMMON_QUOTE_MODULE);
+        ListPreference quoteModulesPref = findPreference(PrefKeys.PREF_COMMON_QUOTE_MODULE);
         quoteModulesPref.setEntries(moduleNames);
         quoteModulesPref.setEntryValues(moduleClsNames);
 
@@ -93,31 +95,31 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     }
 
     @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+    public boolean onPreferenceTreeClick(Preference preference) {
         switch (preference.getKey()) {
-        case PrefKeys.PREF_COMMON_MODULE_PREFERENCES:
-            startActivity(mModuleConfigActivity);
-            return true;
-        case PrefKeys.PREF_FEATURES_COLLECTION:
-            startActivity(new ComponentName(getActivity(), QuoteCollectionActivity.class));
-            return true;
-        case PrefKeys.PREF_ABOUT_CREDITS:
-            showCreditsDialog();
-            return true;
-        case PrefKeys.PREF_ABOUT_GITHUB:
-            startBrowserActivity(Urls.GITHUB_QUOTELOCK);
-            return true;
-        case PrefKeys.PREF_ABOUT_GITHUB_CURRENT:
-            startBrowserActivity(Urls.GITHUB_QUOTELOCK_CURRENT);
-            return true;
-        case PrefKeys.PREF_ABOUT_VERSION:
-            if (++mVersionTapCount == 7) {
-                mVersionTapCount = 0;
-                Toast.makeText(getActivity(), R.string.easter_egg, Toast.LENGTH_SHORT).show();
-            }
-            return true;
-        default:
-            return super.onPreferenceTreeClick(preferenceScreen, preference);
+            case PrefKeys.PREF_COMMON_MODULE_PREFERENCES:
+                startActivity(mModuleConfigActivity);
+                return true;
+            case PrefKeys.PREF_FEATURES_COLLECTION:
+                startActivity(new ComponentName(requireContext(), QuoteCollectionActivity.class));
+                return true;
+            case PrefKeys.PREF_ABOUT_CREDITS:
+                showCreditsDialog();
+                return true;
+            case PrefKeys.PREF_ABOUT_GITHUB:
+                startBrowserActivity(Urls.GITHUB_QUOTELOCK);
+                return true;
+            case PrefKeys.PREF_ABOUT_GITHUB_CURRENT:
+                startBrowserActivity(Urls.GITHUB_QUOTELOCK_CURRENT);
+                return true;
+            case PrefKeys.PREF_ABOUT_VERSION:
+                if (++mVersionTapCount == 7) {
+                    mVersionTapCount = 0;
+                    Toast.makeText(requireContext(), R.string.easter_egg, Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            default:
+                return super.onPreferenceTreeClick(preference);
         }
     }
 
@@ -132,32 +134,65 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                     getString(R.string.pref_refresh_info_summary, lastUpdate > 0 ?
                             DATE_FORMATTER.format(new Date(lastUpdate)) : "-"));
         } else {
-            JobUtils.createQuoteDownloadJob(getActivity(), true);
+            JobUtils.createQuoteDownloadJob(requireContext(), true);
         }
     }
 
     private QuoteModule loadSelectedModule(SharedPreferences prefs) {
         String moduleClsName = prefs.getString(PrefKeys.PREF_COMMON_QUOTE_MODULE, PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
         try {
-            return ModuleManager.getModule(getActivity(), moduleClsName);
+            return ModuleManager.getModule(requireContext(), moduleClsName);
         } catch (ModuleNotFoundException e) {
             // Reset to the default module if the currently
             // selected one was not found. Change through the
             // ListPreference so that it updates its value.
-            ListPreference quoteModulesPref = (ListPreference)findPreference(PrefKeys.PREF_COMMON_QUOTE_MODULE);
+            ListPreference quoteModulesPref = findPreference(PrefKeys.PREF_COMMON_QUOTE_MODULE);
             quoteModulesPref.setValue(PrefKeys.PREF_COMMON_QUOTE_MODULE_DEFAULT);
-            Toast.makeText(getActivity(), R.string.selected_module_not_found, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.selected_module_not_found, Toast.LENGTH_SHORT).show();
             return loadSelectedModule(prefs);
         }
     }
 
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        if (PrefKeys.PREF_COMMON_FONT_FAMILY.equals(preference.getKey())) {
+            showFontFamilyDialog(preference);
+            return;
+        }
+        super.onDisplayPreferenceDialog(preference);
+    }
+
+    private void showFontFamilyDialog(Preference preference) {
+        // check if dialog is already showing
+        String dialogFragmentTag = null;
+        try {
+            Class<?> clazz = getClass().getSuperclass();
+            Field field = clazz.getDeclaredField("DIALOG_FRAGMENT_TAG");
+            field.setAccessible(true);
+            Object tag = field.get(this);
+            if (tag instanceof String) {
+                dialogFragmentTag = (String) tag;
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            dialogFragmentTag = "androidx.preference.PreferenceFragment.DIALOG";
+            e.printStackTrace();
+        }
+        if (requireFragmentManager().findFragmentByTag(dialogFragmentTag) != null) {
+            return;
+        }
+        final DialogFragment f;
+        f = FontListPreferenceDialogFragmentCompat.newInstance(preference.getKey());
+        f.setTargetFragment(this, 0);
+        f.show(requireFragmentManager(), "androidx.preference.PreferenceFragment.DIALOG");
+    }
+
     private void showCreditsDialog() {
-        AlertDialog dialog = new AlertDialog.Builder(getActivity())
-            .setTitle(R.string.credits_title)
-            .setMessage(Html.fromHtml(getString(R.string.credits_message)))
-            .setPositiveButton(R.string.close, null)
-            .show();
-        TextView textView = (TextView)dialog.findViewById(android.R.id.message);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.credits_title)
+                .setMessage(Html.fromHtml(getString(R.string.credits_message)))
+                .setPositiveButton(R.string.close, null)
+                .show();
+        TextView textView = dialog.findViewById(android.R.id.message);
         textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
@@ -166,7 +201,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         QuoteModule module = loadSelectedModule(prefs);
 
         // Update config activity preference
-        ComponentName configActivity = module.getConfigActivity(getActivity());
+        ComponentName configActivity = module.getConfigActivity(requireContext());
         Preference configActivityPref = findPreference(PrefKeys.PREF_COMMON_MODULE_PREFERENCES);
         if (configActivity == null) {
             configActivityPref.setEnabled(false);
@@ -180,7 +215,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
         // Set refresh interval override and disable preference if necessary.
         // This is kind of a lazy solution, but it's better than nothing.
-        int minRefreshInterval = module.getMinimumRefreshInterval(getActivity());
+        int minRefreshInterval = module.getMinimumRefreshInterval(requireContext());
         Preference refreshIntervalPref = findPreference(PrefKeys.PREF_COMMON_REFRESH_RATE);
         if (minRefreshInterval != 0) {
             prefs.edit().putInt(PrefKeys.PREF_COMMON_REFRESH_RATE_OVERRIDE, minRefreshInterval).apply();
@@ -193,8 +228,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         }
 
         // If the module doesn't require internet connectivity, disable the
-        // unmeterd only toggle and set the requires internet preference to false.
-        boolean requiresInternet = module.requiresInternetConnectivity(getActivity());
+        // unmetered only toggle and set the requires internet preference to false.
+        boolean requiresInternet = module.requiresInternetConnectivity(requireContext());
         Preference unmeteredOnlyPref = findPreference(PrefKeys.PREF_COMMON_UNMETERED_ONLY);
         if (!requiresInternet) {
             prefs.edit().putBoolean(PrefKeys.PREF_COMMON_REQUIRES_INTERNET, false).apply();
@@ -207,12 +242,12 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         }
 
         // Update internet module initially
-        if (module.requiresInternetConnectivity(getActivity())) {
-            new QuoteDownloaderTask(getActivity()).execute();
+        if (module.requiresInternetConnectivity(requireContext())) {
+            new QuoteDownloaderTask(requireContext()).execute();
         }
 
         // Update font family options
-        ListPreference fontFamilyPref = (ListPreference) findPreference(PrefKeys.PREF_COMMON_FONT_FAMILY);
+        ListPreference fontFamilyPref = findPreference(PrefKeys.PREF_COMMON_FONT_FAMILY);
         int entries = R.array.font_family_entries;
         int values = R.array.font_family_values;
         if (QuoteModule.CHARACTER_TYPE_LATIN == module.getCharacterType()) {

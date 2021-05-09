@@ -1,6 +1,5 @@
 package com.crossbowffs.quotelock.app;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -11,13 +10,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.utils.JobUtils;
 import com.crossbowffs.quotelock.consts.Urls;
 import com.crossbowffs.quotelock.utils.XposedUtils;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private class ActivityQuoteDownloaderTask extends QuoteDownloaderTask {
         private ProgressDialog mDialog;
 
@@ -58,7 +60,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getFragmentManager()
+        getSupportFragmentManager()
             .beginTransaction()
             .replace(R.id.content_frame, new SettingsFragment())
             .commit();
