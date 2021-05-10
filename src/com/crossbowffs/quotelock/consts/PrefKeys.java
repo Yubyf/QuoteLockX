@@ -21,6 +21,7 @@ public final class PrefKeys {
     public static final String PREF_COMMON_UPDATE_INFO = "pref_common_update_info";
     public static final String PREF_COMMON_FONT_FAMILY = "pref_common_font_family";
     public static final String PREF_COMMON_FONT_FAMILY_DEFAULT = "system";
+    public static final String PREF_COMMON_FONT_STYLE = "pref_common_font_style";
 
     public static final String PREF_QUOTES = "quotes";
     public static final String PREF_QUOTES_TEXT = "pref_quotes_text";

@@ -49,6 +49,12 @@
             android:entries="@array/font_family_entries"
             android:entryValues="@array/font_family_values"
             android:defaultValue="system"/>
+        <MultiSelectListPreference
+            android:key="pref_common_font_style"
+            android:title="@string/pref_font_style_title"
+            android:summary="@string/pref_font_style_summary"
+            android:entries="@array/font_style_entries"
+            android:entryValues="@array/font_style_values"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/features">
         <Preference

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -33,6 +34,7 @@ import com.crossbowffs.remotepreferences.RemotePreferences;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.Objects;
+import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -115,16 +117,31 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
         mQuoteTextView.setTextSize(textFontSize);
         mSourceTextView.setTextSize(sourceFontSize);
 
+        // Font properties
+        Set<String> styles = mCommonPrefs.getStringSet(PrefKeys.PREF_COMMON_FONT_STYLE, null);
+        int style = Typeface.NORMAL;
+        if (styles != null) {
+            if (styles.contains("bold") && styles.contains("italic")) {
+                style = Typeface.BOLD_ITALIC;
+            } else if (styles.contains("bold")) {
+                style = Typeface.BOLD;
+            } else if (styles.contains("italic")) {
+                style = Typeface.ITALIC;
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String font = mCommonPrefs.getString(
                     PrefKeys.PREF_COMMON_FONT_FAMILY, PrefKeys.PREF_COMMON_FONT_FAMILY_DEFAULT);
             if (!PrefKeys.PREF_COMMON_FONT_FAMILY_DEFAULT.equals(font)) {
-                mQuoteTextView.setTypeface(sModuleRes.getFont(font));
-                mSourceTextView.setTypeface(sModuleRes.getFont(font));
+                mQuoteTextView.setTypeface(sModuleRes.getFont(font), style);
+                mSourceTextView.setTypeface(sModuleRes.getFont(font), style);
             } else {
-                mQuoteTextView.setTypeface(null);
-                mSourceTextView.setTypeface(null);
+                mQuoteTextView.setTypeface(null, style);
+                mSourceTextView.setTypeface(null, style);
             }
+        } else {
+            mQuoteTextView.setTypeface(null, style);
+            mSourceTextView.setTypeface(null, style);
         }
     }
 

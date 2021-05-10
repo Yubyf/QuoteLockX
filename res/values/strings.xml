@@ -39,6 +39,8 @@
     <string name="pref_font_size_source_summary">Size of the source text</string>
     <string name="pref_font_family_title">Font family</string>
     <string name="pref_font_family_summary">Font family of the quote and source text</string>
+    <string name="pref_font_style_title">Font style</string>
+    <string name="pref_font_style_summary">Font style of the quote and source text</string>
     <string name="pref_refresh_info_title">Refresh info</string>
     <string name="pref_refresh_info_summary">Last update: %s</string>
     <string name="pref_quote_module_title">Quote provider</string>
