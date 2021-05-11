@@ -42,6 +42,18 @@
             android:entries="@array/font_size_entries"
             android:entryValues="@array/font_size_values"
             android:defaultValue="18"/>
+        <MultiSelectListPreference
+            android:key="pref_common_font_style_text"
+            android:title="@string/pref_font_style_text_title"
+            android:summary="@string/pref_font_style_text_summary"
+            android:entries="@array/font_style_entries"
+            android:entryValues="@array/font_style_values"/>
+        <MultiSelectListPreference
+            android:key="pref_common_font_style_source"
+            android:title="@string/pref_font_style_source_title"
+            android:summary="@string/pref_font_style_source_summary"
+            android:entries="@array/font_style_entries"
+            android:entryValues="@array/font_style_values"/>
         <ListPreference
             android:key="pref_common_font_family"
             android:title="@string/pref_font_family_title"
@@ -49,12 +61,6 @@
             android:entries="@array/font_family_entries"
             android:entryValues="@array/font_family_values"
             android:defaultValue="system"/>
-        <MultiSelectListPreference
-            android:key="pref_common_font_style"
-            android:title="@string/pref_font_style_title"
-            android:summary="@string/pref_font_style_summary"
-            android:entries="@array/font_style_entries"
-            android:entryValues="@array/font_style_values"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/features">
         <Preference

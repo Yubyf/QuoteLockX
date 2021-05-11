@@ -18,10 +18,11 @@ public final class PrefKeys {
     public static final String PREF_COMMON_FONT_SIZE_TEXT_DEFAULT = "20";
     public static final String PREF_COMMON_FONT_SIZE_SOURCE = "pref_common_font_size_source";
     public static final String PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT = "18";
+    public static final String PREF_COMMON_FONT_STYLE_TEXT = "pref_common_font_style_text";
+    public static final String PREF_COMMON_FONT_STYLE_SOURCE = "pref_common_font_style_source";
     public static final String PREF_COMMON_UPDATE_INFO = "pref_common_update_info";
     public static final String PREF_COMMON_FONT_FAMILY = "pref_common_font_family";
     public static final String PREF_COMMON_FONT_FAMILY_DEFAULT = "system";
-    public static final String PREF_COMMON_FONT_STYLE = "pref_common_font_style";
 
     public static final String PREF_QUOTES = "quotes";
     public static final String PREF_QUOTES_TEXT = "pref_quotes_text";

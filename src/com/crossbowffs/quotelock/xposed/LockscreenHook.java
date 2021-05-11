@@ -118,7 +118,27 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
         mSourceTextView.setTextSize(sourceFontSize);
 
         // Font properties
-        Set<String> styles = mCommonPrefs.getStringSet(PrefKeys.PREF_COMMON_FONT_STYLE, null);
+        Set<String> quoteStyles = mCommonPrefs.getStringSet(PrefKeys.PREF_COMMON_FONT_STYLE_TEXT, null);
+        Set<String> sourceStyles = mCommonPrefs.getStringSet(PrefKeys.PREF_COMMON_FONT_STYLE_SOURCE, null);
+        int quoteStyle = getTypefaceStyle(quoteStyles);
+        int sourceStyle = getTypefaceStyle(sourceStyles);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String font = mCommonPrefs.getString(
+                    PrefKeys.PREF_COMMON_FONT_FAMILY, PrefKeys.PREF_COMMON_FONT_FAMILY_DEFAULT);
+            if (!PrefKeys.PREF_COMMON_FONT_FAMILY_DEFAULT.equals(font)) {
+                mQuoteTextView.setTypeface(sModuleRes.getFont(font), quoteStyle);
+                mSourceTextView.setTypeface(sModuleRes.getFont(font), sourceStyle);
+            } else {
+                mQuoteTextView.setTypeface(null, quoteStyle);
+                mSourceTextView.setTypeface(null, sourceStyle);
+            }
+        } else {
+            mQuoteTextView.setTypeface(null, quoteStyle);
+            mSourceTextView.setTypeface(null, sourceStyle);
+        }
+    }
+
+    private int getTypefaceStyle(Set<String> styles) {
         int style = Typeface.NORMAL;
         if (styles != null) {
             if (styles.contains("bold") && styles.contains("italic")) {
@@ -129,20 +149,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
                 style = Typeface.ITALIC;
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String font = mCommonPrefs.getString(
-                    PrefKeys.PREF_COMMON_FONT_FAMILY, PrefKeys.PREF_COMMON_FONT_FAMILY_DEFAULT);
-            if (!PrefKeys.PREF_COMMON_FONT_FAMILY_DEFAULT.equals(font)) {
-                mQuoteTextView.setTypeface(sModuleRes.getFont(font), style);
-                mSourceTextView.setTypeface(sModuleRes.getFont(font), style);
-            } else {
-                mQuoteTextView.setTypeface(null, style);
-                mSourceTextView.setTypeface(null, style);
-            }
-        } else {
-            mQuoteTextView.setTypeface(null, style);
-            mSourceTextView.setTypeface(null, style);
-        }
+        return style;
     }
 
     private void refreshQuoteRemote(Context context) {
