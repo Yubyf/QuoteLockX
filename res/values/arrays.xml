@@ -72,6 +72,20 @@
         <item>bold</item>
         <item>italic</item>
     </string-array>
+    <string-array name="layout_padding_entries">
+        <item>0 pt</item>
+        <item>8 pt</item>
+        <item>16 pt</item>
+        <item>24 pt</item>
+        <item>32 pt</item>
+    </string-array>
+    <string-array name="layout_padding_values">
+        <item>0</item>
+        <item>8</item>
+        <item>16</item>
+        <item>24</item>
+        <item>32</item>
+    </string-array>
     <string-array name="brainy_quote_type_values">
         <item>BR</item>
         <item>AR</item>

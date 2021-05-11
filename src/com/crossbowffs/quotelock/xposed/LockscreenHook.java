@@ -109,6 +109,16 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
             mSourceTextView.setVisibility(View.VISIBLE);
         }
 
+        // Update layout padding
+        int paddingTop = Integer.parseInt(mCommonPrefs.getString(
+                PrefKeys.PREF_COMMON_PADDING_TOP, PrefKeys.PREF_COMMON_PADDING_TOP_DEFAULT));
+        int paddingBottom = Integer.parseInt(mCommonPrefs.getString(
+                PrefKeys.PREF_COMMON_PADDING_BOTTOM, PrefKeys.PREF_COMMON_PADDING_BOTTOM_DEFAULT));
+        mQuoteContainer.setPadding(mQuoteContainer.getPaddingStart(),
+                (int) DpUtils.dp2px(mQuoteContainer.getContext(), paddingTop),
+                mQuoteContainer.getPaddingEnd(),
+                (int) DpUtils.dp2px(mQuoteContainer.getContext(), paddingBottom));
+
         // Update font size
         int textFontSize = Integer.parseInt(mCommonPrefs.getString(
             PrefKeys.PREF_COMMON_FONT_SIZE_TEXT, PrefKeys.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT));

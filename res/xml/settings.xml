@@ -61,6 +61,20 @@
             android:entries="@array/font_family_entries"
             android:entryValues="@array/font_family_values"
             android:defaultValue="system"/>
+        <ListPreference
+            android:key="pref_common_padding_top"
+            android:title="@string/pref_layout_padding_top_title"
+            android:summary="@string/pref_layout_padding_top_summary"
+            android:entries="@array/layout_padding_entries"
+            android:entryValues="@array/layout_padding_values"
+            android:defaultValue="8"/>
+        <ListPreference
+            android:key="pref_common_padding_bottom"
+            android:title="@string/pref_layout_padding_bottom_title"
+            android:summary="@string/pref_layout_padding_bottom_summary"
+            android:entries="@array/layout_padding_entries"
+            android:entryValues="@array/layout_padding_values"
+            android:defaultValue="8"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/features">
         <Preference

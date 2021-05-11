@@ -23,6 +23,10 @@ public final class PrefKeys {
     public static final String PREF_COMMON_UPDATE_INFO = "pref_common_update_info";
     public static final String PREF_COMMON_FONT_FAMILY = "pref_common_font_family";
     public static final String PREF_COMMON_FONT_FAMILY_DEFAULT = "system";
+    public static final String PREF_COMMON_PADDING_TOP = "pref_common_padding_top";
+    public static final String PREF_COMMON_PADDING_TOP_DEFAULT = "8";
+    public static final String PREF_COMMON_PADDING_BOTTOM = "pref_common_padding_bottom";
+    public static final String PREF_COMMON_PADDING_BOTTOM_DEFAULT = "8";
 
     public static final String PREF_QUOTES = "quotes";
     public static final String PREF_QUOTES_TEXT = "pref_quotes_text";
