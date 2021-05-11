@@ -57,7 +57,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     private static final String RES_ID_REFRESH_IMAGE_VIEW = "refresh_image_view";
     private static final String RES_ID_COLLECT_IMAGE_VIEW = "collect_image_view";
 
-    private static final String RES_ID_REFRESH_ICON = "ic_refresh_white_24dp";
+    private static final String RES_ID_REFRESH_ICON = "ic_baseline_refresh_24dp";
     private static final String RES_ID_COLLECT_ICON = "selector_star";
     private  float mLayoutTranslation = -(16F + 32F + 16F + 32F + 16F);
     private static final long LAYOUT_ANIMATION_DURATION = 500;
