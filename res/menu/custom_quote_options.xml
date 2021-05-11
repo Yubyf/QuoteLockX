@@ -4,6 +4,6 @@
     <item
         android:id="@+id/create_quote"
         android:title="@string/module_custom_create_quote"
-        android:icon="@drawable/ic_create_white_24dp"
+        android:icon="@drawable/ic_baseline_create_24dp"
         app:showAsAction="ifRoom" />
 </menu>

@@ -10,7 +10,7 @@
     <application
         android:name=".app.App"
         android:label="@string/quotelock"
-        android:theme="@style/Theme.AppCompat"
+        android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher">
         <activity android:name=".app.MainActivity">
             <intent-filter>

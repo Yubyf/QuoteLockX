@@ -55,7 +55,7 @@
             android:layout_height="32dp"
             android:layout_marginStart="16dp"
             tools:ignore="ContentDescription"
-            tools:src="@drawable/ic_refresh_white_24dp" />
+            tools:src="@drawable/ic_baseline_refresh_24dp" />
 
         <ImageView
             android:id="@+id/collect_image_view"
