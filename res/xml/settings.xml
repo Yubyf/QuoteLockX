@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/settings">
+        <SwitchPreferenceCompat
+            android:key="pref_common_display_on_aod"
+            android:title="@string/pref_display_on_aod_title"
+            android:summary="@string/pref_display_on_aod_summary"/>
         <ListPreference
             android:key="pref_common_quote_module"
             android:title="@string/pref_quote_module_title"

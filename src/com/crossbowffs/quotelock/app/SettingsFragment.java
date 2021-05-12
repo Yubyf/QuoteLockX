@@ -28,6 +28,7 @@ import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
 import com.crossbowffs.quotelock.utils.JobUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
+import com.crossbowffs.quotelock.utils.XposedUtils;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -52,6 +53,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         mQuotesPreferences = requireContext().getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE);
         mQuotesPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        // Only enable DisplayOnAOD on tested devices.
+        if (!XposedUtils.isAodHookAvailable()) {
+            findPreference(PrefKeys.PREF_COMMON_DISPLAY_ON_AOD).setVisible(false);
+        }
 
         // Only enable font family above API26
         findPreference(PrefKeys.PREF_COMMON_FONT_FAMILY).setEnabled(

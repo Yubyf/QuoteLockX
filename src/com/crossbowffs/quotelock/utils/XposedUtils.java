@@ -5,6 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
+
 import com.crossbowffs.quotelock.BuildConfig;
 
 public final class XposedUtils {
@@ -67,5 +69,12 @@ public final class XposedUtils {
         } catch (ActivityNotFoundException e) {
             return false;
         }
+    }
+
+    /**
+     * @return True to hook AOD UI. The AOD hooking is only tested on the OnePlus 7 Pro with OOS OB4.
+     */
+    public static boolean isAodHookAvailable() {
+        return DeviceUtils.isOnePlus7Series() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
     }
 }

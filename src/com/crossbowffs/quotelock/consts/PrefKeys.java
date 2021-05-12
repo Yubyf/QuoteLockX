@@ -5,6 +5,7 @@ import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
 
 public final class PrefKeys {
     public static final String PREF_COMMON = "common";
+    public static final String PREF_COMMON_DISPLAY_ON_AOD = "pref_common_display_on_aod";
     public static final String PREF_COMMON_REFRESH_RATE = "pref_common_refresh_rate";
     public static final String PREF_COMMON_REFRESH_RATE_DEFAULT = "900";
     public static final String PREF_COMMON_UNMETERED_ONLY = "pref_common_unmetered_only";
