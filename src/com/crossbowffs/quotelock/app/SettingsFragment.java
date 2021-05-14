@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = SettingsFragment.class.getSimpleName();
@@ -132,13 +133,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Xlog.i(TAG, "Preference changed: %s", key);
+        if (Objects.equals(sharedPreferences, mQuotesPreferences)) {
+            if (PrefKeys.PREF_QUOTES_LAST_UPDATED.equals(key)) {
+                long lastUpdate = mQuotesPreferences.getLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, -1);
+                findPreference(PrefKeys.PREF_COMMON_UPDATE_INFO).setSummary(
+                        getString(R.string.pref_refresh_info_summary, lastUpdate > 0 ?
+                                DATE_FORMATTER.format(new Date(lastUpdate)) : "-"));
+            }
+            return;
+        }
         if (PrefKeys.PREF_COMMON_QUOTE_MODULE.equals(key)) {
             onSelectedModuleChanged();
-        } else if (PrefKeys.PREF_QUOTES_LAST_UPDATED.equals(key)) {
-            long lastUpdate = mQuotesPreferences.getLong(PrefKeys.PREF_QUOTES_LAST_UPDATED, -1);
-            findPreference(PrefKeys.PREF_COMMON_UPDATE_INFO).setSummary(
-                    getString(R.string.pref_refresh_info_summary, lastUpdate > 0 ?
-                            DATE_FORMATTER.format(new Date(lastUpdate)) : "-"));
         } else {
             JobUtils.createQuoteDownloadJob(requireContext(), true);
         }
