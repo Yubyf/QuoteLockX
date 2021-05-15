@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import com.crossbowffs.quotelock.utils.JobUtils;
+import com.crossbowffs.quotelock.utils.WorkUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
 
 public class CommonReceiver extends BroadcastReceiver {
@@ -15,7 +15,7 @@ public class CommonReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         Xlog.d(TAG, "Received action: %s", action);
         if (Intent.ACTION_BOOT_COMPLETED.equals(action) || ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
-            JobUtils.createQuoteDownloadJob(context, false);
+            WorkUtils.createQuoteDownloadWork(context, false);
         }
     }
 }

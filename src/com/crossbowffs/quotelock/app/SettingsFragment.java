@@ -26,7 +26,7 @@ import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.quotelock.consts.Urls;
 import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
-import com.crossbowffs.quotelock.utils.JobUtils;
+import com.crossbowffs.quotelock.utils.WorkUtils;
 import com.crossbowffs.quotelock.utils.Xlog;
 import com.crossbowffs.quotelock.utils.XposedUtils;
 
@@ -145,7 +145,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         if (PrefKeys.PREF_COMMON_QUOTE_MODULE.equals(key)) {
             onSelectedModuleChanged();
         } else {
-            JobUtils.createQuoteDownloadJob(requireContext(), true);
+            WorkUtils.createQuoteDownloadWork(requireContext(), true);
         }
     }
 

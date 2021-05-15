@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
-import com.crossbowffs.quotelock.utils.JobUtils;
+import com.crossbowffs.quotelock.utils.WorkUtils;
 import com.crossbowffs.quotelock.consts.Urls;
 import com.crossbowffs.quotelock.utils.XposedUtils;
 
@@ -66,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
             .commit();
 
         // In case the user opens the app for the first time *after* rebooting,
-        // we want to make sure the background job has been created.
-        JobUtils.createQuoteDownloadJob(this, false);
+        // we want to make sure the background work has been created.
+        WorkUtils.createQuoteDownloadWork(this, false);
 
         if (savedInstanceState == null) {
             if (!XposedUtils.isModuleEnabled()) {
