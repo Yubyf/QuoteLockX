@@ -1,5 +1,7 @@
 package com.crossbowffs.quotelock.utils;
 
+import androidx.annotation.Nullable;
+
 import com.crossbowffs.quotelock.BuildConfig;
 import com.crossbowffs.quotelock.consts.Urls;
 
@@ -8,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 
 public class IOUtils {
     public static String streamToString(InputStream inputStream, String encoding, int bufferSize) throws IOException {
@@ -28,11 +31,20 @@ public class IOUtils {
     }
 
     public static String downloadString(String urlString) throws IOException {
+        return downloadString(urlString, null);
+    }
+
+    public static String downloadString(String urlString, @Nullable Map<String, String> headers) throws IOException {
         URL url = new URL(urlString);
         String ua = String.format("QuoteLock/%s (+%s)", BuildConfig.VERSION_NAME, Urls.GITHUB_QUOTELOCK);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         try {
             connection.setRequestProperty("User-Agent",  ua);
+            if (headers != null && !headers.isEmpty()) {
+                for (Map.Entry<String, String> header : headers.entrySet()) {
+                    connection.addRequestProperty(header.getKey(), header.getValue());
+                }
+            }
             int responseCode = connection.getResponseCode();
             if (responseCode == 200) {
                 return streamToString(connection.getInputStream());

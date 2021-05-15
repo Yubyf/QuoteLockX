@@ -24,7 +24,6 @@ dependencies {
     implementation "androidx.preference:preference:1.1.0"
     compileOnly "de.robv.android.xposed:api:82"
     compileOnly "de.robv.android.xposed:api:82:sources"
-    implementation 'com.jinrishici:android-sdk:1.4'
 }
 
 android {
