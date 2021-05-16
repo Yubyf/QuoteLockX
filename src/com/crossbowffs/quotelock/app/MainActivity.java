@@ -1,22 +1,27 @@
 package com.crossbowffs.quotelock.app;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.crossbowffs.quotelock.R;
 import com.crossbowffs.quotelock.api.QuoteData;
-import com.crossbowffs.quotelock.utils.WorkUtils;
 import com.crossbowffs.quotelock.consts.Urls;
+import com.crossbowffs.quotelock.utils.WorkUtils;
 import com.crossbowffs.quotelock.utils.XposedUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -76,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 showModuleUpdatedDialog();
             }
         }
+        checkBatteryOptimization();
     }
 
     @Override
@@ -146,5 +152,31 @@ public class MainActivity extends AppCompatActivity {
             })
             .setNegativeButton(R.string.ignore, null)
             .show();
+    }
+
+    private void checkBatteryOptimization() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String packageName = getPackageName();
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                showBatteryOptimizationDialog();
+            }
+        }
+    }
+
+    @SuppressLint("BatteryLife")
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void showBatteryOptimizationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.battery_optimization_title)
+                .setMessage(R.string.battery_optimization_message)
+                .setPositiveButton(R.string.disable, (dialog, which) -> {
+                    Intent intent = new Intent();
+                    intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 }

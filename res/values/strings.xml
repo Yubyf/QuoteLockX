@@ -10,6 +10,7 @@
     <string name="reboot">Reboot</string>
     <string name="ignore">Ignore</string>
     <string name="save">Save</string>
+    <string name="disable">disable</string>
     <string name="cancel">Cancel</string>
     <string name="settings">Settings</string>
     <string name="features">Features</string>
@@ -27,6 +28,8 @@
     <string name="module_outdated_message">Please reboot your device for changes to take effect.</string>
     <string name="xposed_not_installed">Xposed not installed</string>
     <string name="report_bug">Report bug</string>
+    <string name="battery_optimization_title">Battery optimization enabled</string>
+    <string name="battery_optimization_message">This may cause the background task to fail to run automatically on some devices, disable it?</string>
     <string name="pref_refresh_interval_title">Refresh interval</string>
     <string name="pref_refresh_interval_summary">How often to refresh the quote</string>
     <string name="pref_refresh_interval_summary_alt">Cannot set refresh rate for selected provider</string>
