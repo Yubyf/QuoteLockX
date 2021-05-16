@@ -42,5 +42,7 @@ public final class PrefKeys {
     public static final String PREF_ABOUT_GITHUB_CURRENT = "pref_about_github_current";
     public static final String PREF_ABOUT_VERSION = "pref_about_version";
 
+    public static final String PREF_BOOT_NOTIFY_FLAG = "boot_notify_flag";
+
     private PrefKeys() { }
 }
