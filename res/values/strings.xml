@@ -16,6 +16,10 @@
     <string name="features">Features</string>
     <string name="about">About</string>
     <string name="close">Close</string>
+    <string name="connect_account">Connect Google account</string>
+    <string name="switch_account">Switch Google account</string>
+    <string name="local">Local</string>
+    <string name="remote">Remote</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
     <string name="enable_xposed_module_title">Enable Xposed module</string>

@@ -1,9 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="QuoteCollectionActivity">
     <item
         android:id="@+id/backup"
+        android:enabled="false"
         android:title="@string/backup" />
     <item
-        android:id="@+id/restore"
-        android:title="@string/restore" />
+        android:id="@+id/local"
+        android:title="@string/local">
+        <menu>
+            <item
+                android:id="@+id/local_backup"
+                android:title="@string/backup" />
+            <item
+                android:id="@+id/local_restore"
+                android:title="@string/restore" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/remote"
+        android:title="@string/remote">
+        <menu>
+            <item
+                android:id="@+id/account"
+                android:enabled="false"
+                android:title="@string/connect_account" />
+            <item
+                android:id="@+id/account_action"
+                android:title="@string/connect_account" />
+            <item
+                android:id="@+id/remote_backup"
+                android:title="@string/backup" />
+            <item
+                android:id="@+id/remote_restore"
+                android:title="@string/restore" />
+        </menu>
+    </item>
 </menu>
