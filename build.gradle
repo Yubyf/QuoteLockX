@@ -1,7 +1,12 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+
+        // Local repos
+        maven {
+            url rootProject.file('repos')
+        }
     }
 
     dependencies {
@@ -11,7 +16,12 @@ buildscript {
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
+
+    // Local repos
+    maven {
+        url rootProject.file('repos')
+    }
 }
 
 apply plugin: "com.android.application"
