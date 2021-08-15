@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -20,6 +21,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.crossbowffs.quotelock.R;
+import com.crossbowffs.quotelock.account.SyncAccountManager;
 import com.crossbowffs.quotelock.backup.LocalBackup;
 import com.crossbowffs.quotelock.backup.ProgressCallback;
 import com.crossbowffs.quotelock.backup.RemoteBackup;
@@ -36,7 +38,7 @@ public class QuoteCollectionActivity extends AppCompatActivity {
 
     private final ProgressCallback mLocalBackupCallback = new AbstractBackupCallback() {
         @Override
-        public void success() {
+        public void success(String message) {
             Toast.makeText(QuoteCollectionActivity.this, "Local backup completed",
                     Toast.LENGTH_SHORT).show();
             hideProgress();
@@ -45,7 +47,7 @@ public class QuoteCollectionActivity extends AppCompatActivity {
 
     private final ProgressCallback mLocalRestoreCallback = new AbstractBackupCallback() {
         @Override
-        public void success() {
+        public void success(String message) {
             Toast.makeText(QuoteCollectionActivity.this, "Local restore completed",
                     Toast.LENGTH_SHORT).show();
             hideProgress();
@@ -58,7 +60,7 @@ public class QuoteCollectionActivity extends AppCompatActivity {
 
     private final ProgressCallback mRemoteBackupCallback = new AbstractBackupCallback() {
         @Override
-        public void success() {
+        public void success(String message) {
             Toast.makeText(QuoteCollectionActivity.this, "Remote backup completed",
                     Toast.LENGTH_SHORT).show();
             hideProgress();
@@ -67,7 +69,7 @@ public class QuoteCollectionActivity extends AppCompatActivity {
 
     private final ProgressCallback mRemoteRestoreCallback = new AbstractBackupCallback() {
         @Override
-        public void success() {
+        public void success(String message) {
             Toast.makeText(QuoteCollectionActivity.this, "Remote restore completed",
                     Toast.LENGTH_SHORT).show();
             hideProgress();
@@ -115,10 +117,13 @@ public class QuoteCollectionActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void success() {
+                            public void success(String message) {
                                 hideProgress();
                                 initMenu(mMenu);
                                 invalidateOptionsMenu();
+                                if (!TextUtils.isEmpty(message)) {
+                                    SyncAccountManager.getInstance().removeAccount(message);
+                                }
                             }
 
                             @Override
@@ -172,6 +177,10 @@ public class QuoteCollectionActivity extends AppCompatActivity {
                                     .show();
                             initMenu(mMenu);
                             invalidateOptionsMenu();
+                            String accountName = RemoteBackup.getInstance().getSignedInGoogleAccountEmail(this);
+                            if (!TextUtils.isEmpty(accountName)) {
+                                SyncAccountManager.getInstance().addOrUpdateAccount(accountName);
+                            }
                         });
             }
         } else if (requestCode == RemoteBackup.REQUEST_CODE_SIGN_IN_BACKUP) {
@@ -230,12 +239,12 @@ public class QuoteCollectionActivity extends AppCompatActivity {
     }
 
     private void remoteBackup() {
-        RemoteBackup.getInstance().performDriveBackup(this,
+        RemoteBackup.getInstance().performDriveBackupAsync(this,
                 QuoteCollectionHelper.DATABASE_NAME, mRemoteBackupCallback);
     }
 
     private void remoteRestore() {
-        RemoteBackup.getInstance().performDriveRestore(this,
+        RemoteBackup.getInstance().performDriveRestoreAsync(this,
                 QuoteCollectionHelper.DATABASE_NAME, mRemoteRestoreCallback);
     }
 

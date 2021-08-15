@@ -16,7 +16,7 @@ public interface ProgressCallback {
     void inProcessing(String message);
 
     @MainThread
-    void success();
+    void success(String message);
 
     @MainThread
     void failure(String message);
@@ -30,11 +30,15 @@ public interface ProgressCallback {
     }
 
     default void safeSuccess() {
+        safeSuccess("");
+    }
+
+    default void safeSuccess(String message) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            AppExecutors.getInstance().mainThread().execute(this::success);
+            AppExecutors.getInstance().mainThread().execute(() -> success(message));
             return;
         }
-        success();
+        success(message);
     }
 
 

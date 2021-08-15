@@ -1,45 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.crossbowffs.quotelock">
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission  android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission
+        android:name="android.permission.MANAGE_ACCOUNTS"
+        android:maxSdkVersion="22" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 
     <application
+        android:name=".app.App"
         android:label="@string/quotelock"
         android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher">
         <activity android:name=".app.MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".modules.custom.app.CustomQuoteConfigActivity"
-            android:label="@string/module_custom_activity_label"/>
+            android:label="@string/module_custom_activity_label" />
         <activity
             android:name=".modules.brainyquote.app.BrainyQuoteConfigActivity"
-            android:label="@string/module_brainy_activity_label"/>
-        <activity android:name=".modules.hitokoto.app.HitkotoConfigActivity"
-            android:label="@string/module_hitokoto_activity_label"/>
+            android:label="@string/module_brainy_activity_label" />
+        <activity
+            android:name=".modules.hitokoto.app.HitkotoConfigActivity"
+            android:label="@string/module_hitokoto_activity_label" />
         <activity
             android:name=".collections.app.QuoteCollectionActivity"
-            android:label="@string/quote_collections_activity_label"/>
+            android:label="@string/quote_collections_activity_label" />
+
+        <service
+            android:name=".account.authenticator.AuthenticationService"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+        <service
+            android:name=".account.syncadapter.SyncService"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
 
         <provider
             android:name=".modules.custom.provider.CustomQuoteProvider"
             android:authorities="${applicationId}.modules.custom.provider"
-            android:exported="false"/>
+            android:exported="false" />
         <provider
             android:name=".collections.provider.QuoteCollectionProvider"
             android:authorities="${applicationId}.collection.provider"
-            android:exported="true"/>
+            android:exported="true" />
+
         <receiver android:name=".app.CommonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

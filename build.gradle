@@ -58,6 +58,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
+        applicationId "com.crossbowffs.quotelock"
         versionCode 13
         versionName "1.5.1"
         minSdkVersion 21
@@ -68,11 +69,14 @@ android {
          * fix this, feel free, but be aware that JobScheduler is already
          * buggy enough as it is.
          */
-        targetSdkVersion 23
+        targetSdkVersion 29
         buildConfigField("int", "MODULE_VERSION", "3")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "1")
         buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "1")
         buildConfigField("String", "LOG_TAG", "\"QuoteLock\"")
+
+        resValue "string", "account_type", "${applicationId}.account"
+        resValue "string", "account_authority", "${applicationId}.collection.provider"
     }
 
     sourceSets {
@@ -86,8 +90,13 @@ android {
 
     buildTypes {
         debug {
+            applicationIdSuffix ".debug"
+
             buildConfigField("int", "LOG_LEVEL", "2")
             buildConfigField("boolean", "LOG_TO_XPOSED", "false")
+
+            resValue "string", "account_type", "${defaultConfig.applicationId}.debug.account"
+            resValue "string", "account_authority", "${defaultConfig.applicationId}.debug.collection.provider"
         }
 
         release {
