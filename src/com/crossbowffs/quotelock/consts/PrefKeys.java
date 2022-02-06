@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.consts;
 
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule;
-import com.crossbowffs.quotelock.modules.vnaas.VnaasQuoteModule;
 
 public final class PrefKeys {
     public static final String PREF_COMMON = "common";
@@ -36,6 +35,7 @@ public final class PrefKeys {
     public static final String PREF_QUOTES_LAST_UPDATED = "pref_quotes_last_updated";
 
     public static final String PREF_FEATURES_COLLECTION = "pref_collection";
+    public static final String PREF_FEATURES_HISTORY = "pref_history";
 
     public static final String PREF_ABOUT_CREDITS = "pref_about_credits";
     public static final String PREF_ABOUT_GITHUB = "pref_about_github";

@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.app;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -10,8 +11,9 @@ import android.text.TextUtils;
 import com.crossbowffs.quotelock.api.QuoteData;
 import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract;
-import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.consts.PrefKeys;
+import com.crossbowffs.quotelock.history.provider.QuoteHistoryContract;
+import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
 import com.crossbowffs.quotelock.utils.Md5Utils;
 import com.crossbowffs.quotelock.utils.Xlog;
@@ -54,6 +56,7 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
             Xlog.d(TAG, "Text: %s", quote.getQuoteText());
             Xlog.d(TAG, "Source: %s", quote.getQuoteSource());
 
+            insertQuoteHistory(quote.getQuoteText(), quote.getQuoteSource());
             boolean collectionState = queryQuoteCollectionState(quote.getQuoteText(),
                     TextUtils.isEmpty(quote.getQuoteSource()) ? "" :
                             quote.getQuoteSource().replace("―", "").trim());
@@ -78,6 +81,14 @@ public class QuoteDownloaderTask extends AsyncTask<Void, Void, QuoteData> {
                 return false;
             }
         }
+    }
+
+    private void insertQuoteHistory(String text, String source) {
+        ContentValues values = new ContentValues(3);
+        values.put(QuoteHistoryContract.Histories.TEXT, text);
+        values.put(QuoteHistoryContract.Histories.SOURCE, source);
+        values.put(QuoteHistoryContract.Histories.MD5, Md5Utils.md5(text + source));
+        mContext.getContentResolver().insert(QuoteHistoryContract.Histories.CONTENT_URI, values);
     }
 
     @Override

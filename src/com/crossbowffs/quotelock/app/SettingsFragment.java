@@ -24,6 +24,7 @@ import com.crossbowffs.quotelock.api.QuoteModule;
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity;
 import com.crossbowffs.quotelock.consts.PrefKeys;
 import com.crossbowffs.quotelock.consts.Urls;
+import com.crossbowffs.quotelock.history.app.QuoteHistoryActivity;
 import com.crossbowffs.quotelock.modules.ModuleManager;
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException;
 import com.crossbowffs.quotelock.utils.WorkUtils;
@@ -109,6 +110,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 return true;
             case PrefKeys.PREF_FEATURES_COLLECTION:
                 startActivity(new ComponentName(requireContext(), QuoteCollectionActivity.class));
+                return true;
+            case PrefKeys.PREF_FEATURES_HISTORY:
+                startActivity(new ComponentName(requireContext(), QuoteHistoryActivity.class));
                 return true;
             case PrefKeys.PREF_ABOUT_CREDITS:
                 showCreditsDialog();

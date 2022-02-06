@@ -82,7 +82,10 @@
     <PreferenceCategory android:title="@string/features">
         <Preference
             android:key="pref_collection"
-            android:title="@string/pref_collection_title"/>
+            android:title="@string/pref_collection_title" />
+        <Preference
+            android:key="pref_history"
+            android:title="@string/pref_history_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/about">
         <Preference

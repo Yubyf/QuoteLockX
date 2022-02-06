@@ -40,6 +40,9 @@
         <activity
             android:name=".collections.app.QuoteCollectionActivity"
             android:label="@string/quote_collections_activity_label" />
+        <activity
+            android:name=".history.app.QuoteHistoryActivity"
+            android:label="@string/quote_histories_activity_label" />
 
         <service
             android:name=".account.authenticator.AuthenticationService"
@@ -73,14 +76,20 @@
             android:name=".collections.provider.QuoteCollectionProvider"
             android:authorities="${applicationId}.collection.provider"
             android:exported="true" />
+        <provider
+            android:name=".history.provider.QuoteHistoryProvider"
+            android:authorities="${applicationId}.history.provider"
+            android:exported="false" />
 
         <receiver android:name=".app.CommonReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
         <provider
             android:name=".provider.PreferenceProvider"
             android:authorities="${applicationId}.preferences"
