@@ -59,8 +59,8 @@ android {
 
     defaultConfig {
         applicationId "com.crossbowffs.quotelock"
-        versionCode 13
-        versionName "1.5.1"
+        versionCode 14
+        versionName "1.5.2"
         minSdkVersion 21
 
         /*
