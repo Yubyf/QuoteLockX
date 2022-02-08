@@ -11,11 +11,11 @@ archived.
 - Collects your favorite quotes.
 - Records the quote history that you can always look up old entries.
 - Backup and restore collections on local and remote(Google Drive).
-- Displays quotes on the AOD page of *OnePlus7Pro OOS11* (**UNSTABLE**)
+- Displays quotes on the AmbientDisplay page of *OnePlus7Pro OOS11* (**UNSTABLE**)
 
 ## Screenshots
 
-| Lockscreen | AOD |
+| Lockscreen | AmbientDisplay |
 | :---: | :---: |
 | <img src="screenshots/lockscreen.png" title="Lockscreen" width="360px" /> | <img src="screenshots/ambient_display.png" title="AmbientDisplay" width="360px" /> |
 
@@ -69,7 +69,7 @@ download service.
 - [x] Backup and restore on local and remote(Google Drive)
 - [x] Refresh and collection feature on lockscreen
 - [x] Font family and style support
-- [x] Adaptation for the AOD page of *OnePlus7Pro OOS11* (**UNSTABLE**)
+- [x] Adaptation for the AmbientDisplay page of *OnePlus7Pro OOS11* (**UNSTABLE**)
 - [x] Auto-sync for remote backup accounts
 
 ## License
