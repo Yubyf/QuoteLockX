@@ -4,7 +4,7 @@ This fork will be continuously maintained as
 the [original repository](https://github.com/apsun/QuoteLock) is no longer maintained and has been
 archived.
 
-## Feature
+## Features
 
 - Displays quotes on your lockscreen, because why not.
 - Customizes the quotes style.
@@ -19,7 +19,7 @@ archived.
 | :---: | :---: |
 | <img src="screenshots/lockscreen.png" title="Lockscreen" width="360px" /> | <img src="screenshots/ambient_display.png" title="AmbientDisplay" width="360px" /> |
 
-Long press on the quotes to show the refersh and collect buttons:
+Long press on the quotes to show refresh and collect buttons:
 
 <img src="screenshots/showcase.webp" width="300px" />
 
