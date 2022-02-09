@@ -83,8 +83,7 @@ dependencies {
     // Fix the conflict between concurrent-futures and guava libs.
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+    implementation("io.coil-kt:coil:1.4.0")
 
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
     implementation 'com.google.http-client:google-http-client-gson:1.26.0'
