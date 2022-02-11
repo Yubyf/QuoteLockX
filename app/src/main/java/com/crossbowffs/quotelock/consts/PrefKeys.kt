@@ -14,7 +14,7 @@ const val PREF_COMMON_QUOTE_MODULE = "pref_common_quote_module"
 
 // TODO: Remove field compatibility annotation for java
 @JvmField
-val PREF_COMMON_QUOTE_MODULE_DEFAULT = HitokotoQuoteModule::class.qualifiedName
+val PREF_COMMON_QUOTE_MODULE_DEFAULT = HitokotoQuoteModule::class.qualifiedName ?: ""
 const val PREF_COMMON_MODULE_PREFERENCES = "pref_module_preferences"
 const val PREF_COMMON_REQUIRES_INTERNET = "pref_common_requires_internet"
 const val PREF_COMMON_REFRESH_RATE_OVERRIDE = "pref_common_refresh_rate_override"
