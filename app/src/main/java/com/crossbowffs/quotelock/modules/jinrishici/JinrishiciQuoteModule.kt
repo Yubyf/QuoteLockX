@@ -11,8 +11,8 @@ import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PR
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_SENTENCE_URL
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_TOKEN
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_TOKEN_URL
-import com.crossbowffs.quotelock.utils.IOUtils
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.downloadUrl
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -46,7 +46,7 @@ class JinrishiciQuoteModule : QuoteModule {
                 Context.MODE_PRIVATE)
             var token = sharedPreferences.getString(PREF_JINRISHICI_TOKEN, null)
             if (token.isNullOrBlank()) {
-                val tokenJson = IOUtils.downloadString(PREF_JINRISHICI_TOKEN_URL)
+                val tokenJson = PREF_JINRISHICI_TOKEN_URL.downloadUrl()
                 Xlog.d(TAG, "tokenJson $tokenJson")
                 val tokenJsonObject = JSONObject(tokenJson)
                 token = tokenJsonObject.getString("data")
@@ -57,9 +57,8 @@ class JinrishiciQuoteModule : QuoteModule {
                     sharedPreferences.edit().putString(PREF_JINRISHICI_TOKEN, token).apply()
                 }
             }
-            val headers: MutableMap<String, String?> = HashMap(1)
-            headers["X-User-Token"] = token
-            val poetrySentenceJson = IOUtils.downloadString(PREF_JINRISHICI_SENTENCE_URL, headers)
+            val headers = mapOf<String, String?>("X-User-Token" to token)
+            val poetrySentenceJson = PREF_JINRISHICI_SENTENCE_URL.downloadUrl(headers)
             Xlog.d(TAG, "poetrySentenceJson $poetrySentenceJson")
             val poetrySentenceJsonObject = JSONObject(poetrySentenceJson)
             val status = poetrySentenceJsonObject.getString("status")

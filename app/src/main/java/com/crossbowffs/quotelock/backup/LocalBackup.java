@@ -65,7 +65,7 @@ public class LocalBackup {
             return;
         }
 
-        AppExecutors.getInstance().diskIO().execute(() -> {
+        AppExecutors.Companion.getInstance().diskIO().execute(() -> {
             File folder = new File(Environment.getExternalStorageDirectory() + File.separator + activity.getResources().getString(R.string.quotelock));
 
             boolean success = true;
@@ -93,7 +93,7 @@ public class LocalBackup {
             callback.failure("Please grant external storage permission and retry.");
         }
 
-        AppExecutors.getInstance().diskIO().execute(() -> {
+        AppExecutors.Companion.getInstance().diskIO().execute(() -> {
             File folder = new File(Environment.getExternalStorageDirectory() + File.separator + activity.getResources().getString(R.string.quotelock));
             if (folder.exists()) {
                 File file = new File(folder, databaseName);

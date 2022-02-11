@@ -9,7 +9,7 @@ import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
 import com.crossbowffs.quotelock.modules.hitokoto.app.HitkotoConfigActivity
 import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO
 import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING
-import com.crossbowffs.quotelock.utils.IOUtils
+import com.crossbowffs.quotelock.utils.downloadUrl
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -36,7 +36,7 @@ class HitokotoQuoteModule : QuoteModule {
         val sharedPreferences = context.getSharedPreferences(PREF_HITOKOTO, Context.MODE_PRIVATE)
         val type = sharedPreferences.getString(PREF_HITOKOTO_TYPE_STRING, "a")
         val url = "https://v1.hitokoto.cn/?c=$type"
-        val quoteJson = IOUtils.downloadString(url)
+        val quoteJson = url.downloadUrl()
         val quoteJsonObject = JSONObject(quoteJson)
         val quoteText = quoteJsonObject.getString("hitokoto")
         var quoteSource = "―"

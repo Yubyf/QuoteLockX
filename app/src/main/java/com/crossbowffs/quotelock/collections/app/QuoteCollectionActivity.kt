@@ -16,7 +16,7 @@ import com.crossbowffs.quotelock.backup.LocalBackup
 import com.crossbowffs.quotelock.backup.ProgressCallback
 import com.crossbowffs.quotelock.backup.RemoteBackup
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionHelper
-import com.crossbowffs.quotelock.utils.DpUtils
+import com.crossbowffs.quotelock.utils.dp2px
 
 /**
  * @author Yubyf
@@ -129,7 +129,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LocalBackup.REQUEST_CODE_PERMISSIONS_BACKUP) {
@@ -199,7 +199,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
             menu.findItem(R.id.remote_backup).isEnabled = true
             menu.findItem(R.id.remote_restore).isEnabled = true
             val avatar = RemoteBackup.getInstance().getSignedInGoogleAccountPhoto(this)
-            val iconSize = DpUtils.dp2px(this, 24f).toInt()
+            val iconSize = 24f.dp2px().toInt()
             applicationContext.imageLoader.enqueue(
                 ImageRequest.Builder(applicationContext)
                     .data(avatar)

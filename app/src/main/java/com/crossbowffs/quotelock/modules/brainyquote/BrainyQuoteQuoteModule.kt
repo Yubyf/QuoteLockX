@@ -9,7 +9,7 @@ import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_LATIN
 import com.crossbowffs.quotelock.modules.brainyquote.app.BrainyQuoteConfigActivity
 import com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys.PREF_BRAINY
 import com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys.PREF_BRAINY_TYPE_STRING
-import com.crossbowffs.quotelock.utils.IOUtils
+import com.crossbowffs.quotelock.utils.downloadUrl
 import org.jsoup.Jsoup
 import java.io.IOException
 
@@ -35,7 +35,7 @@ class BrainyQuoteQuoteModule : QuoteModule {
         val sharedPreferences = context.getSharedPreferences(PREF_BRAINY, Context.MODE_PRIVATE)
         val type = sharedPreferences.getString(PREF_BRAINY_TYPE_STRING, "BR")
         val url = "https://feeds.feedburner.com/brainyquote/QUOTE$type"
-        val rssXml = IOUtils.downloadString(url)
+        val rssXml = url.downloadUrl()
         val document = Jsoup.parse(rssXml)
         val quoteText = document.select("item > description").first().text()
         val quoteSource = "― ${document.select("item > title").first().text()}"

@@ -6,8 +6,8 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule
-import com.crossbowffs.quotelock.utils.IOUtils
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.downloadUrl
 import org.jsoup.Jsoup
 
 class FreakuotesQuoteModule : QuoteModule {
@@ -34,7 +34,7 @@ class FreakuotesQuoteModule : QuoteModule {
 
     @Throws(Exception::class)
     override fun getQuote(context: Context): QuoteData? {
-        val html = IOUtils.downloadString("https://freakuotes.com/frase/aleatoria")
+        val html = "https://freakuotes.com/frase/aleatoria".downloadUrl()
         val document = Jsoup.parse(html)
         val quoteContainer = document.select(".quote-container > blockquote").first()
         val quoteText = quoteContainer.getElementsByTag("p").text()

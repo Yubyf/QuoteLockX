@@ -23,7 +23,7 @@ public interface ProgressCallback {
 
     default void safeInProcessing(String message) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            AppExecutors.getInstance().mainThread().execute(() -> inProcessing(message));
+            AppExecutors.Companion.getInstance().mainThread().execute(() -> inProcessing(message));
             return;
         }
         inProcessing(message);
@@ -35,7 +35,7 @@ public interface ProgressCallback {
 
     default void safeSuccess(String message) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            AppExecutors.getInstance().mainThread().execute(() -> success(message));
+            AppExecutors.Companion.getInstance().mainThread().execute(() -> success(message));
             return;
         }
         success(message);
@@ -44,7 +44,7 @@ public interface ProgressCallback {
 
     default void safeFailure(String message) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            AppExecutors.getInstance().mainThread().execute(() -> failure(message));
+            AppExecutors.Companion.getInstance().mainThread().execute(() -> failure(message));
             return;
         }
         failure(message);

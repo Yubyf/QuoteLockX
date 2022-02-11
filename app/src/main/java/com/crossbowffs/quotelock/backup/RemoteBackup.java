@@ -59,7 +59,7 @@ import java.util.concurrent.Executor;
  */
 public class RemoteBackup {
     private static final String TAG = "RemoteBackup";
-    private final Executor mExecutor = AppExecutors.getInstance().diskIO();
+    private final Executor mExecutor = AppExecutors.Companion.getInstance().diskIO();
     private Drive mDriveService;
     private final static String NEEDED_FILE_FIELDS = "md5Checksum,name,modifiedTime";
 
@@ -193,7 +193,7 @@ public class RemoteBackup {
             return new Pair<>(null, null);
         }
         try {
-            String md5Str = Md5Utils.calculateFileMd5Str(dbFile);
+            String md5Str = Md5Utils.md5String(dbFile);
             long modifiedTime = dbFile.lastModified();
             return new Pair<>(md5Str, modifiedTime);
         } catch (Exception e) {

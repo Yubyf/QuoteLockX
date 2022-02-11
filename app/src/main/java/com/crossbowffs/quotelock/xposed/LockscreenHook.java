@@ -113,7 +113,7 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
             mLayoutTranslation = -(16F + 32F + 16F + 32F + 16F + 1F);
         }
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mActionContainer.getLayoutParams();
-        params.rightMargin = (int) DpUtils.dp2px(mActionContainer.getContext(), mLayoutTranslation + 16F);
+        params.rightMargin = (int) DpUtils.dp2px(mLayoutTranslation + 16F);
         mActionContainer.setLayoutParams(params);
         mQuoteTextView.setText(text);
         mSourceTextView.setText(source);
@@ -132,9 +132,9 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
         int paddingBottom = Integer.parseInt(mCommonPrefs.getString(
                 PrefKeys.PREF_COMMON_PADDING_BOTTOM, PrefKeys.PREF_COMMON_PADDING_BOTTOM_DEFAULT));
         mQuoteContainer.setPadding(mQuoteContainer.getPaddingStart(),
-                (int) DpUtils.dp2px(mQuoteContainer.getContext(), paddingTop),
+                (int) DpUtils.dp2px(paddingTop),
                 mQuoteContainer.getPaddingEnd(),
-                (int) DpUtils.dp2px(mQuoteContainer.getContext(), paddingBottom));
+                (int) DpUtils.dp2px(paddingBottom));
 
         // Update font size
         int textFontSize = Integer.parseInt(mCommonPrefs.getString(
@@ -215,9 +215,9 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
         int paddingBottom = Integer.parseInt(mCommonPrefs.getString(
                 PrefKeys.PREF_COMMON_PADDING_BOTTOM, PrefKeys.PREF_COMMON_PADDING_BOTTOM_DEFAULT));
         mAodQuoteContainer.setPadding(mAodQuoteContainer.getPaddingStart(),
-                (int) DpUtils.dp2px(mAodQuoteContainer.getContext(), paddingTop),
+                (int) DpUtils.dp2px(paddingTop),
                 mAodQuoteContainer.getPaddingEnd(),
-                (int) DpUtils.dp2px(mAodQuoteContainer.getContext(), paddingBottom));
+                (int) DpUtils.dp2px(paddingBottom));
 
         // Update font size
         int textFontSize = Integer.parseInt(mCommonPrefs.getString(
@@ -344,14 +344,13 @@ public class LockscreenHook implements IXposedHookZygoteInit, IXposedHookInitPac
     }
 
     private void setTranslationAnimator() {
-        Context context = mQuoteContainer.getContext();
         mQuoteContainer.animate()
-                .translationX(DpUtils.dp2px(context, mLayoutTranslation))
+                .translationX(DpUtils.dp2px(mLayoutTranslation))
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setDuration(LAYOUT_ANIMATION_DURATION)
                 .start();
         mActionContainer.animate()
-                .translationX(DpUtils.dp2px(context, mLayoutTranslation))
+                .translationX(DpUtils.dp2px(mLayoutTranslation))
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setDuration(LAYOUT_ANIMATION_DURATION)
                 .start();

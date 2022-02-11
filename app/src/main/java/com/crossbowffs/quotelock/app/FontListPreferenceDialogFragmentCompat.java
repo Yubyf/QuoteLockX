@@ -143,7 +143,7 @@ public class FontListPreferenceDialogFragmentCompat extends PreferenceDialogFrag
             if (view instanceof TextView && values != null && values.length > position) {
                 String fontName = (String) values[position];
                 try {
-                    ((TextView) view).setTypeface(TypefaceUtils.getFont(getContext(), fontName));
+                    ((TextView) view).setTypeface(TypefaceUtils.getFontFromName(getContext(), fontName));
                 } catch (Resources.NotFoundException e) {
                     ((TextView) view).setTypeface(null);
                     e.printStackTrace();

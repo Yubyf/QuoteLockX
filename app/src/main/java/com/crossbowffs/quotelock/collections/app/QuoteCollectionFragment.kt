@@ -15,7 +15,8 @@ import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
-import com.crossbowffs.quotelock.consts.PrefKeys
+import com.crossbowffs.quotelock.consts.PREF_QUOTES
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
 
 /**
  * @author Yubyf
@@ -25,7 +26,7 @@ class QuoteCollectionFragment : ListFragment(), LoaderManager.LoaderCallbacks<Cu
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R.layout.layout_list, container, false)
     }
@@ -81,9 +82,9 @@ class QuoteCollectionFragment : ListFragment(), LoaderManager.LoaderCallbacks<Cu
         val uri = ContentUris.withAppendedId(QuoteCollectionContract.Collections.CONTENT_URI, rowId)
         val result = requireContext().contentResolver.delete(uri, null, null)
         if (result >= 0) {
-            requireContext().getSharedPreferences(PrefKeys.PREF_QUOTES, Context.MODE_PRIVATE)
+            requireContext().getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE)
                 .edit()
-                .putBoolean(PrefKeys.PREF_QUOTES_COLLECTION_STATE, false)
+                .putBoolean(PREF_QUOTES_COLLECTION_STATE, false)
                 .apply()
             Toast.makeText(
                 requireContext(),
