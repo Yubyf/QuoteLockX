@@ -31,13 +31,8 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ".debug"
-
             buildConfigField("int", "LOG_LEVEL", "2")
             buildConfigField("boolean", "LOG_TO_XPOSED", "false")
-
-            resValue "string", "account_type", "${defaultConfig.applicationId}.debug.account"
-            resValue "string", "account_authority", "${defaultConfig.applicationId}.debug.collection.provider"
         }
 
         release {
