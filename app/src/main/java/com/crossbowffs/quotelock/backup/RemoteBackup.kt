@@ -59,7 +59,7 @@ class RemoteBackup {
     }
 
     private fun ensureDriveService(context: Context): Boolean {
-        if (!::mDriveService.isInitialized) {
+        if (::mDriveService.isInitialized) {
             return true
         }
         val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(context)
