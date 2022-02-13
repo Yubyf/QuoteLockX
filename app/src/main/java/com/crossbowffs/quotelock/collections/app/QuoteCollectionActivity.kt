@@ -3,7 +3,6 @@ package com.crossbowffs.quotelock.collections.app
 import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -26,7 +25,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
     private var mLoadingDialog: ProgressDialog? = null
     private var mMenu: Menu? = null
     private val mLocalBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
-        override fun success(message: String) {
+        override fun success(message: String?) {
             Toast.makeText(
                 applicationContext, "Local backup completed",
                 Toast.LENGTH_SHORT
@@ -35,7 +34,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
         }
     }
     private val mLocalRestoreCallback: ProgressCallback = object : AbstractBackupCallback() {
-        override fun success(message: String) {
+        override fun success(message: String?) {
             Toast.makeText(
                 applicationContext, "Local restore completed", Toast.LENGTH_SHORT
             ).show()
@@ -45,7 +44,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
         }
     }
     private val mRemoteBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
-        override fun success(message: String) {
+        override fun success(message: String?) {
             Toast.makeText(
                 applicationContext, "Remote backup completed",
                 Toast.LENGTH_SHORT
@@ -54,7 +53,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
         }
     }
     private val mRemoteRestoreCallback: ProgressCallback = object : AbstractBackupCallback() {
-        override fun success(message: String) {
+        override fun success(message: String?) {
             Toast.makeText(
                 applicationContext, "Remote restore completed",
                 Toast.LENGTH_SHORT
@@ -83,28 +82,28 @@ class QuoteCollectionActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.account_action) {
-            if (RemoteBackup.getInstance().isGoogleAccountSignedIn(this)) {
-                RemoteBackup.getInstance().switchAccount(this, RemoteBackup.REQUEST_CODE_SIGN_IN,
+            if (RemoteBackup.instance.isGoogleAccountSignedIn(this)) {
+                RemoteBackup.instance.switchAccount(this, RemoteBackup.REQUEST_CODE_SIGN_IN,
                     object : ProgressCallback {
-                        override fun inProcessing(message: String) {
+                        override fun inProcessing(message: String?) {
                             showProgress(message)
                         }
 
-                        override fun success(message: String) {
+                        override fun success(message: String?) {
                             hideProgress()
                             initMenu(mMenu)
                             invalidateOptionsMenu()
-                            if (!TextUtils.isEmpty(message)) {
+                            if (!message.isNullOrEmpty()) {
                                 SyncAccountManager.getInstance().removeAccount(message)
                             }
                         }
 
-                        override fun failure(message: String) {
+                        override fun failure(message: String?) {
                             hideProgress()
                         }
                     })
             } else {
-                RemoteBackup.getInstance().requestSignIn(this, RemoteBackup.REQUEST_CODE_SIGN_IN)
+                RemoteBackup.instance.requestSignIn(this, RemoteBackup.REQUEST_CODE_SIGN_IN)
             }
         } else if (item.itemId == R.id.local_backup) {
             showProgress("Start local backup...")
@@ -148,7 +147,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == RemoteBackup.REQUEST_CODE_SIGN_IN) {
             if (resultCode == RESULT_OK && data != null) {
-                RemoteBackup.getInstance().handleSignInResult(
+                RemoteBackup.instance.handleSignInResult(
                     this, data,
                     mRemoteBackupCallback
                 ) {
@@ -158,22 +157,22 @@ class QuoteCollectionActivity : AppCompatActivity() {
                     ).show()
                     initMenu(mMenu)
                     invalidateOptionsMenu()
-                    val accountName = RemoteBackup.getInstance().getSignedInGoogleAccountEmail(this)
-                    if (!TextUtils.isEmpty(accountName)) {
+                    val accountName = RemoteBackup.instance.getSignedInGoogleAccountEmail(this)
+                    if (!accountName.isNullOrEmpty()) {
                         SyncAccountManager.getInstance().addOrUpdateAccount(accountName)
                     }
                 }
             }
         } else if (requestCode == RemoteBackup.REQUEST_CODE_SIGN_IN_BACKUP) {
             if (resultCode == RESULT_OK && data != null) {
-                RemoteBackup.getInstance().handleSignInResult(
+                RemoteBackup.instance.handleSignInResult(
                     this, data,
                     mRemoteBackupCallback
                 ) { remoteBackup() }
             }
         } else if (requestCode == RemoteBackup.REQUEST_CODE_SIGN_IN_RESTORE) {
             if (resultCode == RESULT_OK && data != null) {
-                RemoteBackup.getInstance().handleSignInResult(
+                RemoteBackup.instance.handleSignInResult(
                     this, data,
                     mRemoteRestoreCallback
                 ) { remoteRestore() }
@@ -191,14 +190,14 @@ class QuoteCollectionActivity : AppCompatActivity() {
         if (menu == null) {
             return
         }
-        if (RemoteBackup.getInstance().isGoogleAccountSignedIn(this)) {
+        if (RemoteBackup.instance.isGoogleAccountSignedIn(this)) {
             menu.findItem(R.id.account).isVisible = true
             menu.findItem(R.id.account).title =
-                RemoteBackup.getInstance().getSignedInGoogleAccountEmail(this)
+                RemoteBackup.instance.getSignedInGoogleAccountEmail(this)
             menu.findItem(R.id.account_action).setTitle(R.string.switch_account)
             menu.findItem(R.id.remote_backup).isEnabled = true
             menu.findItem(R.id.remote_restore).isEnabled = true
-            val avatar = RemoteBackup.getInstance().getSignedInGoogleAccountPhoto(this)
+            val avatar = RemoteBackup.instance.getSignedInGoogleAccountPhoto(this)
             val iconSize = 24f.dp2px().toInt()
             applicationContext.imageLoader.enqueue(
                 ImageRequest.Builder(applicationContext)
@@ -235,14 +234,14 @@ class QuoteCollectionActivity : AppCompatActivity() {
     }
 
     private fun remoteBackup() {
-        RemoteBackup.getInstance().performDriveBackupAsync(
+        RemoteBackup.instance.performDriveBackupAsync(
             this,
             QuoteCollectionHelper.DATABASE_NAME, mRemoteBackupCallback
         )
     }
 
     private fun remoteRestore() {
-        RemoteBackup.getInstance().performDriveRestoreAsync(
+        RemoteBackup.instance.performDriveRestoreAsync(
             this,
             QuoteCollectionHelper.DATABASE_NAME, mRemoteRestoreCallback
         )
@@ -263,11 +262,11 @@ class QuoteCollectionActivity : AppCompatActivity() {
     }
 
     private abstract inner class AbstractBackupCallback : ProgressCallback {
-        override fun inProcessing(message: String) {
+        override fun inProcessing(message: String?) {
             showProgress(message)
         }
 
-        override fun failure(message: String) {
+        override fun failure(message: String?) {
             Toast.makeText(
                 applicationContext, message, Toast.LENGTH_SHORT
             ).show()

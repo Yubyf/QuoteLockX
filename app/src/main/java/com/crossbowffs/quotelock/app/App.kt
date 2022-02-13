@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.app
 
 import android.app.Application
-import android.text.TextUtils
 import com.crossbowffs.quotelock.account.SyncAccountManager
 import com.crossbowffs.quotelock.backup.RemoteBackup
 
@@ -13,9 +12,9 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         SyncAccountManager.getInstance().initialize(this)
-        if (RemoteBackup.getInstance().isGoogleAccountSignedIn(this)) {
-            val accountName = RemoteBackup.getInstance().getSignedInGoogleAccountEmail(this)
-            if (!TextUtils.isEmpty(accountName)) {
+        if (RemoteBackup.instance.isGoogleAccountSignedIn(this)) {
+            val accountName = RemoteBackup.instance.getSignedInGoogleAccountEmail(this)
+            if (!accountName.isNullOrEmpty()) {
                 SyncAccountManager.getInstance().addOrUpdateAccount(accountName)
             }
         }

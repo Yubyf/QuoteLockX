@@ -7,7 +7,9 @@ import java.util.concurrent.ThreadPoolExecutor.AbortPolicy
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * @author LiuPengyu
+ * @author Yubyf
+ *
+ * TODO: Replace with coroutine
  */
 class AppExecutors private constructor(
     private val diskIO: ExecutorService,

@@ -42,7 +42,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
         Xlog.d(TAG, "Performing account sync...");
-        if (!RemoteBackup.getInstance().isGoogleAccountSignedIn(mContext)) {
+        if (!RemoteBackup.Companion.getInstance().isGoogleAccountSignedIn(mContext)) {
             Xlog.d(TAG, "No account signed in.");
             syncResult.stats.numAuthExceptions++;
             return;
@@ -53,17 +53,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             return;
         } else if (action < 0) {
             Xlog.d(TAG, "Performing remote restore...");
-            result = RemoteBackup.getInstance().performSafeDriveRestoreSync(mContext,
+            result = RemoteBackup.Companion.getInstance().performSafeDriveRestoreSync(mContext,
                     QuoteCollectionHelper.DATABASE_NAME);
         } else {
             Xlog.d(TAG, "Performing remote backup...");
-            result = RemoteBackup.getInstance().performSafeDriveBackupSync(mContext,
+            result = RemoteBackup.Companion.getInstance().performSafeDriveBackupSync(mContext,
                     QuoteCollectionHelper.DATABASE_NAME);
         }
-        if (result.success) {
+        if (result.getSuccess()) {
             Xlog.d(TAG, "Account sync success");
             syncResult.stats.numInserts++;
-            setServerSyncMarker(account, result.md5, result.timestamp);
+            setServerSyncMarker(account, result.getMd5(), result.getTimestamp());
         } else {
             Xlog.d(TAG, "Account sync failed");
             syncResult.stats.numIoExceptions++;
@@ -80,7 +80,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private int checkBackupOrRestore(Account account) {
         String serverMarker = getServerSyncMarker(account);
         long syncTimestamp = getSyncTimestamp(account);
-        Pair<String, Long> databaseInfo = RemoteBackup.getInstance()
+        Pair<String, Long> databaseInfo = RemoteBackup.Companion.getInstance()
                 .getDatabaseInfo(mContext, QuoteCollectionHelper.DATABASE_NAME);
         int result = 0;
         if (TextUtils.isEmpty(serverMarker) || syncTimestamp < 0
