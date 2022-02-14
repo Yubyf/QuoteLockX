@@ -11,11 +11,11 @@ import com.crossbowffs.quotelock.backup.RemoteBackup
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        SyncAccountManager.getInstance().initialize(this)
+        SyncAccountManager.instance.initialize(this)
         if (RemoteBackup.instance.isGoogleAccountSignedIn(this)) {
             val accountName = RemoteBackup.instance.getSignedInGoogleAccountEmail(this)
             if (!accountName.isNullOrEmpty()) {
-                SyncAccountManager.getInstance().addOrUpdateAccount(accountName)
+                SyncAccountManager.instance.addOrUpdateAccount(accountName)
             }
         }
     }

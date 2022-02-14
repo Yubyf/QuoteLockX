@@ -94,7 +94,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
                             initMenu(mMenu)
                             invalidateOptionsMenu()
                             if (!message.isNullOrEmpty()) {
-                                SyncAccountManager.getInstance().removeAccount(message)
+                                SyncAccountManager.instance.removeAccount(message)
                             }
                         }
 
@@ -159,7 +159,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
                     invalidateOptionsMenu()
                     val accountName = RemoteBackup.instance.getSignedInGoogleAccountEmail(this)
                     if (!accountName.isNullOrEmpty()) {
-                        SyncAccountManager.getInstance().addOrUpdateAccount(accountName)
+                        SyncAccountManager.instance.addOrUpdateAccount(accountName)
                     }
                 }
             }

@@ -45,7 +45,7 @@ class QuoteCollectionObserver
          */
         Xlog.d(TAG, "Data on change, requesting sync...")
         ContentResolver.requestSync(
-            SyncAccountManager.getInstance().currentSyncAccount,
+            SyncAccountManager.instance.currentSyncAccount,
             QuoteCollectionContract.AUTHORITY, Bundle()
         )
     }
