@@ -18,13 +18,9 @@ object XposedUtils {
     const val XPOSED_SECTION_MODULES = "modules"
     const val XPOSED_SECTION_INSTALL = "install"
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     val isModuleEnabled: Boolean
         get() = getModuleVersion() >= 0
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     val isModuleUpdated: Boolean
         get() = MODULE_VERSION != getModuleVersion()
 
@@ -45,8 +41,6 @@ object XposedUtils {
         }
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun Context.startXposedActivity(section: String?): Boolean {
         val intent = Intent(XPOSED_ACTION)
         intent.putExtra(XPOSED_EXTRA_SECTION, section)
@@ -58,8 +52,6 @@ object XposedUtils {
         }
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     private fun startEdXposedActivity(context: Context): Boolean {
         val intent = Intent(Intent.ACTION_MAIN)
         intent.setPackage("org.meowcat.edxposed.manager")
@@ -77,8 +69,6 @@ object XposedUtils {
 
     /**
      * @return True to hook AOD UI. The AOD hooking is only tested on the OnePlus 7 Pro with OOS OB4.
-     *
-     * TODO: Remove field compatibility annotation for java
      */
     @JvmStatic
     val isAodHookAvailable: Boolean

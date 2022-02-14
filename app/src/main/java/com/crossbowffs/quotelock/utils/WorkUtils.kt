@@ -11,8 +11,6 @@ import java.util.concurrent.TimeUnit
 object WorkUtils {
     private val TAG = WorkUtils::class.simpleName
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun shouldRefreshQuote(context: Context): Boolean {
         val preferences = context.getSharedPreferences(PREF_COMMON, Context.MODE_PRIVATE)
 
@@ -44,8 +42,6 @@ object WorkUtils {
         return true
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun createQuoteDownloadWork(context: Context, recreate: Boolean) {
         Xlog.d(TAG, "WorkUtils#createQuoteDownloadWork called, recreate == %s", recreate)
 

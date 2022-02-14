@@ -30,15 +30,11 @@ object ModuleManager {
         sModules[className] = module
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun getModule(context: Context?, className: String): QuoteModule {
         val module = sModules[className]
         return module ?: throw ModuleNotFoundException("Module not found for class: $className")
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun getAllModules(context: Context?): List<QuoteModule> {
         return ArrayList(sModules.values)
     }

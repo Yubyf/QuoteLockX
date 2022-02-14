@@ -15,8 +15,6 @@ object QuoteHistoryContract {
     object Histories : BaseColumns {
         const val TABLE = "histories"
 
-        // TODO: Remove field compatibility annotation for java
-        @JvmField
         val CONTENT_URI: Uri = Uri.withAppendedPath(QuoteHistoryContract.CONTENT_URI, TABLE)
         const val CONTENT_TYPE = "${ContentResolver.CURSOR_DIR_BASE_TYPE}/vnd.crossbowffs.history"
         const val CONTENT_ITEM_TYPE =

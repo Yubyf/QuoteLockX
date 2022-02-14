@@ -84,9 +84,6 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
 
     companion object {
         const val AUTHORITY = BuildConfig.APPLICATION_ID + ".action"
-
-        // TODO: Remove field compatibility annotation for java
-        @JvmField
         val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY")
     }
 

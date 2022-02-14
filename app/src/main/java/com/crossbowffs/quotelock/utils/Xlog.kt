@@ -28,32 +28,22 @@ object Xlog {
         }
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun v(tag: String?, message: String, vararg args: Any) {
         log(Log.VERBOSE, tag, message, *args)
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun d(tag: String?, message: String, vararg args: Any) {
         log(Log.DEBUG, tag, message, *args)
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun i(tag: String?, message: String, vararg args: Any) {
         log(Log.INFO, tag, message, *args)
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun w(tag: String?, message: String, vararg args: Any) {
         log(Log.WARN, tag, message, *args)
     }
 
-    // TODO: Remove field compatibility annotation for java
-    @JvmStatic
     fun e(tag: String?, message: String, vararg args: Any) {
         log(Log.ERROR, tag, message, *args)
     }
