@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.app
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
@@ -13,6 +12,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
@@ -55,7 +55,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.content_frame, SettingsFragment())
+            .replace(R.id.preview_frame, PreviewFragment())
+            .commit()
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.settings_frame, SettingsFragment())
             .commit()
 
         // In case the user opens the app for the first time *after* rebooting,

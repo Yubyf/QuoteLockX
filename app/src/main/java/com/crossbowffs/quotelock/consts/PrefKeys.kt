@@ -1,4 +1,3 @@
-@file:JvmName("PrefKeys")
 
 package com.crossbowffs.quotelock.consts
 

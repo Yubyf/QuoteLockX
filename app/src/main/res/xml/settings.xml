@@ -1,107 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/settings">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:allowDividerAbove="true">
+    <PreferenceCategory
+        android:title="@string/settings"
+        app:iconSpaceReserved="false">
         <SwitchPreferenceCompat
             android:key="pref_common_display_on_aod"
+            android:summary="@string/pref_display_on_aod_summary"
             android:title="@string/pref_display_on_aod_title"
-            android:summary="@string/pref_display_on_aod_summary"/>
+            app:iconSpaceReserved="false" />
         <ListPreference
+            android:defaultValue="com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule"
             android:key="pref_common_quote_module"
-            android:title="@string/pref_quote_module_title"
             android:summary="@string/pref_quote_module_summary"
-            android:defaultValue="com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule"/>
+            android:title="@string/pref_quote_module_title"
+            app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_module_preferences"
+            android:summary="@string/pref_module_preferences_summary"
             android:title="@string/pref_module_preferences_title"
-            android:summary="@string/pref_module_preferences_summary"/>
+            app:iconSpaceReserved="false" />
         <ListPreference
-            android:key="pref_common_refresh_rate"
-            android:title="@string/pref_refresh_interval_title"
-            android:summary="@string/pref_refresh_interval_summary"
+            android:defaultValue="900"
             android:entries="@array/refresh_interval_entries"
             android:entryValues="@array/refresh_interval_values"
-            android:defaultValue="900"/>
+            android:key="pref_common_refresh_rate"
+            android:summary="@string/pref_refresh_interval_summary"
+            android:title="@string/pref_refresh_interval_title"
+            app:iconSpaceReserved="false" />
         <Preference
-            android:key="pref_common_update_info"
             android:enabled="false"
+            android:key="pref_common_update_info"
+            android:summary="@string/pref_refresh_info_summary"
             android:title="@string/pref_refresh_info_title"
-            android:summary="@string/pref_refresh_info_summary"/>
+            app:iconSpaceReserved="false" />
         <SwitchPreference
+            android:defaultValue="false"
             android:key="pref_common_unmetered_only"
-            android:title="@string/pref_unmetered_only_title"
             android:summary="@string/pref_unmetered_only_summary"
-            android:defaultValue="false"/>
+            android:title="@string/pref_unmetered_only_title"
+            app:iconSpaceReserved="false" />
         <ListPreference
+            android:defaultValue="20"
+            android:entries="@array/font_size_entries"
+            android:entryValues="@array/font_size_values"
             android:key="pref_common_font_size_text"
-            android:title="@string/pref_font_size_text_title"
             android:summary="@string/pref_font_size_text_summary"
+            android:title="@string/pref_font_size_text_title"
+            app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="18"
             android:entries="@array/font_size_entries"
             android:entryValues="@array/font_size_values"
-            android:defaultValue="20"/>
-        <ListPreference
             android:key="pref_common_font_size_source"
-            android:title="@string/pref_font_size_source_title"
             android:summary="@string/pref_font_size_source_summary"
-            android:entries="@array/font_size_entries"
-            android:entryValues="@array/font_size_values"
-            android:defaultValue="18"/>
+            android:title="@string/pref_font_size_source_title"
+            app:iconSpaceReserved="false" />
         <MultiSelectListPreference
+            android:entries="@array/font_style_entries"
+            android:entryValues="@array/font_style_values"
             android:key="pref_common_font_style_text"
-            android:title="@string/pref_font_style_text_title"
             android:summary="@string/pref_font_style_text_summary"
-            android:entries="@array/font_style_entries"
-            android:entryValues="@array/font_style_values"/>
+            android:title="@string/pref_font_style_text_title"
+            app:iconSpaceReserved="false" />
         <MultiSelectListPreference
-            android:key="pref_common_font_style_source"
-            android:title="@string/pref_font_style_source_title"
-            android:summary="@string/pref_font_style_source_summary"
             android:entries="@array/font_style_entries"
-            android:entryValues="@array/font_style_values"/>
+            android:entryValues="@array/font_style_values"
+            android:key="pref_common_font_style_source"
+            android:summary="@string/pref_font_style_source_summary"
+            android:title="@string/pref_font_style_source_title"
+            app:iconSpaceReserved="false" />
         <ListPreference
-            android:key="pref_common_font_family"
-            android:title="@string/pref_font_family_title"
-            android:summary="@string/pref_font_family_summary"
+            android:defaultValue="system"
             android:entries="@array/font_family_entries"
             android:entryValues="@array/font_family_values"
-            android:defaultValue="system"/>
+            android:key="pref_common_font_family"
+            android:summary="@string/pref_font_family_summary"
+            android:title="@string/pref_font_family_title"
+            app:iconSpaceReserved="false" />
         <ListPreference
+            android:defaultValue="8"
+            android:entries="@array/layout_padding_entries"
+            android:entryValues="@array/layout_padding_values"
             android:key="pref_common_padding_top"
-            android:title="@string/pref_layout_padding_top_title"
             android:summary="@string/pref_layout_padding_top_summary"
-            android:entries="@array/layout_padding_entries"
-            android:entryValues="@array/layout_padding_values"
-            android:defaultValue="8"/>
+            android:title="@string/pref_layout_padding_top_title"
+            app:iconSpaceReserved="false" />
         <ListPreference
-            android:key="pref_common_padding_bottom"
-            android:title="@string/pref_layout_padding_bottom_title"
-            android:summary="@string/pref_layout_padding_bottom_summary"
+            android:defaultValue="8"
             android:entries="@array/layout_padding_entries"
             android:entryValues="@array/layout_padding_values"
-            android:defaultValue="8"/>
+            android:key="pref_common_padding_bottom"
+            android:summary="@string/pref_layout_padding_bottom_summary"
+            android:title="@string/pref_layout_padding_bottom_title"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/features">
+    <PreferenceCategory
+        android:title="@string/features"
+        app:iconSpaceReserved="false">
         <Preference
             android:key="pref_collection"
-            android:title="@string/pref_collection_title" />
+            android:title="@string/pref_collection_title"
+            app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_history"
-            android:title="@string/pref_history_title" />
+            android:title="@string/pref_history_title"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/about">
+    <PreferenceCategory
+        android:title="@string/about"
+        app:iconSpaceReserved="false">
         <Preference
             android:key="pref_about_credits"
+            android:summary="@string/pref_about_credits_summary"
             android:title="@string/pref_about_credits_title"
-            android:summary="@string/pref_about_credits_summary"/>
+            app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_about_github"
+            android:summary="github.com/apsun/QuoteLock"
             android:title="@string/pref_about_github"
-            android:summary="github.com/apsun/QuoteLock"/>
+            app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_about_github_current"
+            android:summary="github.com/Yubyf/QuoteLock"
             android:title="@string/pref_about_github_current"
-            android:summary="github.com/Yubyf/QuoteLock"/>
+            app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_about_version"
-            android:title="@string/pref_about_version"/>
+            android:title="@string/pref_about_version"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 </PreferenceScreen>

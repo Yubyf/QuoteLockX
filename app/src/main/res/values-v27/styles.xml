@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
-        <item name="android:statusBarColor">?attr/colorPrimary</item>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
+        <item name="toolbarStyle">@style/CustomToolbarStyle</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
         <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
         <!-- required to contrast the dark buttons -->
         <item name="android:navigationBarColor">?android:colorBackground</item>
         <item name="android:navigationBarDividerColor">?android:colorBackground</item>
+    </style>
+
+    <style name="CustomToolbarStyle" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 </resources>

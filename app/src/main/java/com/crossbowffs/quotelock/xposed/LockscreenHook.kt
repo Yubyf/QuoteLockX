@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.res.Resources.NotFoundException
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -18,6 +17,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.*
+import com.crossbowffs.quotelock.app.getTypefaceStyle
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.provider.ActionProvider
@@ -97,11 +97,11 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
         // Update font size
         val textFontSize = mCommonPrefs.getString(
-            PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toInt()
+            PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
         val sourceFontSize = mCommonPrefs.getString(
-            PREF_COMMON_FONT_SIZE_SOURCE, PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toInt()
-        mQuoteTextView.textSize = textFontSize.toFloat()
-        mSourceTextView.textSize = sourceFontSize.toFloat()
+            PREF_COMMON_FONT_SIZE_SOURCE, PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toFloat()
+        mQuoteTextView.textSize = textFontSize
+        mSourceTextView.textSize = sourceFontSize
 
         // Font properties
         val quoteStyles = mCommonPrefs.getStringSet(PREF_COMMON_FONT_STYLE_TEXT, null)
@@ -174,11 +174,11 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
         // Update font size
         val textFontSize = mCommonPrefs.getString(
-            PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toInt()
+            PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
         val sourceFontSize = mCommonPrefs.getString(
-            PREF_COMMON_FONT_SIZE_SOURCE, PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toInt()
-        mAodQuoteTextView.textSize = textFontSize.toFloat()
-        mAodSourceTextView.textSize = sourceFontSize.toFloat()
+            PREF_COMMON_FONT_SIZE_SOURCE, PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toFloat()
+        mAodQuoteTextView.textSize = textFontSize
+        mAodSourceTextView.textSize = sourceFontSize
 
         // Font properties
         val quoteStyles = mCommonPrefs.getStringSet(PREF_COMMON_FONT_STYLE_TEXT, null)
@@ -205,20 +205,6 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     private val isAodViewAvailable: Boolean
         get() = mDisplayOnAod && ::mAodQuoteContainer.isInitialized
                 && ::mAodQuoteTextView.isInitialized && ::mAodSourceTextView.isInitialized
-
-    private fun getTypefaceStyle(styles: Set<String>?): Int {
-        var style = Typeface.NORMAL
-        if (styles != null) {
-            if (styles.contains("bold") && styles.contains("italic")) {
-                style = Typeface.BOLD_ITALIC
-            } else if (styles.contains("bold")) {
-                style = Typeface.BOLD
-            } else if (styles.contains("italic")) {
-                style = Typeface.ITALIC
-            }
-        }
-        return style
-    }
 
     private fun refreshQuoteRemote(context: Context) {
         val uri = Uri.parse("content://${ActionProvider.AUTHORITY}").buildUpon()
