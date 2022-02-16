@@ -16,7 +16,7 @@ class FreakuotesQuoteModule : QuoteModule {
         private val TAG = className<FreakuotesQuoteModule>()
     }
 
-    override fun getDisplayName(context: Context): String? {
+    override fun getDisplayName(context: Context): String {
         return context.getString(R.string.module_freakuotes_name)
     }
 

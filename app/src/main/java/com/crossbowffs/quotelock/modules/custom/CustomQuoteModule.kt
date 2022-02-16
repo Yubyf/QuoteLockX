@@ -10,7 +10,7 @@ import com.crossbowffs.quotelock.modules.custom.app.CustomQuoteConfigActivity
 import com.crossbowffs.quotelock.modules.custom.provider.CustomQuoteContract
 
 class CustomQuoteModule : QuoteModule {
-    override fun getDisplayName(context: Context): String? {
+    override fun getDisplayName(context: Context): String {
         return context.getString(R.string.module_custom_name)
     }
 

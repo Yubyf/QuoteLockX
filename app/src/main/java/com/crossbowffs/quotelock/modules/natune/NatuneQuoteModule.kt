@@ -10,7 +10,7 @@ import com.crossbowffs.quotelock.utils.downloadUrl
 import org.jsoup.Jsoup
 
 class NatuneQuoteModule : QuoteModule {
-    override fun getDisplayName(context: Context): String? {
+    override fun getDisplayName(context: Context): String {
         return context.getString(R.string.module_natune_name)
     }
 

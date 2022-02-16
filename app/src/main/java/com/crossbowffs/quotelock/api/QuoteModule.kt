@@ -16,7 +16,7 @@ interface QuoteModule {
      * Gets the user-friendly name of the quote provider that this module uses.
      * Must not return `null`.
      */
-    fun getDisplayName(context: Context): String?
+    fun getDisplayName(context: Context): String
 
     /**
      * Gets a [ComponentName] representing the configuration

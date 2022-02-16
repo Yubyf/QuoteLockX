@@ -23,7 +23,7 @@ class JinrishiciQuoteModule : QuoteModule {
         private val TAG = className<JinrishiciQuoteModule>()
     }
 
-    override fun getDisplayName(context: Context): String? {
+    override fun getDisplayName(context: Context): String {
         return context.getString(R.string.module_jinrishici_name)
     }
 

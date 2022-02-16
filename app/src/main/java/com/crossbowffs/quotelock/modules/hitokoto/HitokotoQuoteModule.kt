@@ -15,7 +15,7 @@ import org.json.JSONObject
 import java.io.IOException
 
 class HitokotoQuoteModule : QuoteModule {
-    override fun getDisplayName(context: Context): String? {
+    override fun getDisplayName(context: Context): String {
         return context.getString(R.string.module_hitokoto_name)
     }
 
