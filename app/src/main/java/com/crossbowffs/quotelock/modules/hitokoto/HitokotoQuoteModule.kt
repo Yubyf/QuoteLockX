@@ -43,7 +43,7 @@ class HitokotoQuoteModule : QuoteModule {
         val quoteSourceFrom = quoteJsonObject.getString("from")
         val quoteSourceAuthor = quoteJsonObject.getString("from_who")
         quoteSource +=
-            if (quoteSourceAuthor.isNullOrEmpty()) {
+            if (quoteSourceAuthor.isNullOrEmpty() || quoteSourceAuthor == "null") {
                 quoteSourceFrom
             } else {
                 "$quoteSourceAuthor $quoteSourceFrom"
