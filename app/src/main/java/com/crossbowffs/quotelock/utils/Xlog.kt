@@ -8,6 +8,10 @@ private const val LOG_TAG = BuildConfig.LOG_TAG
 private const val LOG_LEVEL = BuildConfig.LOG_LEVEL
 private const val LOG_TO_XPOSED = BuildConfig.LOG_TO_XPOSED
 
+inline fun <reified T> className(): String {
+    return T::class.simpleName ?: T::class.java.simpleName
+}
+
 object Xlog {
     private fun log(priority: Int, tag: String?, message: String, vararg args: Any) {
         if (priority < LOG_LEVEL) {

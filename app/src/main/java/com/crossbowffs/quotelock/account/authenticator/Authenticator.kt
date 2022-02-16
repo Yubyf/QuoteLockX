@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
+import com.crossbowffs.quotelock.utils.className
 
 internal class Authenticator(
     /** Authentication Service context  */
@@ -66,6 +67,6 @@ internal class Authenticator(
     }
 
     companion object {
-        private val TAG = Authenticator::class.simpleName
+        private val TAG = className<Authenticator>()
     }
 }

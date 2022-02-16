@@ -9,7 +9,7 @@ import com.crossbowffs.quotelock.consts.*
 import java.util.concurrent.TimeUnit
 
 object WorkUtils {
-    private val TAG = WorkUtils::class.simpleName
+    private val TAG = className<WorkUtils>()
 
     fun shouldRefreshQuote(context: Context): Boolean {
         val preferences = context.getSharedPreferences(PREF_COMMON, Context.MODE_PRIVATE)

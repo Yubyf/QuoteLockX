@@ -6,12 +6,12 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
-import com.crossbowffs.quotelock.modules.jinrishici.JinrishiciQuoteModule
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_SENTENCE_URL
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_TOKEN
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_TOKEN_URL
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.downloadUrl
 import org.json.JSONException
 import org.json.JSONObject
@@ -20,7 +20,7 @@ import java.io.IOException
 class JinrishiciQuoteModule : QuoteModule {
 
     companion object {
-        private val TAG = JinrishiciQuoteModule::class.simpleName
+        private val TAG = className<JinrishiciQuoteModule>()
     }
 
     override fun getDisplayName(context: Context): String? {

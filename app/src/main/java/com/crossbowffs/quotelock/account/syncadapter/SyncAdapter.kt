@@ -9,10 +9,10 @@ import android.content.SyncResult
 import android.os.Bundle
 import android.text.TextUtils
 import com.crossbowffs.quotelock.BuildConfig
-import com.crossbowffs.quotelock.account.syncadapter.SyncAdapter
 import com.crossbowffs.quotelock.backup.RemoteBackup
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionHelper
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 
 /**
  * @author Yubyf
@@ -113,7 +113,7 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
     }
 
     companion object {
-        private val TAG = SyncAdapter::class.simpleName
+        private val TAG = className<SyncAdapter>()
         const val SYNC_MARKER_KEY = BuildConfig.APPLICATION_ID + ".sync.marker"
         const val SYNC_TIMESTAMP_KEY = BuildConfig.APPLICATION_ID + ".sync.timestamp"
     }

@@ -3,8 +3,8 @@ package com.crossbowffs.quotelock.account.authenticator
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.crossbowffs.quotelock.account.authenticator.AuthenticationService
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 
 /**
  * @author Yubyf
@@ -29,6 +29,6 @@ class AuthenticationService : Service() {
     }
 
     companion object {
-        private val TAG = AuthenticationService::class.simpleName
+        private val TAG = className<AuthenticationService>()
     }
 }

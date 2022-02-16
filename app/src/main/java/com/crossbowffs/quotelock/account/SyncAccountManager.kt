@@ -6,11 +6,11 @@ import android.content.ContentResolver
 import android.content.Context
 import android.os.Build
 import com.crossbowffs.quotelock.BuildConfig
-import com.crossbowffs.quotelock.account.SyncAccountManager
 import com.crossbowffs.quotelock.account.syncadapter.SyncAdapter
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionObserver
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 
 /**
  * @author Yubyf
@@ -83,7 +83,7 @@ class SyncAccountManager {
             .run { if (isNotEmpty()) this[0] else null }
 
     companion object {
-        private val TAG = SyncAccountManager::class.simpleName
+        private val TAG = className<SyncAccountManager>()
         private const val ACCOUNT_TYPE = BuildConfig.APPLICATION_ID + ".account"
         val instance = SyncAccountManager()
     }

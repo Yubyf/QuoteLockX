@@ -28,6 +28,7 @@ import com.crossbowffs.quotelock.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.XposedUtils
+import com.crossbowffs.quotelock.utils.className
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -292,7 +293,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     }
 
     companion object {
-        private val TAG = SettingsFragment::class.java.simpleName
+        private val TAG = className<SettingsFragment>()
         private val DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
     }
 }

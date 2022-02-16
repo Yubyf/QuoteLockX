@@ -6,9 +6,9 @@ import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import com.crossbowffs.quotelock.api.QuoteData
-import com.crossbowffs.quotelock.app.QuoteWorker
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
@@ -78,6 +78,6 @@ class QuoteWorker(context: Context, workerParams: WorkerParameters) :
     }
 
     companion object {
-        val TAG = QuoteWorker::class.simpleName ?: ""
+        val TAG = className<QuoteWorker>()
     }
 }

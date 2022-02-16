@@ -6,8 +6,8 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
-import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.downloadUrl
 import org.jsoup.Jsoup
 import java.io.IOException
@@ -16,7 +16,7 @@ import java.util.regex.Pattern
 class WikiquoteQuoteModule : QuoteModule {
 
     companion object {
-        private val TAG = WikiquoteQuoteModule::class.simpleName
+        private val TAG = className<WikiquoteQuoteModule>()
     }
 
     override fun getDisplayName(context: Context): String {

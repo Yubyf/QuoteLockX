@@ -7,13 +7,13 @@ import android.os.AsyncTask
 import android.text.TextUtils
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
-import com.crossbowffs.quotelock.app.QuoteDownloaderTask
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.history.provider.QuoteHistoryContract
 import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.md5
 
 open class QuoteDownloaderTask(protected val mContext: Context) :
@@ -84,7 +84,7 @@ open class QuoteDownloaderTask(protected val mContext: Context) :
     }
 
     companion object {
-        private val TAG = QuoteDownloaderTask::class.simpleName
+        private val TAG = className<QuoteDownloaderTask>()
     }
 
     init {

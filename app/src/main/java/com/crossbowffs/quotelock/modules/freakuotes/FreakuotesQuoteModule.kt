@@ -5,15 +5,15 @@ import android.content.Context
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
-import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.downloadUrl
 import org.jsoup.Jsoup
 
 class FreakuotesQuoteModule : QuoteModule {
 
     companion object {
-        private val TAG = FreakuotesQuoteModule::class.simpleName
+        private val TAG = className<FreakuotesQuoteModule>()
     }
 
     override fun getDisplayName(context: Context): String? {

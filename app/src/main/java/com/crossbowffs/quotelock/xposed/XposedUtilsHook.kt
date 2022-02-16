@@ -3,7 +3,7 @@ package com.crossbowffs.quotelock.xposed
 import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.XposedUtils
-import com.crossbowffs.quotelock.xposed.XposedUtilsHook
+import com.crossbowffs.quotelock.utils.className
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
@@ -24,7 +24,7 @@ class XposedUtilsHook : IXposedHookLoadPackage {
     }
 
     companion object {
-        private val TAG = XposedUtilsHook::class.simpleName
+        private val TAG = className<XposedUtilsHook>()
         private const val QUOTELOCK_PACKAGE = BuildConfig.APPLICATION_ID
         private const val MODULE_VERSION = BuildConfig.MODULE_VERSION
 

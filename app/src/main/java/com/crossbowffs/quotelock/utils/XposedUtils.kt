@@ -70,7 +70,6 @@ object XposedUtils {
     /**
      * @return True to hook AOD UI. The AOD hooking is only tested on the OnePlus 7 Pro with OOS OB4.
      */
-    @JvmStatic
     val isAodHookAvailable: Boolean
         get() = isOnePlus7Series && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 }

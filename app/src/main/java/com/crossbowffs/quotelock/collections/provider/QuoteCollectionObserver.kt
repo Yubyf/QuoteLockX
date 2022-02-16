@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import com.crossbowffs.quotelock.account.SyncAccountManager
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 
 /**
  * @author Yubyf
@@ -51,6 +52,6 @@ class QuoteCollectionObserver
     }
 
     companion object {
-        private val TAG = this::class.simpleName
+        private val TAG = className<QuoteCollectionObserver>()
     }
 }

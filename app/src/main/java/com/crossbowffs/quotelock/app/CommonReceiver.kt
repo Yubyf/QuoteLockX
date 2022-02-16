@@ -4,11 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import com.crossbowffs.quotelock.app.CommonReceiver
 import com.crossbowffs.quotelock.consts.PREF_BOOT_NOTIFY_FLAG
 import com.crossbowffs.quotelock.consts.PREF_QUOTES
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 
 class CommonReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -34,6 +34,6 @@ class CommonReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        private val TAG = CommonReceiver::class.simpleName
+        private val TAG = className<CommonReceiver>()
     }
 }

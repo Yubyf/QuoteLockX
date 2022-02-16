@@ -22,10 +22,7 @@ import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.provider.ActionProvider
 import com.crossbowffs.quotelock.provider.PreferenceProvider
-import com.crossbowffs.quotelock.utils.Xlog
-import com.crossbowffs.quotelock.utils.XposedUtils
-import com.crossbowffs.quotelock.utils.dp2px
-import com.crossbowffs.quotelock.utils.md5
+import com.crossbowffs.quotelock.utils.*
 import com.crossbowffs.quotelock.xposed.XSafeModuleResources.Companion.createInstance
 import com.crossbowffs.remotepreferences.RemotePreferences
 import de.robv.android.xposed.*
@@ -486,7 +483,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     }
 
     companion object {
-        private val TAG = LockscreenHook::class.simpleName
+        private val TAG = className<LockscreenHook>()
         private const val PACKAGE_SYSTEM_UI = "com.android.systemui"
         private const val RES_LAYOUT_QUOTE_LAYOUT = "quote_layout"
         private const val RES_STRING_OPEN_APP_1 = "open_quotelock_app_line1"
