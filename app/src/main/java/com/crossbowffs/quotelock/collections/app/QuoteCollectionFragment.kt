@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.collections.app
 
 import android.content.ContentUris
-import android.content.Context
 import android.database.Cursor
 import android.os.Bundle
 import android.view.*
@@ -15,8 +14,8 @@ import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
-import com.crossbowffs.quotelock.consts.PREF_QUOTES
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
+import com.crossbowffs.quotelock.data.quotesDataStore
 
 /**
  * @author Yubyf
@@ -82,10 +81,7 @@ class QuoteCollectionFragment : ListFragment(), LoaderManager.LoaderCallbacks<Cu
         val uri = ContentUris.withAppendedId(QuoteCollectionContract.Collections.CONTENT_URI, rowId)
         val result = requireContext().contentResolver.delete(uri, null, null)
         if (result >= 0) {
-            requireContext().getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(PREF_QUOTES_COLLECTION_STATE, false)
-                .apply()
+            quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, false)
             Toast.makeText(
                 requireContext(),
                 R.string.module_custom_deleted_quote,

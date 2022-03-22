@@ -1,0 +1,58 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.crossbowffs.remotepreferences",
+    "module": "remotepreferences",
+    "version": "0.9",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.2"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "remotepreferences-0.9.aar",
+          "url": "remotepreferences-0.9.aar",
+          "size": 20878,
+          "sha512": "bf2f81e0124112ae1cdad7f3d4f43cb8d8463cd1d48d2ec1b8b59aa1f1a3111c17e29a02040ff53691a485da5eabe340180bef7f38b261eec73a55260ea020d3",
+          "sha256": "fffa4265c9178d20d4304f6d89091c92216f309aa76516af62c69da99a8019fa",
+          "sha1": "21c7b426afc3070e5a95060394312cedf1d96f89",
+          "md5": "4f9e05a93947c31477d986bba7ff784f"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "remotepreferences-0.9.aar",
+          "url": "remotepreferences-0.9.aar",
+          "size": 20878,
+          "sha512": "bf2f81e0124112ae1cdad7f3d4f43cb8d8463cd1d48d2ec1b8b59aa1f1a3111c17e29a02040ff53691a485da5eabe340180bef7f38b261eec73a55260ea020d3",
+          "sha256": "fffa4265c9178d20d4304f6d89091c92216f309aa76516af62c69da99a8019fa",
+          "sha1": "21c7b426afc3070e5a95060394312cedf1d96f89",
+          "md5": "4f9e05a93947c31477d986bba7ff784f"
+        }
+      ]
+    }
+  ]
+}

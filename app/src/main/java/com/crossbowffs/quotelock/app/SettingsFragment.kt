@@ -2,10 +2,7 @@ package com.crossbowffs.quotelock.app
 
 import android.app.AlertDialog
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,38 +10,37 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import android.widget.Toast
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.fragment.app.DialogFragment
 import androidx.preference.ListPreference
 import androidx.preference.Preference
+import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
 import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.data.commonDataStore
+import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.history.app.QuoteHistoryActivity
 import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
-import com.crossbowffs.quotelock.utils.WorkUtils
-import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.className
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
+class SettingsFragment : PreferenceFragmentCompat() {
 
     private var mVersionTapCount = 0
     private var mModuleConfigActivity: ComponentName? = null
-    private lateinit var mQuotesPreferences: SharedPreferences
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        preferenceManager.sharedPreferencesName = PREF_COMMON
+        preferenceManager.preferenceDataStore = commonDataStore
         setPreferencesFromResource(R.xml.settings, rootKey)
-        preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-        mQuotesPreferences =
-            requireContext().getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE)
-        mQuotesPreferences.registerOnSharedPreferenceChangeListener(this)
 
         // Only enable DisplayOnAOD on tested devices.
         if (!XposedUtils.isAodHookAvailable) {
@@ -60,7 +56,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             "${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
 
         // Last update info
-        val lastUpdate = mQuotesPreferences.getLong(PREF_QUOTES_LAST_UPDATED, -1)
+        val lastUpdate = quotesDataStore.getLong(PREF_QUOTES_LAST_UPDATED, -1)
         findPreference<Preference>(PREF_COMMON_UPDATE_INFO)?.summary =
             getString(R.string.pref_refresh_info_summary,
                 if (lastUpdate > 0) DATE_FORMATTER.format(Date(
@@ -77,18 +73,35 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         }
 
         // Update quote module list
-        val quoteModulesPref = findPreference<ListPreference>(PREF_COMMON_QUOTE_MODULE)
-        quoteModulesPref?.entries = moduleNames
-        quoteModulesPref?.entryValues = moduleClsNames
+        findPreference<ListPreference>(PREF_COMMON_QUOTE_MODULE)?.run {
+            entries = moduleNames
+            entryValues = moduleClsNames
+        }
 
         // Update preferences related to module
         onSelectedModuleChanged()
-    }
 
-    override fun onDestroy() {
-        preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
-        mQuotesPreferences.unregisterOnSharedPreferenceChangeListener(this)
-        super.onDestroy()
+        quotesDataStore.collect { preferences, key ->
+            if (key?.name != PREF_QUOTES_LAST_UPDATED) {
+                return@collect
+            }
+            withContext(Dispatchers.Main) {
+                preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)]?.run {
+                    findPreference<Preference>(PREF_COMMON_UPDATE_INFO)?.summary =
+                        getString(R.string.pref_refresh_info_summary,
+                            if (this > 0) DATE_FORMATTER.format(Date(
+                                this)) else "-")
+                }
+            }
+        }
+        commonDataStore.collect { _, key ->
+            if (key?.name != PREF_COMMON_QUOTE_MODULE) {
+                return@collect
+            }
+            withContext(Dispatchers.Main) {
+                onSelectedModuleChanged()
+            }
+        }
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
@@ -128,26 +141,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        Xlog.i(TAG, "Preference changed: %s", key)
-        if (sharedPreferences == mQuotesPreferences) {
-            if (PREF_QUOTES_LAST_UPDATED == key) {
-                val lastUpdate = mQuotesPreferences.getLong(PREF_QUOTES_LAST_UPDATED, -1)
-                findPreference<Preference>(PREF_COMMON_UPDATE_INFO)?.summary =
-                    getString(R.string.pref_refresh_info_summary,
-                        if (lastUpdate > 0) DATE_FORMATTER.format(Date(
-                            lastUpdate)) else "-")
-            }
-            return
-        }
-        if (PREF_COMMON_QUOTE_MODULE == key) {
-            onSelectedModuleChanged()
-        } else {
-            WorkUtils.createQuoteDownloadWork(requireContext(), true)
-        }
-    }
-
-    private fun loadSelectedModule(prefs: SharedPreferences): QuoteModule {
+    private fun loadSelectedModule(prefs: PreferenceDataStore): QuoteModule {
         val moduleClsName =
             prefs.getString(PREF_COMMON_QUOTE_MODULE, PREF_COMMON_QUOTE_MODULE_DEFAULT)
         return try {
@@ -210,8 +204,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     }
 
     private fun onSelectedModuleChanged() {
-        val prefs = preferenceManager.sharedPreferences
-        val module = loadSelectedModule(prefs)
+        val module = loadSelectedModule(commonDataStore)
 
         // Update config activity preference
         val configActivity = module.getConfigActivity(requireContext())
@@ -231,11 +224,11 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         val minRefreshInterval = module.getMinimumRefreshInterval(requireContext())
         val refreshIntervalPref = findPreference<Preference>(PREF_COMMON_REFRESH_RATE)
         if (minRefreshInterval != 0) {
-            prefs.edit().putInt(PREF_COMMON_REFRESH_RATE_OVERRIDE, minRefreshInterval).apply()
+            commonDataStore.putInt(PREF_COMMON_REFRESH_RATE_OVERRIDE, minRefreshInterval)
             refreshIntervalPref?.isEnabled = false
             refreshIntervalPref?.summary = getString(R.string.pref_refresh_interval_summary_alt)
         } else {
-            prefs.edit().remove(PREF_COMMON_REFRESH_RATE_OVERRIDE).apply()
+            commonDataStore.remove(PREF_COMMON_REFRESH_RATE_OVERRIDE)
             refreshIntervalPref?.isEnabled = true
             refreshIntervalPref?.summary = getString(R.string.pref_refresh_interval_summary)
         }
@@ -245,11 +238,11 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         val requiresInternet = module.requiresInternetConnectivity(requireContext())
         val unmeteredOnlyPref = findPreference<Preference>(PREF_COMMON_UNMETERED_ONLY)
         if (!requiresInternet) {
-            prefs.edit().putBoolean(PREF_COMMON_REQUIRES_INTERNET, false).apply()
+            commonDataStore.putBoolean(PREF_COMMON_REQUIRES_INTERNET, false)
             unmeteredOnlyPref?.isEnabled = false
             unmeteredOnlyPref?.summary = getString(R.string.pref_unmetered_only_summary_alt)
         } else {
-            prefs.edit().remove(PREF_COMMON_REQUIRES_INTERNET).apply()
+            commonDataStore.remove(PREF_COMMON_REQUIRES_INTERNET)
             unmeteredOnlyPref?.isEnabled = true
             unmeteredOnlyPref?.summary = getString(R.string.pref_unmetered_only_summary)
         }

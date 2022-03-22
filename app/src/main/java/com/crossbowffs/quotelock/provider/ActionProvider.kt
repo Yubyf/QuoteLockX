@@ -2,15 +2,14 @@ package com.crossbowffs.quotelock.provider
 
 import android.content.ContentProvider
 import android.content.ContentValues
-import android.content.Context
 import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
 import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.app.QuoteDownloaderTask
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
-import com.crossbowffs.quotelock.consts.PREF_QUOTES
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
+import com.crossbowffs.quotelock.data.quotesDataStore
 
 class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) : ContentProvider() {
 
@@ -42,10 +41,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         require(matchCode >= 2) { "Invalid insert URI: $uri" }
         val newUri = collectQuote(values)
         if (newUri?.lastPathSegment != "-1") {
-            context!!.getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(PREF_QUOTES_COLLECTION_STATE, true)
-                .apply()
+            quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, true)
         }
         return newUri
     }
@@ -55,10 +51,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         require(matchCode >= 2) { "Invalid delete URI: $uri" }
         val result = deleteCollectedQuote(selection)
         if (result >= 0) {
-            context!!.getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(PREF_QUOTES_COLLECTION_STATE, false)
-                .apply()
+            quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, false)
         }
         return result
     }

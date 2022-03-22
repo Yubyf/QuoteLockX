@@ -1,8 +1,6 @@
 package com.crossbowffs.quotelock.app
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -10,143 +8,137 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceViewHolder
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.consts.*
-import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.data.commonDataStore
+import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.dp2px
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class PreviewFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
+class PreviewFragment : PreferenceFragmentCompat() {
 
-    private lateinit var mQuotesPreferences: SharedPreferences
     private var mPreviewPreference: PreviewPreference? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        preferenceManager.sharedPreferencesName = PREF_COMMON
+        preferenceManager.preferenceDataStore = commonDataStore
         setPreferencesFromResource(R.xml.preview_preference, rootKey)
-        preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-        mQuotesPreferences =
-            requireContext().getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE)
-        mQuotesPreferences.registerOnSharedPreferenceChangeListener(this)
-
-        mPreviewPreference = findPreference<Preference>("pref_preview") as? PreviewPreference
+        mPreviewPreference = findPreference<Preference>(PREF_PREVIEW) as? PreviewPreference
+        observePreferences()
         mPreviewPreference?.run {
-            quote = mQuotesPreferences.getString(PREF_QUOTES_TEXT, "")
-            source = mQuotesPreferences.getString(PREF_QUOTES_SOURCE, "")
-            quoteSize = sharedPreferences.getString(PREF_COMMON_FONT_SIZE_TEXT,
+            quote = quotesDataStore.getString(PREF_QUOTES_TEXT, "")
+            source = quotesDataStore.getString(PREF_QUOTES_SOURCE, "")
+            quoteSize = commonDataStore.getString(PREF_COMMON_FONT_SIZE_TEXT,
                 PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
-            sourceSize = sharedPreferences.getString(PREF_COMMON_FONT_SIZE_SOURCE,
+            sourceSize = commonDataStore.getString(PREF_COMMON_FONT_SIZE_SOURCE,
                 PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toFloat()
             // Font properties
-            val quoteStyles = sharedPreferences.getStringSet(PREF_COMMON_FONT_STYLE_TEXT, null)
-            val sourceStyles = sharedPreferences.getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
+            val quoteStyles = commonDataStore.getStringSet(PREF_COMMON_FONT_STYLE_TEXT, null)
+            val sourceStyles = commonDataStore.getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
             val quoteStyle = getTypefaceStyle(quoteStyles)
             val sourceStyle = getTypefaceStyle(sourceStyles)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val font = sharedPreferences.getString(
+                val font = commonDataStore.getString(
                     PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
                 if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
                     val fontId = requireContext().resources.getIdentifier(font, "font",
                         requireContext().packageName)
                     val typeface = ResourcesCompat.getFont(requireContext(), fontId)
-                    quoteTypeface = typeface
+                    this.quoteTypeface = typeface
                     this.quoteStyle = quoteStyle
-                    sourceTypeface = typeface
+                    this.sourceTypeface = typeface
                     this.sourceStyle = sourceStyle
                 } else {
-                    quoteTypeface = null
+                    this.quoteTypeface = null
                     this.quoteStyle = quoteStyle
-                    sourceTypeface = null
+                    this.sourceTypeface = null
                     this.sourceStyle = sourceStyle
                 }
             } else {
-                quoteTypeface = null
+                this.quoteTypeface = null
                 this.quoteStyle = quoteStyle
-                sourceTypeface = null
+                this.sourceTypeface = null
                 this.sourceStyle = sourceStyle
             }
 
             // Layout padding
-            paddingTop = sharedPreferences.getString(
-                PREF_COMMON_PADDING_TOP, PREF_COMMON_PADDING_TOP_DEFAULT)!!.toFloat().dp2px()
+            paddingTop = commonDataStore.getString(PREF_COMMON_PADDING_TOP,
+                PREF_COMMON_PADDING_TOP_DEFAULT)!!.toFloat()
+                .dp2px()
                 .toInt()
-            paddingBottom = sharedPreferences.getString(
-                PREF_COMMON_PADDING_BOTTOM, PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toFloat().dp2px()
+            paddingBottom = commonDataStore.getString(PREF_COMMON_PADDING_BOTTOM,
+                PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toFloat()
+                .dp2px()
                 .toInt()
         }
     }
 
-    override fun onDestroy() {
-        preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
-        mQuotesPreferences.unregisterOnSharedPreferenceChangeListener(this)
-        super.onDestroy()
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        Xlog.i(TAG, "Preference changed: %s", key)
-        if (sharedPreferences == mQuotesPreferences) {
-            if (PREF_QUOTES_TEXT == key) {
-                (findPreference<Preference>("pref_preview") as? PreviewPreference)?.quote =
-                    sharedPreferences.getString(PREF_QUOTES_TEXT, "")
-            } else if (PREF_QUOTES_SOURCE == key) {
-                (findPreference<Preference>("pref_preview") as? PreviewPreference)?.source =
-                    sharedPreferences.getString(PREF_QUOTES_SOURCE, "")
+    private fun observePreferences() {
+        quotesDataStore.collect { preferences, key ->
+            withContext(Dispatchers.Main) {
+                mPreviewPreference?.quote = preferences[stringPreferencesKey(PREF_QUOTES_TEXT)]
+                mPreviewPreference?.source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
             }
-            return
-        } else if (sharedPreferences == preferenceManager.sharedPreferences) {
-            when (key) {
-                PREF_COMMON_FONT_SIZE_TEXT -> mPreviewPreference?.quoteSize =
-                    sharedPreferences.getString(PREF_COMMON_FONT_SIZE_TEXT,
-                        PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
-                PREF_COMMON_FONT_SIZE_SOURCE -> mPreviewPreference?.sourceSize =
-                    sharedPreferences.getString(PREF_COMMON_FONT_SIZE_SOURCE,
-                        PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toFloat()
-                PREF_COMMON_FONT_FAMILY -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        val font = sharedPreferences.getString(
-                            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
-                        if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-                            val fontId = requireContext().resources.getIdentifier(font,
-                                "font", requireContext().packageName)
-                            mPreviewPreference?.quoteTypeface =
-                                ResourcesCompat.getFont(requireContext(), fontId)
-                            mPreviewPreference?.sourceTypeface =
-                                ResourcesCompat.getFont(requireContext(), fontId)
+        }
+        commonDataStore.collect { preferences, key ->
+            withContext(Dispatchers.Main) {
+                when (key?.name) {
+                    PREF_COMMON_FONT_SIZE_TEXT -> mPreviewPreference?.quoteSize =
+                        (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_TEXT)]
+                            ?: PREF_COMMON_FONT_SIZE_TEXT_DEFAULT).toFloat()
+                    PREF_COMMON_FONT_SIZE_SOURCE -> mPreviewPreference?.sourceSize =
+                        (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_SOURCE)]
+                            ?: PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT).toFloat()
+                    PREF_COMMON_FONT_FAMILY -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            val font = preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
+                                ?: PREF_COMMON_FONT_FAMILY_DEFAULT
+                            if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
+                                val fontId = requireContext().resources.getIdentifier(font,
+                                    "font", requireContext().packageName)
+                                mPreviewPreference?.quoteTypeface =
+                                    ResourcesCompat.getFont(requireContext(), fontId)
+                                mPreviewPreference?.sourceTypeface =
+                                    ResourcesCompat.getFont(requireContext(), fontId)
+                            } else {
+                                mPreviewPreference?.quoteTypeface = null
+                                mPreviewPreference?.sourceTypeface = null
+                            }
                         } else {
                             mPreviewPreference?.quoteTypeface = null
                             mPreviewPreference?.sourceTypeface = null
                         }
-                    } else {
-                        mPreviewPreference?.quoteTypeface = null
-                        mPreviewPreference?.sourceTypeface = null
                     }
+                    PREF_COMMON_FONT_STYLE_TEXT -> {
+                        val quoteStyles =
+                            preferences[stringSetPreferencesKey(PREF_COMMON_FONT_STYLE_TEXT)]
+                        mPreviewPreference?.quoteStyle = getTypefaceStyle(quoteStyles)
+                    }
+                    PREF_COMMON_FONT_STYLE_SOURCE -> {
+                        val sourceStyles =
+                            preferences[stringSetPreferencesKey(PREF_COMMON_FONT_STYLE_SOURCE)]
+                        mPreviewPreference?.sourceStyle = getTypefaceStyle(sourceStyles)
+                    }
+                    PREF_COMMON_PADDING_TOP -> mPreviewPreference?.paddingTop =
+                        (preferences[stringPreferencesKey(PREF_COMMON_PADDING_TOP)]
+                            ?: PREF_COMMON_PADDING_TOP_DEFAULT).toFloat()
+                            .dp2px()
+                            .toInt()
+                    PREF_COMMON_PADDING_BOTTOM -> mPreviewPreference?.paddingBottom =
+                        (preferences[stringPreferencesKey(PREF_COMMON_PADDING_BOTTOM)]
+                            ?: PREF_COMMON_PADDING_BOTTOM_DEFAULT).toFloat()
+                            .dp2px()
+                            .toInt()
+                    else -> {}
                 }
-                PREF_COMMON_FONT_STYLE_TEXT -> {
-                    val quoteStyles = sharedPreferences
-                        .getStringSet(PREF_COMMON_FONT_STYLE_TEXT, null)
-                    mPreviewPreference?.quoteStyle = getTypefaceStyle(quoteStyles)
-                }
-                PREF_COMMON_FONT_STYLE_SOURCE -> {
-                    val sourceStyles = sharedPreferences
-                        .getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
-                    mPreviewPreference?.sourceStyle = getTypefaceStyle(sourceStyles)
-                }
-                PREF_COMMON_PADDING_TOP -> mPreviewPreference?.paddingTop =
-                    sharedPreferences.getString(
-                        PREF_COMMON_PADDING_TOP, PREF_COMMON_PADDING_TOP_DEFAULT)!!.toFloat()
-                        .dp2px()
-                        .toInt()
-                PREF_COMMON_PADDING_BOTTOM -> mPreviewPreference?.paddingBottom =
-                    sharedPreferences.getString(
-                        PREF_COMMON_PADDING_BOTTOM, PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toFloat()
-                        .dp2px()
-                        .toInt()
-                else -> {}
             }
         }
     }

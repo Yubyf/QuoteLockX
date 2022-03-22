@@ -6,12 +6,17 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_LATIN
+import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.modules.brainyquote.app.BrainyQuoteConfigActivity
 import com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys.PREF_BRAINY
 import com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys.PREF_BRAINY_TYPE_STRING
 import com.crossbowffs.quotelock.utils.downloadUrl
+import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
+import kotlinx.coroutines.runBlocking
 import org.jsoup.Jsoup
 import java.io.IOException
+
+internal val brainyDataStore = App.INSTANCE.getDataStoreDelegate(PREF_BRAINY, migrate = true)
 
 class BrainyQuoteQuoteModule : QuoteModule {
     override fun getDisplayName(context: Context): String {
@@ -32,8 +37,7 @@ class BrainyQuoteQuoteModule : QuoteModule {
 
     @Throws(IOException::class)
     override fun getQuote(context: Context): QuoteData {
-        val sharedPreferences = context.getSharedPreferences(PREF_BRAINY, Context.MODE_PRIVATE)
-        val type = sharedPreferences.getString(PREF_BRAINY_TYPE_STRING, "BR")
+        val type = runBlocking { brainyDataStore.getStringSuspend(PREF_BRAINY_TYPE_STRING, "BR") }
         val url = "https://feeds.feedburner.com/brainyquote/QUOTE$type"
         val rssXml = url.downloadUrl()
         val document = Jsoup.parse(rssXml)

@@ -6,6 +6,7 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
+import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_SENTENCE_URL
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_TOKEN
@@ -13,11 +14,16 @@ import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PR
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.downloadUrl
+import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
+import kotlinx.coroutines.runBlocking
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
 class JinrishiciQuoteModule : QuoteModule {
+
+    private val jinrishiciDataStore =
+        App.INSTANCE.getDataStoreDelegate(PREF_JINRISHICI, migrate = true)
 
     companion object {
         private val TAG = className<JinrishiciQuoteModule>()
@@ -42,9 +48,8 @@ class JinrishiciQuoteModule : QuoteModule {
     @Throws(IOException::class, JSONException::class)
     override fun getQuote(context: Context): QuoteData? {
         return try {
-            val sharedPreferences = context.getSharedPreferences(PREF_JINRISHICI,
-                Context.MODE_PRIVATE)
-            var token = sharedPreferences.getString(PREF_JINRISHICI_TOKEN, null)
+            var token =
+                runBlocking { jinrishiciDataStore.getStringSuspend(PREF_JINRISHICI_TOKEN, null) }
             if (token.isNullOrBlank()) {
                 val tokenJson = PREF_JINRISHICI_TOKEN_URL.downloadUrl()
                 Xlog.d(TAG, "tokenJson $tokenJson")
@@ -54,7 +59,7 @@ class JinrishiciQuoteModule : QuoteModule {
                     Xlog.e(TAG, "Failed to get Jinrishici token.")
                     return null
                 } else {
-                    sharedPreferences.edit().putString(PREF_JINRISHICI_TOKEN, token).apply()
+                    jinrishiciDataStore.put(PREF_JINRISHICI_TOKEN, token)
                 }
             }
             val headers = mapOf<String, String?>("X-User-Token" to token)

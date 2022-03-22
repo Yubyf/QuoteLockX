@@ -1,22 +1,22 @@
 package com.crossbowffs.quotelock.utils
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.net.ConnectivityManager
+import androidx.preference.PreferenceDataStore
 import androidx.work.*
 import com.crossbowffs.quotelock.app.QuoteWorker
 import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.data.commonDataStore
+import com.crossbowffs.quotelock.data.quotesDataStore
 import java.util.concurrent.TimeUnit
 
 object WorkUtils {
     private val TAG = className<WorkUtils>()
 
     fun shouldRefreshQuote(context: Context): Boolean {
-        val preferences = context.getSharedPreferences(PREF_COMMON, Context.MODE_PRIVATE)
-
         // If our provider doesn't require internet access, we should always be
         // refreshing the quote.
-        if (!preferences.getBoolean(PREF_COMMON_REQUIRES_INTERNET, true)) {
+        if (!commonDataStore.getBoolean(PREF_COMMON_REQUIRES_INTERNET, true)) {
             Xlog.d(TAG, "WorkUtils#shouldRefreshQuote: YES (provider doesn't require internet)")
             return true
         }
@@ -32,7 +32,8 @@ object WorkUtils {
         // Check if we're on a metered connection and act according to the
         // user's preference.
         val unmeteredOnly =
-            preferences.getBoolean(PREF_COMMON_UNMETERED_ONLY, PREF_COMMON_UNMETERED_ONLY_DEFAULT)
+            commonDataStore.getBoolean(PREF_COMMON_UNMETERED_ONLY,
+                PREF_COMMON_UNMETERED_ONLY_DEFAULT)
         if (unmeteredOnly && manager.isActiveNetworkMetered) {
             Xlog.d(TAG,
                 "WorkUtils#shouldRefreshQuote: NO (can only update on unmetered connections)")
@@ -61,8 +62,8 @@ object WorkUtils {
         val existingWorkPolicy =
             if (recreate) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP
         Xlog.d(TAG, "ExistingWorkPolicy - $existingWorkPolicy")
-        val delay = getUpdateDelay(context)
-        val networkType = getNetworkType(context)
+        val delay = getUpdateDelay()
+        val networkType = getNetworkType()
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(networkType)
             .build()
@@ -81,16 +82,14 @@ object WorkUtils {
         Xlog.d(TAG, "Scheduled quote download work with delay: %d", delay)
     }
 
-    private fun getUpdateDelay(context: Context): Int {
+    private fun getUpdateDelay(): Int {
         // This compensates for the time since the last update in order
         // to ensure that the quote will be updated in a reasonable time
         // window. If the quote was updated >= refreshInterval time ago,
         // the update will be scheduled with zero delay.
-        val commonPrefs = context.getSharedPreferences(PREF_COMMON, Context.MODE_PRIVATE)
-        val quotePrefs = context.getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE)
-        val refreshInterval = getRefreshInterval(commonPrefs)
+        val refreshInterval = getRefreshInterval(commonDataStore)
         val currentTime = System.currentTimeMillis()
-        val lastUpdateTime = quotePrefs.getLong(PREF_QUOTES_LAST_UPDATED, currentTime)
+        val lastUpdateTime = quotesDataStore.getLong(PREF_QUOTES_LAST_UPDATED, currentTime)
         Xlog.d(TAG, "Current time: %d", currentTime)
         Xlog.d(TAG, "Last update time: %d", lastUpdateTime)
         var deltaSecs = ((currentTime - lastUpdateTime) / 1000).toInt()
@@ -108,7 +107,7 @@ object WorkUtils {
         return delay
     }
 
-    private fun getRefreshInterval(commonPrefs: SharedPreferences): Int {
+    private fun getRefreshInterval(commonPrefs: PreferenceDataStore): Int {
         var refreshInterval = commonPrefs.getInt(PREF_COMMON_REFRESH_RATE_OVERRIDE, 0)
         if (refreshInterval == 0) {
             val refreshIntervalStr =
@@ -122,13 +121,13 @@ object WorkUtils {
         return refreshInterval
     }
 
-    private fun getNetworkType(context: Context): NetworkType {
-        val preferences = context.getSharedPreferences(PREF_COMMON, Context.MODE_PRIVATE)
-        if (!preferences.getBoolean(PREF_COMMON_REQUIRES_INTERNET, true)) {
+    private fun getNetworkType(): NetworkType {
+        if (!commonDataStore.getBoolean(PREF_COMMON_REQUIRES_INTERNET, true)) {
             return NetworkType.NOT_REQUIRED
         }
         val unmeteredOnly =
-            preferences.getBoolean(PREF_COMMON_UNMETERED_ONLY, PREF_COMMON_UNMETERED_ONLY_DEFAULT)
+            commonDataStore.getBoolean(PREF_COMMON_UNMETERED_ONLY,
+                PREF_COMMON_UNMETERED_ONLY_DEFAULT)
         return if (unmeteredOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
     }
 }

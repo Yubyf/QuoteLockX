@@ -9,6 +9,8 @@ import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
 import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.data.commonDataStore
+import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.history.provider.QuoteHistoryContract
 import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
@@ -18,7 +20,9 @@ import com.crossbowffs.quotelock.utils.md5
 
 open class QuoteDownloaderTask(protected val mContext: Context) :
     AsyncTask<Void?, Void?, QuoteData?>() {
-    private val mModuleName: String
+
+    private val mModuleName: String = commonDataStore.getString(PREF_COMMON_QUOTE_MODULE,
+        PREF_COMMON_QUOTE_MODULE_DEFAULT)!!
 
     override fun doInBackground(vararg params: Void?): QuoteData? {
         Xlog.d(TAG, "Attempting to download new quote...")
@@ -46,13 +50,10 @@ open class QuoteDownloaderTask(protected val mContext: Context) :
             val collectionState = queryQuoteCollectionState(quote.quoteText,
                 if (TextUtils.isEmpty(quote.quoteSource)) "" else quote.quoteSource.replace("―", "")
                     .trim())
-            mContext.getSharedPreferences(PREF_QUOTES, Context.MODE_PRIVATE)
-                .edit()
-                .putString(PREF_QUOTES_TEXT, quote.quoteText)
-                .putString(PREF_QUOTES_SOURCE, quote.quoteSource)
-                .putBoolean(PREF_QUOTES_COLLECTION_STATE, collectionState)
-                .putLong(PREF_QUOTES_LAST_UPDATED, System.currentTimeMillis())
-                .apply()
+            quotesDataStore.bulkPut(mapOf(PREF_QUOTES_TEXT to quote.quoteText,
+                PREF_QUOTES_SOURCE to quote.quoteSource,
+                PREF_QUOTES_COLLECTION_STATE to collectionState,
+                PREF_QUOTES_LAST_UPDATED to System.currentTimeMillis()))
         }
     }
 
@@ -85,11 +86,5 @@ open class QuoteDownloaderTask(protected val mContext: Context) :
 
     companion object {
         private val TAG = className<QuoteDownloaderTask>()
-    }
-
-    init {
-        val preferences = mContext.getSharedPreferences(PREF_COMMON, Context.MODE_PRIVATE)
-        mModuleName =
-            preferences.getString(PREF_COMMON_QUOTE_MODULE, PREF_COMMON_QUOTE_MODULE_DEFAULT)!!
     }
 }

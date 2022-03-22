@@ -11,6 +11,7 @@ import com.crossbowffs.quotelock.backup.RemoteBackup
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
+        INSTANCE = this
         SyncAccountManager.instance.initialize(this)
         if (RemoteBackup.instance.isGoogleAccountSignedIn(this)) {
             val accountName = RemoteBackup.instance.getSignedInGoogleAccountEmail(this)
@@ -18,5 +19,9 @@ class App : Application() {
                 SyncAccountManager.instance.addOrUpdateAccount(accountName)
             }
         }
+    }
+
+    companion object {
+        lateinit var INSTANCE: App
     }
 }
