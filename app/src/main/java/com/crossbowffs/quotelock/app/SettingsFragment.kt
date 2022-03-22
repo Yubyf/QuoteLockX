@@ -247,10 +247,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             unmeteredOnlyPref?.summary = getString(R.string.pref_unmetered_only_summary)
         }
 
-        // Update internet module initially
-        if (module.requiresInternetConnectivity(requireContext())) {
-            QuoteDownloaderTask(requireContext()).execute()
-        }
+        // Update quotes.
+        QuoteDownloaderTask(requireContext()).execute()
 
         // Update font family options
         val fontFamilyPref = findPreference<ListPreference>(PREF_COMMON_FONT_FAMILY)
