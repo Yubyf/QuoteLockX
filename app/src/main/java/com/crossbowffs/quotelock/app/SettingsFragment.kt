@@ -26,6 +26,7 @@ import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.history.app.QuoteHistoryActivity
 import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
+import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.className
 import kotlinx.coroutines.Dispatchers
@@ -95,11 +96,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
         commonDataStore.collect { _, key ->
-            if (key?.name != PREF_COMMON_QUOTE_MODULE) {
-                return@collect
-            }
-            withContext(Dispatchers.Main) {
-                onSelectedModuleChanged()
+            when (key?.name) {
+                PREF_COMMON_QUOTE_MODULE ->
+                    withContext(Dispatchers.Main) { onSelectedModuleChanged() }
+                PREF_COMMON_REFRESH_RATE, PREF_COMMON_REFRESH_RATE_OVERRIDE ->
+                    WorkUtils.createQuoteDownloadWork(requireContext(), true)
+                else -> {}
             }
         }
     }
