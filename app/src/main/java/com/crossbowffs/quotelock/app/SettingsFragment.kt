@@ -12,6 +12,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
@@ -30,9 +33,7 @@ import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.ioScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -84,26 +85,31 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // Update preferences related to module
         onSelectedModuleChanged()
 
-        quotesDataStore.collect { preferences, key ->
-            if (key?.name != PREF_QUOTES_LAST_UPDATED) {
-                return@collect
-            }
-            withContext(Dispatchers.Main) {
-                preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)]?.run {
-                    findPreference<Preference>(PREF_COMMON_UPDATE_INFO)?.summary =
-                        getString(R.string.pref_refresh_info_summary,
-                            if (this > 0) DATE_FORMATTER.format(Date(
-                                this)) else "-")
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    quotesDataStore.collectSuspend { preferences, key ->
+                        if (key?.name != PREF_QUOTES_LAST_UPDATED) {
+                            return@collectSuspend
+                        }
+                        preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)]?.run {
+                            findPreference<Preference>(PREF_COMMON_UPDATE_INFO)?.summary =
+                                getString(R.string.pref_refresh_info_summary,
+                                    if (this > 0) DATE_FORMATTER.format(Date(
+                                        this)) else "-")
+                        }
+                    }
                 }
-            }
-        }
-        commonDataStore.collect { _, key ->
-            when (key?.name) {
-                PREF_COMMON_QUOTE_MODULE ->
-                    withContext(Dispatchers.Main) { onSelectedModuleChanged() }
-                PREF_COMMON_REFRESH_RATE, PREF_COMMON_REFRESH_RATE_OVERRIDE ->
-                    WorkUtils.createQuoteDownloadWork(requireContext(), true)
-                else -> {}
+                launch {
+                    commonDataStore.collectSuspend { _, key ->
+                        when (key?.name) {
+                            PREF_COMMON_QUOTE_MODULE -> onSelectedModuleChanged()
+                            PREF_COMMON_REFRESH_RATE, PREF_COMMON_REFRESH_RATE_OVERRIDE ->
+                                WorkUtils.createQuoteDownloadWork(requireContext(), true)
+                            else -> {}
+                        }
+                    }
+                }
             }
         }
     }

@@ -10,6 +10,9 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceViewHolder
@@ -19,8 +22,7 @@ import com.crossbowffs.quotelock.data.commonDataStore
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.dp2px
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -82,62 +84,70 @@ class PreviewFragment : PreferenceFragmentCompat() {
     }
 
     private fun observePreferences() {
-        quotesDataStore.collect { preferences, key ->
-            withContext(Dispatchers.Main) {
-                mPreviewPreference?.quote = preferences[stringPreferencesKey(PREF_QUOTES_TEXT)]
-                mPreviewPreference?.source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
-            }
-        }
-        commonDataStore.collect { preferences, key ->
-            withContext(Dispatchers.Main) {
-                when (key?.name) {
-                    PREF_COMMON_FONT_SIZE_TEXT -> mPreviewPreference?.quoteSize =
-                        (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_TEXT)]
-                            ?: PREF_COMMON_FONT_SIZE_TEXT_DEFAULT).toFloat()
-                    PREF_COMMON_FONT_SIZE_SOURCE -> mPreviewPreference?.sourceSize =
-                        (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_SOURCE)]
-                            ?: PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT).toFloat()
-                    PREF_COMMON_FONT_FAMILY -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            val font = preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
-                                ?: PREF_COMMON_FONT_FAMILY_DEFAULT
-                            if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-                                val fontId = requireContext().resources.getIdentifier(font,
-                                    "font", requireContext().packageName)
-                                mPreviewPreference?.quoteTypeface =
-                                    ResourcesCompat.getFont(requireContext(), fontId)
-                                mPreviewPreference?.sourceTypeface =
-                                    ResourcesCompat.getFont(requireContext(), fontId)
-                            } else {
-                                mPreviewPreference?.quoteTypeface = null
-                                mPreviewPreference?.sourceTypeface = null
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    quotesDataStore.collectSuspend { preferences, _ ->
+                        mPreviewPreference?.quote =
+                            preferences[stringPreferencesKey(PREF_QUOTES_TEXT)]
+                        mPreviewPreference?.source =
+                            preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
+                    }
+                }
+                launch {
+                    commonDataStore.collectSuspend { preferences, key ->
+                        when (key?.name) {
+                            PREF_COMMON_FONT_SIZE_TEXT -> mPreviewPreference?.quoteSize =
+                                (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_TEXT)]
+                                    ?: PREF_COMMON_FONT_SIZE_TEXT_DEFAULT).toFloat()
+                            PREF_COMMON_FONT_SIZE_SOURCE -> mPreviewPreference?.sourceSize =
+                                (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_SOURCE)]
+                                    ?: PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT).toFloat()
+                            PREF_COMMON_FONT_FAMILY -> {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    val font =
+                                        preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
+                                            ?: PREF_COMMON_FONT_FAMILY_DEFAULT
+                                    if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
+                                        val fontId = requireContext().resources.getIdentifier(font,
+                                            "font", requireContext().packageName)
+                                        mPreviewPreference?.quoteTypeface =
+                                            ResourcesCompat.getFont(requireContext(), fontId)
+                                        mPreviewPreference?.sourceTypeface =
+                                            ResourcesCompat.getFont(requireContext(), fontId)
+                                    } else {
+                                        mPreviewPreference?.quoteTypeface = null
+                                        mPreviewPreference?.sourceTypeface = null
+                                    }
+                                } else {
+                                    mPreviewPreference?.quoteTypeface = null
+                                    mPreviewPreference?.sourceTypeface = null
+                                }
                             }
-                        } else {
-                            mPreviewPreference?.quoteTypeface = null
-                            mPreviewPreference?.sourceTypeface = null
+                            PREF_COMMON_FONT_STYLE_TEXT -> {
+                                val quoteStyles =
+                                    preferences[stringSetPreferencesKey(PREF_COMMON_FONT_STYLE_TEXT)]
+                                mPreviewPreference?.quoteStyle = getTypefaceStyle(quoteStyles)
+                            }
+                            PREF_COMMON_FONT_STYLE_SOURCE -> {
+                                val sourceStyles =
+                                    preferences[stringSetPreferencesKey(
+                                        PREF_COMMON_FONT_STYLE_SOURCE)]
+                                mPreviewPreference?.sourceStyle = getTypefaceStyle(sourceStyles)
+                            }
+                            PREF_COMMON_PADDING_TOP -> mPreviewPreference?.paddingTop =
+                                (preferences[stringPreferencesKey(PREF_COMMON_PADDING_TOP)]
+                                    ?: PREF_COMMON_PADDING_TOP_DEFAULT).toFloat()
+                                    .dp2px()
+                                    .toInt()
+                            PREF_COMMON_PADDING_BOTTOM -> mPreviewPreference?.paddingBottom =
+                                (preferences[stringPreferencesKey(PREF_COMMON_PADDING_BOTTOM)]
+                                    ?: PREF_COMMON_PADDING_BOTTOM_DEFAULT).toFloat()
+                                    .dp2px()
+                                    .toInt()
+                            else -> {}
                         }
                     }
-                    PREF_COMMON_FONT_STYLE_TEXT -> {
-                        val quoteStyles =
-                            preferences[stringSetPreferencesKey(PREF_COMMON_FONT_STYLE_TEXT)]
-                        mPreviewPreference?.quoteStyle = getTypefaceStyle(quoteStyles)
-                    }
-                    PREF_COMMON_FONT_STYLE_SOURCE -> {
-                        val sourceStyles =
-                            preferences[stringSetPreferencesKey(PREF_COMMON_FONT_STYLE_SOURCE)]
-                        mPreviewPreference?.sourceStyle = getTypefaceStyle(sourceStyles)
-                    }
-                    PREF_COMMON_PADDING_TOP -> mPreviewPreference?.paddingTop =
-                        (preferences[stringPreferencesKey(PREF_COMMON_PADDING_TOP)]
-                            ?: PREF_COMMON_PADDING_TOP_DEFAULT).toFloat()
-                            .dp2px()
-                            .toInt()
-                    PREF_COMMON_PADDING_BOTTOM -> mPreviewPreference?.paddingBottom =
-                        (preferences[stringPreferencesKey(PREF_COMMON_PADDING_BOTTOM)]
-                            ?: PREF_COMMON_PADDING_BOTTOM_DEFAULT).toFloat()
-                            .dp2px()
-                            .toInt()
-                    else -> {}
                 }
             }
         }

@@ -6,6 +6,7 @@ import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.consts.PREF_COMMON
 import com.crossbowffs.quotelock.consts.PREF_QUOTES
 import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -53,8 +54,11 @@ class PreferenceDataStoreAdapter(name: String, migrate: Boolean = false) :
 
     fun remove(key: String) = dataStoreDelegate.remove(key)
 
-    fun collect(collector: suspend (Preferences, Preferences.Key<*>?) -> Unit) =
+    fun collect(collector: suspend (Preferences, Preferences.Key<*>?) -> Unit): Job =
         dataStoreDelegate.collect(collector)
+
+    suspend fun collectSuspend(collector: suspend (Preferences, Preferences.Key<*>?) -> Unit) =
+        dataStoreDelegate.collectSuspend(collector)
 
     fun contains(key: String): Boolean = runBlocking { dataStoreDelegate.containsSuspend(key) }
 }
