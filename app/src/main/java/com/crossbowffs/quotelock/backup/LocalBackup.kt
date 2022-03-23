@@ -7,7 +7,8 @@ import android.content.pm.PackageManager
 import android.os.Environment
 import androidx.core.app.ActivityCompat
 import com.crossbowffs.quotelock.R
-import com.crossbowffs.quotelock.utils.AppExecutors.Companion.instance
+import com.crossbowffs.quotelock.utils.ioScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -66,7 +67,7 @@ object LocalBackup {
             callback.failure("Please grant external storage permission and retry.")
             return
         }
-        instance.diskIO().execute {
+        ioScope.launch {
             val folder = File(Environment.getExternalStorageDirectory()
                 .toString() + File.separator + activity.resources.getString(R.string.quotelock))
             var success = true
@@ -93,14 +94,14 @@ object LocalBackup {
         if (!verifyPermissions(activity, REQUEST_CODE_PERMISSIONS_RESTORE)) {
             callback.failure("Please grant external storage permission and retry.")
         }
-        instance.diskIO().execute {
+        ioScope.launch scope@{
             val folder = File(Environment.getExternalStorageDirectory()
                 .toString() + File.separator + activity.resources.getString(R.string.quotelock))
             if (folder.exists()) {
                 val file = File(folder, databaseName)
                 if (!file.exists()) {
                     callback.safeFailure("Backup file not exists.\nDo a backup before a restore!")
-                    return@execute
+                    return@scope
                 }
                 try {
                     importDb(activity, databaseName, file.absolutePath)

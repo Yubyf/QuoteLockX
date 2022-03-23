@@ -15,40 +15,19 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.crossbowffs.quotelock.R
-import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.utils.WorkUtils.createQuoteDownloadWork
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.XposedUtils.isModuleEnabled
 import com.crossbowffs.quotelock.utils.XposedUtils.isModuleUpdated
 import com.crossbowffs.quotelock.utils.XposedUtils.startXposedActivity
+import com.crossbowffs.quotelock.utils.mainScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private inner class ActivityQuoteDownloaderTask : QuoteDownloaderTask(this@MainActivity) {
-        private lateinit var mDialog: ProgressDialog
-        override fun onPreExecute() {
-            super.onPreExecute()
-            mDialog = ProgressDialog(mContext)
-            mDialog.setMessage(getString(R.string.downloading_quote))
-            mDialog.isIndeterminate = true
-            mDialog.setCancelable(false)
-            mDialog.show()
-        }
-
-        override fun onPostExecute(quote: QuoteData?) {
-            super.onPostExecute(quote)
-            mDialog.dismiss()
-            Toast.makeText(mContext,
-                if (quote == null) R.string.quote_download_failed else R.string.quote_download_success,
-                Toast.LENGTH_SHORT).show()
-        }
-
-        override fun onCancelled() {
-            super.onCancelled()
-            mDialog.dismiss()
-        }
-    }
+    private lateinit var mDialog: ProgressDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +72,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshQuote() {
-        ActivityQuoteDownloaderTask().execute()
+        mainScope.launch {
+            mDialog = ProgressDialog(this@MainActivity)
+            mDialog.setMessage(getString(R.string.downloading_quote))
+            mDialog.isIndeterminate = true
+            mDialog.setCancelable(false)
+            mDialog.show()
+            val quote = try {
+                downloadQuote()
+            } catch (e: CancellationException) {
+                null
+            }
+            mDialog.dismiss()
+            Toast.makeText(this@MainActivity,
+                if (quote == null) R.string.quote_download_failed else R.string.quote_download_success,
+                Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun startBrowserActivity(url: String) {

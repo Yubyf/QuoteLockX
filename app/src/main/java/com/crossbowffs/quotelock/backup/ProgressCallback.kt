@@ -2,7 +2,8 @@ package com.crossbowffs.quotelock.backup
 
 import android.os.Looper
 import androidx.annotation.MainThread
-import com.crossbowffs.quotelock.utils.AppExecutors
+import com.crossbowffs.quotelock.utils.mainScope
+import kotlinx.coroutines.launch
 
 /**
  * @author Yubyf
@@ -20,7 +21,7 @@ interface ProgressCallback {
 
     fun safeInProcessing(message: String?) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            AppExecutors.instance.mainThread().execute { inProcessing(message) }
+            mainScope.launch { inProcessing(message) }
             return
         }
         inProcessing(message)
@@ -28,7 +29,7 @@ interface ProgressCallback {
 
     fun safeSuccess(message: String? = "") {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            AppExecutors.instance.mainThread().execute { success(message) }
+            mainScope.launch { success(message) }
             return
         }
         success(message)
@@ -36,7 +37,7 @@ interface ProgressCallback {
 
     fun safeFailure(message: String?) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            AppExecutors.instance.mainThread().execute { failure(message) }
+            mainScope.launch { failure(message) }
             return
         }
         failure(message)

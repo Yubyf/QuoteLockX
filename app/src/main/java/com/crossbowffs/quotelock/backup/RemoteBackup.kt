@@ -22,8 +22,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.util.Pair
 import com.crossbowffs.quotelock.R
-import com.crossbowffs.quotelock.utils.AppExecutors
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.ioScope
 import com.crossbowffs.quotelock.utils.md5String
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -37,18 +37,17 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
+import kotlinx.coroutines.launch
 import java.io.*
 import java.security.DigestInputStream
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.util.concurrent.Executor
 
 
 /**
  * @author Yubyf
  */
 class RemoteBackup {
-    private val mExecutor: Executor = AppExecutors.instance.diskIO()
     private lateinit var mDriveService: Drive
     private fun checkGoogleAccount(activity: Activity, requestCode: Int): Boolean {
         if (!ensureDriveService(activity)) {
@@ -295,12 +294,12 @@ class RemoteBackup {
             return
         }
         mDriveService.run {
-            mExecutor.execute {
+            ioScope.launch scope@{
                 callback.safeInProcessing("Querying backup file on Google Drive...")
                 val queryFiles = queryFilesSync()
                 queryFiles ?: run {
                     callback.safeFailure("Unable to query files on Google Drive.")
-                    return@execute
+                    return@scope
                 }
                 val databaseFile = queryFiles.files.find { it.name == databaseName }
                 databaseFile?.run {
@@ -311,7 +310,7 @@ class RemoteBackup {
                     } else {
                         callback.safeFailure("Unable to save file on Google Drive.")
                     }
-                    return@execute
+                    return@scope
                 }
                 callback.safeInProcessing("There is no existing backup file on Google Drive. Creating now...")
                 val createFileResult = createFileSync(databaseName)
@@ -356,12 +355,12 @@ class RemoteBackup {
             return
         }
         mDriveService.run {
-            mExecutor.execute {
+            ioScope.launch scope@{
                 callback.safeInProcessing("Querying backup file on Google Drive...")
                 val queryFiles = queryFilesSync()
                 queryFiles ?: run {
                     callback.safeFailure("Unable to query files on Google Drive.")
-                    return@execute
+                    return@scope
                 }
                 val databaseFile = queryFiles.files.find { it.name == databaseName }
                 databaseFile?.run {
@@ -372,7 +371,7 @@ class RemoteBackup {
                     } else {
                         callback.safeFailure("Unable to read file via Google Drive.")
                     }
-                    return@execute
+                    return@scope
                 }
                 Xlog.e(TAG, "There is no $databaseName on drive")
                 callback.safeFailure("There is no existing backup file on Google Drive.")

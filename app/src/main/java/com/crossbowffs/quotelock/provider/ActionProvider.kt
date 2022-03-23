@@ -6,10 +6,12 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
 import com.crossbowffs.quotelock.BuildConfig
-import com.crossbowffs.quotelock.app.QuoteDownloaderTask
+import com.crossbowffs.quotelock.app.downloadQuote
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
 import com.crossbowffs.quotelock.data.quotesDataStore
+import com.crossbowffs.quotelock.utils.ioScope
+import kotlinx.coroutines.launch
 
 class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) : ContentProvider() {
 
@@ -28,7 +30,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
     ): Cursor? {
         val matchCode = mUriMatcher.match(uri)
         require(matchCode == 1) { "Invalid query URI: $uri" }
-        QuoteDownloaderTask(context!!).execute()
+        context?.run { ioScope.launch { downloadQuote() } }
         return null
     }
 

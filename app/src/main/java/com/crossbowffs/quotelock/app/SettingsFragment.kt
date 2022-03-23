@@ -29,7 +29,9 @@ import com.crossbowffs.quotelock.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.className
+import com.crossbowffs.quotelock.utils.ioScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
@@ -250,7 +252,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // Update quotes.
-        QuoteDownloaderTask(requireContext()).execute()
+        requireContext().run { ioScope.launch { downloadQuote() } }
 
         // Update font family options
         val fontFamilyPref = findPreference<ListPreference>(PREF_COMMON_FONT_FAMILY)
