@@ -13,9 +13,9 @@ dependencyResolutionManagement {
 
         // Local repos
         maven {
-            url file('repos')
+            url = uri("repos")
         }
     }
 }
 rootProject.name = "QuoteLock"
-include ':app'
+include(":app")
