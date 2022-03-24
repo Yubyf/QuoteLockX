@@ -23,6 +23,7 @@
     <string name="remote">Remote</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
+    <string name="clear">Clear</string>
     <string name="enable_xposed_module_title">Enable Xposed module</string>
     <string name="enable_xposed_module_message">
         Android does not normally allow apps to add text to the lockscreen.\n\n
@@ -154,6 +155,7 @@
 
     <!-- Quote histories-->
     <string name="quote_histories_activity_label">Quote histories</string>
+    <string name="quote_histories_cleared_quote">Cleared quote</string>
 
     <!-- Backup-->
     <string name="backup_local_backup_completed">Local backup completed</string>
