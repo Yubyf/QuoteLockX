@@ -12,7 +12,7 @@ android {
         versionName = "1.5.2"
         minSdk = 21
 
-        /*sdf
+        /*
          * QuoteLock is not compatible with API24 and above due to the
          * behavior changes in connectivity intents. If someone wants to
          * fix this, feel free, but be aware that JobScheduler is already
