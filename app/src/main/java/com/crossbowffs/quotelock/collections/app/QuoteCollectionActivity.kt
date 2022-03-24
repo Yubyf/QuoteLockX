@@ -1,6 +1,5 @@
 package com.crossbowffs.quotelock.collections.app
 
-import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -18,6 +17,7 @@ import com.crossbowffs.quotelock.backup.LocalBackup
 import com.crossbowffs.quotelock.backup.ProgressCallback
 import com.crossbowffs.quotelock.backup.RemoteBackup
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionHelper
+import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.utils.dp2px
 import java.io.File
 
@@ -26,7 +26,7 @@ import java.io.File
  */
 class QuoteCollectionActivity : AppCompatActivity() {
 
-    private var mLoadingDialog: ProgressDialog? = null
+    private var mLoadingDialog: ProgressAlertDialog? = null
     private var mMenu: Menu? = null
     private val mLocalBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
         override fun success(message: String?) {
@@ -281,17 +281,14 @@ class QuoteCollectionActivity : AppCompatActivity() {
     }
 
     private fun showProgress(message: String? = null) {
-        val dialog = mLoadingDialog ?: (ProgressDialog(this).also { mLoadingDialog = it })
-        dialog.setCancelable(true)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.setMessage(message)
-        if (!dialog.isShowing) {
-            dialog.show()
-        }
+        val dialog = mLoadingDialog
+            ?: (ProgressAlertDialog(this, message, true).also { mLoadingDialog = it })
+        dialog.message = message
+        dialog.show()
     }
 
     private fun hideProgress() {
-        mLoadingDialog?.let { if (!it.isShowing) null else it }?.dismiss()
+        mLoadingDialog?.dismiss()
     }
 
     private abstract inner class AbstractBackupCallback : ProgressCallback {

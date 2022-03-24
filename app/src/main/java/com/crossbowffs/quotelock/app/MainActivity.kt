@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.app
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -15,6 +14,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.crossbowffs.quotelock.R
+import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.utils.WorkUtils.createQuoteDownloadWork
 import com.crossbowffs.quotelock.utils.XposedUtils
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var mDialog: ProgressDialog
+    private lateinit var mDialog: ProgressAlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,10 +73,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshQuote() {
         mainScope.launch {
-            mDialog = ProgressDialog(this@MainActivity)
-            mDialog.setMessage(getString(R.string.downloading_quote))
-            mDialog.isIndeterminate = true
-            mDialog.setCancelable(false)
+            mDialog =
+                ProgressAlertDialog(this@MainActivity, getString(R.string.downloading_quote),
+                    false)
             mDialog.show()
             val quote = try {
                 downloadQuote()
