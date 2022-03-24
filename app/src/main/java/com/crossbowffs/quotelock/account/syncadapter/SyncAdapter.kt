@@ -29,7 +29,7 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
         provider: ContentProviderClient, syncResult: SyncResult,
     ) {
         Xlog.d(TAG, "Performing account sync...")
-        if (!RemoteBackup.instance.isGoogleAccountSignedIn(mContext)) {
+        if (!RemoteBackup.INSTANCE.isGoogleAccountSignedIn(mContext)) {
             Xlog.d(TAG, "No account signed in.")
             syncResult.stats.numAuthExceptions++
             return
@@ -41,12 +41,12 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
             }
             action < 0 -> {
                 Xlog.d(TAG, "Performing remote restore...")
-                RemoteBackup.instance.performSafeDriveRestoreSync(mContext,
+                RemoteBackup.INSTANCE.performSafeDriveRestoreSync(mContext,
                     QuoteCollectionHelper.DATABASE_NAME)
             }
             else -> {
                 Xlog.d(TAG, "Performing remote backup...")
-                RemoteBackup.instance.performSafeDriveBackupSync(mContext,
+                RemoteBackup.INSTANCE.performSafeDriveBackupSync(mContext,
                     QuoteCollectionHelper.DATABASE_NAME)
             }
         }
@@ -70,7 +70,7 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
     private fun checkBackupOrRestore(account: Account): Int {
         val serverMarker = getServerSyncMarker(account)
         val syncTimestamp = getSyncTimestamp(account)
-        val databaseInfo = RemoteBackup.instance
+        val databaseInfo = RemoteBackup.INSTANCE
             .getDatabaseInfo(mContext, QuoteCollectionHelper.DATABASE_NAME)
         return if (serverMarker.isNullOrEmpty() || syncTimestamp < 0 || databaseInfo.first.isNullOrEmpty()
         ) {

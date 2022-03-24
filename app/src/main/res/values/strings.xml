@@ -153,4 +153,11 @@
 
     <!-- Quote histories-->
     <string name="quote_histories_activity_label">Quote histories</string>
+
+    <!-- Backup-->
+    <string name="backup_local_backup_completed">Local backup completed</string>
+    <string name="backup_local_restore_completed">Local restore completed</string>
+    <string name="backup_remote_backup_completed">Remote backup completed</string>
+    <string name="backup_remote_restore_completed">Remote restore completed</string>
+    <string name="backup_google_account_connected">"Successfully connected to Google account!"</string>
 </resources>

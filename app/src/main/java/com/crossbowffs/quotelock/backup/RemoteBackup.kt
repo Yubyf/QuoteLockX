@@ -25,13 +25,16 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.ioScope
 import com.crossbowffs.quotelock.utils.md5String
+import com.crossbowffs.quotelock.utils.toFile
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.Scope
-import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.http.InputStreamContent
+import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
@@ -48,45 +51,54 @@ import java.security.NoSuchAlgorithmException
  * @author Yubyf
  */
 class RemoteBackup {
-    private lateinit var mDriveService: Drive
+    private lateinit var drive: Drive
+    private val scope: Scope by lazy { Scope(DriveScopes.DRIVE_FILE) }
+
+    fun checkGooglePlayService(context: Context): Boolean {
+        return GoogleApiAvailability.getInstance()
+            .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
+    }
+
     private fun checkGoogleAccount(activity: Activity, requestCode: Int): Boolean {
-        if (!ensureDriveService(activity)) {
+        return if (!ensureDriveService(activity)) {
             requestSignIn(activity, requestCode)
-            return false
-        }
-        return true
+            false
+        } else true
     }
 
     private fun ensureDriveService(context: Context): Boolean {
-        if (::mDriveService.isInitialized) {
+        if (::drive.isInitialized) {
             return true
         }
-        val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(context)
-        account?.also {
+        getGoogleAccount(context).also {
             // Use the authenticated account to sign in to the Drive service.
             val credential = GoogleAccountCredential.usingOAuth2(
                 context, setOf(DriveScopes.DRIVE_FILE))
             credential.selectedAccount = it.account
-            mDriveService = Drive.Builder(
-                AndroidHttp.newCompatibleTransport(),
+            drive = Drive.Builder(
+                NetHttpTransport(),
                 GsonFactory(),
                 credential)
                 .setApplicationName(context.getString(R.string.quotelock))
                 .build()
         }
-        return ::mDriveService.isInitialized
+        return ::drive.isInitialized
     }
 
+    private fun getGoogleAccount(context: Context): GoogleSignInAccount =
+        GoogleSignIn.getAccountForScopes(context, scope)
+
     fun isGoogleAccountSignedIn(context: Context): Boolean {
-        return GoogleSignIn.getLastSignedInAccount(context) != null
+        return checkGooglePlayService(context)
+                && GoogleSignIn.hasPermissions(getGoogleAccount(context), scope)
     }
 
     fun getSignedInGoogleAccountEmail(context: Context): String? {
-        return GoogleSignIn.getLastSignedInAccount(context)?.email
+        return getGoogleAccount(context).email
     }
 
     fun getSignedInGoogleAccountPhoto(context: Context): Uri? {
-        return GoogleSignIn.getLastSignedInAccount(context)?.photoUrl
+        return getGoogleAccount(context).photoUrl
     }
 
     /**
@@ -98,7 +110,7 @@ class RemoteBackup {
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestProfile()
             .requestEmail()
-            .requestScopes(Scope(DriveScopes.DRIVE_FILE))
+            .requestScopes(scope)
             .build()
         val client = GoogleSignIn.getClient(activity, signInOptions)
 
@@ -116,7 +128,7 @@ class RemoteBackup {
         client.signOut().addOnCompleteListener {
             callback.safeSuccess(signedEmail)
             requestSignIn(activity, code)
-        }.addOnFailureListener { e: Exception -> callback.safeFailure(e.message) }
+        }.addOnFailureListener { callback.safeFailure(it.message) }
     }
 
     /**
@@ -127,23 +139,23 @@ class RemoteBackup {
         action: Runnable,
     ) {
         GoogleSignIn.getSignedInAccountFromIntent(result)
-            .addOnSuccessListener { googleAccount: GoogleSignInAccount ->
-                Xlog.d(TAG, "Signed in as " + googleAccount.email)
+            .addOnSuccessListener {
+                Xlog.d(TAG, "Signed in as " + it.email)
 
                 // Use the authenticated account to sign in to the Drive service.
                 val credential = GoogleAccountCredential.usingOAuth2(
                     activity, setOf(DriveScopes.DRIVE_FILE))
-                credential.selectedAccount = googleAccount.account
-                mDriveService = Drive.Builder(
-                    AndroidHttp.newCompatibleTransport(),
+                credential.selectedAccount = it.account
+                drive = Drive.Builder(
+                    NetHttpTransport(),
                     GsonFactory(),
                     credential)
                     .setApplicationName(activity.getString(R.string.quotelock))
                     .build()
                 action.run()
             }
-            .addOnFailureListener { exception: Exception? ->
-                Xlog.e(TAG, "Unable to sign in.", exception!!)
+            .addOnFailureListener {
+                Xlog.e(TAG, "Unable to sign in.", it)
                 callback.safeFailure("Unable to sign in.")
             }
     }
@@ -152,15 +164,13 @@ class RemoteBackup {
      * Get the md5 checksum and last modification time of given database file.
      */
     fun getDatabaseInfo(context: Context, databaseName: String?): Pair<String?, Long?> {
-        //database path
-        val databaseFileName = context.getDatabasePath(databaseName).toString()
-        val dbFile = File(databaseFileName)
+        // database path
+        val databaseFilePath = context.getDatabasePath(databaseName).toString()
+        val dbFile = File(databaseFilePath)
         return if (!dbFile.exists()) {
             Pair(null, null)
         } else try {
-            val md5Str = dbFile.md5String()
-            val modifiedTime = dbFile.lastModified()
-            Pair(md5Str, modifiedTime)
+            Pair(dbFile.md5String(), dbFile.lastModified())
         } catch (e: Exception) {
             e.printStackTrace()
             Pair(null, null)
@@ -176,11 +186,10 @@ class RemoteBackup {
                 .setParents(listOf("root"))
                 .setMimeType("application/vnd.sqlite3")
                 .setName(name)
-            val googleFile = files().create(metadata).execute()
+            files().create(metadata).execute()?.id
                 ?: throw IOException("Null result when requesting file creation.")
-            googleFile.id
-        } catch (exception: Exception) {
-            Xlog.e(TAG, "Couldn't create file.", exception)
+        } catch (e: Exception) {
+            Xlog.e(TAG, "Couldn't create file.", e)
             null
         }
     }
@@ -197,8 +206,8 @@ class RemoteBackup {
     private fun Drive.queryFilesSync(): FileList? {
         return try {
             files().list().setSpaces("drive").execute()
-        } catch (exception: IOException) {
-            Xlog.e(TAG, "Unable to query files.", exception)
+        } catch (e: IOException) {
+            Xlog.e(TAG, "Unable to query files.", e)
             null
         }
     }
@@ -209,12 +218,13 @@ class RemoteBackup {
      */
     @Throws(IOException::class)
     fun Drive.readFile(fileId: String?): Pair<Result, InputStream> {
-        val result = Result()
         // Retrieve the metadata as a File object.
         val metadata = files()[fileId].setFields(NEEDED_FILE_FIELDS).execute()
-        result.success = true
-        result.md5 = metadata.md5Checksum
-        result.timestamp = if (metadata.modifiedTime == null) -1 else metadata.modifiedTime.value
+        val result = Result().apply {
+            success = true
+            md5 = metadata.md5Checksum
+            timestamp = if (metadata.modifiedTime == null) -1 else metadata.modifiedTime.value
+        }
 
         // Get the stream of file.
         return Pair.create(result, files()[fileId].executeMediaAsInputStream())
@@ -229,27 +239,17 @@ class RemoteBackup {
         databaseName: String?,
     ): Result {
         return try {
-            val outFileName = context.getDatabasePath(databaseName).toString()
+            val databaseFile = context.getDatabasePath(databaseName)
             val digest = MessageDigest.getInstance("MD5")
             val readFileResult = readFile(fileId)
             readFileResult.second.use { inputStream ->
-                if (inputStream == null) {
-                    throw IOException()
-                }
-                DigestInputStream(inputStream, digest).use { dis ->
-                    FileOutputStream(outFileName).use { output ->
-                        // Transfer bytes from the input file to the output file
-                        val buffer = ByteArray(1024)
-                        var length: Int
-                        while (dis.read(buffer).also { length = it } > 0) {
-                            output.write(buffer, 0, length)
-                        }
-                    }
-                }
+                inputStream?.run {
+                    DigestInputStream(this, digest).use { it.toFile(databaseFile) }
+                } ?: throw IOException()
             }
             readFileResult.first
-        } catch (exception: Exception) {
-            Xlog.e(TAG, "Unable to read file via REST.", exception)
+        } catch (e: Exception) {
+            Xlog.e(TAG, "Unable to read file via REST.", e)
             Result()
         }
     }
@@ -259,7 +259,6 @@ class RemoteBackup {
      */
     private fun Drive.saveFileSync(context: Context, fileId: String?, name: String?): Result {
         try {
-            val result = Result()
             //database path
             val inFileName = context.getDatabasePath(name).toString()
             val dbFile = File(inFileName)
@@ -274,13 +273,14 @@ class RemoteBackup {
             // Update the metadata and contents.
             val remoteFile = files().update(fileId, metadata, contentStream)
                 .setFields(NEEDED_FILE_FIELDS).execute()
-            result.success = true
-            result.md5 = remoteFile.md5Checksum
-            result.timestamp =
-                if (remoteFile.modifiedTime == null) -1 else remoteFile.modifiedTime.value
-            return result
-        } catch (exception: Exception) {
-            Xlog.e(TAG, "Unable to save file via REST.", exception)
+            return Result().apply {
+                success = true
+                md5 = remoteFile.md5Checksum
+                timestamp =
+                    if (remoteFile.modifiedTime == null) -1 else remoteFile.modifiedTime.value
+            }
+        } catch (e: Exception) {
+            Xlog.e(TAG, "Unable to save file via REST.", e)
             return Result()
         }
     }
@@ -293,7 +293,7 @@ class RemoteBackup {
         if (!checkGoogleAccount(activity, REQUEST_CODE_SIGN_IN_BACKUP)) {
             return
         }
-        mDriveService.run {
+        drive.run {
             ioScope.launch scope@{
                 callback.safeInProcessing("Querying backup file on Google Drive...")
                 val queryFiles = queryFilesSync()
@@ -328,7 +328,7 @@ class RemoteBackup {
         return if (!ensureDriveService(context)) {
             result
         } else try {
-            val fileList = mDriveService.queryFilesSync() ?: return result
+            val fileList = drive.queryFilesSync() ?: return result
             var fileId: String? = null
             for (file in fileList.files) {
                 if (file.name == databaseName) {
@@ -337,9 +337,9 @@ class RemoteBackup {
                 }
             }
             if (fileId == null) {
-                fileId = mDriveService.createFileSync(databaseName)
+                fileId = drive.createFileSync(databaseName)
             }
-            return mDriveService.saveFileSync(context, fileId, databaseName)
+            return drive.saveFileSync(context, fileId, databaseName)
         } catch (e: Exception) {
             Xlog.e(TAG, "Unable to backup files.", e)
             result
@@ -354,7 +354,7 @@ class RemoteBackup {
         if (!checkGoogleAccount(activity, REQUEST_CODE_SIGN_IN_RESTORE)) {
             return
         }
-        mDriveService.run {
+        drive.run {
             ioScope.launch scope@{
                 callback.safeInProcessing("Querying backup file on Google Drive...")
                 val queryFiles = queryFilesSync()
@@ -365,8 +365,7 @@ class RemoteBackup {
                 val databaseFile = queryFiles.files.find { it.name == databaseName }
                 databaseFile?.run {
                     callback.safeInProcessing("Importing the existing backup file via Google Drive...")
-                    val importResult = importDbFileSync(activity, id, databaseName)
-                    if (importResult.success) {
+                    if (importDbFileSync(activity, id, databaseName).success) {
                         callback.safeSuccess()
                     } else {
                         callback.safeFailure("Unable to read file via Google Drive.")
@@ -385,10 +384,10 @@ class RemoteBackup {
             return result
         }
         try {
-            val fileList = mDriveService.queryFilesSync() ?: return result
+            val fileList = drive.queryFilesSync() ?: return result
             for (file in fileList.files) {
                 if (file.name == databaseName) {
-                    return mDriveService.importDbFileSync(context, file.id, databaseName)
+                    return drive.importDbFileSync(context, file.id, databaseName)
                 }
             }
         } catch (e: IOException) {
@@ -404,13 +403,6 @@ class RemoteBackup {
      * @date 2021/8/15.
      */
     class Result(var success: Boolean = false, var md5: String? = null, var timestamp: Long = -1L) {
-
-        constructor(result: Result) : this() {
-            success = result.success
-            md5 = result.md5
-            timestamp = result.timestamp
-        }
-
         override fun toString(): String {
             return "Result{" +
                     "success=" + success +
@@ -426,6 +418,6 @@ class RemoteBackup {
         const val REQUEST_CODE_SIGN_IN = 1
         const val REQUEST_CODE_SIGN_IN_BACKUP = 2
         const val REQUEST_CODE_SIGN_IN_RESTORE = 3
-        val instance = RemoteBackup()
+        val INSTANCE = RemoteBackup()
     }
 }

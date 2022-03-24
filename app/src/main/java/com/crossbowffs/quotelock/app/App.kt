@@ -13,8 +13,8 @@ class App : Application() {
         super.onCreate()
         INSTANCE = this
         SyncAccountManager.instance.initialize(this)
-        if (RemoteBackup.instance.isGoogleAccountSignedIn(this)) {
-            val accountName = RemoteBackup.instance.getSignedInGoogleAccountEmail(this)
+        if (RemoteBackup.INSTANCE.isGoogleAccountSignedIn(this)) {
+            val accountName = RemoteBackup.INSTANCE.getSignedInGoogleAccountEmail(this)
             if (!accountName.isNullOrEmpty()) {
                 SyncAccountManager.instance.addOrUpdateAccount(accountName)
             }
