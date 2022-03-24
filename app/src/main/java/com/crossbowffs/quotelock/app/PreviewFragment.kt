@@ -6,6 +6,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -16,6 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceViewHolder
+import androidx.recyclerview.widget.RecyclerView
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.commonDataStore
@@ -80,6 +84,16 @@ class PreviewFragment : PreferenceFragmentCompat() {
                 PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toFloat()
                 .dp2px()
                 .toInt()
+        }
+    }
+
+    override fun onCreateRecyclerView(
+        inflater: LayoutInflater,
+        parent: ViewGroup,
+        savedInstanceState: Bundle?,
+    ): RecyclerView {
+        return super.onCreateRecyclerView(inflater, parent, savedInstanceState).also {
+            it.overScrollMode = View.OVER_SCROLL_NEVER
         }
     }
 
