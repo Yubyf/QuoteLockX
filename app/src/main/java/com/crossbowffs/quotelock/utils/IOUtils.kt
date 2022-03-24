@@ -4,9 +4,7 @@ package com.crossbowffs.quotelock.utils
 
 import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.consts.Urls
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
+import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -46,4 +44,29 @@ fun String.downloadUrl(headers: Map<String, String?>? = null): String {
     } finally {
         connection.disconnect()
     }
+}
+
+@Throws(IOException::class)
+fun InputStream.toFile(file: File) = use { inputStream ->
+    val fos: OutputStream = FileOutputStream(file)
+    val buffer = ByteArray(1024)
+    var length: Int
+    while (inputStream.read(buffer).also { length = it } > 0) {
+        fos.write(buffer, 0, length)
+    }
+    fos.flush()
+    fos.close()
+}
+
+@Throws(IOException::class)
+fun OutputStream.fromFile(file: File) = use { outputStream ->
+    val fis = FileInputStream(file)
+    val buffer = ByteArray(1024)
+    var length: Int
+    fis.use {
+        while ((fis.read(buffer).also { length = it }) > 0) {
+            outputStream.write(buffer, 0, length)
+        }
+    }
+    outputStream.flush()
 }

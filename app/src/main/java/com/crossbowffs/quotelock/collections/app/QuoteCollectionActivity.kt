@@ -2,7 +2,10 @@ package com.crossbowffs.quotelock.collections.app
 
 import android.app.ProgressDialog
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -16,6 +19,7 @@ import com.crossbowffs.quotelock.backup.ProgressCallback
 import com.crossbowffs.quotelock.backup.RemoteBackup
 import com.crossbowffs.quotelock.collections.provider.QuoteCollectionHelper
 import com.crossbowffs.quotelock.utils.dp2px
+import java.io.File
 
 /**
  * @author Yubyf
@@ -110,8 +114,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
             localBackup()
             return true
         } else if (item.itemId == R.id.local_restore) {
-            showProgress("Start local restore...")
-            localRestore()
+            pickFile()
             return true
         } else if (item.itemId == R.id.remote_backup) {
             showProgress("Start remote backup...")
@@ -136,11 +139,6 @@ class QuoteCollectionActivity : AppCompatActivity() {
                 grantResults,
                 mLocalBackupCallback
             ) { localBackup() }
-        } else if (requestCode == LocalBackup.REQUEST_CODE_PERMISSIONS_RESTORE) {
-            LocalBackup.handleRequestPermissionsResult(
-                grantResults,
-                mLocalRestoreCallback
-            ) { localRestore() }
         }
     }
 
@@ -176,6 +174,13 @@ class QuoteCollectionActivity : AppCompatActivity() {
                     this, data,
                     mRemoteRestoreCallback
                 ) { remoteRestore() }
+            }
+        } else if (requestCode == LocalBackup.REQUEST_CODE_PICK_FILE) {
+            if (resultCode == RESULT_OK) {
+                data?.data?.let {
+                    showProgress("Start local restore...")
+                    localRestore(it)
+                }
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
@@ -219,6 +224,22 @@ class QuoteCollectionActivity : AppCompatActivity() {
         }
     }
 
+    private fun pickFile() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                putExtra(DocumentsContract.EXTRA_INITIAL_URI,
+                    Uri.fromFile(File(File(LocalBackup.PREF_BACKUP_ROOT_DIR,
+                        LocalBackup.PREF_BACKUP_RELATIVE_PATH),
+                        QuoteCollectionHelper.DATABASE_NAME)))
+            }
+        }
+
+        startActivityForResult(intent, LocalBackup.REQUEST_CODE_PICK_FILE)
+    }
+
     private fun localBackup() {
         LocalBackup.performBackup(
             this, QuoteCollectionHelper.DATABASE_NAME,
@@ -226,10 +247,9 @@ class QuoteCollectionActivity : AppCompatActivity() {
         )
     }
 
-    private fun localRestore() {
+    private fun localRestore(uri: Uri) {
         LocalBackup.performRestore(
-            this, QuoteCollectionHelper.DATABASE_NAME,
-            mLocalRestoreCallback
+            this, QuoteCollectionHelper.DATABASE_NAME, uri, mLocalRestoreCallback
         )
     }
 

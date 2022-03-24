@@ -1,18 +1,25 @@
 package com.crossbowffs.quotelock.backup
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import androidx.core.app.ActivityCompat
 import com.crossbowffs.quotelock.R
+import com.crossbowffs.quotelock.app.App
+import com.crossbowffs.quotelock.utils.fromFile
 import com.crossbowffs.quotelock.utils.ioScope
+import com.crossbowffs.quotelock.utils.toFile
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.OutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Reference: [Database-Backup-Restore](https://github.com/prof18/Database-Backup-Restore/blob/master/app/src/main/java/com/prof/dbtest/backup/LocalBackup.java)
@@ -21,21 +28,20 @@ import java.io.OutputStream
  */
 object LocalBackup {
     private val PERMISSIONS_STORAGE = arrayOf(
-        Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
     const val REQUEST_CODE_PERMISSIONS_BACKUP = 55
-    const val REQUEST_CODE_PERMISSIONS_RESTORE = 43
+    const val REQUEST_CODE_PICK_FILE = 43
 
-    /** check permissions.  */
-    private fun verifyPermissions(activity: Activity?, requestCode: Int): Boolean {
-        // Check if we have read or write permission
-        val writePermission = ActivityCompat.checkSelfPermission(activity!!,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        val readPermission =
-            ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
-        if (writePermission != PackageManager.PERMISSION_GRANTED
-            || readPermission != PackageManager.PERMISSION_GRANTED
+    val PREF_BACKUP_ROOT_DIR: File =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    val PREF_BACKUP_RELATIVE_PATH = App.INSTANCE.resources.getString(R.string.quotelock)
+
+    /** Check necessary permissions.  */
+    private fun verifyPermissions(activity: Activity, requestCode: Int): Boolean {
+        // Check if we have write permission
+        return if (ActivityCompat.checkSelfPermission(activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
             // We don't have permission so prompt the user
             ActivityCompat.requestPermissions(
@@ -43,9 +49,8 @@ object LocalBackup {
                 PERMISSIONS_STORAGE,
                 requestCode
             )
-            return false
-        }
-        return true
+            false
+        } else true
     }
 
     fun handleRequestPermissionsResult(
@@ -61,84 +66,53 @@ object LocalBackup {
         action.run()
     }
 
-    /** ask to the user a name for the backup and perform it. The backup will be saved to a custom folder.  */
+    /** Ask the user a name for the backup and perform it.
+     *  The backup will be saved to a custom folder in [Environment.DIRECTORY_DOWNLOADS].
+     */
     fun performBackup(activity: Activity, databaseName: String, callback: ProgressCallback) {
-        if (!verifyPermissions(activity, REQUEST_CODE_PERMISSIONS_BACKUP)) {
+        // Use MediaStore to save files in public directories above Android Q.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+            && !verifyPermissions(activity, REQUEST_CODE_PERMISSIONS_BACKUP)
+        ) {
             callback.failure("Please grant external storage permission and retry.")
             return
         }
         ioScope.launch {
-            val folder = File(Environment.getExternalStorageDirectory()
-                .toString() + File.separator + activity.resources.getString(R.string.quotelock))
-            var success = true
-            if (!folder.exists()) {
-                success = folder.mkdirs()
-            }
-            if (success) {
-                val out = folder.absolutePath + File.separator + databaseName
-                try {
-                    backup(activity, databaseName, out)
-                    callback.safeSuccess()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    callback.safeFailure(e.message)
-                }
-            } else {
-                callback.safeFailure("Unable to create directory. Retry")
+            try {
+                backupDb(activity, databaseName)
+                callback.safeSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                callback.safeFailure(e.message)
             }
         }
     }
 
-    /** ask to the user what backup to restore  */
-    fun performRestore(activity: Activity, databaseName: String, callback: ProgressCallback) {
-        if (!verifyPermissions(activity, REQUEST_CODE_PERMISSIONS_RESTORE)) {
-            callback.failure("Please grant external storage permission and retry.")
-        }
+    /** Ask the user which backup to restore from. */
+    fun performRestore(
+        activity: Activity,
+        databaseName: String,
+        pickedUri: Uri,
+        callback: ProgressCallback,
+    ) {
         ioScope.launch scope@{
-            val folder = File(Environment.getExternalStorageDirectory()
-                .toString() + File.separator + activity.resources.getString(R.string.quotelock))
-            if (folder.exists()) {
-                val file = File(folder, databaseName)
-                if (!file.exists()) {
-                    callback.safeFailure("Backup file not exists.\nDo a backup before a restore!")
-                    return@scope
-                }
-                try {
-                    importDb(activity, databaseName, file.absolutePath)
-                    callback.safeSuccess()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    callback.safeFailure(e.message)
-                }
-            } else {
-                callback.safeFailure("Backup folder not present.\nDo a backup before a restore!")
+            try {
+                importDb(activity, databaseName, pickedUri)
+                callback.safeSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                callback.safeFailure(e.message)
             }
         }
     }
 
     @Throws(Exception::class)
-    private fun backup(context: Context, databaseName: String, outFileName: String): Boolean {
+    private fun backupDb(context: Context, databaseName: String): Boolean {
         //database path
         val inFileName = context.getDatabasePath(databaseName).toString()
         return try {
             val dbFile = File(inFileName)
-            val fis = FileInputStream(dbFile)
-
-            // Open the empty db as the output stream
-            val output: OutputStream = FileOutputStream(outFileName)
-
-            // Transfer bytes from the input file to the output file
-            val buffer = ByteArray(1024)
-            var length: Int
-            while (fis.read(buffer).also { length = it } > 0) {
-                output.write(buffer, 0, length)
-            }
-
-            // Close the streams
-            output.flush()
-            output.close()
-            fis.close()
-            true
+            copyFileToDownloads(context, dbFile) != null
         } catch (e: Exception) {
             e.printStackTrace()
             throw Exception("Unable to backup database. Retry")
@@ -146,30 +120,42 @@ object LocalBackup {
     }
 
     @Throws(Exception::class)
-    private fun importDb(context: Context, databaseName: String, inFileName: String): Boolean {
-        val outFileName = context.getDatabasePath(databaseName).toString()
+    private fun importDb(context: Context, databaseName: String, fileUri: Uri): Boolean {
+        val databaseFile = context.getDatabasePath(databaseName)
         return try {
-            val dbFile = File(inFileName)
-            val fis = FileInputStream(dbFile)
-
-            // Open the empty db as the output stream
-            val output: OutputStream = FileOutputStream(outFileName)
-
-            // Transfer bytes from the input file to the output file
-            val buffer = ByteArray(1024)
-            var length: Int
-            while (fis.read(buffer).also { length = it } > 0) {
-                output.write(buffer, 0, length)
-            }
-
-            // Close the streams
-            output.flush()
-            output.close()
-            fis.close()
+            context.contentResolver.openInputStream(fileUri)?.toFile(databaseFile)
+                ?: throw Exception()
             true
         } catch (e: Exception) {
             e.printStackTrace()
             throw Exception("Unable to import database. Retry")
         }
+    }
+
+    @SuppressLint("Range")
+    private fun copyFileToDownloads(context: Context, file: File): Uri? {
+        // Generate export name with timestamp
+        val date = Date(System.currentTimeMillis())
+        val simpleDateFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
+        val exportName = file.name.replace(file.nameWithoutExtension,
+            file.nameWithoutExtension.plus("_").plus(simpleDateFormat.format(date)))
+
+        // Copy file
+        val resolver = context.contentResolver
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Adapt the scope storage above Android Q by MediaStore.
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_DOWNLOADS + File.separatorChar + PREF_BACKUP_RELATIVE_PATH)
+                put(MediaStore.MediaColumns.DISPLAY_NAME, exportName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/vnd.sqlite3")
+            }
+            resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+        } else {
+            // Save file through File API on Android P-.
+            val targetFile = File(File(PREF_BACKUP_ROOT_DIR, PREF_BACKUP_RELATIVE_PATH), exportName)
+            targetFile.parentFile?.mkdirs()
+            Uri.fromFile(targetFile)
+        }?.also { resolver.openOutputStream(it)?.fromFile(file.absoluteFile) }
     }
 }
