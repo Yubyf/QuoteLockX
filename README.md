@@ -41,8 +41,7 @@ download service.
 
 ## Providers
 
-- [Visual Novel as a Service (Invalid) (日本語)](http://vnaas.apsun.xyz/)
-- [Hitokoto (unofficial) (中文)](http://hitokoto.cn/)
+- [Hitokoto CN (中文)](http://hitokoto.cn/)
 - [Wikiquote QotD (中文)](https://www.wikiquote.org/)
 - [Jinrishici 今日诗词 (中文)](https://www.jinrishici.com/)
 - [Freakuotes (Español)](https://freakuotes.com/)
@@ -55,11 +54,11 @@ download service.
 
 ### Todo
 
-- [ ] Quotes preview in setting page
+- [ ] Add support for fortune.
 
 ### In Progress
 
-- [ ] Refactor with Kotlin
+- [ ] Optimize collections and histories pages.
 
 ### Done
 
@@ -71,6 +70,8 @@ download service.
 - [x] Font family and style support
 - [x] Adaptation for the AmbientDisplay page of *OnePlus7Pro OOS11* (**UNSTABLE**)
 - [x] Auto-sync for remote backup accounts
+- [x] Refactor with Kotlin
+- [x] Quotes preview in setting page
 
 ## License
 
