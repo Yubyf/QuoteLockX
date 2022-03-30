@@ -17,14 +17,18 @@ object Xlog {
         if (priority < LOG_LEVEL) {
             return
         }
-        var msg = String.format(message, *args)
-        if (args.isNotEmpty() && args[args.size - 1] is Throwable) {
-            val throwable = args[args.size - 1] as Throwable
-            val stacktraceStr = Log.getStackTraceString(throwable)
-            msg = """
-                $msg
-                $stacktraceStr
-                """.trimIndent()
+        val msg = if (args.isNotEmpty()) {
+            String.format(message, *args).let {
+                if (args[args.size - 1] is Throwable) {
+                    val throwable = args[args.size - 1] as Throwable
+                    val stacktraceStr = Log.getStackTraceString(throwable)
+                    "$it\n$stacktraceStr"
+                } else {
+                    it
+                }
+            }
+        } else {
+            message
         }
         Log.println(priority, LOG_TAG, "${tag?.let { "$it:" }} $msg")
         if (LOG_TO_XPOSED) {
