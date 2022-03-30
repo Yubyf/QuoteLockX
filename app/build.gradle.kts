@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -21,12 +22,19 @@ android {
         targetSdk = 29
 
         buildConfigField("int", "MODULE_VERSION", "3")
-        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "1")
-        buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "1")
+        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "2")
+        buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "2")
+        buildConfigField("int", "QUOTE_HISTORIES_DB_VERSION", "2")
         buildConfigField("String", "LOG_TAG", "\"QuoteLock\"")
 
         resValue("string", "account_type", "${applicationId}.account")
         resValue("string", "account_authority", "${applicationId}.collection.provider")
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/build/schemas")
+            }
+        }
     }
 
     buildTypes {
@@ -88,4 +96,10 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.1.0")
     implementation("com.google.api-client:google-api-client-android:1.33.2")
     implementation("com.google.apis:google-api-services-drive:v3-rev20220214-1.32.1")
+
+    // Room
+    val roomVersion = "2.4.2"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 }

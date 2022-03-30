@@ -16,7 +16,7 @@ import com.crossbowffs.quotelock.account.SyncAccountManager
 import com.crossbowffs.quotelock.backup.LocalBackup
 import com.crossbowffs.quotelock.backup.ProgressCallback
 import com.crossbowffs.quotelock.backup.RemoteBackup
-import com.crossbowffs.quotelock.collections.provider.QuoteCollectionHelper
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.utils.dp2px
 import java.io.File
@@ -45,7 +45,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
             ).show()
             hideProgress()
             val fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-            (fragment as? QuoteCollectionFragment)?.reloadData()
+            (fragment as? QuoteCollectionFragmentSample)?.reloadData()
         }
     }
     private val mRemoteBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
@@ -65,17 +65,26 @@ class QuoteCollectionActivity : AppCompatActivity() {
             ).show()
             hideProgress()
             val fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-            (fragment as? QuoteCollectionFragment)?.reloadData()
+            (fragment as? QuoteCollectionFragmentSample)?.reloadData()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_container)
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.content_frame, QuoteCollectionFragment())
-            .commit()
+        supportFragmentManager.apply {
+            beginTransaction()
+                .add(R.id.content_frame, QuoteCollectionFragmentSample())
+                .commit()
+            setFragmentResultListener(QuoteCollectionFragmentSample.REQUEST_KEY_COLLECTION_LIST_PAGE,
+                this@QuoteCollectionActivity) { _, bundle ->
+                // Hide menu items while details are shown
+                val result =
+                    bundle.getBoolean(QuoteCollectionFragmentSample.BUNDLE_KEY_COLLECTION_SHOW_DETAIL_PAGE,
+                        false)
+                mMenu?.setGroupVisible(R.id.backup_group, !result)
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -246,7 +255,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
                 putExtra(DocumentsContract.EXTRA_INITIAL_URI,
                     Uri.fromFile(File(File(LocalBackup.PREF_BACKUP_ROOT_DIR,
                         LocalBackup.PREF_BACKUP_RELATIVE_PATH),
-                        QuoteCollectionHelper.DATABASE_NAME)))
+                        QuoteCollectionContract.DATABASE_NAME)))
             }
         }
 
@@ -255,28 +264,28 @@ class QuoteCollectionActivity : AppCompatActivity() {
 
     private fun localBackup() {
         LocalBackup.performBackup(
-            this, QuoteCollectionHelper.DATABASE_NAME,
+            this, QuoteCollectionContract.DATABASE_NAME,
             mLocalBackupCallback
         )
     }
 
     private fun localRestore(uri: Uri) {
         LocalBackup.performRestore(
-            this, QuoteCollectionHelper.DATABASE_NAME, uri, mLocalRestoreCallback
+            this, QuoteCollectionContract.DATABASE_NAME, uri, mLocalRestoreCallback
         )
     }
 
     private fun remoteBackup() {
         RemoteBackup.INSTANCE.performDriveBackupAsync(
             this,
-            QuoteCollectionHelper.DATABASE_NAME, mRemoteBackupCallback
+            QuoteCollectionContract.DATABASE_NAME, mRemoteBackupCallback
         )
     }
 
     private fun remoteRestore() {
         RemoteBackup.INSTANCE.performDriveRestoreAsync(
             this,
-            QuoteCollectionHelper.DATABASE_NAME, mRemoteRestoreCallback
+            QuoteCollectionContract.DATABASE_NAME, mRemoteRestoreCallback
         )
     }
 

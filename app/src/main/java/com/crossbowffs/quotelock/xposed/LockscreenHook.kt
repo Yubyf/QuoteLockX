@@ -18,7 +18,7 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import com.crossbowffs.quotelock.app.getTypefaceStyle
-import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.provider.ActionProvider
 import com.crossbowffs.quotelock.provider.PreferenceProvider
@@ -217,9 +217,9 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val source = mSourceTextView.text.toString().replace("―", "").trim { it <= ' ' }
         val uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build()
         val values = ContentValues(3)
-        values.put(QuoteCollectionContract.Collections.TEXT, text)
-        values.put(QuoteCollectionContract.Collections.SOURCE, source)
-        values.put(QuoteCollectionContract.Collections.MD5, (text + source).md5())
+        values.put(QuoteCollectionContract.TEXT, text)
+        values.put(QuoteCollectionContract.SOURCE, source)
+        values.put(QuoteCollectionContract.MD5, (text + source).md5())
         val resolver = context.contentResolver
         val resultUri = resolver.insert(uri, values)
         if (resultUri?.lastPathSegment == "-1") {
@@ -232,9 +232,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val source = mSourceTextView.text.toString().replace("―", "").trim { it <= ' ' }
         val uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build()
         val resolver = context.contentResolver
-        val result = resolver.delete(uri,
-            QuoteCollectionContract.Collections.MD5 + "='" + (text + source).md5() + "'",
-            null)
+        val result = resolver.delete(uri, QuoteCollectionContract.MD5 + "=?",
+            arrayOf((text + source).md5()))
         if (result < 0) {
             resetTranslationAnimator()
         }

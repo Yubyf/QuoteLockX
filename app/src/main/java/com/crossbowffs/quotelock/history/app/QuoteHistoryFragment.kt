@@ -1,46 +1,59 @@
 package com.crossbowffs.quotelock.history.app
 
-import android.content.ContentUris
-import android.database.Cursor
 import android.os.Bundle
 import android.view.*
-import android.view.ContextMenu.ContextMenuInfo
-import android.widget.AdapterView.AdapterContextMenuInfo
-import android.widget.SimpleCursorAdapter
 import android.widget.Toast
-import androidx.fragment.app.ListFragment
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.crossbowffs.quotelock.R
-import com.crossbowffs.quotelock.history.provider.QuoteHistoryContract
+import com.crossbowffs.quotelock.components.BaseQuoteListFragment
+import com.crossbowffs.quotelock.components.ContextMenuRecyclerView
+import com.crossbowffs.quotelock.components.QuoteListAdapter
+import com.crossbowffs.quotelock.history.database.QuoteHistoryEntity
+import com.crossbowffs.quotelock.history.database.quoteHistoryDatabase
+import com.crossbowffs.quotelock.utils.ioScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * @author Yubyf
  */
-class QuoteHistoryFragment : ListFragment(), LoaderManager.LoaderCallbacks<Cursor> {
+class QuoteHistoryFragment : BaseQuoteListFragment<QuoteHistoryEntity>() {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                quoteHistoryDatabase.dao().getAll().collect {
+                    (recyclerView.adapter as? QuoteListAdapter<QuoteHistoryEntity>)?.submitList(it)
+                    scrollToPosition()
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
-        return inflater.inflate(R.layout.layout_list, container, false)
+        setFragmentResult(REQUEST_KEY_HISTORY_LIST_PAGE,
+            bundleOf(BUNDLE_KEY_HISTORY_SHOW_DETAIL_PAGE to false))
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val from =
-            arrayOf(QuoteHistoryContract.Histories.TEXT, QuoteHistoryContract.Histories.SOURCE)
-        val to = intArrayOf(R.id.listitem_custom_quote_text, R.id.listitem_custom_quote_source)
-        listAdapter =
-            SimpleCursorAdapter(requireContext(), R.layout.listitem_custom_quote, null, from, to, 0)
-        val loaderManager = LoaderManager.getInstance(this)
-        loaderManager.initLoader(0, null, this)
-        registerForContextMenu(listView)
-    }
-
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo?) {
+    override fun onCreateContextMenu(
+        menu: ContextMenu,
+        v: View,
+        menuInfo: ContextMenu.ContextMenuInfo?,
+    ) {
         super.onCreateContextMenu(menu, v, menuInfo)
         val inflater = requireActivity().menuInflater
         inflater.inflate(R.menu.custom_quote_context, menu)
@@ -48,40 +61,33 @@ class QuoteHistoryFragment : ListFragment(), LoaderManager.LoaderCallbacks<Curso
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        val info = item.menuInfo as AdapterContextMenuInfo
-        val rowId = info.id
+        val info = item.menuInfo as? ContextMenuRecyclerView.ContextMenuInfo
         if (item.itemId == R.id.delete_quote) {
-            deleteQuote(rowId)
+            info?.let {
+                ioScope.launch {
+                    quoteHistoryDatabase.dao().delete(it.id)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(),
+                            R.string.module_custom_deleted_quote,
+                            Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            }
             return true
         }
         return super.onContextItemSelected(item)
     }
 
-    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        return CursorLoader(
-            requireContext(),
-            QuoteHistoryContract.Histories.CONTENT_URI,
-            QuoteHistoryContract.Histories.ALL,
-            null, null, null
-        )
+    override fun showDetailPage(): Boolean = true
+
+    override fun goToDetailPage() {
+        setFragmentResult(REQUEST_KEY_HISTORY_LIST_PAGE,
+            bundleOf(BUNDLE_KEY_HISTORY_SHOW_DETAIL_PAGE to true))
     }
 
-    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor) {
-        (listAdapter as? SimpleCursorAdapter)?.changeCursor(data)
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        (listAdapter as? SimpleCursorAdapter)?.changeCursor(null)
-    }
-
-    private fun deleteQuote(rowId: Long) {
-        val uri = ContentUris.withAppendedId(QuoteHistoryContract.Histories.CONTENT_URI, rowId)
-        requireContext().contentResolver.delete(uri, null, null)
-        Toast.makeText(requireContext(), R.string.module_custom_deleted_quote, Toast.LENGTH_SHORT)
-            .show()
-    }
-
-    fun reloadData() {
-        LoaderManager.getInstance(this).restartLoader(0, null, this)
+    companion object {
+        const val REQUEST_KEY_HISTORY_LIST_PAGE = "history_list_page"
+        const val BUNDLE_KEY_HISTORY_SHOW_DETAIL_PAGE = "history_show_detail_page"
     }
 }

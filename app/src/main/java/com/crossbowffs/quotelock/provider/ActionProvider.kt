@@ -1,17 +1,21 @@
 package com.crossbowffs.quotelock.provider
 
 import android.content.ContentProvider
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
 import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.app.downloadQuote
-import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionEntity
+import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.ioScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) : ContentProvider() {
 
@@ -41,17 +45,22 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
         val matchCode = mUriMatcher.match(uri)
         require(matchCode >= 2) { "Invalid insert URI: $uri" }
-        val newUri = collectQuote(values)
-        if (newUri?.lastPathSegment != "-1") {
+        val result = collectQuote(values)
+        if (result != -1L) {
             quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, true)
         }
-        return newUri
+        return ContentUris.withAppendedId(uri, result ?: -1)
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         val matchCode = mUriMatcher.match(uri)
         require(matchCode >= 2) { "Invalid delete URI: $uri" }
-        val result = deleteCollectedQuote(selection)
+        val key = selection?.split("=")?.get(0)
+        val value = selectionArgs?.get(0)
+        if (key.isNullOrBlank() || key != QuoteCollectionContract.MD5 || value.isNullOrBlank()) {
+            return -1
+        }
+        val result = deleteCollectedQuote(value)
         if (result >= 0) {
             quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, false)
         }
@@ -67,14 +76,23 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         return 0
     }
 
-    private fun collectQuote(values: ContentValues?): Uri? {
-        val resolver = context!!.contentResolver
-        return resolver.insert(QuoteCollectionContract.Collections.CONTENT_URI, values)
+    private fun collectQuote(values: ContentValues?): Long? {
+        return values?.let {
+            runBlocking {
+                quoteCollectionDatabase.dao()
+                    .insert(QuoteCollectionEntity(
+                        text = it[QuoteCollectionContract.TEXT].toString(),
+                        source = it[QuoteCollectionContract.SOURCE].toString(),
+                        md5 = it[QuoteCollectionContract.MD5].toString(),
+                    ))
+            }
+        }
     }
 
-    private fun deleteCollectedQuote(selection: String?): Int {
-        return context!!.contentResolver.delete(QuoteCollectionContract.Collections.CONTENT_URI,
-            selection, null)
+    private fun deleteCollectedQuote(md5: String): Int {
+        return runBlocking {
+            quoteCollectionDatabase.dao().delete(md5)
+        }
     }
 
     companion object {

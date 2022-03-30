@@ -70,16 +70,8 @@
         </service>
 
         <provider
-            android:name=".modules.custom.provider.CustomQuoteProvider"
-            android:authorities="${applicationId}.modules.custom.provider"
-            android:exported="false" />
-        <provider
-            android:name=".collections.provider.QuoteCollectionProvider"
+            android:name=".collections.provider.QuoteCollectionStubProvider"
             android:authorities="${applicationId}.collection.provider"
-            android:exported="true" />
-        <provider
-            android:name=".history.provider.QuoteHistoryProvider"
-            android:authorities="${applicationId}.history.provider"
             android:exported="false" />
 
         <receiver android:name=".app.CommonReceiver">

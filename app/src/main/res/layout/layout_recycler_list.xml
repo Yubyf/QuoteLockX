@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="1dp">
+    <!-- ↑ RecyclerView has a bug where its first item's
+     shared element animation displays abnormally
+     when the RecyclerView has no padding or margins. -->
+
+    <com.crossbowffs.quotelock.components.ContextMenuRecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

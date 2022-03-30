@@ -5,12 +5,16 @@ import android.accounts.AccountManager
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.account.syncadapter.SyncAdapter
-import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
-import com.crossbowffs.quotelock.collections.provider.QuoteCollectionObserver
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
+import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
+import com.crossbowffs.quotelock.utils.ioScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * @author Yubyf
@@ -22,11 +26,19 @@ class SyncAccountManager {
 
     fun initialize(context: Context) {
         mAccountManager = AccountManager.get(context)
-        val resolver = context.contentResolver
-        val observer = QuoteCollectionObserver(null)
-        // Register the observer for the quote collection table.
-        resolver.registerContentObserver(QuoteCollectionContract.Collections.CONTENT_URI,
-            true, observer)
+        ioScope.launch {
+            quoteCollectionDatabase.dao().getAll().collect {
+                /*
+                 * Ask the framework to run sync adapter.
+                 * To maintain backward compatibility, assume that
+                 * changeUri is null.
+                 */
+                Xlog.d(TAG, "Data on change, requesting sync...")
+                ContentResolver.requestSync(currentSyncAccount,
+                    QuoteCollectionContract.AUTHORITY, Bundle()
+                )
+            }
+        }
     }
 
     fun addOrUpdateAccount(name: String) {

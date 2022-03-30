@@ -7,7 +7,9 @@ import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAULT
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
-import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
+import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 
 /**
  * @author Yubyf
@@ -31,22 +33,13 @@ class CollectionsQuoteModule : QuoteModule {
 
     @Throws(Exception::class)
     override fun getQuote(context: Context): QuoteData {
-        val cursor = context.contentResolver.query(
-            QuoteCollectionContract.Collections.CONTENT_URI, arrayOf(
-                QuoteCollectionContract.Collections.TEXT,
-                QuoteCollectionContract.Collections.SOURCE
-            ), null, null,
-            "RANDOM() LIMIT 1"
-        ) // Hack to pass row limit through ContentProvider
-        return cursor.use {
-            if (it?.moveToFirst() == true) {
-                QuoteData(it.getString(0), it.getString(1))
-            } else {
-                QuoteData(
-                    context.getString(R.string.module_custom_setup_line1),
-                    context.getString(R.string.module_custom_setup_line2)
-                )
-            }
+        return runBlocking {
+            quoteCollectionDatabase.dao().getRandomItem().firstOrNull()?.let {
+                QuoteData(it.text, it.source)
+            } ?: QuoteData(
+                context.getString(R.string.module_custom_setup_line1),
+                context.getString(R.string.module_custom_setup_line2)
+            )
         }
     }
 

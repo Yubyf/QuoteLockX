@@ -1,22 +1,24 @@
 package com.crossbowffs.quotelock.app
 
-import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
 import android.text.TextUtils
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
-import com.crossbowffs.quotelock.collections.provider.QuoteCollectionContract
+import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.commonDataStore
 import com.crossbowffs.quotelock.data.quotesDataStore
-import com.crossbowffs.quotelock.history.provider.QuoteHistoryContract
+import com.crossbowffs.quotelock.history.database.QuoteHistoryEntity
+import com.crossbowffs.quotelock.history.database.quoteHistoryDatabase
 import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.ioScope
 import com.crossbowffs.quotelock.utils.md5
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
 
 private const val TAG = "QuoteDownloader"
@@ -51,31 +53,22 @@ private suspend fun Context.fetchQuote(): QuoteData? {
     }
 }
 
-private fun Context.queryQuoteCollectionState(text: String, source: String): Boolean {
-    val uri =
-        Uri.withAppendedPath(Uri.withAppendedPath(QuoteCollectionContract.Collections.CONTENT_URI,
-            QuoteCollectionContract.Collections.MD5), (text + source).md5())
-    val columns = arrayOf(QuoteCollectionContract.Collections.ID)
-    contentResolver.query(uri, columns, null, null, null)
-        .use { cursor ->
-            return if (cursor != null && cursor.moveToFirst()) {
-                cursor.getInt(0) > 0
-            } else {
-                false
-            }
-        }
-}
+private suspend fun queryQuoteCollectionState(text: String, source: String): Boolean =
+    quoteCollectionDatabase.dao().getByQuote(text, source).firstOrNull() != null
 
-private fun Context.insertQuoteHistory(text: String, source: String) {
-    val values = ContentValues(3).apply {
-        put(QuoteHistoryContract.Histories.TEXT, text)
-        put(QuoteHistoryContract.Histories.SOURCE, source)
-        put(QuoteHistoryContract.Histories.MD5, (text + source).md5())
+private fun insertQuoteHistory(text: String, source: String) {
+    ioScope.launch {
+        quoteHistoryDatabase.dao().insert(
+            QuoteHistoryEntity(
+                md5 = (text + source).md5(),
+                text = text,
+                source = source,
+            )
+        )
     }
-    contentResolver.insert(QuoteHistoryContract.Histories.CONTENT_URI, values)
 }
 
-private fun Context.handleQuote(quote: QuoteData?) {
+private suspend fun Context.handleQuote(quote: QuoteData?) {
     quote?.run {
         Xlog.d(TAG, "Text: $quoteText")
         Xlog.d(TAG, "Source: $quoteSource")

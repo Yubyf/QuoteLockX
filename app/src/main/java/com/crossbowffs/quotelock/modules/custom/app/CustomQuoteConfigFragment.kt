@@ -1,46 +1,49 @@
 package com.crossbowffs.quotelock.modules.custom.app
 
 import android.app.AlertDialog
-import android.content.ContentUris
-import android.content.ContentValues
 import android.content.DialogInterface
-import android.database.Cursor
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import android.view.ContextMenu.ContextMenuInfo
-import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.EditText
-import android.widget.SimpleCursorAdapter
 import android.widget.Toast
-import androidx.fragment.app.ListFragment
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
-import com.crossbowffs.quotelock.modules.custom.provider.CustomQuoteContract
+import com.crossbowffs.quotelock.components.BaseQuoteListFragment
+import com.crossbowffs.quotelock.components.ContextMenuRecyclerView
+import com.crossbowffs.quotelock.components.QuoteListAdapter
+import com.crossbowffs.quotelock.modules.custom.database.CustomQuoteEntity
+import com.crossbowffs.quotelock.modules.custom.database.customQuoteDatabase
+import com.crossbowffs.quotelock.utils.ioScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
-class CustomQuoteConfigFragment : ListFragment(), LoaderManager.LoaderCallbacks<Cursor> {
+/**
+ * @author Yubyf
+ */
+class CustomQuoteConfigFragment : BaseQuoteListFragment<CustomQuoteEntity>() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
+    @Suppress("UNCHECKED_CAST")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         setHasOptionsMenu(true)
-        return inflater.inflate(R.layout.layout_list, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val from = arrayOf(CustomQuoteContract.Quotes.TEXT, CustomQuoteContract.Quotes.SOURCE)
-        val to = intArrayOf(R.id.listitem_custom_quote_text, R.id.listitem_custom_quote_source)
-        listAdapter =
-            SimpleCursorAdapter(requireContext(), R.layout.listitem_custom_quote, null, from, to, 0)
-        LoaderManager.getInstance(this).initLoader(0, null, this)
-        registerForContextMenu(listView)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                customQuoteDatabase.dao().getAll().collect {
+                    (recyclerView.adapter as? QuoteListAdapter<CustomQuoteEntity>)?.submitList(it)
+                    scrollToPosition()
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -56,80 +59,70 @@ class CustomQuoteConfigFragment : ListFragment(), LoaderManager.LoaderCallbacks<
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo?) {
+    override fun onCreateContextMenu(
+        menu: ContextMenu,
+        v: View,
+        menuInfo: ContextMenu.ContextMenuInfo?,
+    ) {
         super.onCreateContextMenu(menu, v, menuInfo)
-        val inflater = requireActivity().menuInflater
-        inflater.inflate(R.menu.custom_quote_context, menu)
+        requireActivity().menuInflater.inflate(R.menu.custom_quote_context, menu)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        val info = item.menuInfo as AdapterContextMenuInfo
-        val rowId = info.id
-        val itemId = item.itemId
-        if (itemId == R.id.edit_quote) {
-            showEditQuoteDialog(rowId)
-            return true
-        } else if (itemId == R.id.delete_quote) {
-            deleteQuote(rowId)
-            return true
+        val info = item.menuInfo as? ContextMenuRecyclerView.ContextMenuInfo
+        info?.let {
+            val rowId = it.id
+            val itemId = item.itemId
+            if (itemId == R.id.edit_quote) {
+                showEditQuoteDialog(rowId)
+                return true
+            } else if (itemId == R.id.delete_quote) {
+                deleteQuote(rowId)
+                return true
+            }
         }
         return super.onContextItemSelected(item)
-    }
-
-    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        return CursorLoader(
-            requireContext(),
-            CustomQuoteContract.Quotes.CONTENT_URI,
-            CustomQuoteContract.Quotes.ALL,
-            null, null, null
-        )
-    }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor) {
-        (listAdapter as? SimpleCursorAdapter)?.changeCursor(data)
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        (listAdapter as? SimpleCursorAdapter)?.changeCursor(null)
     }
 
     private fun queryQuote(rowId: Long): QuoteData? {
         if (rowId < 0) {
             return null
         }
-        val uri = ContentUris.withAppendedId(CustomQuoteContract.Quotes.CONTENT_URI, rowId)
-        val columns = arrayOf(CustomQuoteContract.Quotes.TEXT, CustomQuoteContract.Quotes.SOURCE)
-        requireContext().contentResolver.query(uri, columns, null, null, null)
-            .use {
-                return if (it != null && it.moveToFirst()) {
-                    QuoteData(it.getString(0), it.getString(1))
-                } else {
-                    null
-                }
+        return runBlocking {
+            customQuoteDatabase.dao().getById(rowId).firstOrNull()?.let {
+                QuoteData(it.text, it.source)
             }
+        }
     }
 
     private fun persistQuote(rowId: Long, text: String, source: String) {
-        val values = ContentValues(3)
-        values.put(CustomQuoteContract.Quotes.TEXT, text)
-        values.put(CustomQuoteContract.Quotes.SOURCE, source)
-        val resolver = requireContext().contentResolver
-        if (rowId >= 0) {
-            val uri = ContentUris.withAppendedId(CustomQuoteContract.Quotes.CONTENT_URI, rowId)
-            values.put(CustomQuoteContract.Quotes.ID, rowId)
-            resolver.update(uri, values, null, null)
-        } else {
-            resolver.insert(CustomQuoteContract.Quotes.CONTENT_URI, values)
+        ioScope.launch {
+            if (rowId >= 0) {
+                customQuoteDatabase.dao()
+                    .update(CustomQuoteEntity(rowId.toInt(), text, source))
+            } else {
+                customQuoteDatabase.dao()
+                    .insert(CustomQuoteEntity(text = text, source = source))
+            }
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(),
+                    R.string.module_custom_saved_quote,
+                    Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
-        Toast.makeText(requireContext(), R.string.module_custom_saved_quote, Toast.LENGTH_SHORT)
-            .show()
     }
 
     private fun deleteQuote(rowId: Long) {
-        val uri = ContentUris.withAppendedId(CustomQuoteContract.Quotes.CONTENT_URI, rowId)
-        requireContext().contentResolver.delete(uri, null, null)
-        Toast.makeText(requireContext(), R.string.module_custom_deleted_quote, Toast.LENGTH_SHORT)
-            .show()
+        ioScope.launch {
+            customQuoteDatabase.dao().delete(rowId)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(),
+                    R.string.module_custom_deleted_quote,
+                    Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
     }
 
     private fun showEditQuoteDialog(rowId: Long) {
@@ -167,4 +160,8 @@ class CustomQuoteConfigFragment : ListFragment(), LoaderManager.LoaderCallbacks<
         textEditText.setText(quote.quoteText)
         sourceEditText.setText(quote.quoteSource)
     }
+
+    override fun showDetailPage(): Boolean = false
+
+    override fun goToDetailPage() = Unit /* no-op */
 }

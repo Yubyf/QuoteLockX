@@ -10,7 +10,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.backup.RemoteBackup
-import com.crossbowffs.quotelock.collections.provider.QuoteCollectionHelper
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 
@@ -42,12 +42,12 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
             action < 0 -> {
                 Xlog.d(TAG, "Performing remote restore...")
                 RemoteBackup.INSTANCE.performSafeDriveRestoreSync(mContext,
-                    QuoteCollectionHelper.DATABASE_NAME)
+                    QuoteCollectionContract.DATABASE_NAME)
             }
             else -> {
                 Xlog.d(TAG, "Performing remote backup...")
                 RemoteBackup.INSTANCE.performSafeDriveBackupSync(mContext,
-                    QuoteCollectionHelper.DATABASE_NAME)
+                    QuoteCollectionContract.DATABASE_NAME)
             }
         }
         if (result.success) {
@@ -71,7 +71,7 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
         val serverMarker = getServerSyncMarker(account)
         val syncTimestamp = getSyncTimestamp(account)
         val databaseInfo = RemoteBackup.INSTANCE
-            .getDatabaseInfo(mContext, QuoteCollectionHelper.DATABASE_NAME)
+            .getDatabaseInfo(mContext, QuoteCollectionContract.DATABASE_NAME)
         return if (serverMarker.isNullOrEmpty() || syncTimestamp < 0 || databaseInfo.first.isNullOrEmpty()
         ) {
             Xlog.d(TAG,
