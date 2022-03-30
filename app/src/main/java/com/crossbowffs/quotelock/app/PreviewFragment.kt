@@ -99,7 +99,7 @@ class PreviewFragment : PreferenceFragmentCompat() {
 
     private fun observePreferences() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
                     quotesDataStore.collectSuspend { preferences, _ ->
                         mPreviewPreference?.quote =
