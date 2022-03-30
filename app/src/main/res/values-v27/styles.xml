@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
+    <style name="AppTheme" parent="Theme.Material3.DayNight">
         <item name="toolbarStyle">@style/CustomToolbarStyle</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
@@ -11,7 +11,7 @@
         <item name="android:navigationBarDividerColor">?android:colorBackground</item>
     </style>
 
-    <style name="CustomToolbarStyle" parent="Widget.MaterialComponents.Toolbar">
+    <style name="CustomToolbarStyle" parent="Widget.Material3.Toolbar">
         <item name="android:background">?attr/colorSurface</item>
     </style>
 </resources>
