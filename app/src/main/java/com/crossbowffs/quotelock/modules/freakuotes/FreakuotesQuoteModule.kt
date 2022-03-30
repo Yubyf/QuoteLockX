@@ -5,6 +5,7 @@ import android.content.Context
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.downloadUrl
@@ -49,9 +50,9 @@ class FreakuotesQuoteModule : QuoteModule {
                 Xlog.w(TAG, "Quote source not found")
                 ""
             }
-            sourceLeft.isNullOrEmpty() -> "― $sourceRight"
-            sourceRight.isNullOrEmpty() -> "― $sourceLeft"
-            else -> "― $sourceLeft, $sourceRight"
+            sourceLeft.isNullOrEmpty() -> "$PREF_QUOTE_SOURCE_PREFIX $sourceRight"
+            sourceRight.isNullOrEmpty() -> "$PREF_QUOTE_SOURCE_PREFIX $sourceLeft"
+            else -> "$PREF_QUOTE_SOURCE_PREFIX $sourceLeft, $sourceRight"
         }
         return QuoteData(quoteText, quoteSource)
     }

@@ -41,3 +41,5 @@ const val PREF_ABOUT_GITHUB_CURRENT = "pref_about_github_current"
 const val PREF_ABOUT_VERSION = "pref_about_version"
 const val PREF_BOOT_NOTIFY_FLAG = "boot_notify_flag"
 const val PREF_PREVIEW = "pref_preview"
+
+const val PREF_QUOTE_SOURCE_PREFIX = "―"

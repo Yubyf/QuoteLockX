@@ -7,6 +7,7 @@ import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
 import com.crossbowffs.quotelock.app.App
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.modules.hitokoto.app.HitkotoConfigActivity
 import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO
 import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING
@@ -44,7 +45,7 @@ class HitokotoQuoteModule : QuoteModule {
         val quoteJson = url.downloadUrl()
         val quoteJsonObject = JSONObject(quoteJson)
         val quoteText = quoteJsonObject.getString("hitokoto")
-        var quoteSource = "―"
+        var quoteSource = PREF_QUOTE_SOURCE_PREFIX
         val quoteSourceFrom = quoteJsonObject.getString("from")
         val quoteSourceAuthor = quoteJsonObject.getString("from_who")
         quoteSource +=

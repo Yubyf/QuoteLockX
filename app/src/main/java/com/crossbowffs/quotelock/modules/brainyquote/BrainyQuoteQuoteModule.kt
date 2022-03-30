@@ -7,6 +7,7 @@ import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_LATIN
 import com.crossbowffs.quotelock.app.App
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.modules.brainyquote.app.BrainyQuoteConfigActivity
 import com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys.PREF_BRAINY
 import com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys.PREF_BRAINY_TYPE_STRING
@@ -42,7 +43,8 @@ class BrainyQuoteQuoteModule : QuoteModule {
         val rssXml = url.downloadUrl()
         val document = Jsoup.parse(rssXml)
         val quoteText = document.select("item > description").first().text()
-        val quoteSource = "― ${document.select("item > title").first().text()}"
+        val quoteSource =
+            "$PREF_QUOTE_SOURCE_PREFIX ${document.select("item > title").first().text()}"
         return QuoteData(quoteText.substring(1, quoteText.length - 1), quoteSource)
     }
 

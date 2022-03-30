@@ -72,7 +72,8 @@ private suspend fun handleQuote(quote: QuoteData?) {
         Xlog.d(TAG, "Text: $quoteText")
         Xlog.d(TAG, "Source: $quoteSource")
         val quoteSourceInDb =
-            if (quoteSource.isBlank()) "" else quoteSource.replace("―", "").trim()
+            if (quoteSource.isBlank()) "" else quoteSource.replace(PREF_QUOTE_SOURCE_PREFIX, "")
+                .trim()
         insertQuoteHistory(quoteText, quoteSourceInDb)
         val collectionState = queryQuoteCollectionState(quoteText, quoteSourceInDb)
         quotesDataStore.bulkPut(mapOf(PREF_QUOTES_TEXT to quoteText,

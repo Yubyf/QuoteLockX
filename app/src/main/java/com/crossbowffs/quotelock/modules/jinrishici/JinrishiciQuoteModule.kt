@@ -7,6 +7,7 @@ import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
 import com.crossbowffs.quotelock.app.App
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_SENTENCE_URL
 import com.crossbowffs.quotelock.modules.jinrishici.consts.JinrishiciPrefKeys.PREF_JINRISHICI_TOKEN
@@ -87,7 +88,7 @@ class JinrishiciQuoteModule : QuoteModule {
             val title = originData.getString("title")
             var quoteSource = ""
             if (!dynasty.isNullOrEmpty()) {
-                quoteSource += "―$dynasty"
+                quoteSource += "$PREF_QUOTE_SOURCE_PREFIX$dynasty"
             }
             if (!author.isNullOrEmpty()) {
                 quoteSource += "·$author"

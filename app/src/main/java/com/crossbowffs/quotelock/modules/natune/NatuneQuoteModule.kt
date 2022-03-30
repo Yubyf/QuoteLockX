@@ -6,6 +6,7 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_LATIN
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.utils.downloadUrl
 import org.jsoup.Jsoup
 
@@ -33,7 +34,7 @@ class NatuneQuoteModule : QuoteModule {
         val quoteLi = document.select(".quotes > li").first()
         val quoteText = quoteLi.getElementsByClass("quote_text").first().text()
         val quoteAuthor = quoteLi.getElementsByClass("quote_author").first().text()
-        return QuoteData(quoteText, "― $quoteAuthor")
+        return QuoteData(quoteText, "$PREF_QUOTE_SOURCE_PREFIX $quoteAuthor")
     }
 
     override val characterType: Int

@@ -214,7 +214,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
     private fun collectQuoteRemote(context: Context) {
         val text = mQuoteTextView.text.toString()
-        val source = mSourceTextView.text.toString().replace("―", "").trim { it <= ' ' }
+        val source = mSourceTextView.text.toString()
+            .replace(PREF_QUOTE_SOURCE_PREFIX, "").trim { it <= ' ' }
         val uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build()
         val values = ContentValues(3)
         values.put(QuoteCollectionContract.TEXT, text)
@@ -229,7 +230,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
     private fun deleteCollectedQuoteRemote(context: Context) {
         val text = mQuoteTextView.text.toString()
-        val source = mSourceTextView.text.toString().replace("―", "").trim { it <= ' ' }
+        val source = mSourceTextView.text.toString()
+            .replace(PREF_QUOTE_SOURCE_PREFIX, "").trim { it <= ' ' }
         val uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build()
         val resolver = context.contentResolver
         val result = resolver.delete(uri, QuoteCollectionContract.MD5 + "=?",
