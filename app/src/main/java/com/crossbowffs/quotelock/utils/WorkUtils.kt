@@ -67,7 +67,7 @@ object WorkUtils {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(networkType)
             .build()
-        val oneTimeWorkRequest = OneTimeWorkRequest.Builder(QuoteWorker::class.java)
+        val oneTimeWorkRequest = OneTimeWorkRequestBuilder<QuoteWorker>()
             .setInitialDelay(delay.toLong(), TimeUnit.SECONDS)
             .setBackoffCriteria(
                 BackoffPolicy.LINEAR, (

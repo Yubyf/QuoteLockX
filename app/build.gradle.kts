@@ -86,7 +86,7 @@ dependencies {
     compileOnly("de.robv.android.xposed:api:82")
     compileOnly("de.robv.android.xposed:api:82:sources")
 
-    implementation("androidx.work:work-runtime:2.7.1")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     // Fix the conflict between concurrent-futures and guava libs.
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
