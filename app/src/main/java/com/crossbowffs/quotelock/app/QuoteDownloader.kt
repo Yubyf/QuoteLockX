@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.app
 
 import android.content.Context
-import android.text.TextUtils
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
@@ -68,14 +67,14 @@ private fun insertQuoteHistory(text: String, source: String) {
     }
 }
 
-private suspend fun Context.handleQuote(quote: QuoteData?) {
+private suspend fun handleQuote(quote: QuoteData?) {
     quote?.run {
         Xlog.d(TAG, "Text: $quoteText")
         Xlog.d(TAG, "Source: $quoteSource")
-        insertQuoteHistory(quoteText, quoteSource)
-        val collectionState = queryQuoteCollectionState(quoteText,
-            if (TextUtils.isEmpty(quoteSource)) "" else quoteSource.replace("―", "")
-                .trim())
+        val quoteSourceInDb =
+            if (quoteSource.isBlank()) "" else quoteSource.replace("―", "").trim()
+        insertQuoteHistory(quoteText, quoteSourceInDb)
+        val collectionState = queryQuoteCollectionState(quoteText, quoteSourceInDb)
         quotesDataStore.bulkPut(mapOf(PREF_QUOTES_TEXT to quoteText,
             PREF_QUOTES_SOURCE to quoteSource,
             PREF_QUOTES_COLLECTION_STATE to collectionState,
