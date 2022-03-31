@@ -45,7 +45,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
             ).show()
             hideProgress()
             val fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-            (fragment as? QuoteCollectionFragmentSample)?.reloadData()
+            (fragment as? QuoteCollectionFragment)?.reloadData()
         }
     }
     private val mRemoteBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
@@ -65,7 +65,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
             ).show()
             hideProgress()
             val fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-            (fragment as? QuoteCollectionFragmentSample)?.reloadData()
+            (fragment as? QuoteCollectionFragment)?.reloadData()
         }
     }
 
@@ -74,13 +74,13 @@ class QuoteCollectionActivity : AppCompatActivity() {
         setContentView(R.layout.activity_container)
         supportFragmentManager.apply {
             beginTransaction()
-                .add(R.id.content_frame, QuoteCollectionFragmentSample())
+                .add(R.id.content_frame, QuoteCollectionFragment())
                 .commit()
-            setFragmentResultListener(QuoteCollectionFragmentSample.REQUEST_KEY_COLLECTION_LIST_PAGE,
+            setFragmentResultListener(QuoteCollectionFragment.REQUEST_KEY_COLLECTION_LIST_PAGE,
                 this@QuoteCollectionActivity) { _, bundle ->
                 // Hide menu items while details are shown
                 val result =
-                    bundle.getBoolean(QuoteCollectionFragmentSample.BUNDLE_KEY_COLLECTION_SHOW_DETAIL_PAGE,
+                    bundle.getBoolean(QuoteCollectionFragment.BUNDLE_KEY_COLLECTION_SHOW_DETAIL_PAGE,
                         false)
                 mMenu?.setGroupVisible(R.id.backup_group, !result)
             }

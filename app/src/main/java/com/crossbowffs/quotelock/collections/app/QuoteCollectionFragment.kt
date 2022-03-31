@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 /**
  * @author Yubyf
  */
-class QuoteCollectionFragmentSample : BaseQuoteListFragment<QuoteCollectionEntity>() {
+class QuoteCollectionFragment : BaseQuoteListFragment<QuoteCollectionEntity>() {
 
     private var collectionsObserver: Job? = null
 
