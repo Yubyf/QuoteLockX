@@ -41,6 +41,7 @@ import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.*
 import java.security.DigestInputStream
 import java.security.MessageDigest
@@ -233,20 +234,22 @@ class RemoteBackup {
     /**
      * Import the file identified by `fileId`.
      */
-    private fun Drive.importDbFileSync(
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun Drive.importDbFileSync(
         context: Context,
         fileId: String?,
-        databaseName: String?,
+        databaseName: String,
     ): Result {
         return try {
-            val databaseFile = context.getDatabasePath(databaseName)
+            val temporaryDatabaseFile = File(context.cacheDir, databaseName)
             val digest = MessageDigest.getInstance("MD5")
             val readFileResult = readFile(fileId)
             readFileResult.second.use { inputStream ->
                 inputStream?.run {
-                    DigestInputStream(this, digest).use { it.toFile(databaseFile) }
+                    DigestInputStream(this, digest).use { it.toFile(temporaryDatabaseFile) }
                 } ?: throw IOException()
             }
+            importCollectionDatabaseFrom(context, temporaryDatabaseFile)
             readFileResult.first
         } catch (e: Exception) {
             Xlog.e(TAG, "Unable to read file via REST.", e)
@@ -387,7 +390,7 @@ class RemoteBackup {
             val fileList = drive.queryFilesSync() ?: return result
             for (file in fileList.files) {
                 if (file.name == databaseName) {
-                    return drive.importDbFileSync(context, file.id, databaseName)
+                    return runBlocking { drive.importDbFileSync(context, file.id, databaseName) }
                 }
             }
         } catch (e: IOException) {

@@ -13,10 +13,16 @@ import android.provider.MediaStore
 import androidx.core.app.ActivityCompat
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.app.App
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionDatabase
+import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.utils.fromFile
 import com.crossbowffs.quotelock.utils.ioScope
 import com.crossbowffs.quotelock.utils.toFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -119,12 +125,14 @@ object LocalBackup {
         }
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(Exception::class)
-    private fun importDb(context: Context, databaseName: String, fileUri: Uri): Boolean {
-        val databaseFile = context.getDatabasePath(databaseName)
+    private suspend fun importDb(context: Context, databaseName: String, fileUri: Uri): Boolean {
+        val temporaryDatabaseFile = File(context.cacheDir, databaseName)
         return try {
-            context.contentResolver.openInputStream(fileUri)?.toFile(databaseFile)
+            context.contentResolver.openInputStream(fileUri)?.toFile(temporaryDatabaseFile)
                 ?: throw Exception()
+            importCollectionDatabaseFrom(context, temporaryDatabaseFile)
             true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -157,5 +165,23 @@ object LocalBackup {
             targetFile.parentFile?.mkdirs()
             Uri.fromFile(targetFile)
         }?.also { resolver.openOutputStream(it)?.fromFile(file.absoluteFile) }
+    }
+}
+
+/**
+ * Import collection database from .db file by replacing data contents.
+ */
+@Throws(NoSuchElementException::class)
+suspend fun importCollectionDatabaseFrom(context: Context, file: File) {
+    withContext(Dispatchers.IO) {
+        val temporaryCollectionDatabase =
+            QuoteCollectionDatabase.openTemporaryDatabaseFrom(context,
+                "${QuoteCollectionContract.DATABASE_NAME}_${System.currentTimeMillis()}", file)
+        val collections = temporaryCollectionDatabase.dao().getAll().first()
+        quoteCollectionDatabase.dao().clear()
+        if (collections.isNotEmpty()) {
+            quoteCollectionDatabase.dao().insert(collections)
+        }
+        temporaryCollectionDatabase.close()
     }
 }

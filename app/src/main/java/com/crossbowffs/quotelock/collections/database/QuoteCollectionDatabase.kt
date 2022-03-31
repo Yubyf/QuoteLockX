@@ -10,6 +10,7 @@ import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract.DA
 import com.crossbowffs.quotelock.database.QuoteEntity
 import com.crossbowffs.quotelock.database.QuoteEntityContract
 import kotlinx.coroutines.flow.Flow
+import java.io.File
 
 /**
  * @author Yubyf
@@ -54,6 +55,9 @@ interface QuoteCollectionDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(quote: QuoteCollectionEntity): Long?
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(quotes: List<QuoteCollectionEntity>): Array<Long>
+
     @Query("SELECT COUNT(*) FROM ${QuoteCollectionContract.TABLE}")
     fun count(): Flow<Int>
 
@@ -62,6 +66,9 @@ interface QuoteCollectionDao {
 
     @Query("DELETE FROM ${QuoteCollectionContract.TABLE} WHERE ${QuoteCollectionContract.MD5} = :md5")
     suspend fun delete(md5: String): Int
+
+    @Query("DELETE FROM ${QuoteCollectionContract.TABLE}")
+    suspend fun clear()
 }
 
 @Database(entities = [QuoteCollectionEntity::class],
@@ -92,6 +99,23 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                 INSTANCE = instance
                 // return instance
                 instance
+            }
+        }
+
+        fun openTemporaryDatabaseFrom(
+            context: Context,
+            name: String,
+            file: File,
+        ): QuoteCollectionDatabase {
+            return synchronized(this) {
+                Room.databaseBuilder(
+                    context.applicationContext,
+                    QuoteCollectionDatabase::class.java,
+                    name
+                ).setJournalMode(JournalMode.TRUNCATE)
+                    .addMigrations(MIGRATION_1_2)
+                    .createFromFile(file)
+                    .build()
             }
         }
     }
