@@ -1,6 +1,7 @@
 package com.crossbowffs.quotelock.app
 
 import android.content.Context
+import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
@@ -18,7 +19,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
 
 private const val TAG = "QuoteDownloader"
 
@@ -42,26 +43,28 @@ private suspend fun Context.fetchQuote(): QuoteData? {
         return null
     }
     Xlog.d(TAG, "Provider: ${module.getDisplayName(this)}")
-    return runInterruptible(Dispatchers.IO) {
-        try {
-            module.getQuote(this)
-        } catch (e: Exception) {
-            Xlog.e(TAG, "Quote download failed", e)
-            null
-        }
+    return withContext(Dispatchers.IO) {
+        runCatching { module.getQuote(this@fetchQuote) }.onFailure {
+            Xlog.e(TAG, "Quote download failed", it)
+        }.getOrNull()
     }
 }
 
-private suspend fun queryQuoteCollectionState(text: String, source: String): Boolean =
-    quoteCollectionDatabase.dao().getByQuote(text, source).firstOrNull() != null
+private suspend fun queryQuoteCollectionState(
+    text: String,
+    source: String,
+    author: String,
+): Boolean =
+    quoteCollectionDatabase.dao().getByQuote(text, source, author).firstOrNull() != null
 
-private fun insertQuoteHistory(text: String, source: String) {
+private fun insertQuoteHistory(text: String, source: String, author: String) {
     ioScope.launch {
         quoteHistoryDatabase.dao().insert(
             QuoteHistoryEntity(
-                md5 = (text + source).md5(),
+                md5 = ("$text$source$author").md5(),
                 text = text,
                 source = source,
+                author = author,
             )
         )
     }
@@ -71,14 +74,20 @@ private suspend fun handleQuote(quote: QuoteData?) {
     quote?.run {
         Xlog.d(TAG, "Text: $quoteText")
         Xlog.d(TAG, "Source: $quoteSource")
-        val quoteSourceInDb =
-            if (quoteSource.isBlank()) "" else quoteSource.replace(PREF_QUOTE_SOURCE_PREFIX, "")
-                .trim()
-        insertQuoteHistory(quoteText, quoteSourceInDb)
-        val collectionState = queryQuoteCollectionState(quoteText, quoteSourceInDb)
-        quotesDataStore.bulkPut(mapOf(PREF_QUOTES_TEXT to quoteText,
-            PREF_QUOTES_SOURCE to quoteSource,
-            PREF_QUOTES_COLLECTION_STATE to collectionState,
-            PREF_QUOTES_LAST_UPDATED to System.currentTimeMillis()))
+        Xlog.d(TAG, "Author: $quoteAuthor")
+        if ("$quoteText$quoteSource".md5() !=
+            App.INSTANCE.getString(R.string.module_custom_setup_lines_md5)
+            && "$quoteText$quoteSource".md5() !=
+            App.INSTANCE.getString(R.string.module_collections_setup_lines_md5)
+        ) {
+            insertQuoteHistory(quoteText, quoteSource, quoteAuthor)
+        }
+        val collectionState = queryQuoteCollectionState(quoteText, quoteSource, quoteAuthor)
+        quotesDataStore.bulkPut(
+            mapOf(PREF_QUOTES_TEXT to quoteText,
+                PREF_QUOTES_SOURCE to quoteSource,
+                PREF_QUOTES_AUTHOR to quoteAuthor,
+                PREF_QUOTES_COLLECTION_STATE to collectionState,
+                PREF_QUOTES_LAST_UPDATED to System.currentTimeMillis()))
     }
 }

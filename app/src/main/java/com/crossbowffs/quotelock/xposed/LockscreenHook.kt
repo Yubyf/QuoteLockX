@@ -55,8 +55,19 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         // Update quote text
         var text = mQuotePrefs.getString(PREF_QUOTES_TEXT, null)
         var source = mQuotePrefs.getString(PREF_QUOTES_SOURCE, null)
+        val originalSource = source
+        val author = mQuotePrefs.getString(PREF_QUOTES_AUTHOR, null)
+        source = if (!author.isNullOrBlank()) {
+            "$PREF_QUOTE_SOURCE_PREFIX$author${if (source.isNullOrBlank()) "" else " $source"}"
+        } else {
+            if (source.isNullOrBlank() || runCatching {
+                    source == sModuleRes.getString(RES_STRING_CUSTOM_SETUP_2)
+                            || source == sModuleRes.getString(RES_STRING_COLLECTIONS_SETUP_2)
+                }.getOrDefault(false)) source
+            else "$PREF_QUOTE_SOURCE_PREFIX$source"
+        }
         val collectionState = mQuotePrefs.getBoolean(PREF_QUOTES_COLLECTION_STATE, false)
-        if (text == null || source == null) {
+        if (text.isNullOrBlank() || source.isNullOrBlank()) {
             try {
                 text = sModuleRes.getString(RES_STRING_OPEN_APP_1)
                 source = sModuleRes.getString(RES_STRING_OPEN_APP_2)
@@ -75,7 +86,11 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         params.rightMargin = (mLayoutTranslation + 16f).dp2px().toInt()
         mActionContainer.layoutParams = params
         mQuoteTextView.text = text
+        // Cache author information in the quote TextView's hint attribute.
+        mQuoteTextView.hint = author
         mSourceTextView.text = source
+        // Cache original source information in the source TextView's hint attribute.
+        mSourceTextView.hint = originalSource
         mCollectImageView.isSelected = collectionState
 
         // Hide source textview if there is no source
@@ -142,7 +157,17 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         // Update quote text
         var text = mQuotePrefs.getString(PREF_QUOTES_TEXT, null)
         var source = mQuotePrefs.getString(PREF_QUOTES_SOURCE, null)
-        if (text == null || source == null) {
+        val author = mQuotePrefs.getString(PREF_QUOTES_AUTHOR, null)
+        source = if (!author.isNullOrBlank()) {
+            "$PREF_QUOTE_SOURCE_PREFIX$author${if (source.isNullOrBlank()) "" else " $source"}"
+        } else {
+            if (source.isNullOrBlank() || runCatching {
+                    source == sModuleRes.getString(RES_STRING_CUSTOM_SETUP_2)
+                            || source == sModuleRes.getString(RES_STRING_COLLECTIONS_SETUP_2)
+                }.getOrDefault(false)) source
+            else "$PREF_QUOTE_SOURCE_PREFIX$source"
+        }
+        if (text.isNullOrBlank() || source.isNullOrBlank()) {
             try {
                 text = sModuleRes.getString(RES_STRING_OPEN_APP_1)
                 source = sModuleRes.getString(RES_STRING_OPEN_APP_2)
@@ -214,13 +239,14 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
     private fun collectQuoteRemote(context: Context) {
         val text = mQuoteTextView.text.toString()
-        val source = mSourceTextView.text.toString()
-            .replace(PREF_QUOTE_SOURCE_PREFIX, "").trim { it <= ' ' }
+        val source = mSourceTextView.hint?.toString() ?: ""
+        val author = mQuoteTextView.hint?.toString() ?: ""
         val uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build()
         val values = ContentValues(3)
         values.put(QuoteCollectionContract.TEXT, text)
         values.put(QuoteCollectionContract.SOURCE, source)
-        values.put(QuoteCollectionContract.MD5, (text + source).md5())
+        values.put(QuoteCollectionContract.AUTHOR, author)
+        values.put(QuoteCollectionContract.MD5, ("$text$source$author").md5())
         val resolver = context.contentResolver
         val resultUri = resolver.insert(uri, values)
         if (resultUri?.lastPathSegment == "-1") {
@@ -230,12 +256,12 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
     private fun deleteCollectedQuoteRemote(context: Context) {
         val text = mQuoteTextView.text.toString()
-        val source = mSourceTextView.text.toString()
-            .replace(PREF_QUOTE_SOURCE_PREFIX, "").trim { it <= ' ' }
+        val source = mSourceTextView.hint?.toString() ?: ""
+        val author = mQuoteTextView.hint?.toString() ?: ""
         val uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build()
         val resolver = context.contentResolver
         val result = resolver.delete(uri, QuoteCollectionContract.MD5 + "=?",
-            arrayOf((text + source).md5()))
+            arrayOf(("$text$source$author").md5()))
         if (result < 0) {
             resetTranslationAnimator()
         }
@@ -475,6 +501,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         private const val RES_LAYOUT_QUOTE_LAYOUT = "quote_layout"
         private const val RES_STRING_OPEN_APP_1 = "open_quotelock_app_line1"
         private const val RES_STRING_OPEN_APP_2 = "open_quotelock_app_line2"
+        private const val RES_STRING_CUSTOM_SETUP_1 = "module_custom_setup_line1"
+        private const val RES_STRING_CUSTOM_SETUP_2 = "module_custom_setup_line2"
+        private const val RES_STRING_COLLECTIONS_SETUP_1 = "module_collections_setup_line1"
+        private const val RES_STRING_COLLECTIONS_SETUP_2 = "module_collections_setup_line2"
         private const val RES_ID_QUOTE_CONTAINER = "quote_container"
         private const val RES_ID_QUOTE_TEXTVIEW = "quote_textview"
         private const val RES_ID_SOURCE_TEXTVIEW = "source_textview"

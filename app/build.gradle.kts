@@ -22,9 +22,9 @@ android {
         targetSdk = 29
 
         buildConfigField("int", "MODULE_VERSION", "3")
-        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "2")
-        buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "2")
-        buildConfigField("int", "QUOTE_HISTORIES_DB_VERSION", "2")
+        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "3")
+        buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "3")
+        buildConfigField("int", "QUOTE_HISTORIES_DB_VERSION", "3")
         buildConfigField("String", "LOG_TAG", "\"QuoteLock\"")
 
         resValue("string", "account_type", "${applicationId}.account")

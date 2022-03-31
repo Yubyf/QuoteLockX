@@ -7,13 +7,11 @@ import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
 import com.crossbowffs.quotelock.app.App
-import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.modules.hitokoto.app.HitkotoConfigActivity
 import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO
 import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING
 import com.crossbowffs.quotelock.utils.downloadUrl
 import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
-import kotlinx.coroutines.runBlocking
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -37,24 +35,19 @@ class HitokotoQuoteModule : QuoteModule {
         return true
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class, JSONException::class)
-    override fun getQuote(context: Context): QuoteData {
-        val type =
-            runBlocking { hitokotoDataStore.getStringSuspend(PREF_HITOKOTO_TYPE_STRING, "a") }
+    override suspend fun getQuote(context: Context): QuoteData {
+        val type = hitokotoDataStore.getStringSuspend(PREF_HITOKOTO_TYPE_STRING, "a")
         val url = "https://v1.hitokoto.cn/?c=$type"
         val quoteJson = url.downloadUrl()
         val quoteJsonObject = JSONObject(quoteJson)
         val quoteText = quoteJsonObject.getString("hitokoto")
-        var quoteSource = PREF_QUOTE_SOURCE_PREFIX
-        val quoteSourceFrom = quoteJsonObject.getString("from")
-        val quoteSourceAuthor = quoteJsonObject.getString("from_who")
-        quoteSource +=
-            if (quoteSourceAuthor.isNullOrEmpty() || quoteSourceAuthor == "null") {
-                quoteSourceFrom
-            } else {
-                "$quoteSourceAuthor $quoteSourceFrom"
-            }
-        return QuoteData(quoteText, quoteSource)
+        val quoteSource = quoteJsonObject.getString("from")
+        val quoteAuthor = quoteJsonObject.getString("from_who")
+        return QuoteData(quoteText,
+            quoteSource ?: "",
+            if (quoteAuthor == "null") "" else quoteAuthor)
     }
 
     override val characterType: Int

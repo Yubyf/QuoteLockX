@@ -6,7 +6,6 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_LATIN
-import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.utils.downloadUrl
 import org.jsoup.Jsoup
 
@@ -27,14 +26,15 @@ class NatuneQuoteModule : QuoteModule {
         return true
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(Exception::class)
-    override fun getQuote(context: Context): QuoteData {
+    override suspend fun getQuote(context: Context): QuoteData {
         val html = "https://natune.net/zitate/Zufalls5".downloadUrl()
         val document = Jsoup.parse(html)
         val quoteLi = document.select(".quotes > li").first()
         val quoteText = quoteLi.getElementsByClass("quote_text").first().text()
         val quoteAuthor = quoteLi.getElementsByClass("quote_author").first().text()
-        return QuoteData(quoteText, "$PREF_QUOTE_SOURCE_PREFIX $quoteAuthor")
+        return QuoteData(quoteText = quoteText, quoteSource = "", quoteAuthor = quoteAuthor)
     }
 
     override val characterType: Int

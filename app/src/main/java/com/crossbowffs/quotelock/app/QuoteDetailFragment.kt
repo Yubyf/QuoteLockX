@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionSet
 import com.crossbowffs.quotelock.R
-import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.utils.TextResize
 import com.crossbowffs.quotelock.utils.className
 
@@ -27,8 +26,7 @@ class QuoteDetailFragment : Fragment() {
                 transitionName = arguments?.getString(KEY_TEXT_TRANSITION_NAME)
             }
             findViewById<TextView>(R.id.tv_quote_source).apply {
-                text =
-                    arguments?.getString(KEY_SOURCE)?.let { "$PREF_QUOTE_SOURCE_PREFIX$it" } ?: ""
+                text = arguments?.getString(KEY_SOURCE) ?: ""
                 transitionName = arguments?.getString(KEY_SOURCE_TRANSITION_NAME)
             }
             sharedElementEnterTransition = TransitionInflater.from(context)

@@ -24,9 +24,9 @@ object QuoteCollectionContract {
     const val MD5 = QuoteEntityContract.MD5
     const val TEXT = QuoteEntityContract.TEXT
     const val SOURCE = QuoteEntityContract.SOURCE
+    const val AUTHOR = QuoteEntityContract.AUTHOR
     const val ID = QuoteEntityContract.ID
 }
-
 
 @Entity(tableName = QuoteCollectionContract.TABLE)
 data class QuoteCollectionEntity(
@@ -39,6 +39,8 @@ data class QuoteCollectionEntity(
     override val text: String,
     @ColumnInfo(name = QuoteCollectionContract.SOURCE)
     override val source: String,
+    @ColumnInfo(name = QuoteCollectionContract.AUTHOR)
+    override val author: String? = "",
 ) : QuoteEntity
 
 @Dao
@@ -46,8 +48,11 @@ interface QuoteCollectionDao {
     @Query("SELECT * FROM ${QuoteCollectionContract.TABLE}")
     fun getAll(): Flow<List<QuoteCollectionEntity>>
 
-    @Query("SELECT * FROM ${QuoteCollectionContract.TABLE} WHERE ${QuoteCollectionContract.TEXT} = :text AND ${QuoteCollectionContract.SOURCE} = :source")
-    fun getByQuote(text: String, source: String): Flow<QuoteCollectionEntity?>
+    @Query("""SELECT * FROM ${QuoteCollectionContract.TABLE}"""
+            + """ WHERE ${QuoteCollectionContract.TEXT} = :text"""
+            + """ AND ${QuoteCollectionContract.SOURCE} = :source"""
+            + """ AND ${QuoteCollectionContract.AUTHOR} = :author""")
+    fun getByQuote(text: String, source: String, author: String?): Flow<QuoteCollectionEntity?>
 
     @Query("SELECT * FROM ${QuoteCollectionContract.TABLE} ORDER BY RANDOM() LIMIT 1")
     fun getRandomItem(): Flow<QuoteCollectionEntity?>
@@ -84,6 +89,11 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                 // Empty implementation, because the schema isn't changing.
             }
         }
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE ${QuoteCollectionContract.TABLE} ADD COLUMN ${QuoteCollectionContract.AUTHOR} TEXT")
+            }
+        }
 
         fun getDatabase(context: Context): QuoteCollectionDatabase {
             // if the INSTANCE is not null, then return it,
@@ -94,7 +104,7 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                     QuoteCollectionDatabase::class.java,
                     DATABASE_NAME
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 // return instance
@@ -113,7 +123,7 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                     QuoteCollectionDatabase::class.java,
                     name
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .createFromFile(file)
                     .build()
             }

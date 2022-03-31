@@ -26,6 +26,7 @@ import com.crossbowffs.quotelock.data.commonDataStore
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.dp2px
+import com.crossbowffs.quotelock.utils.md5
 import kotlinx.coroutines.launch
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -41,7 +42,20 @@ class PreviewFragment : PreferenceFragmentCompat() {
         observePreferences()
         mPreviewPreference?.run {
             quote = quotesDataStore.getString(PREF_QUOTES_TEXT, "")
-            source = quotesDataStore.getString(PREF_QUOTES_SOURCE, "")
+            source = quotesDataStore.getString(PREF_QUOTES_AUTHOR, "").let {
+                val source = quotesDataStore.getString(PREF_QUOTES_SOURCE, "")
+                if (!it.isNullOrBlank()) {
+                    "$PREF_QUOTE_SOURCE_PREFIX$it${if (source.isNullOrBlank()) "" else " $source"}"
+                } else {
+                    if ("$quote$source".md5() == getString(R.string.module_custom_setup_lines_md5)
+                        || "$quote$source".md5() == getString(R.string.module_collections_setup_lines_md5)
+                    ) {
+                        source
+                    } else {
+                        "$PREF_QUOTE_SOURCE_PREFIX$source"
+                    }
+                }
+            }
             quoteSize = commonDataStore.getString(PREF_COMMON_FONT_SIZE_TEXT,
                 PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
             sourceSize = commonDataStore.getString(PREF_COMMON_FONT_SIZE_SOURCE,
@@ -102,10 +116,28 @@ class PreviewFragment : PreferenceFragmentCompat() {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
                     quotesDataStore.collectSuspend { preferences, _ ->
+                        val quote: String
                         mPreviewPreference?.quote =
-                            preferences[stringPreferencesKey(PREF_QUOTES_TEXT)]
+                            preferences[stringPreferencesKey(PREF_QUOTES_TEXT)].also {
+                                quote = it ?: ""
+                            }
                         mPreviewPreference?.source =
-                            preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
+                            preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)].let {
+                                val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
+                                if (!it.isNullOrBlank()) {
+                                    "$PREF_QUOTE_SOURCE_PREFIX$it${if (source.isNullOrBlank()) "" else " $source"}"
+                                } else {
+                                    if ("$quote$source".md5() ==
+                                        getString(R.string.module_custom_setup_lines_md5)
+                                        || "$quote$source".md5() ==
+                                        getString(R.string.module_collections_setup_lines_md5)
+                                    ) {
+                                        source
+                                    } else {
+                                        "$PREF_QUOTE_SOURCE_PREFIX$source"
+                                    }
+                                }
+                            }
                     }
                 }
                 launch {

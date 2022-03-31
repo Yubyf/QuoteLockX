@@ -6,7 +6,6 @@ import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
-import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.downloadUrl
@@ -36,8 +35,9 @@ class WikiquoteQuoteModule : QuoteModule {
         return true
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class)
-    override fun getQuote(context: Context): QuoteData? {
+    override suspend fun getQuote(context: Context): QuoteData? {
         val html = "https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5".downloadUrl()
         val document = Jsoup.parse(html)
         val quoteAllText = document.select("#mp-everyday-quote").text()
@@ -49,8 +49,8 @@ class WikiquoteQuoteModule : QuoteModule {
             return null
         }
         val quoteText = quoteMatcher.group(1) ?: ""
-        val quoteSource = "$PREF_QUOTE_SOURCE_PREFIX${quoteMatcher.group(2) ?: ""}"
-        return QuoteData(quoteText, quoteSource)
+        val quoteAuthor = quoteMatcher.group(2) ?: ""
+        return QuoteData(quoteText = quoteText, quoteSource = "", quoteAuthor = quoteAuthor)
     }
 
     override val characterType: Int

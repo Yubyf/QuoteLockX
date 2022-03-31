@@ -9,6 +9,7 @@ object QuoteEntityContract {
     const val MD5 = "md5"
     const val TEXT = "text"
     const val SOURCE = "source"
+    const val AUTHOR = "AUTHOR"
     const val ID = BaseColumns._ID
 }
 
@@ -17,6 +18,7 @@ interface QuoteEntity {
     val md5: String
     val text: String
     val source: String
+    val author: String?
 
     override fun equals(other: Any?): Boolean
 }

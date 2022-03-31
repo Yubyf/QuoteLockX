@@ -83,6 +83,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
                     .insert(QuoteCollectionEntity(
                         text = it[QuoteCollectionContract.TEXT].toString(),
                         source = it[QuoteCollectionContract.SOURCE].toString(),
+                        author = it[QuoteCollectionContract.AUTHOR].toString(),
                         md5 = it[QuoteCollectionContract.MD5].toString(),
                     ))
             }

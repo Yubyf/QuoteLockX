@@ -12,6 +12,7 @@ import androidx.transition.TransitionInflater
 import androidx.transition.TransitionSet
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.app.QuoteDetailFragment
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.database.QuoteEntity
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -52,7 +53,14 @@ abstract class BaseQuoteListFragment<T : QuoteEntity> : Fragment() {
                             replace(R.id.content_frame,
                                 QuoteDetailFragment.newInstance(
                                     quote.text,
-                                    quote.source,
+                                    quote.run {
+                                        if (!author.isNullOrBlank()) {
+                                            "$PREF_QUOTE_SOURCE_PREFIX$author" +
+                                                    if (source.isBlank()) "" else " $source"
+                                        } else {
+                                            "$PREF_QUOTE_SOURCE_PREFIX$source"
+                                        }
+                                    },
                                     holder.quoteTextView.transitionName,
                                     holder.quoteSourceView.transitionName))
                             addToBackStack(null)
@@ -149,7 +157,13 @@ class QuoteListAdapter<T : QuoteEntity>(
                 transitionName = "quote_#$position"
             }
             quoteSourceView.apply {
-                text = quote.source
+                text = quote.run {
+                    if (!author.isNullOrBlank()) {
+                        "$author${if (source.isBlank()) "" else " $source"}"
+                    } else {
+                        source
+                    }
+                }
                 transitionName = "source_#$position"
             }
             view.setOnClickListener { viewHolderListener?.invoke(holder, quote) }

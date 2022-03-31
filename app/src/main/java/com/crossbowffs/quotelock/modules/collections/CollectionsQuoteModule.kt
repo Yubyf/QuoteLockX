@@ -9,7 +9,6 @@ import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAUL
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
 
 /**
  * @author Yubyf
@@ -32,15 +31,13 @@ class CollectionsQuoteModule : QuoteModule {
     }
 
     @Throws(Exception::class)
-    override fun getQuote(context: Context): QuoteData {
-        return runBlocking {
-            quoteCollectionDatabase.dao().getRandomItem().firstOrNull()?.let {
-                QuoteData(it.text, it.source)
-            } ?: QuoteData(
-                context.getString(R.string.module_custom_setup_line1),
-                context.getString(R.string.module_custom_setup_line2)
-            )
-        }
+    override suspend fun getQuote(context: Context): QuoteData {
+        return quoteCollectionDatabase.dao().getRandomItem().firstOrNull()?.let {
+            QuoteData(it.text, it.source)
+        } ?: QuoteData(
+            context.getString(R.string.module_collections_setup_line1),
+            context.getString(R.string.module_collections_setup_line2)
+        )
     }
 
     override val characterType: Int

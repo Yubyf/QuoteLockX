@@ -40,12 +40,12 @@ interface QuoteModule {
     fun requiresInternetConnectivity(context: Context): Boolean
 
     /**
-     * Gets a new quote from the quote provider. This method is executed on a
-     * background thread, so you should not need to use any async calls.
+     * Gets a new quote from the quote provider. This function is a suspending function
+     * executed on a  background thread, so you should not need to use any async calls.
      * May return `null` or throw an exception in the case of an error.
      */
     @Throws(Exception::class)
-    fun getQuote(context: Context): QuoteData?
+    suspend fun getQuote(context: Context): QuoteData?
 
     companion object {
         const val CHARACTER_TYPE_DEFAULT = 0
