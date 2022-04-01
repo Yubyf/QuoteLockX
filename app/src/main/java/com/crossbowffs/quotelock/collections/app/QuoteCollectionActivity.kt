@@ -44,8 +44,6 @@ class QuoteCollectionActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
             hideProgress()
-            val fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-            (fragment as? QuoteCollectionFragment)?.reloadData()
         }
     }
     private val mRemoteBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
@@ -64,8 +62,6 @@ class QuoteCollectionActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
             hideProgress()
-            val fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-            (fragment as? QuoteCollectionFragment)?.reloadData()
         }
     }
 

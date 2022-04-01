@@ -101,10 +101,6 @@ class QuoteCollectionFragment : BaseQuoteListFragment<QuoteCollectionEntity>() {
         }
     }
 
-    fun reloadData() {
-        observeCollections()
-    }
-
     companion object {
         const val REQUEST_KEY_COLLECTION_LIST_PAGE = "collection_list_page"
         const val BUNDLE_KEY_COLLECTION_SHOW_DETAIL_PAGE = "collection_show_detail_page"
