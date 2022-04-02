@@ -54,11 +54,11 @@ download service.
 
 ### Todo
 
-- [ ] Add support for fortune.
+- [ ] Add xml export format.
 
 ### In Progress
 
-- [ ] Optimize collections and histories pages.
+- [ ] Add support for fortune-mod.
 
 ### Done
 
@@ -72,6 +72,8 @@ download service.
 - [x] Auto-sync for remote backup accounts
 - [x] Refactor with Kotlin
 - [x] Quotes preview in setting page
+- [x] Optimize collections and histories pages.
+- [x] Redesign with Material You.
 
 ## License
 
