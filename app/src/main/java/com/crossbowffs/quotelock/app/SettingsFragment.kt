@@ -171,8 +171,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
         if (!showPreferenceDialog(preference) {
-                val key = it.key
-                when (key) {
+                when (val key = it.key) {
                     PREF_COMMON_QUOTE_MODULE,
                     PREF_COMMON_REFRESH_RATE,
                     PREF_COMMON_FONT_SIZE_TEXT,
@@ -197,7 +196,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // check if dialog is already showing
         val dialogTag = runCatching {
             getReflectionField<String>("DIALOG_FRAGMENT_TAG1")
-        }.onFailure { Xlog.e(TAG, "", it) }.getOrNull()
+        }.getOrNull()
             ?: "androidx.preference.PreferenceFragment.DIALOG"
         if (parentFragmentManager.findFragmentByTag(dialogTag) != null) {
             return false
