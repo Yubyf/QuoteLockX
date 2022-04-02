@@ -7,11 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
@@ -22,6 +19,8 @@ import com.crossbowffs.quotelock.utils.XposedUtils.isModuleEnabled
 import com.crossbowffs.quotelock.utils.XposedUtils.isModuleUpdated
 import com.crossbowffs.quotelock.utils.XposedUtils.startXposedActivity
 import com.crossbowffs.quotelock.utils.mainScope
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -32,6 +31,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Toolbar
+        findViewById<MaterialToolbar>(R.id.toolbar).setOnMenuItemClickListener {
+            if (it.itemId == R.id.refesh_quote) {
+                refreshQuote()
+            }
+            true
+        }
+
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.preview_frame, PreviewFragment())
@@ -53,22 +61,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         checkBatteryOptimization()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.main_options, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.refesh_quote -> {
-                refreshQuote()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private fun refreshQuote() {
@@ -102,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showEnableModuleDialog() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.enable_xposed_module_title)
             .setMessage(R.string.enable_xposed_module_message)
             .setIcon(R.drawable.ic_baseline_warning_24dp)
@@ -113,7 +105,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showModuleUpdatedDialog() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.module_outdated_title)
             .setMessage(R.string.module_outdated_message)
             .setIcon(R.drawable.ic_baseline_warning_24dp)
@@ -135,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("BatteryLife")
     @RequiresApi(api = Build.VERSION_CODES.M)
     private fun showBatteryOptimizationDialog() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.battery_optimization_title)
             .setMessage(R.string.battery_optimization_message)
             .setPositiveButton(R.string.disable) { _, _ ->

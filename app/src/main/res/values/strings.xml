@@ -150,13 +150,13 @@
     <string name="module_hitokoto_activity_type_one_line">One-Line</string>
 
     <!-- Quotes collections -->
-    <string name="quote_collections_activity_label">Quote collections</string>
+    <string name="quote_collections_activity_label">Quote Collections</string>
     <string name="module_collections_setup_line1">No collections set</string>
     <string name="module_collections_setup_lines_md5">a11180e1d67430306515e26b0c68ebd8</string>
     <string name="module_collections_setup_line2">Please open the collections settings</string>
 
     <!-- Quote histories-->
-    <string name="quote_histories_activity_label">Quote histories</string>
+    <string name="quote_histories_activity_label">Quote Histories</string>
     <string name="quote_histories_cleared_quote">Cleared quote</string>
 
     <!-- Backup-->

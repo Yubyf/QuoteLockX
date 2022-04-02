@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor" tools:targetApi="M">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="M">?attr/isLightTheme</item>
+
+        <item name="android:windowLightNavigationBar" tools:targetApi="O_MR1">
+            ?attr/isLightTheme
+        </item>
+        <!-- required to contrast the dark buttons -->
+        <item name="android:navigationBarColor" tools:targetApi="O_MR1">
+            ?android:colorBackground
+        </item>
+        <item name="android:navigationBarDividerColor" tools:targetApi="O_MR1">
+            ?android:colorBackground
+        </item>
+    </style>
+</resources>

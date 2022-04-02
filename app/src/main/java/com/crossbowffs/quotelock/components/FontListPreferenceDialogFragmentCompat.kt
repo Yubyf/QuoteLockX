@@ -1,8 +1,7 @@
-package com.crossbowffs.quotelock.app
+package com.crossbowffs.quotelock.components
 
 import android.content.Context
 import android.content.DialogInterface
-import android.content.res.Resources.NotFoundException
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +9,9 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.ListPreference
-import androidx.preference.PreferenceDialogFragmentCompat
 import com.crossbowffs.quotelock.R
+import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.getFontFromName
 
 /**
@@ -20,7 +20,7 @@ import com.crossbowffs.quotelock.utils.getFontFromName
  *
  * @author Yubyf
  */
-class FontListPreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
+class FontListPreferenceDialogFragmentCompat : MaterialPreferenceDialogFragmentCompat() {
     private var mClickedDialogEntryIndex/* synthetic access */ = 0
     private lateinit var mEntries: Array<CharSequence?>
     private lateinit var mEntryValues: Array<CharSequence>
@@ -68,8 +68,7 @@ class FontListPreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() 
 
             // Clicking on an item simulates the positive button click, and dismisses
             // the dialog.
-            onClick(dialog,
-                DialogInterface.BUTTON_POSITIVE)
+            onClick(dialog, DialogInterface.BUTTON_POSITIVE)
             dialog.dismiss()
         }
         //endregion
@@ -101,11 +100,11 @@ class FontListPreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() 
             val view = super.getView(position, convertView, parent)
             if (view is TextView && values.size > position) {
                 val fontName = values[position] as String
-                try {
+                runCatching {
                     view.typeface = context.getFontFromName(fontName)
-                } catch (e: NotFoundException) {
+                }.onFailure {
                     view.typeface = null
-                    e.printStackTrace()
+                    Xlog.e(TAG, "Failed to get font from name: $fontName")
                 }
             }
             return view
@@ -122,16 +121,15 @@ class FontListPreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() 
     //endregion
 
     companion object {
+        val TAG = className<FontListPreferenceDialogFragmentCompat>()
+
         private const val SAVE_STATE_INDEX = "ListPreferenceDialogFragment.index"
         private const val SAVE_STATE_ENTRIES = "ListPreferenceDialogFragment.entries"
         private const val SAVE_STATE_ENTRY_VALUES = "ListPreferenceDialogFragment.entryValues"
 
-        fun newInstance(key: String?): FontListPreferenceDialogFragmentCompat {
-            val fragment = FontListPreferenceDialogFragmentCompat()
-            val b = Bundle(1)
-            b.putString(ARG_KEY, key)
-            fragment.arguments = b
-            return fragment
-        }
+        fun newInstance(key: String?): FontListPreferenceDialogFragmentCompat =
+            FontListPreferenceDialogFragmentCompat().apply {
+                arguments = Bundle(1).apply { putString(ARG_KEY, key) }
+            }
     }
 }

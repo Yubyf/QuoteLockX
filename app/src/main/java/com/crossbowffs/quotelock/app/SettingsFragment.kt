@@ -1,15 +1,15 @@
 package com.crossbowffs.quotelock.app
 
-import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.text.HtmlCompat
+import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Lifecycle
@@ -23,16 +23,17 @@ import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
+import com.crossbowffs.quotelock.components.FontListPreferenceDialogFragmentCompat
+import com.crossbowffs.quotelock.components.MaterialListPreferenceDialogFragmentCompat
+import com.crossbowffs.quotelock.components.MaterialMultiSelectListPreferenceDialogFragmentCompat
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.commonDataStore
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.history.app.QuoteHistoryActivity
 import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
-import com.crossbowffs.quotelock.utils.WorkUtils
-import com.crossbowffs.quotelock.utils.XposedUtils
-import com.crossbowffs.quotelock.utils.className
-import com.crossbowffs.quotelock.utils.ioScope
+import com.crossbowffs.quotelock.utils.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -169,48 +170,56 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
-        if (PREF_COMMON_FONT_FAMILY == preference.key) {
-            showFontFamilyDialog(preference)
-            return
-        }
-        super.onDisplayPreferenceDialog(preference)
+        if (!showPreferenceDialog(preference) {
+                val key = it.key
+                when (key) {
+                    PREF_COMMON_QUOTE_MODULE,
+                    PREF_COMMON_REFRESH_RATE,
+                    PREF_COMMON_FONT_SIZE_TEXT,
+                    PREF_COMMON_FONT_SIZE_SOURCE,
+                    PREF_COMMON_PADDING_TOP,
+                    PREF_COMMON_PADDING_BOTTOM,
+                    -> MaterialListPreferenceDialogFragmentCompat.newInstance(key)
+                    PREF_COMMON_FONT_STYLE_TEXT,
+                    PREF_COMMON_FONT_STYLE_SOURCE,
+                    -> MaterialMultiSelectListPreferenceDialogFragmentCompat.newInstance(key)
+                    PREF_COMMON_FONT_FAMILY ->
+                        FontListPreferenceDialogFragmentCompat.newInstance(key)
+                    else -> null
+                }
+            }
+        ) super.onDisplayPreferenceDialog(preference)
     }
 
-    private fun showFontFamilyDialog(preference: Preference) {
+    private fun showPreferenceDialog(
+        preference: Preference, dialogBlock: ((Preference) -> DialogFragment?),
+    ): Boolean {
         // check if dialog is already showing
-        var dialogFragmentTag: String? = null
-        try {
-            val clazz: Class<*> = javaClass.superclass
-            val field = clazz.getDeclaredField("DIALOG_FRAGMENT_TAG")
-            field.isAccessible = true
-            val tag = field[this]
-            if (tag is String) {
-                dialogFragmentTag = tag
-            }
-        } catch (e: NoSuchFieldException) {
-            dialogFragmentTag = "androidx.preference.PreferenceFragment.DIALOG"
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            dialogFragmentTag = "androidx.preference.PreferenceFragment.DIALOG"
-            e.printStackTrace()
+        val dialogTag = runCatching {
+            getReflectionField<String>("DIALOG_FRAGMENT_TAG1")
+        }.onFailure { Xlog.e(TAG, "", it) }.getOrNull()
+            ?: "androidx.preference.PreferenceFragment.DIALOG"
+        if (parentFragmentManager.findFragmentByTag(dialogTag) != null) {
+            return false
         }
-        if (requireFragmentManager().findFragmentByTag(dialogFragmentTag) != null) {
-            return
-        }
-        val f: DialogFragment
-        f = FontListPreferenceDialogFragmentCompat.newInstance(preference.key)
-        f.setTargetFragment(this, 0)
-        f.show(requireFragmentManager(), "androidx.preference.PreferenceFragment.DIALOG")
+        dialogBlock.invoke(preference)?.let {
+            it.setTargetFragment(this, 0)
+            it.show(parentFragmentManager, dialogTag)
+            return true
+        } ?: return false
     }
 
     private fun showCreditsDialog() {
-        val dialog = AlertDialog.Builder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.credits_title)
-            .setMessage(Html.fromHtml(getString(R.string.credits_message)))
+            .setMessage(HtmlCompat.fromHtml(getString(R.string.credits_message),
+                FROM_HTML_MODE_COMPACT))
             .setPositiveButton(R.string.close, null)
+            .setBackgroundInsetTop(0)
+            .setBackgroundInsetBottom(0)
             .show()
         val textView = dialog.findViewById<TextView>(android.R.id.message)
-        textView.movementMethod = LinkMovementMethod.getInstance()
+        textView?.movementMethod = LinkMovementMethod.getInstance()
     }
 
     private fun onSelectedModuleChanged() {

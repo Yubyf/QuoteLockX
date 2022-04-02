@@ -8,6 +8,7 @@ import android.widget.RadioGroup
 import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys
 import com.crossbowffs.quotelock.modules.hitokoto.hitokotoDataStore
+import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.runBlocking
 
 class HitkotoConfigActivity : Activity(), RadioGroup.OnCheckedChangeListener {
@@ -15,6 +16,10 @@ class HitkotoConfigActivity : Activity(), RadioGroup.OnCheckedChangeListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.radio_hitokoto_quote)
+
+        // Toolbar
+        findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { onBackPressed() }
+
         val radioGroup = findViewById<View>(R.id.module_hitokoto_activity_radiogroup) as RadioGroup
         val queryValueIndex = runBlocking {
             hitokotoDataStore.getIntSuspend(HitokotoPrefKeys.PREF_HITOKOTO_TYPE_INT,

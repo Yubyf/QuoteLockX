@@ -1,12 +1,13 @@
 package com.crossbowffs.quotelock.modules.custom.app
 
-import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
-import android.widget.EditText
+import android.view.ContextMenu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +20,9 @@ import com.crossbowffs.quotelock.components.QuoteListAdapter
 import com.crossbowffs.quotelock.modules.custom.database.CustomQuoteEntity
 import com.crossbowffs.quotelock.modules.custom.database.customQuoteDatabase
 import com.crossbowffs.quotelock.utils.ioScope
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
@@ -34,8 +38,13 @@ class CustomQuoteConfigFragment : BaseQuoteListFragment<CustomQuoteEntity>() {
     @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setHasOptionsMenu(true)
+        requireActivity().findViewById<MaterialToolbar>(R.id.toolbar)
+            .setOnMenuItemClickListener {
+                if (it.itemId == R.id.create_quote) {
+                    showEditQuoteDialog(-1)
+                }
+                true
+            }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 customQuoteDatabase.dao().getAll().collect {
@@ -44,19 +53,6 @@ class CustomQuoteConfigFragment : BaseQuoteListFragment<CustomQuoteEntity>() {
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.custom_quote_options, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.create_quote) {
-            showEditQuoteDialog(-1)
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onCreateContextMenu(
@@ -126,12 +122,12 @@ class CustomQuoteConfigFragment : BaseQuoteListFragment<CustomQuoteEntity>() {
     }
 
     private fun showEditQuoteDialog(rowId: Long) {
-        val layoutInflater = layoutInflater
         val dialogView = layoutInflater.inflate(R.layout.dialog_custom_quote, null)
-        val textEditText = dialogView.findViewById<View>(R.id.dialog_custom_quote_text) as EditText
+        val textEditText =
+            dialogView.findViewById<TextInputEditText>(R.id.dialog_custom_quote_text)
         val sourceEditText =
-            dialogView.findViewById<View>(R.id.dialog_custom_quote_source) as EditText
-        val dialog = AlertDialog.Builder(requireContext())
+            dialogView.findViewById<TextInputEditText>(R.id.dialog_custom_quote_source)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.module_custom_enter_quote)
             .setView(dialogView)
             .setPositiveButton(R.string.save) { _, _ ->
@@ -142,6 +138,8 @@ class CustomQuoteConfigFragment : BaseQuoteListFragment<CustomQuoteEntity>() {
                 )
             }
             .setNegativeButton(R.string.cancel, null)
+            .setBackgroundInsetTop(0)
+            .setBackgroundInsetBottom(0)
             .create()
         dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         dialog.show()

@@ -1,21 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp">
-    <EditText
-        android:id="@+id/dialog_custom_quote_text"
+    android:orientation="vertical"
+    android:paddingStart="?attr/dialogPreferredPadding"
+    android:paddingTop="16dp"
+    android:paddingEnd="?attr/dialogPreferredPadding">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dialog_custom_quote_text_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/module_custom_text"
-        android:maxLines="1"/>
-    <EditText
-        android:id="@+id/dialog_custom_quote_source"
+        android:hint="@string/module_custom_text">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/dialog_custom_quote_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dialog_custom_quote_source_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/module_custom_source"
-        android:maxLines="1"/>
+        android:layout_marginTop="8dp"
+        android:hint="@string/module_custom_source">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/dialog_custom_quote_source"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2" />
+    </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

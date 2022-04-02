@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener
 import coil.imageLoader
 import coil.request.ImageRequest
 import com.crossbowffs.quotelock.R
@@ -19,6 +20,7 @@ import com.crossbowffs.quotelock.backup.RemoteBackup
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.utils.dp2px
+import com.google.android.material.appbar.MaterialToolbar
 import java.io.File
 
 /**
@@ -26,8 +28,8 @@ import java.io.File
  */
 class QuoteCollectionActivity : AppCompatActivity() {
 
+    private lateinit var toolbar: MaterialToolbar
     private var mLoadingDialog: ProgressAlertDialog? = null
-    private var mMenu: Menu? = null
     private val mLocalBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
         override fun success(message: String?) {
             Toast.makeText(applicationContext,
@@ -65,9 +67,77 @@ class QuoteCollectionActivity : AppCompatActivity() {
         }
     }
 
+    private val menuItemClickListener: OnMenuItemClickListener = object : OnMenuItemClickListener {
+        override fun onMenuItemClick(item: MenuItem?): Boolean {
+            if (item == null) {
+                return false
+            }
+            when (item.itemId) {
+                R.id.account_action -> {
+                    if (RemoteBackup.INSTANCE.isGoogleAccountSignedIn(this@QuoteCollectionActivity)) {
+                        RemoteBackup.INSTANCE.switchAccount(this@QuoteCollectionActivity,
+                            RemoteBackup.REQUEST_CODE_SIGN_IN,
+                            object : ProgressCallback {
+                                override fun inProcessing(message: String?) {
+                                    showProgress(message)
+                                }
+
+                                override fun success(message: String?) {
+                                    hideProgress()
+                                    initMenu(toolbar.menu)
+                                    invalidateOptionsMenu()
+                                    if (!message.isNullOrEmpty()) {
+                                        SyncAccountManager.instance.removeAccount(message)
+                                    }
+                                }
+
+                                override fun failure(message: String?) {
+                                    hideProgress()
+                                }
+                            })
+                    } else {
+                        RemoteBackup.INSTANCE.requestSignIn(this@QuoteCollectionActivity,
+                            RemoteBackup.REQUEST_CODE_SIGN_IN)
+                    }
+                }
+                R.id.local_backup -> {
+                    showProgress("Start local backup...")
+                    localBackup()
+                    return true
+                }
+                R.id.local_restore -> {
+                    pickFile()
+                    return true
+                }
+                R.id.remote_backup -> {
+                    showProgress("Start remote backup...")
+                    remoteBackup()
+                    return true
+                }
+                R.id.remote_restore -> {
+                    showProgress("Start remote restore...")
+                    remoteRestore()
+                    return true
+                }
+            }
+            return true
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_container)
+
+        // Toolbar
+        toolbar = findViewById<MaterialToolbar>(R.id.toolbar).apply {
+            setTitle(R.string.quote_collections_activity_label)
+            setNavigationIcon(R.drawable.ic_baseline_arrow_back_24dp)
+            inflateMenu(R.menu.collections_options)
+            initMenu(menu)
+            setNavigationOnClickListener { onBackPressed() }
+            setOnMenuItemClickListener(menuItemClickListener)
+        }
+
         supportFragmentManager.apply {
             beginTransaction()
                 .add(R.id.content_frame, QuoteCollectionFragment())
@@ -78,66 +148,9 @@ class QuoteCollectionActivity : AppCompatActivity() {
                 val result =
                     bundle.getBoolean(QuoteCollectionFragment.BUNDLE_KEY_COLLECTION_SHOW_DETAIL_PAGE,
                         false)
-                mMenu?.setGroupVisible(R.id.backup_group, !result)
+                toolbar.menu?.setGroupVisible(R.id.backup_group, !result)
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.collections_options, menu)
-        mMenu = menu
-        initMenu(mMenu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.account_action -> {
-                if (RemoteBackup.INSTANCE.isGoogleAccountSignedIn(this)) {
-                    RemoteBackup.INSTANCE.switchAccount(this, RemoteBackup.REQUEST_CODE_SIGN_IN,
-                        object : ProgressCallback {
-                            override fun inProcessing(message: String?) {
-                                showProgress(message)
-                            }
-
-                            override fun success(message: String?) {
-                                hideProgress()
-                                initMenu(mMenu)
-                                invalidateOptionsMenu()
-                                if (!message.isNullOrEmpty()) {
-                                    SyncAccountManager.instance.removeAccount(message)
-                                }
-                            }
-
-                            override fun failure(message: String?) {
-                                hideProgress()
-                            }
-                        })
-                } else {
-                    RemoteBackup.INSTANCE.requestSignIn(this, RemoteBackup.REQUEST_CODE_SIGN_IN)
-                }
-            }
-            R.id.local_backup -> {
-                showProgress("Start local backup...")
-                localBackup()
-                return true
-            }
-            R.id.local_restore -> {
-                pickFile()
-                return true
-            }
-            R.id.remote_backup -> {
-                showProgress("Start remote backup...")
-                remoteBackup()
-                return true
-            }
-            R.id.remote_restore -> {
-                showProgress("Start remote restore...")
-                remoteRestore()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onRequestPermissionsResult(
@@ -165,7 +178,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
                         applicationContext,
                         R.string.backup_google_account_connected, Toast.LENGTH_SHORT
                     ).show()
-                    initMenu(mMenu)
+                    initMenu(toolbar.menu)
                     invalidateOptionsMenu()
                     val accountName = RemoteBackup.INSTANCE.getSignedInGoogleAccountEmail(this)
                     if (!accountName.isNullOrEmpty()) {
@@ -226,7 +239,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
                         .size(iconSize)
                         .target(
                             onSuccess = { result ->
-                                mMenu?.let {
+                                toolbar.menu?.let {
                                     it.findItem(R.id.account).icon = result
                                     invalidateOptionsMenu()
                                 }

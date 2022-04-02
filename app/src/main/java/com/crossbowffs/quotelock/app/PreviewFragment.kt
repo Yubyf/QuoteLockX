@@ -27,6 +27,7 @@ import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.dp2px
 import com.crossbowffs.quotelock.utils.md5
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -248,11 +249,12 @@ class PreviewPreference @JvmOverloads constructor(
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
-        val quoteContainer = holder.itemView
+        val quoteContainer = holder.itemView as MaterialCardView
         val quoteTextView = holder.findViewById(R.id.quote_textview) as? TextView
         val quoteSourceView = holder.findViewById(R.id.source_textview) as? TextView
-        quoteContainer.let {
-            it.setPadding(it.paddingStart, paddingTop, it.paddingEnd, paddingBottom)
+        quoteContainer.apply {
+            setContentPadding(contentPaddingLeft, this@PreviewPreference.paddingTop,
+                contentPaddingRight, this@PreviewPreference.paddingBottom)
         }
         quoteTextView?.run {
             text = quote

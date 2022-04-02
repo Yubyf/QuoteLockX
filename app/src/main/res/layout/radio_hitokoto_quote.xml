@@ -1,101 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_baseline_close_24dp"
+            app:title="@string/module_hitokoto_activity_label" />
+    </com.google.android.material.appbar.AppBarLayout>
+
     <RadioGroup
         android:id="@+id/module_hitokoto_activity_radiogroup"
-        android:checkedButton="@+id/module_hitokoto_activity_type_random"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="?android:attr/dividerHorizontal"
-        android:showDividers="middle"
+        android:checkedButton="@+id/module_hitokoto_activity_type_random"
+        android:divider="?attr/dividerHorizontal"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:paddingRight="16dp"
+        android:showDividers="middle">
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_anime"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_anime"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_comic"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_comic"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_game"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_game"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_novel"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_novel"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_myself"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_myself"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_internet"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_internet"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_other"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_other"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_film"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_film"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_poem"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_poem"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_netease_cloud"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_netease_cloud"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
             android:id="@+id/module_hitokoto_activity_type_philosophy"
-            android:text="@string/module_hitokoto_activity_type_philosophy"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
-        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:text="@string/module_hitokoto_activity_type_philosophy"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <RadioButton
             android:id="@+id/module_hitokoto_activity_type_one_line"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:text="@string/module_hitokoto_activity_type_one_line"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </RadioGroup>
 </LinearLayout>

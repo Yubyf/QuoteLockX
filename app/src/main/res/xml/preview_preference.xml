@@ -3,12 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
         android:title="@string/preview"
-        app:allowDividerBelow="true"
         app:iconSpaceReserved="false">
         <com.crossbowffs.quotelock.app.PreviewPreference
             android:key="pref_preview"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="true"
             app:iconSpaceReserved="false"
             app:selectable="false" />
     </PreferenceCategory>

@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/quote_container"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="end"
-    android:orientation="vertical"
-    android:paddingLeft="24dp"
-    android:paddingTop="8dp"
-    android:paddingRight="24dp"
-    android:paddingBottom="8dp">
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    app:contentPaddingBottom="8dp"
+    app:contentPaddingLeft="8dp"
+    app:contentPaddingRight="8dp"
+    app:contentPaddingTop="8dp">
 
-    <TextView
-        android:id="@+id/quote_textview"
+    <LinearLayout
+        android:id="@+id/quote_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/open_quotelock_app_line1"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_height="match_parent"
+        android:gravity="end"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/source_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/open_quotelock_app_line2"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/quote_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/open_quotelock_app_line1"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/source_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/open_quotelock_app_line2"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
