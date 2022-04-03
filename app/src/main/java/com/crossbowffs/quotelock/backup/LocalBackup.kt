@@ -15,15 +15,14 @@ import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionDatabase
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
-import com.crossbowffs.quotelock.utils.fromFile
-import com.crossbowffs.quotelock.utils.ioScope
-import com.crossbowffs.quotelock.utils.toFile
+import com.crossbowffs.quotelock.utils.*
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,6 +37,8 @@ object LocalBackup {
     )
     const val REQUEST_CODE_PERMISSIONS_BACKUP = 55
     const val REQUEST_CODE_PICK_FILE = 43
+
+    val TAG = className<LocalBackup>()
 
     val PREF_BACKUP_ROOT_DIR: File =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -85,8 +86,8 @@ object LocalBackup {
         }
         ioScope.launch {
             try {
-                backupDb(activity, databaseName)
-                callback.safeSuccess()
+                val path = backupDb(activity, databaseName)
+                callback.safeSuccess(path)
             } catch (e: Exception) {
                 e.printStackTrace()
                 callback.safeFailure(e.message)
@@ -113,14 +114,14 @@ object LocalBackup {
     }
 
     @Throws(Exception::class)
-    private fun backupDb(context: Context, databaseName: String): Boolean {
+    private fun backupDb(context: Context, databaseName: String): String {
         //database path
         val inFileName = context.getDatabasePath(databaseName).toString()
         return try {
             val dbFile = File(inFileName)
-            copyFileToDownloads(context, dbFile) != null
+            copyFileToDownloads(context, dbFile)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Xlog.e(TAG, "Failed to backup database: $e")
             throw Exception("Unable to backup database. Retry")
         }
     }
@@ -141,7 +142,7 @@ object LocalBackup {
     }
 
     @SuppressLint("Range")
-    private fun copyFileToDownloads(context: Context, file: File): Uri? {
+    private fun copyFileToDownloads(context: Context, file: File): String {
         // Generate export name with timestamp
         val date = Date(System.currentTimeMillis())
         val simpleDateFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
@@ -150,7 +151,7 @@ object LocalBackup {
 
         // Copy file
         val resolver = context.contentResolver
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Adapt the scope storage above Android Q by MediaStore.
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.RELATIVE_PATH,
@@ -165,6 +166,9 @@ object LocalBackup {
             targetFile.parentFile?.mkdirs()
             Uri.fromFile(targetFile)
         }?.also { resolver.openOutputStream(it)?.fromFile(file.absoluteFile) }
+            ?: throw IOException()
+        return Environment.DIRECTORY_DOWNLOADS.plus(File.separatorChar)
+            .plus(PREF_BACKUP_RELATIVE_PATH).plus(File.separatorChar).plus(exportName)
     }
 }
 

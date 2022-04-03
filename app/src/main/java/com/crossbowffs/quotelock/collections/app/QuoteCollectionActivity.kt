@@ -33,8 +33,8 @@ class QuoteCollectionActivity : AppCompatActivity() {
     private val mLocalBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
         override fun success(message: String?) {
             Toast.makeText(applicationContext,
-                R.string.backup_local_backup_completed,
-                Toast.LENGTH_SHORT
+                getString(R.string.backup_local_backup_completed) + "\nFile saved to " + message,
+                Toast.LENGTH_LONG
             ).show()
             hideProgress()
         }
