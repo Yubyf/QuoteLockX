@@ -1,5 +1,8 @@
 # QuoteLockX
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Yubyf/QuoteLockX)](https://github.com/Yubyf/QuoteLockX/releases/latest)
+[![License](https://img.shields.io/github/license/Yubyf/QuoteLockX)](https://github.com/Yubyf/QuoteLockX/blob/master/LICENSE.txt)
+
 This new fork will be continuously maintained as the
 original [QuoteLock](https://github.com/apsun/QuoteLock) is no longer maintained and has been
 archived.
