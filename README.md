@@ -15,7 +15,7 @@ archived.
 
 ## Screenshots
 
-| Lockscreen | AmbientDisplay |
+| &nbsp;&nbsp;&nbsp;&nbsp;Lockscreen&nbsp;&nbsp;&nbsp;&nbsp; | AmbientDisplay |
 | :---: | :---: |
 | <img src="screenshots/lockscreen.png" title="Lockscreen" width="360px" /> | <img src="screenshots/ambient_display.png" title="AmbientDisplay" width="360px" /> |
 
