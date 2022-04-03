@@ -38,6 +38,17 @@ android {
         }
 
         release {
+            postprocessing {
+                // Enable code shrinking
+                isRemoveUnusedCode = true
+                // Enable resource shrinking
+                isRemoveUnusedResources = true
+                // Disable code obfuscation
+                isObfuscate = false
+                // Disable code optimization
+                isOptimizeCode = false
+            }
+
             buildConfigField("int", "LOG_LEVEL", "4")
             buildConfigField("boolean", "LOG_TO_XPOSED", "true")
         }
