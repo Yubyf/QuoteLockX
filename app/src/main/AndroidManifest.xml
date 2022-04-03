@@ -90,15 +90,20 @@
         <provider
             android:name=".provider.ActionProvider"
             android:authorities="${applicationId}.action"
-            android:exported="true"/>
+            android:exported="true" />
+
         <meta-data
             android:name="xposedmodule"
-            android:value="true"/>
+            android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Displays quotes on your phone lockscreen"/>
+            android:value="Displays quotes on your phone lockscreen" />
         <meta-data
             android:name="xposedminversion"
-            android:value="53"/>
+            android:value="53" />
+        <!--ModuleScope for LSPosed-->
+        <meta-data
+            android:name="xposedscope"
+            android:resource="@array/module_scope" />
     </application>
 </manifest>

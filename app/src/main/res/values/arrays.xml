@@ -108,4 +108,9 @@
         <item>k</item>
         <item>l</item>
     </string-array>
+
+    <!--ModuleScope for LSPosed-->
+    <string-array name="module_scope">
+        <item>com.android.systemui</item>
+    </string-array>
 </resources>
