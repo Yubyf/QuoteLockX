@@ -4,6 +4,9 @@ This new fork will be continuously maintained as the
 original [QuoteLock](https://github.com/apsun/QuoteLock) is no longer maintained and has been
 archived.
 
+This module is available in
+LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) now.
+
 ## Features
 
 - Displays quotes on your lockscreen, because why not.
