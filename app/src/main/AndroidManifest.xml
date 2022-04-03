@@ -20,9 +20,10 @@
 
     <application
         android:name="com.crossbowffs.quotelock.app.App"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/quotelockx"
-        android:theme="@style/AppTheme"
-        android:icon="@mipmap/ic_launcher">
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppTheme">
         <activity android:name="com.crossbowffs.quotelock.app.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -86,7 +87,7 @@
         <provider
             android:name="com.crossbowffs.quotelock.provider.PreferenceProvider"
             android:authorities="${applicationId}.preferences"
-            android:exported="true"/>
+            android:exported="true" />
         <provider
             android:name="com.crossbowffs.quotelock.provider.ActionProvider"
             android:authorities="${applicationId}.action"
