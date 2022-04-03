@@ -7,16 +7,21 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.NameNotFoundException
+import android.net.Uri
 import android.os.Build
 import com.yubyf.quotelockx.BuildConfig
 
 object XposedUtils {
     private const val MODULE_VERSION = BuildConfig.MODULE_VERSION
     private const val XPOSED_PACKAGE = "de.robv.android.xposed.installer"
-    private const val XPOSED_ACTION = XPOSED_PACKAGE + ".OPEN_SECTION"
+    private const val XPOSED_ACTION = "$XPOSED_PACKAGE.OPEN_SECTION"
     private const val XPOSED_EXTRA_SECTION = "section"
     const val XPOSED_SECTION_MODULES = "modules"
     const val XPOSED_SECTION_INSTALL = "install"
+
+    private const val EDPOSED_MODULES_PAGE = "$XPOSED_PACKAGE.WelcomeActivity"
+    private const val LSPOSED_PACKAGE = "org.lsposed.manager"
+    private const val LSPOSED_MODULES_PAGE = "$LSPOSED_PACKAGE.ui.activity.MainActivity"
 
     val isModuleEnabled: Boolean
         get() = getModuleVersion() >= 0
@@ -42,29 +47,28 @@ object XposedUtils {
     }
 
     fun Context.startXposedActivity(section: String?): Boolean {
-        val intent = Intent(XPOSED_ACTION)
-        intent.putExtra(XPOSED_EXTRA_SECTION, section)
-        return try {
-            startActivity(intent)
-            true
-        } catch (e: ActivityNotFoundException) {
-            startEdXposedActivity(this)
-        }
+        return runCatching {
+            startLSPosedActivity()
+        }.recoverCatching {
+            startEdXposedActivity()
+        }.getOrNull() ?: false
     }
 
-    private fun startEdXposedActivity(context: Context): Boolean {
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.setPackage("org.meowcat.edxposed.manager")
-        intent.component = ComponentName(
-            "org.meowcat.edxposed.manager",
-            "org.meowcat.edxposed.manager.WelcomeActivity")
-        intent.putExtra("fragment", 2)
-        return try {
-            context.startActivity(intent)
-            true
-        } catch (e: ActivityNotFoundException) {
-            false
-        }
+    @Throws(ActivityNotFoundException::class)
+    private fun Context.startEdXposedActivity(): Boolean {
+        startActivity(Intent(Intent.ACTION_VIEW).apply {
+            component = ComponentName(XPOSED_PACKAGE, EDPOSED_MODULES_PAGE)
+        })
+        return true
+    }
+
+    @Throws(ActivityNotFoundException::class)
+    private fun Context.startLSPosedActivity(): Boolean {
+        startActivity(Intent(Intent.ACTION_MAIN).apply {
+            component = ComponentName(LSPOSED_PACKAGE, LSPOSED_MODULES_PAGE)
+            data = Uri.parse(XPOSED_SECTION_MODULES)
+        })
+        return true
     }
 
     /**
