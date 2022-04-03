@@ -9,8 +9,8 @@ android {
 
     defaultConfig {
         applicationId = "com.yubyf.quotelockx"
-        versionCode = 15
-        versionName = "2.0.0"
+        versionCode = 16
+        versionName = "2.0.1"
         minSdk = 21
 
         targetSdk = 29
@@ -38,16 +38,14 @@ android {
         }
 
         release {
-            postprocessing {
-                // Enable code shrinking
-                isRemoveUnusedCode = true
-                // Enable resource shrinking
-                isRemoveUnusedResources = true
-                // Disable code obfuscation
-                isObfuscate = false
-                // Disable code optimization
-                isOptimizeCode = false
-            }
+            // Enables code shrinking.
+            isMinifyEnabled = true
+
+            // Enables resource shrinking.
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            )
 
             buildConfigField("int", "LOG_LEVEL", "4")
             buildConfigField("boolean", "LOG_TO_XPOSED", "true")
