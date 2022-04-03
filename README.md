@@ -65,7 +65,7 @@ the download service.
 ### In Progress
 
 - [ ] Add support for fortune-mod.
-- [ ] Add xml export format.
+- [ ] Add ~~xml~~ csv export format.
 
 ### Done
 
