@@ -1,7 +1,7 @@
-# QuoteLock
+# QuoteLockX
 
-This fork will be continuously maintained as
-the [original repository](https://github.com/apsun/QuoteLock) is no longer maintained and has been
+This new fork will be continuously maintained as the
+original [QuoteLock](https://github.com/apsun/QuoteLock) is no longer maintained and has been
 archived.
 
 ## Features
@@ -31,8 +31,8 @@ made by different OEMs.
 **After installing, please open the app at least once** to allow the quote downloader service to run
 in the background.
 
-**Make sure to whitelist QuoteLock if you are using a task-killer app!** They can interfere with the
-download service.
+**Make sure to whitelist QuoteLockX if you are using a task-killer app!** They can interfere with
+the download service.
 
 ## Requirements
 
@@ -62,7 +62,6 @@ download service.
 
 ### Done
 
-- [x] Material design of setting pages.
 - [x] Providers updates
 - [x] Jirishici(今日诗词) source
 - [x] Backup and restore on local and remote(Google Drive)

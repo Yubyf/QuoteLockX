@@ -8,11 +8,11 @@ import android.content.Context
 import android.content.SyncResult
 import android.os.Bundle
 import android.text.TextUtils
-import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.backup.RemoteBackup
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
+import com.yubyf.quotelockx.BuildConfig
 
 /**
  * @author Yubyf

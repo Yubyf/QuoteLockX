@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:menu="@menu/main_options"
-            app:title="@string/quotelock" />
+            app:title="@string/quotelockx" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout

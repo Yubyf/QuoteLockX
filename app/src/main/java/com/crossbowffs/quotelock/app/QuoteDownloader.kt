@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.app
 
 import android.content.Context
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
@@ -15,6 +14,7 @@ import com.crossbowffs.quotelock.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.ioScope
 import com.crossbowffs.quotelock.utils.md5
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull

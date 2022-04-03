@@ -8,13 +8,13 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.components.BaseQuoteListFragment
 import com.crossbowffs.quotelock.components.ContextMenuRecyclerView
 import com.crossbowffs.quotelock.components.QuoteListAdapter
 import com.crossbowffs.quotelock.history.database.QuoteHistoryEntity
 import com.crossbowffs.quotelock.history.database.quoteHistoryDatabase
 import com.crossbowffs.quotelock.utils.ioScope
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch

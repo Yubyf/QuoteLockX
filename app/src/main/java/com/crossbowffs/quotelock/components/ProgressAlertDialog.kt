@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import com.crossbowffs.quotelock.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.yubyf.quotelockx.R
 
 /**
  * @author Yubyf

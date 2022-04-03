@@ -8,24 +8,18 @@ android {
     compileSdk = 31
 
     defaultConfig {
-        applicationId = "com.crossbowffs.quotelock"
-        versionCode = 14
-        versionName = "1.5.2"
+        applicationId = "com.yubyf.quotelockx"
+        versionCode = 15
+        versionName = "2.0.0"
         minSdk = 21
 
-        /*
-         * QuoteLock is not compatible with API24 and above due to the
-         * behavior changes in connectivity intents. If someone wants to
-         * fix this, feel free, but be aware that JobScheduler is already
-         * buggy enough as it is.
-         */
         targetSdk = 29
 
         buildConfigField("int", "MODULE_VERSION", "3")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "3")
         buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "3")
         buildConfigField("int", "QUOTE_HISTORIES_DB_VERSION", "3")
-        buildConfigField("String", "LOG_TAG", "\"QuoteLock\"")
+        buildConfigField("String", "LOG_TAG", "\"QuoteLockX\"")
 
         resValue("string", "account_type", "${applicationId}.account")
         resValue("string", "account_authority", "${applicationId}.collection.provider")

@@ -9,7 +9,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
-import com.crossbowffs.quotelock.BuildConfig
+import com.yubyf.quotelockx.BuildConfig
 import org.xmlpull.v1.XmlPullParser
 
 class XSafeModuleResources private constructor(private val mModuleRes: XModuleResources) {

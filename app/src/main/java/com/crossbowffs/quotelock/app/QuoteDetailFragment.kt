@@ -8,9 +8,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionSet
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.utils.TextResize
 import com.crossbowffs.quotelock.utils.className
+import com.yubyf.quotelockx.R
 
 
 class QuoteDetailFragment : Fragment() {

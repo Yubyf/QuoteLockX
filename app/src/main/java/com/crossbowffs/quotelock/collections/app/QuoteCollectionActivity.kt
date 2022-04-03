@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener
 import coil.imageLoader
 import coil.request.ImageRequest
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.account.SyncAccountManager
 import com.crossbowffs.quotelock.backup.LocalBackup
 import com.crossbowffs.quotelock.backup.ProgressCallback
@@ -21,6 +20,7 @@ import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.utils.dp2px
 import com.google.android.material.appbar.MaterialToolbar
+import com.yubyf.quotelockx.R
 import java.io.File
 
 /**

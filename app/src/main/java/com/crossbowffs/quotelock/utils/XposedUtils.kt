@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
-import com.crossbowffs.quotelock.BuildConfig
+import com.yubyf.quotelockx.BuildConfig
 
 object XposedUtils {
     private const val MODULE_VERSION = BuildConfig.MODULE_VERSION

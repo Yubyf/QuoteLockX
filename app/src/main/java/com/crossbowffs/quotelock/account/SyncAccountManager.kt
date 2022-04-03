@@ -6,13 +6,13 @@ import android.content.ContentResolver
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.account.syncadapter.SyncAdapter
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.ioScope
+import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 

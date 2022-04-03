@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.util.Pair
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.ioScope
 import com.crossbowffs.quotelock.utils.md5String
@@ -40,6 +39,7 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.*
@@ -80,7 +80,7 @@ class RemoteBackup {
                 NetHttpTransport(),
                 GsonFactory(),
                 credential)
-                .setApplicationName(context.getString(R.string.quotelock))
+                .setApplicationName(context.getString(R.string.quotelockx))
                 .build()
         }
         return ::drive.isInitialized
@@ -151,7 +151,7 @@ class RemoteBackup {
                     NetHttpTransport(),
                     GsonFactory(),
                     credential)
-                    .setApplicationName(activity.getString(R.string.quotelock))
+                    .setApplicationName(activity.getString(R.string.quotelockx))
                     .build()
                 action.run()
             }

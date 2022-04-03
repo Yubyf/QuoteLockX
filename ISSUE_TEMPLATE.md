@@ -6,8 +6,8 @@ Write your issue description here.
 
 - Device ("Nexus 6P"): 
 - Android version ("7.1.1"): 
-- Xposed version ("53"): 
-- QuoteLock version ("1.4.0"): 
+- Xposed version ("53"):
+- QuoteLockX version ("2.0.0"):
 
 Please paste your Xposed logs (Xposed Installer -> Logs -> Menu -> Save to SD card) below:
 

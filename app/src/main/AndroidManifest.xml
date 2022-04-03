@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.crossbowffs.quotelock">
+    package="com.yubyf.quotelockx">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -19,34 +19,34 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 
     <application
-        android:name=".app.App"
-        android:label="@string/quotelock"
+        android:name="com.crossbowffs.quotelock.app.App"
+        android:label="@string/quotelockx"
         android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher">
-        <activity android:name=".app.MainActivity">
+        <activity android:name="com.crossbowffs.quotelock.app.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".modules.custom.app.CustomQuoteConfigActivity"
+            android:name="com.crossbowffs.quotelock.modules.custom.app.CustomQuoteConfigActivity"
             android:label="@string/module_custom_activity_label" />
         <activity
-            android:name=".modules.brainyquote.app.BrainyQuoteConfigActivity"
+            android:name="com.crossbowffs.quotelock.modules.brainyquote.app.BrainyQuoteConfigActivity"
             android:label="@string/module_brainy_activity_label" />
         <activity
-            android:name=".modules.hitokoto.app.HitkotoConfigActivity"
+            android:name="com.crossbowffs.quotelock.modules.hitokoto.app.HitkotoConfigActivity"
             android:label="@string/module_hitokoto_activity_label" />
         <activity
-            android:name=".collections.app.QuoteCollectionActivity"
+            android:name="com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity"
             android:label="@string/quote_collections_activity_label" />
         <activity
-            android:name=".history.app.QuoteHistoryActivity"
+            android:name="com.crossbowffs.quotelock.history.app.QuoteHistoryActivity"
             android:label="@string/quote_histories_activity_label" />
 
         <service
-            android:name=".account.authenticator.AuthenticationService"
+            android:name="com.crossbowffs.quotelock.account.authenticator.AuthenticationService"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedService">
@@ -58,7 +58,7 @@
                 android:resource="@xml/authenticator" />
         </service>
         <service
-            android:name=".account.syncadapter.SyncService"
+            android:name="com.crossbowffs.quotelock.account.syncadapter.SyncService"
             android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
@@ -70,11 +70,11 @@
         </service>
 
         <provider
-            android:name=".collections.provider.QuoteCollectionStubProvider"
+            android:name="com.crossbowffs.quotelock.collections.provider.QuoteCollectionStubProvider"
             android:authorities="${applicationId}.collection.provider"
             android:exported="false" />
 
-        <receiver android:name=".app.CommonReceiver">
+        <receiver android:name="com.crossbowffs.quotelock.app.CommonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -84,11 +84,11 @@
         </receiver>
 
         <provider
-            android:name=".provider.PreferenceProvider"
+            android:name="com.crossbowffs.quotelock.provider.PreferenceProvider"
             android:authorities="${applicationId}.preferences"
             android:exported="true"/>
         <provider
-            android:name=".provider.ActionProvider"
+            android:name="com.crossbowffs.quotelock.provider.ActionProvider"
             android:authorities="${applicationId}.action"
             android:exported="true" />
 

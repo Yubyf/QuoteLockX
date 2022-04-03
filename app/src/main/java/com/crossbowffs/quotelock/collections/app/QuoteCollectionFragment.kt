@@ -8,7 +8,6 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionEntity
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.components.BaseQuoteListFragment
@@ -17,6 +16,7 @@ import com.crossbowffs.quotelock.components.QuoteListAdapter
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.ioScope
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect

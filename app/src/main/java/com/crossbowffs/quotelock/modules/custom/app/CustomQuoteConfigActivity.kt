@@ -2,8 +2,8 @@ package com.crossbowffs.quotelock.modules.custom.app
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.crossbowffs.quotelock.R
 import com.google.android.material.appbar.MaterialToolbar
+import com.yubyf.quotelockx.R
 
 class CustomQuoteConfigActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

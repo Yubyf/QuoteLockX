@@ -19,8 +19,6 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import com.crossbowffs.quotelock.BuildConfig
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
 import com.crossbowffs.quotelock.components.FontListPreferenceDialogFragmentCompat
@@ -34,6 +32,8 @@ import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.utils.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.yubyf.quotelockx.BuildConfig
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -135,10 +135,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             PREF_ABOUT_GITHUB -> {
                 startBrowserActivity(Urls.GITHUB_QUOTELOCK)
-                true
-            }
-            PREF_ABOUT_GITHUB_CURRENT -> {
-                startBrowserActivity(Urls.GITHUB_QUOTELOCK_CURRENT)
                 true
             }
             PREF_ABOUT_VERSION -> {

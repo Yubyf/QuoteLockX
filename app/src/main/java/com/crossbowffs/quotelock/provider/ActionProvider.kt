@@ -6,7 +6,6 @@ import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
-import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.app.downloadQuote
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionEntity
@@ -14,6 +13,7 @@ import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.ioScope
+import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 

@@ -2,12 +2,12 @@ package com.crossbowffs.quotelock.modules.collections
 
 import android.content.ComponentName
 import android.content.Context
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAULT
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.flow.firstOrNull
 
 /**

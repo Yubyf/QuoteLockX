@@ -10,10 +10,10 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.*
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionSet
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.app.QuoteDetailFragment
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.database.QuoteEntity
+import com.yubyf.quotelockx.R
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**

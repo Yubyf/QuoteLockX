@@ -2,7 +2,6 @@ package com.crossbowffs.quotelock.modules.jinrishici
 
 import android.content.ComponentName
 import android.content.Context
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
@@ -15,6 +14,7 @@ import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.downloadUrl
 import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
+import com.yubyf.quotelockx.R
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException

@@ -1,7 +1,7 @@
 package com.crossbowffs.quotelock.utils
 
 import android.util.Log
-import com.crossbowffs.quotelock.BuildConfig
+import com.yubyf.quotelockx.BuildConfig
 
 
 private const val LOG_TAG = BuildConfig.LOG_TAG

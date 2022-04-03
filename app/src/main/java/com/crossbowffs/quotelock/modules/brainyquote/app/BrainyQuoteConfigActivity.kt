@@ -5,10 +5,10 @@ import android.view.View
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.modules.brainyquote.brainyDataStore
 import com.crossbowffs.quotelock.modules.brainyquote.consts.BrainyQuotePrefKeys
 import com.google.android.material.appbar.MaterialToolbar
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.runBlocking
 
 class BrainyQuoteConfigActivity : AppCompatActivity(), RadioGroup.OnCheckedChangeListener {

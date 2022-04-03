@@ -2,11 +2,11 @@ package com.crossbowffs.quotelock.modules.natune
 
 import android.content.ComponentName
 import android.content.Context
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_LATIN
 import com.crossbowffs.quotelock.utils.downloadUrl
+import com.yubyf.quotelockx.R
 import org.jsoup.Jsoup
 
 class NatuneQuoteModule : QuoteModule {

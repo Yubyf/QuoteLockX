@@ -9,10 +9,10 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.ListPreference
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.getFontFromName
+import com.yubyf.quotelockx.R
 
 /**
  * Show font list with specific font styles

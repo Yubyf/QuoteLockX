@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.app.ActivityCompat
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionDatabase
@@ -19,6 +18,7 @@ import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.utils.fromFile
 import com.crossbowffs.quotelock.utils.ioScope
 import com.crossbowffs.quotelock.utils.toFile
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -41,7 +41,7 @@ object LocalBackup {
 
     val PREF_BACKUP_ROOT_DIR: File =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-    val PREF_BACKUP_RELATIVE_PATH = App.INSTANCE.resources.getString(R.string.quotelock)
+    val PREF_BACKUP_RELATIVE_PATH = App.INSTANCE.resources.getString(R.string.quotelockx)
 
     /** Check necessary permissions.  */
     private fun verifyPermissions(activity: Activity, requestCode: Int): Boolean {

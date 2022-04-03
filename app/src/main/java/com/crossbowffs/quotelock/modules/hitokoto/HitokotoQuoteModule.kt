@@ -2,7 +2,6 @@ package com.crossbowffs.quotelock.modules.hitokoto
 
 import android.content.ComponentName
 import android.content.Context
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.api.QuoteData
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
@@ -12,6 +11,7 @@ import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_H
 import com.crossbowffs.quotelock.modules.hitokoto.consts.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING
 import com.crossbowffs.quotelock.utils.downloadUrl
 import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
+import com.yubyf.quotelockx.R
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException

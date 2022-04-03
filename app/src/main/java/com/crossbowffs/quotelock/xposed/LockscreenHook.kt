@@ -346,7 +346,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         if (XposedUtils.isAodHookAvailable) {
             hookAodLayout(lpparam)
         }
-        Xlog.i(TAG, "QuoteLock Xposed module initialized!")
+        Xlog.i(TAG, "QuoteLockX Xposed module initialized!")
     }
 
     private fun hookLockscreenLayout(lpparam: LoadPackageParam) {

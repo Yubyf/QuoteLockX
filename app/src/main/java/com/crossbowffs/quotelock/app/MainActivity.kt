@@ -10,7 +10,6 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.utils.WorkUtils.createQuoteDownloadWork
@@ -21,6 +20,7 @@ import com.crossbowffs.quotelock.utils.XposedUtils.startXposedActivity
 import com.crossbowffs.quotelock.utils.mainScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 

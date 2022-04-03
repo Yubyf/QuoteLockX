@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
-import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.consts.PREF_COMMON
 import com.crossbowffs.quotelock.consts.PREF_QUOTES
 import com.crossbowffs.remotepreferences.RemotePreferenceProvider
 import com.yubyf.datastore.DataStorePreferences.Companion.getDataStorePreferences
+import com.yubyf.quotelockx.BuildConfig
 
 class PreferenceProvider : RemotePreferenceProvider(AUTHORITY, arrayOf(PREF_COMMON, PREF_QUOTES)) {
 

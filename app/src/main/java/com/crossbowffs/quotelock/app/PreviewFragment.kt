@@ -20,7 +20,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceViewHolder
 import androidx.recyclerview.widget.RecyclerView
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.commonDataStore
 import com.crossbowffs.quotelock.data.quotesDataStore
@@ -28,6 +27,7 @@ import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.dp2px
 import com.crossbowffs.quotelock.utils.md5
 import com.google.android.material.card.MaterialCardView
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty

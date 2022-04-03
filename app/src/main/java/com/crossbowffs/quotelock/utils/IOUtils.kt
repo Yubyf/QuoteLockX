@@ -2,8 +2,8 @@
 
 package com.crossbowffs.quotelock.utils
 
-import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.consts.Urls
+import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import java.io.*
@@ -31,7 +31,7 @@ fun InputStream.readString(
 suspend fun String.downloadUrl(
     headers: Map<String, String?>? = null,
 ): String = runInterruptible(Dispatchers.IO) {
-    val ua = "QuoteLock/${BuildConfig.VERSION_NAME} (+${Urls.GITHUB_QUOTELOCK})"
+    val ua = "QuoteLockX/${BuildConfig.VERSION_NAME} (+${Urls.GITHUB_QUOTELOCK})"
     val connection = URL(this@downloadUrl).openConnection() as HttpURLConnection
     try {
         connection.setRequestProperty("User-Agent", ua)

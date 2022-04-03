@@ -17,5 +17,5 @@ dependencyResolutionManagement {
         }
     }
 }
-rootProject.name = "QuoteLock"
+rootProject.name = "QuoteLockX"
 include(":app")

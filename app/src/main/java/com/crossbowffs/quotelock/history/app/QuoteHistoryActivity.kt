@@ -5,12 +5,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.crossbowffs.quotelock.R
 import com.crossbowffs.quotelock.history.app.QuoteHistoryFragment.Companion.BUNDLE_KEY_HISTORY_SHOW_DETAIL_PAGE
 import com.crossbowffs.quotelock.history.app.QuoteHistoryFragment.Companion.REQUEST_KEY_HISTORY_LIST_PAGE
 import com.crossbowffs.quotelock.history.database.quoteHistoryDatabase
 import com.crossbowffs.quotelock.utils.ioScope
 import com.google.android.material.appbar.MaterialToolbar
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch

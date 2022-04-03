@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.database.QuoteEntity
 import com.crossbowffs.quotelock.database.QuoteEntityContract
 import com.crossbowffs.quotelock.modules.custom.database.CustomQuoteContract.DATABASE_NAME
+import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.flow.Flow
 
 /**

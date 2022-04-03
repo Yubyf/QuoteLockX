@@ -1,9 +1,9 @@
 package com.crossbowffs.quotelock.xposed
 
-import com.crossbowffs.quotelock.BuildConfig
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.className
+import com.yubyf.quotelockx.BuildConfig
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers

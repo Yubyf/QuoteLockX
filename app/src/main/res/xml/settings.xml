@@ -118,13 +118,8 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_about_github"
-            android:summary="github.com/apsun/QuoteLock"
+            android:summary="github.com/Yubyf/QuoteLockX"
             android:title="@string/pref_about_github"
-            app:iconSpaceReserved="false" />
-        <Preference
-            android:key="pref_about_github_current"
-            android:summary="github.com/Yubyf/QuoteLock"
-            android:title="@string/pref_about_github_current"
             app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_about_version"
