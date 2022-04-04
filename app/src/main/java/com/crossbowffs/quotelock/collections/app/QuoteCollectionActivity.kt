@@ -10,12 +10,14 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener
+import androidx.core.view.MenuCompat
 import coil.imageLoader
 import coil.request.ImageRequest
 import com.crossbowffs.quotelock.account.SyncAccountManager
-import com.crossbowffs.quotelock.backup.LocalBackup
+import com.crossbowffs.quotelock.backup.ExportHelper
+import com.crossbowffs.quotelock.backup.GDriveSyncManager
+import com.crossbowffs.quotelock.backup.ImportExportType
 import com.crossbowffs.quotelock.backup.ProgressCallback
-import com.crossbowffs.quotelock.backup.RemoteBackup
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.utils.dp2px
@@ -30,28 +32,10 @@ class QuoteCollectionActivity : AppCompatActivity() {
 
     private lateinit var toolbar: MaterialToolbar
     private var mLoadingDialog: ProgressAlertDialog? = null
-    private val mLocalBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
-        override fun success(message: String?) {
-            Toast.makeText(applicationContext,
-                getString(R.string.backup_local_backup_completed) + "\nFile saved to " + message,
-                Toast.LENGTH_LONG
-            ).show()
-            hideProgress()
-        }
-    }
-    private val mLocalRestoreCallback: ProgressCallback = object : AbstractBackupCallback() {
-        override fun success(message: String?) {
-            Toast.makeText(applicationContext,
-                R.string.backup_local_restore_completed,
-                Toast.LENGTH_SHORT
-            ).show()
-            hideProgress()
-        }
-    }
     private val mRemoteBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
         override fun success(message: String?) {
             Toast.makeText(
-                applicationContext, R.string.backup_remote_backup_completed,
+                applicationContext, R.string.remote_backup_completed,
                 Toast.LENGTH_SHORT
             ).show()
             hideProgress()
@@ -60,7 +44,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
     private val mRemoteRestoreCallback: ProgressCallback = object : AbstractBackupCallback() {
         override fun success(message: String?) {
             Toast.makeText(
-                applicationContext, R.string.backup_remote_restore_completed,
+                applicationContext, R.string.remote_restore_completed,
                 Toast.LENGTH_SHORT
             ).show()
             hideProgress()
@@ -74,9 +58,9 @@ class QuoteCollectionActivity : AppCompatActivity() {
             }
             when (item.itemId) {
                 R.id.account_action -> {
-                    if (RemoteBackup.INSTANCE.isGoogleAccountSignedIn(this@QuoteCollectionActivity)) {
-                        RemoteBackup.INSTANCE.switchAccount(this@QuoteCollectionActivity,
-                            RemoteBackup.REQUEST_CODE_SIGN_IN,
+                    if (GDriveSyncManager.INSTANCE.isGoogleAccountSignedIn(this@QuoteCollectionActivity)) {
+                        GDriveSyncManager.INSTANCE.signOutAccount(this@QuoteCollectionActivity,
+                            GDriveSyncManager.REQUEST_CODE_SIGN_IN,
                             object : ProgressCallback {
                                 override fun inProcessing(message: String?) {
                                     showProgress(message)
@@ -96,26 +80,35 @@ class QuoteCollectionActivity : AppCompatActivity() {
                                 }
                             })
                     } else {
-                        RemoteBackup.INSTANCE.requestSignIn(this@QuoteCollectionActivity,
-                            RemoteBackup.REQUEST_CODE_SIGN_IN)
+                        GDriveSyncManager.INSTANCE.requestSignIn(this@QuoteCollectionActivity,
+                            GDriveSyncManager.REQUEST_CODE_SIGN_IN)
                     }
                 }
-                R.id.local_backup -> {
-                    showProgress("Start local backup...")
-                    localBackup()
+                R.id.export_database -> {
+                    showProgress(getString(R.string.exporting_database))
+                    export(ImportExportType.DB)
                     return true
                 }
-                R.id.local_restore -> {
-                    pickFile()
+                R.id.export_csv -> {
+                    showProgress(getString(R.string.exporting_csv))
+                    export(ImportExportType.CSV)
+                    return true
+                }
+                R.id.import_database -> {
+                    pickFile(ImportExportType.DB)
+                    return true
+                }
+                R.id.import_csv -> {
+                    pickFile(ImportExportType.CSV)
                     return true
                 }
                 R.id.remote_backup -> {
-                    showProgress("Start remote backup...")
+                    showProgress(getString(R.string.start_google_drive_backup))
                     remoteBackup()
                     return true
                 }
                 R.id.remote_restore -> {
-                    showProgress("Start remote restore...")
+                    showProgress(getString(R.string.start_google_drive_restore))
                     remoteRestore()
                     return true
                 }
@@ -134,6 +127,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
             setNavigationIcon(R.drawable.ic_baseline_arrow_back_24dp)
             inflateMenu(R.menu.collections_options)
             initMenu(menu)
+            MenuCompat.setGroupDividerEnabled(menu, true);
             setNavigationOnClickListener { onBackPressed() }
             setOnMenuItemClickListener(menuItemClickListener)
         }
@@ -148,7 +142,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
                 val result =
                     bundle.getBoolean(QuoteCollectionFragment.BUNDLE_KEY_COLLECTION_SHOW_DETAIL_PAGE,
                         false)
-                toolbar.menu?.setGroupVisible(R.id.backup_group, !result)
+                toolbar.menu?.findItem(R.id.data_retention)?.isVisible = !result
             }
         }
     }
@@ -159,52 +153,68 @@ class QuoteCollectionActivity : AppCompatActivity() {
         grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LocalBackup.REQUEST_CODE_PERMISSIONS_BACKUP) {
-            LocalBackup.handleRequestPermissionsResult(
+        if (requestCode == ExportHelper.REQUEST_CODE_PERMISSIONS_EXPORT) {
+            ExportHelper.handleRequestPermissionsResult(
                 grantResults,
-                mLocalBackupCallback
-            ) { localBackup() }
+            ) {
+                Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
+                hideProgress()
+            }
         }
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == RemoteBackup.REQUEST_CODE_SIGN_IN) {
-            if (resultCode == RESULT_OK && data != null) {
-                RemoteBackup.INSTANCE.handleSignInResult(
-                    this, data,
-                    mRemoteBackupCallback
-                ) {
-                    Toast.makeText(
-                        applicationContext,
-                        R.string.backup_google_account_connected, Toast.LENGTH_SHORT
-                    ).show()
-                    initMenu(toolbar.menu)
-                    invalidateOptionsMenu()
-                    val accountName = RemoteBackup.INSTANCE.getSignedInGoogleAccountEmail(this)
-                    if (!accountName.isNullOrEmpty()) {
-                        SyncAccountManager.instance.addOrUpdateAccount(accountName)
+        when (requestCode) {
+            GDriveSyncManager.REQUEST_CODE_SIGN_IN -> {
+                if (resultCode == RESULT_OK && data != null) {
+                    GDriveSyncManager.INSTANCE.handleSignInResult(
+                        this, data,
+                        mRemoteBackupCallback
+                    ) {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.google_account_connected, Toast.LENGTH_SHORT
+                        ).show()
+                        initMenu(toolbar.menu)
+                        invalidateOptionsMenu()
+                        val accountName =
+                            GDriveSyncManager.INSTANCE.getSignedInGoogleAccountEmail(this)
+                        if (!accountName.isNullOrEmpty()) {
+                            SyncAccountManager.instance.addOrUpdateAccount(accountName)
+                        }
                     }
                 }
             }
-        } else if (requestCode == RemoteBackup.REQUEST_CODE_SIGN_IN_BACKUP) {
-            if (resultCode == RESULT_OK && data != null) {
-                RemoteBackup.INSTANCE.handleSignInResult(
-                    this, data,
-                    mRemoteBackupCallback
-                ) { remoteBackup() }
+            GDriveSyncManager.REQUEST_CODE_SIGN_IN_BACKUP -> {
+                if (resultCode == RESULT_OK && data != null) {
+                    GDriveSyncManager.INSTANCE.handleSignInResult(
+                        this, data,
+                        mRemoteBackupCallback
+                    ) { remoteBackup() }
+                }
             }
-        } else if (requestCode == RemoteBackup.REQUEST_CODE_SIGN_IN_RESTORE) {
-            if (resultCode == RESULT_OK && data != null) {
-                RemoteBackup.INSTANCE.handleSignInResult(
-                    this, data,
-                    mRemoteRestoreCallback
-                ) { remoteRestore() }
+            GDriveSyncManager.REQUEST_CODE_SIGN_IN_RESTORE -> {
+                if (resultCode == RESULT_OK && data != null) {
+                    GDriveSyncManager.INSTANCE.handleSignInResult(
+                        this, data,
+                        mRemoteRestoreCallback
+                    ) { remoteRestore() }
+                }
             }
-        } else if (requestCode == LocalBackup.REQUEST_CODE_PICK_FILE) {
-            if (resultCode == RESULT_OK) {
-                data?.data?.let {
-                    showProgress("Start local restore...")
-                    localRestore(it)
+            ExportHelper.REQUEST_CODE_PICK_DB_FILE -> {
+                if (resultCode == RESULT_OK) {
+                    data?.data?.let {
+                        showProgress(getString(R.string.importing_database))
+                        import(ImportExportType.DB, it)
+                    }
+                }
+            }
+            ExportHelper.REQUEST_CODE_PICK_CSV_FILE -> {
+                if (resultCode == RESULT_OK) {
+                    data?.data?.let {
+                        showProgress(getString(R.string.importing_csv))
+                        import(ImportExportType.CSV, it)
+                    }
                 }
             }
         }
@@ -221,17 +231,17 @@ class QuoteCollectionActivity : AppCompatActivity() {
             return
         }
         when {
-            !RemoteBackup.INSTANCE.checkGooglePlayService(this) -> {
-                menu.findItem(R.id.remote).isEnabled = false
+            !GDriveSyncManager.INSTANCE.checkGooglePlayService(this) -> {
+                menu.findItem(R.id.sync).isEnabled = false
             }
-            RemoteBackup.INSTANCE.isGoogleAccountSignedIn(this) -> {
+            GDriveSyncManager.INSTANCE.isGoogleAccountSignedIn(this) -> {
                 menu.findItem(R.id.account).isVisible = true
                 menu.findItem(R.id.account).title =
-                    RemoteBackup.INSTANCE.getSignedInGoogleAccountEmail(this)
-                menu.findItem(R.id.account_action).setTitle(R.string.switch_account)
+                    GDriveSyncManager.INSTANCE.getSignedInGoogleAccountEmail(this)
+                menu.findItem(R.id.account_action).setTitle(R.string.disconnect_account)
                 menu.findItem(R.id.remote_backup).isEnabled = true
                 menu.findItem(R.id.remote_restore).isEnabled = true
-                val avatar = RemoteBackup.INSTANCE.getSignedInGoogleAccountPhoto(this)
+                val avatar = GDriveSyncManager.INSTANCE.getSignedInGoogleAccountPhoto(this)
                 val iconSize = 24f.dp2px().toInt()
                 applicationContext.imageLoader.enqueue(
                     ImageRequest.Builder(applicationContext)
@@ -255,44 +265,63 @@ class QuoteCollectionActivity : AppCompatActivity() {
         }
     }
 
-    private fun pickFile() {
+    private fun pickFile(@ImportExportType importType: Int = ImportExportType.DB) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "*/*"
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 putExtra(DocumentsContract.EXTRA_INITIAL_URI,
-                    Uri.fromFile(File(File(LocalBackup.PREF_BACKUP_ROOT_DIR,
-                        LocalBackup.PREF_BACKUP_RELATIVE_PATH),
-                        QuoteCollectionContract.DATABASE_NAME)))
+                    Uri.fromFile(File(ExportHelper.PREF_EXPORT_ROOT_DIR,
+                        ExportHelper.PREF_EXPORT_RELATIVE_PATH)))
             }
         }
 
-        startActivityForResult(intent, LocalBackup.REQUEST_CODE_PICK_FILE)
+        startActivityForResult(intent,
+            if (importType == ImportExportType.CSV) ExportHelper.REQUEST_CODE_PICK_CSV_FILE
+            else ExportHelper.REQUEST_CODE_PICK_DB_FILE)
     }
 
-    private fun localBackup() {
-        LocalBackup.performBackup(
-            this, QuoteCollectionContract.DATABASE_NAME,
-            mLocalBackupCallback
-        )
+    private fun export(@ImportExportType exportType: Int = ImportExportType.DB) {
+        ExportHelper.performExport(
+            this, QuoteCollectionContract.DATABASE_NAME, exportType
+        ) { success, message ->
+            hideProgress()
+            Toast.makeText(applicationContext,
+                if (success) {
+                    getString(if (exportType == ImportExportType.CSV) R.string.csv_exported
+                    else R.string.database_exported).plus("\n")
+                        .plus(getString(R.string.export_file_location, message))
+                } else {
+                    message
+                }, Toast.LENGTH_LONG).show()
+        }
     }
 
-    private fun localRestore(uri: Uri) {
-        LocalBackup.performRestore(
-            this, QuoteCollectionContract.DATABASE_NAME, uri, mLocalRestoreCallback
-        )
+    private fun import(@ImportExportType importType: Int, uri: Uri) {
+        ExportHelper.performImport(
+            this, QuoteCollectionContract.DATABASE_NAME, uri, importType
+        ) { success, message ->
+            hideProgress()
+            Toast.makeText(applicationContext,
+                if (success) {
+                    getString(if (importType == ImportExportType.CSV) R.string.csv_imported
+                    else R.string.database_imported)
+                } else {
+                    message
+                }, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun remoteBackup() {
-        RemoteBackup.INSTANCE.performDriveBackupAsync(
+        GDriveSyncManager.INSTANCE.performDriveBackupAsync(
             this,
             QuoteCollectionContract.DATABASE_NAME, mRemoteBackupCallback
         )
     }
 
     private fun remoteRestore() {
-        RemoteBackup.INSTANCE.performDriveRestoreAsync(
+        GDriveSyncManager.INSTANCE.performDriveRestoreAsync(
             this,
             QuoteCollectionContract.DATABASE_NAME, mRemoteRestoreCallback
         )

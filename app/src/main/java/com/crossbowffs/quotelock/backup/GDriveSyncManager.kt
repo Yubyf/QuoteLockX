@@ -51,7 +51,7 @@ import java.security.NoSuchAlgorithmException
 /**
  * @author Yubyf
  */
-class RemoteBackup {
+class GDriveSyncManager {
     private lateinit var drive: Drive
     private val scope: Scope by lazy { Scope(DriveScopes.DRIVE_FILE) }
 
@@ -119,17 +119,15 @@ class RemoteBackup {
         activity.startActivityForResult(client.signInIntent, code)
     }
 
-    fun switchAccount(activity: Activity, code: Int, callback: ProgressCallback) {
+    fun signOutAccount(activity: Activity, code: Int, callback: ProgressCallback) {
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .build()
         val client = GoogleSignIn.getClient(activity, signInOptions)
         callback.safeInProcessing("Signing out Google account...")
         val signedEmail = getSignedInGoogleAccountEmail(activity)
-        client.signOut().addOnCompleteListener {
-            callback.safeSuccess(signedEmail)
-            requestSignIn(activity, code)
-        }.addOnFailureListener { callback.safeFailure(it.message) }
+        client.signOut().addOnCompleteListener { callback.safeSuccess(signedEmail) }
+            .addOnFailureListener { callback.safeFailure(it.message) }
     }
 
     /**
@@ -421,6 +419,6 @@ class RemoteBackup {
         const val REQUEST_CODE_SIGN_IN = 1
         const val REQUEST_CODE_SIGN_IN_BACKUP = 2
         const val REQUEST_CODE_SIGN_IN_RESTORE = 3
-        val INSTANCE = RemoteBackup()
+        val INSTANCE = GDriveSyncManager()
     }
 }

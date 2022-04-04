@@ -8,6 +8,8 @@ import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract.DATABASE_NAME
 import com.crossbowffs.quotelock.database.QuoteEntity
 import com.crossbowffs.quotelock.database.QuoteEntityContract
+import com.crossbowffs.quotelock.utils.md5
+import com.opencsv.bean.CsvBindByName
 import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.flow.Flow
 import java.io.File
@@ -29,19 +31,33 @@ object QuoteCollectionContract {
 }
 
 @Entity(tableName = QuoteCollectionContract.TABLE)
-data class QuoteCollectionEntity(
+data class QuoteCollectionEntity @JvmOverloads constructor(
+    @CsvBindByName(column = QuoteCollectionContract.ID, required = true)
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = QuoteCollectionContract.ID)
     override var id: Int? = null,
+    @CsvBindByName(column = QuoteCollectionContract.MD5, required = true)
     @ColumnInfo(name = QuoteCollectionContract.MD5)
-    override val md5: String,
+    override var md5: String,
+    @CsvBindByName(column = QuoteCollectionContract.TEXT, required = true)
     @ColumnInfo(name = QuoteCollectionContract.TEXT)
-    override val text: String,
+    override var text: String,
+    @CsvBindByName(column = QuoteCollectionContract.SOURCE, required = true)
     @ColumnInfo(name = QuoteCollectionContract.SOURCE)
-    override val source: String,
+    override var source: String,
+    @CsvBindByName(column = QuoteCollectionContract.AUTHOR, required = false)
     @ColumnInfo(name = QuoteCollectionContract.AUTHOR)
-    override val author: String? = "",
-) : QuoteEntity
+    override var author: String? = "",
+) : QuoteEntity {
+    // Empty constructor for OpenCSV
+    constructor() : this(
+        id = null,
+        text = "",
+        source = "",
+        author = null,
+        md5 = "".md5()
+    )
+}
 
 @Dao
 interface QuoteCollectionDao {

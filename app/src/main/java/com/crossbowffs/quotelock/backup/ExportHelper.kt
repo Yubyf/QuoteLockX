@@ -14,35 +14,48 @@ import androidx.core.app.ActivityCompat
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionDatabase
+import com.crossbowffs.quotelock.collections.database.QuoteCollectionEntity
 import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
 import com.crossbowffs.quotelock.utils.*
+import com.opencsv.bean.CsvToBeanBuilder
+import com.opencsv.bean.StatefulBeanToCsvBuilder
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileWriter
 import java.io.IOException
+import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.util.*
 
+
+@Retention(AnnotationRetention.SOURCE)
+annotation class ImportExportType {
+    companion object {
+        const val DB = 0
+        const val CSV = 1
+    }
+}
+
 /**
  * Reference: [Database-Backup-Restore](https://github.com/prof18/Database-Backup-Restore/blob/master/app/src/main/java/com/prof/dbtest/backup/LocalBackup.java)
- *
- * @author Yubyf
  */
-object LocalBackup {
+object ExportHelper {
     private val PERMISSIONS_STORAGE = arrayOf(
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
-    const val REQUEST_CODE_PERMISSIONS_BACKUP = 55
-    const val REQUEST_CODE_PICK_FILE = 43
+    const val REQUEST_CODE_PERMISSIONS_EXPORT = 55
+    const val REQUEST_CODE_PICK_CSV_FILE = 42
+    const val REQUEST_CODE_PICK_DB_FILE = 43
 
-    val TAG = className<LocalBackup>()
+    private val TAG = className<ExportHelper>()
 
-    val PREF_BACKUP_ROOT_DIR: File =
+    val PREF_EXPORT_ROOT_DIR: File =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-    val PREF_BACKUP_RELATIVE_PATH = App.INSTANCE.resources.getString(R.string.quotelockx)
+    val PREF_EXPORT_RELATIVE_PATH = App.INSTANCE.resources.getString(R.string.quotelockx)
 
     /** Check necessary permissions.  */
     private fun verifyPermissions(activity: Activity, requestCode: Int): Boolean {
@@ -60,69 +73,98 @@ object LocalBackup {
         } else true
     }
 
-    fun handleRequestPermissionsResult(
-        grantResults: IntArray, callback: ProgressCallback,
-        action: Runnable,
-    ) {
+    fun handleRequestPermissionsResult(grantResults: IntArray, block: ((failMsg: String) -> Unit)) {
         if (grantResults.size < 2 || grantResults[0] != PackageManager.PERMISSION_GRANTED
             || grantResults[1] != PackageManager.PERMISSION_GRANTED
         ) {
-            callback.failure("Please grant external storage permission and retry.")
-            return
+            block.invoke(App.INSTANCE.getString(R.string.grant_storage_permission_tips))
         }
-        action.run()
     }
 
-    /** Ask the user a name for the backup and perform it.
-     *  The backup will be saved to a custom folder in [Environment.DIRECTORY_DOWNLOADS].
+    /**
+     *  Ask the user a name for the export file and perform it.
+     *  The export file will be saved to a custom folder in [Environment.DIRECTORY_DOWNLOADS].
      */
-    fun performBackup(activity: Activity, databaseName: String, callback: ProgressCallback) {
+    fun performExport(
+        activity: Activity,
+        databaseName: String,
+        @ImportExportType exportType: Int,
+        action: (success: Boolean, message: String) -> Unit,
+    ) {
         // Use MediaStore to save files in public directories above Android Q.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-            && !verifyPermissions(activity, REQUEST_CODE_PERMISSIONS_BACKUP)
+            && !verifyPermissions(activity, REQUEST_CODE_PERMISSIONS_EXPORT)
         ) {
-            callback.failure("Please grant external storage permission and retry.")
+            action.invoke(false, activity.getString(R.string.grant_storage_permission_tips))
             return
         }
         ioScope.launch {
             try {
-                val path = backupDb(activity, databaseName)
-                callback.safeSuccess(path)
+                val path = if (exportType == ImportExportType.CSV) {
+                    exportCsv(activity, databaseName)
+                } else {
+                    exportDb(activity, databaseName)
+                }
+                withContext(Dispatchers.Main) { action.invoke(true, path) }
             } catch (e: Exception) {
-                e.printStackTrace()
-                callback.safeFailure(e.message)
+                Xlog.e(TAG, "Failed to export database: $e")
+                withContext(Dispatchers.Main) { action.invoke(false, e.message ?: "") }
             }
         }
     }
 
-    /** Ask the user which backup to restore from. */
-    fun performRestore(
+    /** Ask the user which file to import from. */
+    fun performImport(
         activity: Activity,
         databaseName: String,
         pickedUri: Uri,
-        callback: ProgressCallback,
+        @ImportExportType importType: Int,
+        action: (success: Boolean, message: String) -> Unit,
     ) {
         ioScope.launch scope@{
             try {
-                importDb(activity, databaseName, pickedUri)
-                callback.safeSuccess()
+                if (importType == ImportExportType.CSV) {
+                    importCsv(activity, pickedUri)
+                } else {
+                    importDb(activity, databaseName, pickedUri)
+                }
+                withContext(Dispatchers.Main) { action.invoke(true, "") }
             } catch (e: Exception) {
-                e.printStackTrace()
-                callback.safeFailure(e.message)
+                Xlog.e(TAG, "Failed to import database: $e")
+                withContext(Dispatchers.Main) { action.invoke(false, e.message ?: "") }
             }
         }
     }
 
     @Throws(Exception::class)
-    private fun backupDb(context: Context, databaseName: String): String {
+    private fun exportDb(context: Context, databaseName: String): String {
         //database path
         val inFileName = context.getDatabasePath(databaseName).toString()
         return try {
             val dbFile = File(inFileName)
             copyFileToDownloads(context, dbFile)
         } catch (e: Exception) {
-            Xlog.e(TAG, "Failed to backup database: $e")
-            throw Exception("Unable to backup database. Retry")
+            Xlog.e(TAG, "Failed to export database: $e")
+            throw Exception(context.getString(R.string.unable_to_export_database))
+        }
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    @Throws(Exception::class)
+    private suspend fun exportCsv(context: Context, databaseName: String): String {
+        return try {
+            val csvFile =
+                File(context.cacheDir, File(databaseName).nameWithoutExtension.plus(".csv"))
+            val collections = quoteCollectionDatabase.dao().getAll().first()
+            FileWriter(csvFile).use {
+                val beanToCsv =
+                    StatefulBeanToCsvBuilder<QuoteCollectionEntity>(it).build()
+                beanToCsv.write(collections)
+            }
+            copyFileToDownloads(context, csvFile)
+        } catch (e: Exception) {
+            Xlog.e(TAG, "Failed to export CSV: $e")
+            throw Exception(context.getString(R.string.unable_to_export_csv))
         }
     }
 
@@ -136,8 +178,28 @@ object LocalBackup {
             importCollectionDatabaseFrom(context, temporaryDatabaseFile)
             true
         } catch (e: Exception) {
-            e.printStackTrace()
-            throw Exception("Unable to import database. Retry")
+            Xlog.e(TAG, "Failed to import database: $e")
+            throw Exception(context.getString(R.string.unable_to_import_database))
+        }
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    @Throws(Exception::class)
+    private suspend fun importCsv(context: Context, fileUri: Uri): Boolean {
+        return try {
+            val collections =
+                context.contentResolver.openInputStream(fileUri)?.let {
+                    CsvToBeanBuilder<QuoteCollectionEntity>(InputStreamReader(it))
+                        .withType(QuoteCollectionEntity::class.java).build().parse()
+                } ?: throw Exception()
+            quoteCollectionDatabase.dao().clear()
+            if (collections.isNotEmpty()) {
+                quoteCollectionDatabase.dao().insert(collections)
+            }
+            true
+        } catch (e: Exception) {
+            Xlog.e(TAG, "Failed to import CSV: $e")
+            throw Exception(context.getString(R.string.unable_to_import_csv))
         }
     }
 
@@ -155,20 +217,20 @@ object LocalBackup {
             // Adapt the scope storage above Android Q by MediaStore.
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.RELATIVE_PATH,
-                    Environment.DIRECTORY_DOWNLOADS + File.separatorChar + PREF_BACKUP_RELATIVE_PATH)
+                    Environment.DIRECTORY_DOWNLOADS + File.separatorChar + PREF_EXPORT_RELATIVE_PATH)
                 put(MediaStore.MediaColumns.DISPLAY_NAME, exportName)
                 put(MediaStore.MediaColumns.MIME_TYPE, "application/vnd.sqlite3")
             }
             resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
         } else {
             // Save file through File API on Android P-.
-            val targetFile = File(File(PREF_BACKUP_ROOT_DIR, PREF_BACKUP_RELATIVE_PATH), exportName)
+            val targetFile = File(File(PREF_EXPORT_ROOT_DIR, PREF_EXPORT_RELATIVE_PATH), exportName)
             targetFile.parentFile?.mkdirs()
             Uri.fromFile(targetFile)
         }?.also { resolver.openOutputStream(it)?.fromFile(file.absoluteFile) }
             ?: throw IOException()
         return Environment.DIRECTORY_DOWNLOADS.plus(File.separatorChar)
-            .plus(PREF_BACKUP_RELATIVE_PATH).plus(File.separatorChar).plus(exportName)
+            .plus(PREF_EXPORT_RELATIVE_PATH).plus(File.separatorChar).plus(exportName)
     }
 }
 

@@ -27,3 +27,10 @@
 
 # Xposed
 -keep class com.crossbowffs.quotelock.xposed.** {*;}
+
+# OpenCSV
+-keep class org.apache.commons.logging.LogConfigurationException {*;}
+-keep class org.apache.commons.logging.impl.LogFactoryImpl {*;}
+# Do not keep Log4JLogger class since the dependency org.apache.log4j.Priority is not available here.
+# Keep the alternative log implementation Jdk14Logger so that the OpenCSV process can continue
+-keep class org.apache.commons.logging.impl.Jdk14Logger {*;}

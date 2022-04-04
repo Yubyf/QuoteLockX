@@ -1,43 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/collections_options"
     tools:context="QuoteCollectionActivity">
-    <group android:id="@+id/backup_group">
-        <item
-            android:id="@+id/backup"
-            android:enabled="false"
-            android:title="@string/backup" />
-        <item
-            android:id="@+id/local"
-            android:title="@string/local">
-            <menu>
-                <item
-                    android:id="@+id/local_backup"
-                    android:title="@string/backup" />
-                <item
-                    android:id="@+id/local_restore"
-                    android:title="@string/restore" />
-            </menu>
-        </item>
-        <item
-            android:id="@+id/remote"
-            android:title="@string/remote">
-            <menu>
-                <item
-                    android:id="@+id/account"
-                    android:enabled="false"
-                    android:title="@string/connect_account" />
-                <item
-                    android:id="@+id/account_action"
-                    android:title="@string/connect_account" />
-                <item
-                    android:id="@+id/remote_backup"
-                    android:title="@string/backup" />
-                <item
-                    android:id="@+id/remote_restore"
-                    android:title="@string/restore" />
-            </menu>
-        </item>
-    </group>
+    <item
+        android:id="@+id/data_retention"
+        android:icon="@drawable/ic_round_settings_backup_restore_24dp"
+        android:title="@string/data_retention"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/import_export"
+                android:title="@string/import_export">
+                <menu>
+                    <group android:id="@+id/export_group">
+                        <item
+                            android:id="@+id/export_database"
+                            android:title="@string/export_database" />
+                        <item
+                            android:id="@+id/export_csv"
+                            android:title="@string/export_csv" />
+                    </group>
+                    <group android:id="@+id/import_group">
+                        <item
+                            android:id="@+id/import_database"
+                            android:title="@string/import_database" />
+                        <item
+                            android:id="@+id/import_csv"
+                            android:title="@string/import_csv" />
+                    </group>
+                </menu>
+            </item>
+            <item
+                android:id="@+id/sync"
+                android:title="@string/sync">
+                <menu>
+                    <item
+                        android:id="@+id/account"
+                        android:enabled="false"
+                        android:title="@string/connect_account" />
+                    <item
+                        android:id="@+id/account_action"
+                        android:title="@string/connect_account" />
+                    <item
+                        android:id="@+id/remote_backup"
+                        android:title="@string/backup" />
+                    <item
+                        android:id="@+id/remote_restore"
+                        android:title="@string/restore" />
+                </menu>
+            </item>
+        </menu>
+    </item>
 </menu>

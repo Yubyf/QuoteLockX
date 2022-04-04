@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.SyncResult
 import android.os.Bundle
 import android.text.TextUtils
-import com.crossbowffs.quotelock.backup.RemoteBackup
+import com.crossbowffs.quotelock.backup.GDriveSyncManager
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
@@ -29,7 +29,7 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
         provider: ContentProviderClient, syncResult: SyncResult,
     ) {
         Xlog.d(TAG, "Performing account sync...")
-        if (!RemoteBackup.INSTANCE.isGoogleAccountSignedIn(mContext)) {
+        if (!GDriveSyncManager.INSTANCE.isGoogleAccountSignedIn(mContext)) {
             Xlog.d(TAG, "No account signed in.")
             syncResult.stats.numAuthExceptions++
             return
@@ -41,12 +41,12 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
             }
             action < 0 -> {
                 Xlog.d(TAG, "Performing remote restore...")
-                RemoteBackup.INSTANCE.performSafeDriveRestoreSync(mContext,
+                GDriveSyncManager.INSTANCE.performSafeDriveRestoreSync(mContext,
                     QuoteCollectionContract.DATABASE_NAME)
             }
             else -> {
                 Xlog.d(TAG, "Performing remote backup...")
-                RemoteBackup.INSTANCE.performSafeDriveBackupSync(mContext,
+                GDriveSyncManager.INSTANCE.performSafeDriveBackupSync(mContext,
                     QuoteCollectionContract.DATABASE_NAME)
             }
         }
@@ -70,7 +70,7 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
     private fun checkBackupOrRestore(account: Account): Int {
         val serverMarker = getServerSyncMarker(account)
         val syncTimestamp = getSyncTimestamp(account)
-        val databaseInfo = RemoteBackup.INSTANCE
+        val databaseInfo = GDriveSyncManager.INSTANCE
             .getDatabaseInfo(mContext, QuoteCollectionContract.DATABASE_NAME)
         return if (serverMarker.isNullOrEmpty() || syncTimestamp < 0 || databaseInfo.first.isNullOrEmpty()
         ) {
