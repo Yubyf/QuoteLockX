@@ -40,8 +40,10 @@ import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import com.yubyf.quotelockx.R
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.*
 import java.security.DigestInputStream
 import java.security.MessageDigest
@@ -119,23 +121,29 @@ class GDriveSyncManager {
         activity.startActivityForResult(client.signInIntent, code)
     }
 
-    fun signOutAccount(activity: Activity, code: Int, callback: ProgressCallback) {
+    fun signOutAccount(
+        activity: Activity,
+        resultAction: (success: Boolean, message: String) -> Unit,
+    ) {
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .build()
         val client = GoogleSignIn.getClient(activity, signInOptions)
-        callback.safeInProcessing("Signing out Google account...")
         val signedEmail = getSignedInGoogleAccountEmail(activity)
-        client.signOut().addOnCompleteListener { callback.safeSuccess(signedEmail) }
-            .addOnFailureListener { callback.safeFailure(it.message) }
+        client.signOut().addOnCompleteListener {
+            resultAction.invoke(true, signedEmail ?: "")
+        }.addOnFailureListener {
+            resultAction.invoke(false, it.message ?: "")
+        }
     }
 
     /**
      * Handles the `result` of a completed sign-in activity initiated from [ ][.requestSignIn].
      */
     fun handleSignInResult(
-        activity: Activity, result: Intent?, callback: ProgressCallback,
-        action: Runnable,
+        activity: Activity,
+        result: Intent?,
+        resultAction: (success: Boolean, message: String) -> Unit,
     ) {
         GoogleSignIn.getSignedInAccountFromIntent(result)
             .addOnSuccessListener {
@@ -151,11 +159,12 @@ class GDriveSyncManager {
                     credential)
                     .setApplicationName(activity.getString(R.string.quotelockx))
                     .build()
-                action.run()
+                resultAction.invoke(true, "")
             }
             .addOnFailureListener {
                 Xlog.e(TAG, "Unable to sign in.", it)
-                callback.safeFailure("Unable to sign in.")
+                resultAction.invoke(false,
+                    activity.getString(R.string.google_account_sign_in_failed))
             }
     }
 
@@ -289,36 +298,50 @@ class GDriveSyncManager {
     fun performDriveBackupAsync(
         activity: Activity,
         databaseName: String,
-        callback: ProgressCallback,
+        progressAction: ((String) -> Unit),
+        resultAction: (success: Boolean, message: String) -> Unit,
     ) {
         if (!checkGoogleAccount(activity, REQUEST_CODE_SIGN_IN_BACKUP)) {
             return
         }
         drive.run {
             ioScope.launch scope@{
-                callback.safeInProcessing("Querying backup file on Google Drive...")
+                withContext(Dispatchers.Main) {
+                    progressAction.invoke(activity.getString(R.string.google_drive_querying_backup_file))
+                }
                 val queryFiles = queryFilesSync()
                 queryFiles ?: run {
-                    callback.safeFailure("Unable to query files on Google Drive.")
+                    withContext(Dispatchers.Main) {
+                        resultAction(false, activity.getString(R.string.google_drive_query_failed))
+                    }
                     return@scope
                 }
                 val databaseFile = queryFiles.files.find { it.name == databaseName }
                 databaseFile?.run {
-                    callback.safeInProcessing("Importing the existing backup file via Google Drive...")
+                    withContext(Dispatchers.Main) {
+                        progressAction.invoke(activity.getString(R.string.google_drive_uploading_file))
+                    }
                     val saveResult = saveFileSync(activity, id, databaseName)
-                    if (saveResult.success) {
-                        callback.safeSuccess()
-                    } else {
-                        callback.safeFailure("Unable to save file on Google Drive.")
+                    withContext(Dispatchers.Main) {
+                        if (saveResult.success) {
+                            resultAction(true, "")
+                        } else {
+                            resultAction(false,
+                                activity.getString(R.string.google_drive_save_failed))
+                        }
                     }
                     return@scope
                 }
-                callback.safeInProcessing("There is no existing backup file on Google Drive. Creating now...")
+                withContext(Dispatchers.Main) {
+                    progressAction.invoke(activity.getString(R.string.google_drive_creating_file))
+                }
                 val createFileResult = createFileSync(databaseName)
-                if (createFileResult == null) {
-                    callback.safeSuccess()
-                } else {
-                    callback.safeFailure("Couldn't create file on Google Drive.")
+                withContext(Dispatchers.Main) {
+                    if (createFileResult == null) {
+                        resultAction(true, "")
+                    } else {
+                        resultAction(false, activity.getString(R.string.google_drive_create_failed))
+                    }
                 }
             }
         }
@@ -350,31 +373,44 @@ class GDriveSyncManager {
     fun performDriveRestoreAsync(
         activity: Activity,
         databaseName: String,
-        callback: ProgressCallback,
+        progressAction: ((String) -> Unit),
+        resultAction: (success: Boolean, message: String) -> Unit,
     ) {
         if (!checkGoogleAccount(activity, REQUEST_CODE_SIGN_IN_RESTORE)) {
             return
         }
         drive.run {
             ioScope.launch scope@{
-                callback.safeInProcessing("Querying backup file on Google Drive...")
+                withContext(Dispatchers.Main) {
+                    progressAction.invoke(activity.getString(R.string.google_drive_querying_backup_file))
+                }
                 val queryFiles = queryFilesSync()
                 queryFiles ?: run {
-                    callback.safeFailure("Unable to query files on Google Drive.")
+                    withContext(Dispatchers.Main) {
+                        resultAction(false, activity.getString(R.string.google_drive_query_failed))
+                    }
                     return@scope
                 }
                 val databaseFile = queryFiles.files.find { it.name == databaseName }
                 databaseFile?.run {
-                    callback.safeInProcessing("Importing the existing backup file via Google Drive...")
-                    if (importDbFileSync(activity, id, databaseName).success) {
-                        callback.safeSuccess()
-                    } else {
-                        callback.safeFailure("Unable to read file via Google Drive.")
+                    withContext(Dispatchers.Main) {
+                        progressAction.invoke(activity.getString(R.string.google_drive_importing_file))
+                    }
+                    val importResult = importDbFileSync(activity, id, databaseName)
+                    withContext(Dispatchers.Main) {
+                        if (importResult.success) {
+                            resultAction(true, "")
+                        } else {
+                            resultAction(false,
+                                activity.getString(R.string.google_drive_read_failed))
+                        }
                     }
                     return@scope
                 }
                 Xlog.e(TAG, "There is no $databaseName on drive")
-                callback.safeFailure("There is no existing backup file on Google Drive.")
+                withContext(Dispatchers.Main) {
+                    resultAction(false, activity.getString(R.string.google_drive_no_existing_file))
+                }
             }
         }
     }

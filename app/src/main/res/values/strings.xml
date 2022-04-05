@@ -169,7 +169,7 @@
     <string name="remote_backup_completed">Remote backup completed</string>
     <string name="remote_restore_completed">Remote restore completed</string>
     <string name="google_account_connected">Successfully connected to Google account!</string>
-    <string name="grant_storage_permission_tips">Please grant external storage permission and retry.</string>
+    <string name="grant_storage_permission_tips">Please grant external storage permission and retry</string>
     <string name="unable_to_export_database">Unable to export database. Retry</string>
     <string name="unable_to_export_csv">Unable to export CSV. Retry</string>
     <string name="unable_to_import_database">Unable to import database. Retry</string>
@@ -181,4 +181,15 @@
     <string name="export_file_location">File location: %s</string>
     <string name="start_google_drive_backup">Start Google drive backup…</string>
     <string name="start_google_drive_restore">Start Google drive restore…</string>
+    <string name="sign_out_google_account">Signing out Google account…</string>
+    <string name="google_account_sign_in_failed">Unable to sign in</string>
+    <string name="google_drive_querying_backup_file">Querying backup file on Google Drive…</string>
+    <string name="google_drive_query_failed">Unable to query files on Google Drive</string>
+    <string name="google_drive_uploading_file">Uploading the existing backup file to Google Drive…</string>
+    <string name="google_drive_save_failed">Unable to save file on Google Drive</string>
+    <string name="google_drive_no_existing_file">There is no existing backup file on Google Drive</string>
+    <string name="google_drive_creating_file">There is no existing backup file on Google Drive. Creating now…</string>
+    <string name="google_drive_create_failed">Couldn\'t create file on Google Drive</string>
+    <string name="google_drive_importing_file">Importing the existing backup file via Google Drive…</string>
+    <string name="google_drive_read_failed">Unable to read file via Google Drive</string>
 </resources>

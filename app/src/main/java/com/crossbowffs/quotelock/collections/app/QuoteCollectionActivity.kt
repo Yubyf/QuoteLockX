@@ -17,7 +17,6 @@ import com.crossbowffs.quotelock.account.SyncAccountManager
 import com.crossbowffs.quotelock.backup.ExportHelper
 import com.crossbowffs.quotelock.backup.GDriveSyncManager
 import com.crossbowffs.quotelock.backup.ImportExportType
-import com.crossbowffs.quotelock.backup.ProgressCallback
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.utils.dp2px
@@ -32,24 +31,6 @@ class QuoteCollectionActivity : AppCompatActivity() {
 
     private lateinit var toolbar: MaterialToolbar
     private var mLoadingDialog: ProgressAlertDialog? = null
-    private val mRemoteBackupCallback: ProgressCallback = object : AbstractBackupCallback() {
-        override fun success(message: String?) {
-            Toast.makeText(
-                applicationContext, R.string.remote_backup_completed,
-                Toast.LENGTH_SHORT
-            ).show()
-            hideProgress()
-        }
-    }
-    private val mRemoteRestoreCallback: ProgressCallback = object : AbstractBackupCallback() {
-        override fun success(message: String?) {
-            Toast.makeText(
-                applicationContext, R.string.remote_restore_completed,
-                Toast.LENGTH_SHORT
-            ).show()
-            hideProgress()
-        }
-    }
 
     private val menuItemClickListener: OnMenuItemClickListener = object : OnMenuItemClickListener {
         override fun onMenuItemClick(item: MenuItem?): Boolean {
@@ -59,26 +40,20 @@ class QuoteCollectionActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.account_action -> {
                     if (GDriveSyncManager.INSTANCE.isGoogleAccountSignedIn(this@QuoteCollectionActivity)) {
-                        GDriveSyncManager.INSTANCE.signOutAccount(this@QuoteCollectionActivity,
-                            GDriveSyncManager.REQUEST_CODE_SIGN_IN,
-                            object : ProgressCallback {
-                                override fun inProcessing(message: String?) {
-                                    showProgress(message)
+                        showProgress(getString(R.string.sign_out_google_account))
+                        GDriveSyncManager.INSTANCE.signOutAccount(this@QuoteCollectionActivity)
+                        { success, message ->
+                            if (success) {
+                                hideProgress()
+                                initMenu(toolbar.menu)
+                                invalidateOptionsMenu()
+                                if (message.isNotEmpty()) {
+                                    SyncAccountManager.instance.removeAccount(message)
                                 }
-
-                                override fun success(message: String?) {
-                                    hideProgress()
-                                    initMenu(toolbar.menu)
-                                    invalidateOptionsMenu()
-                                    if (!message.isNullOrEmpty()) {
-                                        SyncAccountManager.instance.removeAccount(message)
-                                    }
-                                }
-
-                                override fun failure(message: String?) {
-                                    hideProgress()
-                                }
-                            })
+                            } else {
+                                showTerminateMessage(message)
+                            }
+                        }
                     } else {
                         GDriveSyncManager.INSTANCE.requestSignIn(this@QuoteCollectionActivity,
                             GDriveSyncManager.REQUEST_CODE_SIGN_IN)
@@ -154,12 +129,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == ExportHelper.REQUEST_CODE_PERMISSIONS_EXPORT) {
-            ExportHelper.handleRequestPermissionsResult(
-                grantResults,
-            ) {
-                Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
-                hideProgress()
-            }
+            ExportHelper.handleRequestPermissionsResult(grantResults, ::showTerminateMessage)
         }
     }
 
@@ -168,19 +138,19 @@ class QuoteCollectionActivity : AppCompatActivity() {
             GDriveSyncManager.REQUEST_CODE_SIGN_IN -> {
                 if (resultCode == RESULT_OK && data != null) {
                     GDriveSyncManager.INSTANCE.handleSignInResult(
-                        this, data,
-                        mRemoteBackupCallback
-                    ) {
-                        Toast.makeText(
-                            applicationContext,
-                            R.string.google_account_connected, Toast.LENGTH_SHORT
-                        ).show()
-                        initMenu(toolbar.menu)
-                        invalidateOptionsMenu()
-                        val accountName =
-                            GDriveSyncManager.INSTANCE.getSignedInGoogleAccountEmail(this)
-                        if (!accountName.isNullOrEmpty()) {
-                            SyncAccountManager.instance.addOrUpdateAccount(accountName)
+                        this, data
+                    ) { success, message ->
+                        if (success) {
+                            showTerminateMessage(R.string.google_account_connected)
+                            initMenu(toolbar.menu)
+                            invalidateOptionsMenu()
+                            val accountName =
+                                GDriveSyncManager.INSTANCE.getSignedInGoogleAccountEmail(this)
+                            if (!accountName.isNullOrEmpty()) {
+                                SyncAccountManager.instance.addOrUpdateAccount(accountName)
+                            }
+                        } else {
+                            showTerminateMessage(message)
                         }
                     }
                 }
@@ -189,16 +159,26 @@ class QuoteCollectionActivity : AppCompatActivity() {
                 if (resultCode == RESULT_OK && data != null) {
                     GDriveSyncManager.INSTANCE.handleSignInResult(
                         this, data,
-                        mRemoteBackupCallback
-                    ) { remoteBackup() }
+                    ) { success, message ->
+                        if (success) {
+                            remoteBackup()
+                        } else {
+                            showTerminateMessage(message)
+                        }
+                    }
                 }
             }
             GDriveSyncManager.REQUEST_CODE_SIGN_IN_RESTORE -> {
                 if (resultCode == RESULT_OK && data != null) {
                     GDriveSyncManager.INSTANCE.handleSignInResult(
                         this, data,
-                        mRemoteRestoreCallback
-                    ) { remoteRestore() }
+                    ) { success, message ->
+                        if (success) {
+                            remoteRestore()
+                        } else {
+                            showTerminateMessage(message)
+                        }
+                    }
                 }
             }
             ExportHelper.REQUEST_CODE_PICK_DB_FILE -> {
@@ -286,15 +266,14 @@ class QuoteCollectionActivity : AppCompatActivity() {
         ExportHelper.performExport(
             this, QuoteCollectionContract.DATABASE_NAME, exportType
         ) { success, message ->
-            hideProgress()
-            Toast.makeText(applicationContext,
+            showTerminateMessage(
                 if (success) {
                     getString(if (exportType == ImportExportType.CSV) R.string.csv_exported
                     else R.string.database_exported).plus("\n")
                         .plus(getString(R.string.export_file_location, message))
                 } else {
                     message
-                }, Toast.LENGTH_LONG).show()
+                })
         }
     }
 
@@ -302,29 +281,40 @@ class QuoteCollectionActivity : AppCompatActivity() {
         ExportHelper.performImport(
             this, QuoteCollectionContract.DATABASE_NAME, uri, importType
         ) { success, message ->
-            hideProgress()
-            Toast.makeText(applicationContext,
-                if (success) {
-                    getString(if (importType == ImportExportType.CSV) R.string.csv_imported
-                    else R.string.database_imported)
-                } else {
-                    message
-                }, Toast.LENGTH_LONG).show()
+            showTerminateMessage(if (success) {
+                getString(if (importType == ImportExportType.CSV) R.string.csv_imported
+                else R.string.database_imported)
+            } else {
+                message
+            })
         }
     }
 
     private fun remoteBackup() {
-        GDriveSyncManager.INSTANCE.performDriveBackupAsync(
-            this,
-            QuoteCollectionContract.DATABASE_NAME, mRemoteBackupCallback
-        )
+        GDriveSyncManager.INSTANCE.performDriveBackupAsync(this,
+            QuoteCollectionContract.DATABASE_NAME,
+            ::showProgress
+        ) { success, message ->
+            showTerminateMessage(if (success) {
+                getString(R.string.remote_backup_completed)
+            } else {
+                message
+            })
+        }
     }
 
     private fun remoteRestore() {
         GDriveSyncManager.INSTANCE.performDriveRestoreAsync(
             this,
-            QuoteCollectionContract.DATABASE_NAME, mRemoteRestoreCallback
-        )
+            QuoteCollectionContract.DATABASE_NAME,
+            ::showProgress
+        ) { success, message ->
+            showTerminateMessage(if (success) {
+                getString(R.string.remote_restore_completed)
+            } else {
+                message
+            })
+        }
     }
 
     private fun showProgress(message: String? = null) {
@@ -338,16 +328,13 @@ class QuoteCollectionActivity : AppCompatActivity() {
         mLoadingDialog?.dismiss()
     }
 
-    private abstract inner class AbstractBackupCallback : ProgressCallback {
-        override fun inProcessing(message: String?) {
-            showProgress(message)
-        }
+    private fun showTerminateMessage(message: String) {
+        Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+        hideProgress()
+    }
 
-        override fun failure(message: String?) {
-            Toast.makeText(
-                applicationContext, message, Toast.LENGTH_SHORT
-            ).show()
-            hideProgress()
-        }
+    private fun showTerminateMessage(messageRes: Int) {
+        Toast.makeText(applicationContext, messageRes, Toast.LENGTH_LONG).show()
+        hideProgress()
     }
 }
