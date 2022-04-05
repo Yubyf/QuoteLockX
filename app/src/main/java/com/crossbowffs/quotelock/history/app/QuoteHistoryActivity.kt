@@ -1,7 +1,7 @@
 package com.crossbowffs.quotelock.history.app
 
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -10,6 +10,7 @@ import com.crossbowffs.quotelock.history.app.QuoteHistoryFragment.Companion.REQU
 import com.crossbowffs.quotelock.history.database.quoteHistoryDatabase
 import com.crossbowffs.quotelock.utils.ioScope
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -20,11 +21,13 @@ import kotlinx.coroutines.withContext
  * @author Yubyf
  */
 class QuoteHistoryActivity : AppCompatActivity() {
+    private lateinit var container: View
     private lateinit var toolbar: MaterialToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_container)
+        container = findViewById(R.id.content_frame)
 
         // Toolbar
         toolbar = findViewById<MaterialToolbar>(R.id.toolbar).apply {
@@ -69,10 +72,9 @@ class QuoteHistoryActivity : AppCompatActivity() {
             quoteHistoryDatabase.dao().deleteAll()
             withContext(Dispatchers.Main) {
                 toolbar.menu?.findItem(R.id.clear)?.isEnabled = true
-                Toast.makeText(this@QuoteHistoryActivity,
+                Snackbar.make(container,
                     R.string.quote_histories_cleared_quote,
-                    Toast.LENGTH_SHORT)
-                    .show()
+                    Snackbar.LENGTH_SHORT).show()
             }
         }
     }

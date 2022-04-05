@@ -8,7 +8,6 @@ import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -21,6 +20,7 @@ import com.crossbowffs.quotelock.modules.custom.database.customQuoteDatabase
 import com.crossbowffs.quotelock.utils.ioScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
@@ -101,10 +101,9 @@ class CustomQuoteConfigFragment : BaseQuoteListFragment<CustomQuoteEntity>() {
                     .insert(CustomQuoteEntity(text = text, source = source))
             }
             withContext(Dispatchers.Main) {
-                Toast.makeText(requireContext(),
+                Snackbar.make(requireView(),
                     R.string.module_custom_saved_quote,
-                    Toast.LENGTH_SHORT)
-                    .show()
+                    Snackbar.LENGTH_SHORT).show()
             }
         }
     }
@@ -113,10 +112,9 @@ class CustomQuoteConfigFragment : BaseQuoteListFragment<CustomQuoteEntity>() {
         ioScope.launch {
             customQuoteDatabase.dao().delete(rowId)
             withContext(Dispatchers.Main) {
-                Toast.makeText(requireContext(),
+                Snackbar.make(requireView(),
                     R.string.module_custom_deleted_quote,
-                    Toast.LENGTH_SHORT)
-                    .show()
+                    Snackbar.LENGTH_SHORT).show()
             }
         }
     }

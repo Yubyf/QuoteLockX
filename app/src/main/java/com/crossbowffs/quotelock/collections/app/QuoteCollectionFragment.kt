@@ -2,7 +2,6 @@ package com.crossbowffs.quotelock.collections.app
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
@@ -16,6 +15,7 @@ import com.crossbowffs.quotelock.components.QuoteListAdapter
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.ioScope
+import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -67,9 +67,9 @@ class QuoteCollectionFragment : BaseQuoteListFragment<QuoteCollectionEntity>() {
                     if (result >= 0) {
                         quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, false)
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(requireContext(),
+                            Snackbar.make(requireView(),
                                 R.string.module_custom_deleted_quote,
-                                Toast.LENGTH_SHORT)
+                                Snackbar.LENGTH_SHORT)
                                 .show()
                         }
                     }

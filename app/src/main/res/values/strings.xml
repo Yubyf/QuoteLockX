@@ -4,6 +4,7 @@
     <string name="quotelockx">QuoteLockX</string>
     <string name="easter_egg">▲ + ▼ = ◆</string>
 
+    <string name="ok">OK</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="enable">Enable</string>
@@ -162,8 +163,8 @@
     <string name="quote_histories_cleared_quote">Cleared quote</string>
 
     <!-- Data retention-->
-    <string name="database_exported">Database exported</string>
-    <string name="csv_exported">CSV exported</string>
+    <string name="database_exported">Database exported to </string>
+    <string name="csv_exported">CSV exported to</string>
     <string name="database_imported">Database imported</string>
     <string name="csv_imported">CSV imported</string>
     <string name="remote_backup_completed">Remote backup completed</string>
@@ -178,7 +179,6 @@
     <string name="importing_csv">Importing CSV…</string>
     <string name="exporting_database">Exporting database…</string>
     <string name="exporting_csv">Exporting CSV…</string>
-    <string name="export_file_location">File location: %s</string>
     <string name="start_google_drive_backup">Start Google drive backup…</string>
     <string name="start_google_drive_restore">Start Google drive restore…</string>
     <string name="sign_out_google_account">Signing out Google account…</string>

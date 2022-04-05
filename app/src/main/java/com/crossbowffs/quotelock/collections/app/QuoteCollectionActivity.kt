@@ -7,7 +7,8 @@ import android.os.Bundle
 import android.provider.DocumentsContract
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener
 import androidx.core.view.MenuCompat
@@ -21,14 +22,17 @@ import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.utils.dp2px
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.R
 import java.io.File
+
 
 /**
  * @author Yubyf
  */
 class QuoteCollectionActivity : AppCompatActivity() {
 
+    private lateinit var container: View
     private lateinit var toolbar: MaterialToolbar
     private var mLoadingDialog: ProgressAlertDialog? = null
 
@@ -95,6 +99,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_container)
+        container = findViewById(R.id.content_frame)
 
         // Toolbar
         toolbar = findViewById<MaterialToolbar>(R.id.toolbar).apply {
@@ -266,14 +271,17 @@ class QuoteCollectionActivity : AppCompatActivity() {
         ExportHelper.performExport(
             this, QuoteCollectionContract.DATABASE_NAME, exportType
         ) { success, message ->
-            showTerminateMessage(
-                if (success) {
-                    getString(if (exportType == ImportExportType.CSV) R.string.csv_exported
-                    else R.string.database_exported).plus("\n")
-                        .plus(getString(R.string.export_file_location, message))
+            if (success) {
+                showTerminateMessage(message = getString(if (exportType == ImportExportType.CSV) {
+                    R.string.csv_exported
                 } else {
-                    message
-                })
+                    R.string.database_exported
+                }).plus(" ").plus(message),
+                    duration = Snackbar.LENGTH_LONG,
+                    actionText = getString(R.string.ok))
+            } else {
+                showTerminateMessage(message)
+            }
         }
     }
 
@@ -328,13 +336,41 @@ class QuoteCollectionActivity : AppCompatActivity() {
         mLoadingDialog?.dismiss()
     }
 
-    private fun showTerminateMessage(message: String) {
-        Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+    private fun showTerminateMessage(
+        message: String,
+        duration: Int = Snackbar.LENGTH_SHORT,
+        actionText: String? = null,
+        action: (() -> Unit)? = null,
+    ) {
+        Snackbar.make(container, message, duration).apply {
+            // show multiple line
+            (view.findViewById<View>(com.google.android.material.R.id.snackbar_text) as? TextView)
+                ?.maxLines = 5
+            if (!actionText.isNullOrBlank()) {
+                setAction(actionText) {
+                    action?.invoke()
+                }
+            }
+        }.show()
         hideProgress()
     }
 
-    private fun showTerminateMessage(messageRes: Int) {
-        Toast.makeText(applicationContext, messageRes, Toast.LENGTH_LONG).show()
+    private fun showTerminateMessage(
+        messageRes: Int,
+        duration: Int = Snackbar.LENGTH_SHORT,
+        actionText: Int? = null,
+        action: (() -> Unit)? = null,
+    ) {
+        Snackbar.make(container, messageRes, duration).apply {
+            // show multiple line
+            (view.findViewById<View>(com.google.android.material.R.id.snackbar_text) as? TextView)
+                ?.maxLines = 5
+            actionText?.let {
+                setAction(it) {
+                    action?.invoke()
+                }
+            }
+        }.show()
         hideProgress()
     }
 }

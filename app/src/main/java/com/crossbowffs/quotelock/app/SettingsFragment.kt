@@ -32,6 +32,7 @@ import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.utils.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.BuildConfig
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
@@ -159,7 +160,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             // ListPreference so that it updates its value.
             findPreference<ListPreference>(PREF_COMMON_QUOTE_MODULE)?.value =
                 PREF_COMMON_QUOTE_MODULE_DEFAULT
-            Toast.makeText(requireContext(), R.string.selected_module_not_found, Toast.LENGTH_SHORT)
+            Snackbar.make(requireView(), R.string.selected_module_not_found, Snackbar.LENGTH_SHORT)
                 .show()
             loadSelectedModule(prefs)
         }

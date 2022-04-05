@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
-import android.widget.Toast
+import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
@@ -20,17 +20,20 @@ import com.crossbowffs.quotelock.utils.XposedUtils.startXposedActivity
 import com.crossbowffs.quotelock.utils.mainScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var rootView: View
     private lateinit var mDialog: ProgressAlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        rootView = findViewById(R.id.root_view)
 
         // Toolbar
         findViewById<MaterialToolbar>(R.id.toolbar).setOnMenuItemClickListener {
@@ -75,9 +78,9 @@ class MainActivity : AppCompatActivity() {
                 null
             }
             mDialog.dismiss()
-            Toast.makeText(this@MainActivity,
+            Snackbar.make(rootView,
                 if (quote == null) R.string.quote_download_failed else R.string.quote_download_success,
-                Toast.LENGTH_SHORT).show()
+                Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -88,7 +91,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startXposedPage(section: String) {
         if (!this.startXposedActivity(section)) {
-            Toast.makeText(this, R.string.xposed_not_installed, Toast.LENGTH_SHORT).show()
+            Snackbar.make(rootView, R.string.xposed_not_installed, Snackbar.LENGTH_SHORT).show()
             startBrowserActivity(Urls.XPOSED_FORUM)
         }
     }

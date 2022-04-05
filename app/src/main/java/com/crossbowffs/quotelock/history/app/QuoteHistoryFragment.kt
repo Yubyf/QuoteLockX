@@ -2,7 +2,6 @@ package com.crossbowffs.quotelock.history.app
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
@@ -14,6 +13,7 @@ import com.crossbowffs.quotelock.components.QuoteListAdapter
 import com.crossbowffs.quotelock.history.database.QuoteHistoryEntity
 import com.crossbowffs.quotelock.history.database.quoteHistoryDatabase
 import com.crossbowffs.quotelock.utils.ioScope
+import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -67,10 +67,9 @@ class QuoteHistoryFragment : BaseQuoteListFragment<QuoteHistoryEntity>() {
                 ioScope.launch {
                     quoteHistoryDatabase.dao().delete(it.id)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(),
+                        Snackbar.make(requireView(),
                             R.string.module_custom_deleted_quote,
-                            Toast.LENGTH_SHORT)
-                            .show()
+                            Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }
