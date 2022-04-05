@@ -32,7 +32,7 @@ class QuoteHistoryActivity : AppCompatActivity() {
         // Toolbar
         toolbar = findViewById<MaterialToolbar>(R.id.toolbar).apply {
             setTitle(R.string.quote_histories_activity_label)
-            setNavigationIcon(R.drawable.ic_baseline_arrow_back_24dp)
+            setNavigationIcon(R.drawable.ic_round_arrow_back_24dp)
             inflateMenu(R.menu.histories_options)
             setNavigationOnClickListener { onBackPressed() }
             setOnMenuItemClickListener {

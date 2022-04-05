@@ -514,7 +514,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
         /** For OnePlus AOD  */
         private const val RES_ID_OP_AOD_CONTAINER = "op_aod_system_info_container"
-        private const val RES_ID_REFRESH_ICON = "ic_baseline_refresh_24dp"
+        private const val RES_ID_REFRESH_ICON = "ic_round_refresh_24dp"
         private const val RES_ID_COLLECT_ICON = "selector_star"
         private const val LAYOUT_ANIMATION_DURATION: Long = 500
         private var sModulePath: String? = null

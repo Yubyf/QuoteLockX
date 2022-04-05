@@ -4,6 +4,6 @@
     <item
         android:id="@+id/refesh_quote"
         android:title="@string/refesh_quote"
-        android:icon="@drawable/ic_baseline_refresh_24dp"
+        android:icon="@drawable/ic_round_refresh_24dp"
         app:showAsAction="ifRoom" />
 </menu>

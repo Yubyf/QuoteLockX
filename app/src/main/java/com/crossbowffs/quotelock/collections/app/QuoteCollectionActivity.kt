@@ -104,7 +104,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
         // Toolbar
         toolbar = findViewById<MaterialToolbar>(R.id.toolbar).apply {
             setTitle(R.string.quote_collections_activity_label)
-            setNavigationIcon(R.drawable.ic_baseline_arrow_back_24dp)
+            setNavigationIcon(R.drawable.ic_round_arrow_back_24dp)
             inflateMenu(R.menu.collections_options)
             initMenu(menu)
             MenuCompat.setGroupDividerEnabled(menu, true);

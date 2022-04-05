@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             tools:menu="@menu/main_options"
-            tools:navigationIcon="@drawable/ic_baseline_arrow_back_24dp"
+            tools:navigationIcon="@drawable/ic_round_arrow_back_24dp"
             tools:title="@string/quotelockx" />
     </com.google.android.material.appbar.AppBarLayout>
 

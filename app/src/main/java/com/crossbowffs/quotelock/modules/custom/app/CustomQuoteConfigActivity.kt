@@ -13,7 +13,7 @@ class CustomQuoteConfigActivity : AppCompatActivity() {
         // Toolbar
         findViewById<MaterialToolbar>(R.id.toolbar).apply {
             setTitle(R.string.module_custom_activity_label)
-            setNavigationIcon(R.drawable.ic_baseline_arrow_back_24dp)
+            setNavigationIcon(R.drawable.ic_round_arrow_back_24dp)
             inflateMenu(R.menu.custom_quote_options)
             setNavigationOnClickListener { onBackPressed() }
         }

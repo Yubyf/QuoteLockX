@@ -13,7 +13,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_baseline_close_24dp"
+            app:navigationIcon="@drawable/ic_round_close_24dp"
             app:title="@string/module_brainy_activity_label" />
     </com.google.android.material.appbar.AppBarLayout>
 
