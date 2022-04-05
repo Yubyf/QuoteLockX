@@ -163,7 +163,7 @@
     <string name="quote_histories_cleared_quote">Cleared quote</string>
 
     <!-- Data retention-->
-    <string name="database_exported">Database exported to </string>
+    <string name="database_exported">Database exported to</string>
     <string name="csv_exported">CSV exported to</string>
     <string name="database_imported">Database imported</string>
     <string name="csv_imported">CSV imported</string>
