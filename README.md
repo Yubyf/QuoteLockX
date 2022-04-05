@@ -16,8 +16,9 @@ LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) no
 - Customizes the quotes style.
 - Collects your favorite quotes.
 - Records the quote history that you can always look up old entries.
-- Backup and restore collections on local and remote(Google Drive).
-- Displays quotes on the AmbientDisplay page of *OnePlus7Pro OOS11* (**UNSTABLE**)
+- Import/Export collections in .db or .csv format on local storage.
+- Backup/Restore collections on Google Drive.
+- Displays quotes on the AmbientDisplay page of *OnePlus7Pro OOS11* (**ALPHA**)
 
 ## Screenshots
 
@@ -65,7 +66,6 @@ the download service.
 ### In Progress
 
 - [ ] Add support for fortune-mod.
-- [ ] Add ~~xml~~ csv export format.
 
 ### Done
 
@@ -74,12 +74,13 @@ the download service.
 - [x] Backup and restore on local and remote(Google Drive)
 - [x] Refresh and collection feature on lockscreen
 - [x] Font family and style support
-- [x] Adaptation for the AmbientDisplay page of *OnePlus7Pro OOS11* (**UNSTABLE**)
+- [x] Adaptation for the AmbientDisplay page of *OnePlus7Pro OOS11* (**ALPHA**)
 - [x] Auto-sync for remote backup accounts
 - [x] Refactor with Kotlin
 - [x] Quotes preview in setting page
 - [x] Optimize collections and histories pages.
 - [x] Redesign with Material You.
+- [x] Add CSV export format support.
 
 ## License
 
