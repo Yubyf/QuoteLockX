@@ -19,7 +19,8 @@ object XposedUtils {
     const val XPOSED_SECTION_MODULES = "modules"
     const val XPOSED_SECTION_INSTALL = "install"
 
-    private const val EDPOSED_MODULES_PAGE = "$XPOSED_PACKAGE.WelcomeActivity"
+    private const val EDXPOSED_PACKAGE = "org.meowcat.edxposed.manager"
+    private const val EDXPOSED_MODULES_PAGE = "$EDXPOSED_PACKAGE.WelcomeActivity"
     private const val LSPOSED_PACKAGE = "org.lsposed.manager"
     private const val LSPOSED_MODULES_PAGE = "$LSPOSED_PACKAGE.ui.activity.MainActivity"
 
@@ -48,7 +49,12 @@ object XposedUtils {
 
     fun Context.startXposedActivity(section: String?): Boolean {
         return runCatching {
-            startLSPosedActivity()
+            startActivity(Intent(XPOSED_ACTION).apply {
+                putExtra(XPOSED_EXTRA_SECTION, section)
+            })
+            true
+        }.recoverCatching {
+            startEdXposedActivity()
         }.recoverCatching {
             startEdXposedActivity()
         }.getOrNull() ?: false
@@ -56,8 +62,8 @@ object XposedUtils {
 
     @Throws(ActivityNotFoundException::class)
     private fun Context.startEdXposedActivity(): Boolean {
-        startActivity(Intent(Intent.ACTION_VIEW).apply {
-            component = ComponentName(XPOSED_PACKAGE, EDPOSED_MODULES_PAGE)
+        startActivity(Intent(Intent.ACTION_MAIN).apply {
+            component = ComponentName(EDXPOSED_PACKAGE, EDXPOSED_MODULES_PAGE)
         })
         return true
     }
