@@ -9,8 +9,8 @@ android {
 
     defaultConfig {
         applicationId = "com.yubyf.quotelockx"
-        versionCode = 17
-        versionName = "2.0.2"
+        versionCode = 18
+        versionName = "2.0.3"
         minSdk = 21
 
         targetSdk = 29
