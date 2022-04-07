@@ -122,6 +122,11 @@
             android:title="@string/pref_about_github"
             app:iconSpaceReserved="false" />
         <Preference
+            android:key="pref_restart_system_ui"
+            android:summary="Re-hook lockscreen"
+            android:title="@string/pref_debug_restart_system_ui_title"
+            app:iconSpaceReserved="false" />
+        <Preference
             android:key="pref_about_version"
             android:title="@string/pref_about_version"
             app:iconSpaceReserved="false" />

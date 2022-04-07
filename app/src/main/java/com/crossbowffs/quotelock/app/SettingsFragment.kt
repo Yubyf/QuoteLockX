@@ -31,6 +31,7 @@ import com.crossbowffs.quotelock.history.app.QuoteHistoryActivity
 import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.utils.*
+import com.crossbowffs.quotelock.xposed.LockscreenHook
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.BuildConfig
@@ -132,6 +133,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             PREF_ABOUT_CREDITS -> {
                 showCreditsDialog()
+                true
+            }
+            PREF_DEBUG_RESTART_SYSTEM_UI -> {
+                findProcessAndKill(LockscreenHook.PACKAGE_SYSTEM_UI)
                 true
             }
             PREF_ABOUT_GITHUB -> {

@@ -1,4 +1,3 @@
-
 package com.crossbowffs.quotelock.consts
 
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule
@@ -41,5 +40,7 @@ const val PREF_ABOUT_GITHUB = "pref_about_github_current"
 const val PREF_ABOUT_VERSION = "pref_about_version"
 const val PREF_BOOT_NOTIFY_FLAG = "boot_notify_flag"
 const val PREF_PREVIEW = "pref_preview"
+
+const val PREF_DEBUG_RESTART_SYSTEM_UI = "pref_restart_system_ui"
 
 const val PREF_QUOTE_SOURCE_PREFIX = "―"

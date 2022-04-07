@@ -82,6 +82,7 @@
     <string name="open_quotelock_app_line1">Welcome to QuoteLockX!</string>
     <string name="open_quotelock_app_line2">Please open the configuration app</string>
     <string name="selected_module_not_found">Selected module could not be found</string>
+    <string name="pref_debug_restart_system_ui_title">Restart System UI</string>
     <string name="credits_title">Credits</string>
     <string name="credits_message">
         <![CDATA[

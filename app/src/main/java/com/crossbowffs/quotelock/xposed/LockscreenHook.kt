@@ -523,7 +523,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
     companion object {
         private val TAG = className<LockscreenHook>()
-        private const val PACKAGE_SYSTEM_UI = "com.android.systemui"
+        const val PACKAGE_SYSTEM_UI = "com.android.systemui"
         private const val RES_LAYOUT_QUOTE_LAYOUT = "quote_layout"
         private const val RES_STRING_OPEN_APP_1 = "open_quotelock_app_line1"
         private const val RES_STRING_OPEN_APP_2 = "open_quotelock_app_line2"
