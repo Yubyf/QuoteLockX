@@ -17,6 +17,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.*
+import androidx.annotation.RequiresApi
 import com.crossbowffs.quotelock.app.getTypefaceStyle
 import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.consts.*
@@ -346,7 +347,32 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         if (XposedUtils.isAodHookAvailable) {
             hookAodLayout(lpparam)
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Notifications on Android S will cover a part of quote view.
+            // Added a padding to avoid this.
+            hookNotificationStackScrollLayout(lpparam)
+        }
         Xlog.i(TAG, "QuoteLockX Xposed module initialized!")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun hookNotificationStackScrollLayout(lpparam: LoadPackageParam) {
+        XposedHelpers.findAndHookMethod(
+            "com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout",
+            lpparam.classLoader,
+            "updateTopPadding",
+            Float::class.javaPrimitiveType,
+            Boolean::class.javaPrimitiveType,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    Xlog.d(TAG, "NotificationStackScrollLayout#updateTopPadding calling...")
+                    (param.args[0] as? Float)?.let {
+                        param.args[0] = it + 28F.dp2px()
+                        Xlog.d(TAG, "Added extra padding on notification stacks on Android R")
+                    } ?: Xlog.e(TAG,
+                        "NotificationStackScrollLayout#updateTopPadding args[0] is null")
+                }
+            })
     }
 
     private fun hookLockscreenLayout(lpparam: LoadPackageParam) {
