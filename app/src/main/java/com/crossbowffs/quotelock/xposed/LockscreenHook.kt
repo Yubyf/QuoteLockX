@@ -229,8 +229,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     }
 
     private val isAodViewAvailable: Boolean
-        get() = mDisplayOnAod && ::mAodQuoteContainer.isInitialized
-                && ::mAodQuoteTextView.isInitialized && ::mAodSourceTextView.isInitialized
+        get() = ::mAodQuoteContainer.isInitialized && ::mAodQuoteTextView.isInitialized
+                && ::mAodSourceTextView.isInitialized
 
     private fun refreshQuoteRemote(context: Context) {
         val uri = Uri.parse("content://${ActionProvider.AUTHORITY}").buildUpon()
