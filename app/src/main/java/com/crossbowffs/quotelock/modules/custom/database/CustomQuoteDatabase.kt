@@ -76,7 +76,26 @@ abstract class CustomQuoteDatabase : RoomDatabase() {
         }
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE ${CustomQuoteContract.TABLE} ADD COLUMN ${CustomQuoteContract.AUTHOR} TEXT NOT NULL DEFAULT ''")
+                database.execSQL("ALTER TABLE ${CustomQuoteContract.TABLE}" +
+                        " ADD COLUMN ${CustomQuoteContract.AUTHOR} TEXT NOT NULL DEFAULT ''")
+            }
+        }
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE ${CustomQuoteContract.TABLE} RENAME TO tmp_table")
+                database.execSQL("CREATE TABLE ${CustomQuoteContract.TABLE}(" +
+                        "${CustomQuoteContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "${CustomQuoteContract.TEXT} TEXT NOT NULL, " +
+                        "${CustomQuoteContract.SOURCE} TEXT NOT NULL, " +
+                        "${CustomQuoteContract.AUTHOR} TEXT NOT NULL)")
+                database.execSQL("INSERT INTO ${CustomQuoteContract.TABLE}(" +
+                        "${CustomQuoteContract.ID}, ${CustomQuoteContract.TEXT}, " +
+                        "${CustomQuoteContract.SOURCE}, ${CustomQuoteContract.AUTHOR}) " +
+                        "SELECT ${CustomQuoteContract.ID}, ${CustomQuoteContract.TEXT}, " +
+                        "${CustomQuoteContract.SOURCE}, ${QuoteEntityContract.AUTHOR_OLD} " +
+                        "FROM tmp_table")
+                database.execSQL("DROP TABLE tmp_table")
             }
         }
 
@@ -89,7 +108,7 @@ abstract class CustomQuoteDatabase : RoomDatabase() {
                     CustomQuoteDatabase::class.java,
                     DATABASE_NAME
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                 INSTANCE = instance
                 // return instance

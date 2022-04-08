@@ -9,7 +9,8 @@ object QuoteEntityContract {
     const val MD5 = "md5"
     const val TEXT = "text"
     const val SOURCE = "source"
-    const val AUTHOR = "AUTHOR"
+    const val AUTHOR_OLD = "AUTHOR"
+    const val AUTHOR = "author"
     const val ID = BaseColumns._ID
 }
 

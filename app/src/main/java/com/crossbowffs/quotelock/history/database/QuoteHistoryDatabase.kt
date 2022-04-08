@@ -77,7 +77,29 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
         }
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE ${QuoteHistoryContract.TABLE} ADD COLUMN ${QuoteHistoryContract.AUTHOR} TEXT NOT NULL DEFAULT ''")
+                database.execSQL("ALTER TABLE ${QuoteHistoryContract.TABLE}" +
+                        " ADD COLUMN ${QuoteHistoryContract.AUTHOR} TEXT NOT NULL DEFAULT ''")
+            }
+        }
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE ${QuoteHistoryContract.TABLE} RENAME TO tmp_table")
+                database.execSQL("CREATE TABLE ${QuoteHistoryContract.TABLE}(" +
+                        "${QuoteHistoryContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "${QuoteHistoryContract.TEXT} TEXT NOT NULL, " +
+                        "${QuoteHistoryContract.SOURCE} TEXT NOT NULL, " +
+                        "${QuoteHistoryContract.MD5} TEXT NOT NULL, " +
+                        "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL)")
+                database.execSQL("INSERT INTO ${QuoteHistoryContract.TABLE}(" +
+                        "${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
+                        "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
+                        "${QuoteHistoryContract.AUTHOR}) " +
+                        "SELECT ${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
+                        "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
+                        "${QuoteEntityContract.AUTHOR_OLD} " +
+                        "FROM tmp_table")
+                database.execSQL("DROP TABLE tmp_table")
             }
         }
 
@@ -90,7 +112,7 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                     QuoteHistoryDatabase::class.java,
                     DATABASE_NAME
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                 INSTANCE = instance
                 // return instance

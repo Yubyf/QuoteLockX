@@ -47,14 +47,14 @@ data class QuoteCollectionEntity @JvmOverloads constructor(
     override var source: String,
     @CsvBindByName(column = QuoteCollectionContract.AUTHOR, required = false)
     @ColumnInfo(name = QuoteCollectionContract.AUTHOR)
-    override var author: String? = "",
+    override var author: String = "",
 ) : QuoteEntity {
     // Empty constructor for OpenCSV
     constructor() : this(
         id = null,
         text = "",
         source = "",
-        author = null,
+        author = "",
         md5 = "".md5()
     )
 }
@@ -107,7 +107,29 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
         }
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE ${QuoteCollectionContract.TABLE} ADD COLUMN ${QuoteCollectionContract.AUTHOR} TEXT")
+                database.execSQL("ALTER TABLE ${QuoteCollectionContract.TABLE}" +
+                        " ADD COLUMN ${QuoteCollectionContract.AUTHOR} TEXT")
+            }
+        }
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE ${QuoteCollectionContract.TABLE} RENAME TO tmp_table")
+                database.execSQL("CREATE TABLE ${QuoteCollectionContract.TABLE}(" +
+                        "${QuoteCollectionContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "${QuoteCollectionContract.TEXT} TEXT NOT NULL, " +
+                        "${QuoteCollectionContract.SOURCE} TEXT NOT NULL, " +
+                        "${QuoteCollectionContract.MD5} TEXT NOT NULL, " +
+                        "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL)")
+                database.execSQL("INSERT INTO ${QuoteCollectionContract.TABLE}(" +
+                        "${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
+                        "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
+                        "${QuoteCollectionContract.AUTHOR}) " +
+                        "SELECT ${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
+                        "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
+                        "${QuoteEntityContract.AUTHOR_OLD} " +
+                        "FROM tmp_table")
+                database.execSQL("DROP TABLE tmp_table")
             }
         }
 
@@ -120,7 +142,7 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                     QuoteCollectionDatabase::class.java,
                     DATABASE_NAME
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                 INSTANCE = instance
                 // return instance
