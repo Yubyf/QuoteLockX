@@ -27,7 +27,8 @@ object QuoteHistoryContract {
 }
 
 
-@Entity(tableName = QuoteHistoryContract.TABLE)
+@Entity(tableName = QuoteHistoryContract.TABLE,
+    indices = [Index(value = [QuoteHistoryContract.MD5], unique = true)])
 data class QuoteHistoryEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = QuoteHistoryContract.ID)
@@ -89,9 +90,12 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                         "${QuoteHistoryContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         "${QuoteHistoryContract.TEXT} TEXT NOT NULL, " +
                         "${QuoteHistoryContract.SOURCE} TEXT NOT NULL, " +
-                        "${QuoteHistoryContract.MD5} TEXT NOT NULL, " +
+                        "${QuoteHistoryContract.MD5} TEXT UNIQUE NOT NULL, " +
                         "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL)")
-                database.execSQL("INSERT INTO ${QuoteHistoryContract.TABLE}(" +
+                database.execSQL("CREATE UNIQUE INDEX index_" +
+                        "${"${QuoteHistoryContract.TABLE}_${QuoteHistoryContract.MD5}"} " +
+                        "on ${QuoteHistoryContract.TABLE}(${QuoteHistoryContract.MD5})")
+                database.execSQL("INSERT OR IGNORE INTO ${QuoteHistoryContract.TABLE}(" +
                         "${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
                         "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
                         "${QuoteHistoryContract.AUTHOR}) " +

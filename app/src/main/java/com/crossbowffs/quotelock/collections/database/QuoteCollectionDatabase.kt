@@ -30,7 +30,8 @@ object QuoteCollectionContract {
     const val ID = QuoteEntityContract.ID
 }
 
-@Entity(tableName = QuoteCollectionContract.TABLE)
+@Entity(tableName = QuoteCollectionContract.TABLE,
+    indices = [Index(value = [QuoteCollectionContract.MD5], unique = true)])
 data class QuoteCollectionEntity @JvmOverloads constructor(
     @CsvBindByName(column = QuoteCollectionContract.ID, required = true)
     @PrimaryKey(autoGenerate = true)
@@ -119,9 +120,12 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                         "${QuoteCollectionContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         "${QuoteCollectionContract.TEXT} TEXT NOT NULL, " +
                         "${QuoteCollectionContract.SOURCE} TEXT NOT NULL, " +
-                        "${QuoteCollectionContract.MD5} TEXT NOT NULL, " +
+                        "${QuoteCollectionContract.MD5} TEXT UNIQUE NOT NULL, " +
                         "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL)")
-                database.execSQL("INSERT INTO ${QuoteCollectionContract.TABLE}(" +
+                database.execSQL("CREATE UNIQUE INDEX index_" +
+                        "${"${QuoteCollectionContract.TABLE}_${QuoteCollectionContract.MD5}"} " +
+                        "on ${QuoteCollectionContract.TABLE}(${QuoteCollectionContract.MD5})")
+                database.execSQL("INSERT OR IGNORE INTO ${QuoteCollectionContract.TABLE}(" +
                         "${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
                         "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
                         "${QuoteCollectionContract.AUTHOR}) " +
