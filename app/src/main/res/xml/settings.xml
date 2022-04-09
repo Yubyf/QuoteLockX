@@ -80,6 +80,14 @@
             android:title="@string/pref_font_family_title"
             app:iconSpaceReserved="false" />
         <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/layout_quote_spacing_entries"
+            android:entryValues="@array/layout_quote_spacing_values"
+            android:key="pref_common_quote_spacing"
+            android:summary="@string/pref_layout_quote_spacing_summary"
+            android:title="@string/pref_layout_quote_spacing_title"
+            app:iconSpaceReserved="false" />
+        <ListPreference
             android:defaultValue="8"
             android:entries="@array/layout_padding_entries"
             android:entryValues="@array/layout_padding_values"

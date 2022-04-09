@@ -57,6 +57,8 @@
     <string name="pref_font_family_title">Font family</string>
     <string name="pref_font_family_summary">Font family of the quote and source text</string>
     <string name="pref_layout_padding_top_title">Padding top</string>
+    <string name="pref_layout_quote_spacing_summary">Spacing between quote text and source</string>
+    <string name="pref_layout_quote_spacing_title">Quote spacing</string>
     <string name="pref_layout_padding_top_summary">Padding top of the layout</string>
     <string name="pref_layout_padding_bottom_title">Padding bottom</string>
     <string name="pref_layout_padding_bottom_summary">Padding bottom of the layout</string>

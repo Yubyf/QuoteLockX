@@ -111,6 +111,12 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             mQuoteContainer.paddingEnd,
             paddingBottom.dp2px().toInt())
 
+        // Quote spacing
+        val quoteSpacing = mCommonPrefs.getString(PREF_COMMON_QUOTE_SPACING,
+            PREF_COMMON_QUOTE_SPACING_DEFAULT)!!.toInt()
+        (mSourceTextView.layoutParams as LinearLayout.LayoutParams).topMargin = quoteSpacing.dp2px()
+            .toInt()
+
         // Update font size
         val textFontSize = mCommonPrefs.getString(
             PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
@@ -197,6 +203,12 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             paddingTop.dp2px().toInt(),
             mAodQuoteContainer.paddingEnd,
             paddingBottom.dp2px().toInt())
+
+        // Quote spacing
+        val quoteSpacing = mCommonPrefs.getString(PREF_COMMON_QUOTE_SPACING,
+            PREF_COMMON_QUOTE_SPACING_DEFAULT)!!.toInt()
+        (mAodSourceTextView.layoutParams as LinearLayout.LayoutParams).topMargin =
+            quoteSpacing.dp2px().toInt()
 
         // Update font size
         val textFontSize = mCommonPrefs.getString(

@@ -9,6 +9,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -90,15 +91,14 @@ class PreviewFragment : PreferenceFragmentCompat() {
                 this.sourceStyle = sourceStyle
             }
 
+            // Quote spacing
+            quoteSpacing = commonDataStore.getString(PREF_COMMON_QUOTE_SPACING,
+                PREF_COMMON_QUOTE_SPACING_DEFAULT)!!.toInt().dp2px().toInt()
             // Layout padding
             paddingTop = commonDataStore.getString(PREF_COMMON_PADDING_TOP,
-                PREF_COMMON_PADDING_TOP_DEFAULT)!!.toFloat()
-                .dp2px()
-                .toInt()
+                PREF_COMMON_PADDING_TOP_DEFAULT)!!.toInt().dp2px().toInt()
             paddingBottom = commonDataStore.getString(PREF_COMMON_PADDING_BOTTOM,
-                PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toFloat()
-                .dp2px()
-                .toInt()
+                PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toInt().dp2px().toInt()
         }
     }
 
@@ -186,16 +186,15 @@ class PreviewFragment : PreferenceFragmentCompat() {
                                         PREF_COMMON_FONT_STYLE_SOURCE)]
                                 mPreviewPreference?.sourceStyle = getTypefaceStyle(sourceStyles)
                             }
+                            PREF_COMMON_QUOTE_SPACING -> mPreviewPreference?.quoteSpacing =
+                                (preferences[stringPreferencesKey(PREF_COMMON_QUOTE_SPACING)]
+                                    ?: PREF_COMMON_QUOTE_SPACING_DEFAULT).toInt().dp2px().toInt()
                             PREF_COMMON_PADDING_TOP -> mPreviewPreference?.paddingTop =
                                 (preferences[stringPreferencesKey(PREF_COMMON_PADDING_TOP)]
-                                    ?: PREF_COMMON_PADDING_TOP_DEFAULT).toFloat()
-                                    .dp2px()
-                                    .toInt()
+                                    ?: PREF_COMMON_PADDING_TOP_DEFAULT).toInt().dp2px().toInt()
                             PREF_COMMON_PADDING_BOTTOM -> mPreviewPreference?.paddingBottom =
                                 (preferences[stringPreferencesKey(PREF_COMMON_PADDING_BOTTOM)]
-                                    ?: PREF_COMMON_PADDING_BOTTOM_DEFAULT).toFloat()
-                                    .dp2px()
-                                    .toInt()
+                                    ?: PREF_COMMON_PADDING_BOTTOM_DEFAULT).toInt().dp2px().toInt()
                             else -> {}
                         }
                     }
@@ -243,6 +242,8 @@ class PreviewPreference @JvmOverloads constructor(
 
     var sourceStyle: Int by Setter(Typeface.NORMAL)
 
+    var quoteSpacing: Int by Setter(0)
+
     var paddingTop: Int by Setter(PREF_COMMON_PADDING_TOP_DEFAULT.toInt())
 
     var paddingBottom: Int by Setter(PREF_COMMON_PADDING_BOTTOM_DEFAULT.toInt())
@@ -274,6 +275,7 @@ class PreviewPreference @JvmOverloads constructor(
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, sourceSize)
                 setTypeface(sourceTypeface, sourceStyle)
             }
+            (layoutParams as LinearLayout.LayoutParams).topMargin = quoteSpacing
         }
     }
 }

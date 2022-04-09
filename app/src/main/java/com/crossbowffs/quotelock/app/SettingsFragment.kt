@@ -178,6 +178,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     PREF_COMMON_REFRESH_RATE,
                     PREF_COMMON_FONT_SIZE_TEXT,
                     PREF_COMMON_FONT_SIZE_SOURCE,
+                    PREF_COMMON_QUOTE_SPACING,
                     PREF_COMMON_PADDING_TOP,
                     PREF_COMMON_PADDING_BOTTOM,
                     -> MaterialListPreferenceDialogFragmentCompat.newInstance(key)
