@@ -27,6 +27,9 @@ class QuoteDetailFragment : Fragment() {
             }
             findViewById<TextView>(R.id.tv_quote_source).apply {
                 text = arguments?.getString(KEY_SOURCE) ?: ""
+                text.isNullOrBlank().let {
+                    visibility = if (it) View.GONE else View.VISIBLE
+                }
                 transitionName = arguments?.getString(KEY_SOURCE_TRANSITION_NAME)
             }
             sharedElementEnterTransition = TransitionInflater.from(context)

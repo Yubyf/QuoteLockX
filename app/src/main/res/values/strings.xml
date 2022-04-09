@@ -97,6 +97,7 @@
             - <a href="https://freakuotes.com/">Freakuotes</a><br>
             - <a href="https://natune.net/zitate/">Natune.net</a><br>
             - <a href="https://www.brainyquote.com/">BrainyQuote</a><br>
+            - <a href="https://github.com/shlomif/fortune-mod/">Fortune-mod</a><br>
 
             <br><b>Libraries used</b><br>
             - <a href="https://jsoup.org/">Jsoup</a><br>
@@ -115,6 +116,7 @@
     <string name="module_freakuotes_name">Freakuotes (Español)</string>
     <string name="module_natune_name">Natune.net (Deutsch)</string>
     <string name="module_brainy_name">BrainyQuote (English)</string>
+    <string name="module_fortune_name">Fortune-mod (multilingual)</string>
     <string name="module_custom_name">Custom</string>
     <string name="module_collections_name">Collections</string>
 
@@ -152,6 +154,9 @@
     <string name="module_hitokoto_activity_type_netease_cloud">NetEase Cloud</string>
     <string name="module_hitokoto_activity_type_philosophy">Philosophy</string>
     <string name="module_hitokoto_activity_type_one_line">One-Line</string>
+
+    <!-- Fortune -->
+    <string name="module_fortune_activity_label">Fortune-mod setup</string>
 
     <!-- Quotes collections -->
     <string name="quote_collections_activity_label">Collections</string>

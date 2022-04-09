@@ -58,7 +58,11 @@ abstract class BaseQuoteListFragment<T : QuoteEntity> : Fragment() {
                                             "$PREF_QUOTE_SOURCE_PREFIX$author" +
                                                     if (source.isBlank()) "" else " $source"
                                         } else {
-                                            "$PREF_QUOTE_SOURCE_PREFIX$source"
+                                            if (source.isBlank()) {
+                                                ""
+                                            } else {
+                                                "$PREF_QUOTE_SOURCE_PREFIX$source"
+                                            }
                                         }
                                     },
                                     holder.quoteTextView.transitionName,
@@ -163,6 +167,9 @@ class QuoteListAdapter<T : QuoteEntity>(
                     } else {
                         source
                     }
+                }
+                text.isNullOrBlank().let {
+                    visibility = if (it) View.GONE else View.VISIBLE
                 }
                 transitionName = "source_#$position"
             }

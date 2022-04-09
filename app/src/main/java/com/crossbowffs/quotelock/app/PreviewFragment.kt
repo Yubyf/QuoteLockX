@@ -135,7 +135,11 @@ class PreviewFragment : PreferenceFragmentCompat() {
                                     ) {
                                         source
                                     } else {
-                                        "$PREF_QUOTE_SOURCE_PREFIX$source"
+                                        if (source.isNullOrBlank()) {
+                                            ""
+                                        } else {
+                                            "$PREF_QUOTE_SOURCE_PREFIX$source"
+                                        }
                                     }
                                 }
                             }
@@ -262,9 +266,14 @@ class PreviewPreference @JvmOverloads constructor(
             setTypeface(quoteTypeface, quoteStyle)
         }
         quoteSourceView?.run {
-            text = source
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, sourceSize)
-            setTypeface(sourceTypeface, sourceStyle)
+            if (source.isNullOrBlank()) {
+                visibility = View.GONE
+            } else {
+                visibility = View.VISIBLE
+                text = source
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, sourceSize)
+                setTypeface(sourceTypeface, sourceStyle)
+            }
         }
     }
 }

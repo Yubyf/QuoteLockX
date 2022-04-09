@@ -68,7 +68,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             else "$PREF_QUOTE_SOURCE_PREFIX$source"
         }
         val collectionState = mQuotePrefs.getBoolean(PREF_QUOTES_COLLECTION_STATE, false)
-        if (text.isNullOrBlank() || source.isNullOrBlank()) {
+        if (text.isNullOrBlank()) {
             try {
                 text = sModuleRes.getString(RES_STRING_OPEN_APP_1)
                 source = sModuleRes.getString(RES_STRING_OPEN_APP_2)
@@ -168,7 +168,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                 }.getOrDefault(false)) source
             else "$PREF_QUOTE_SOURCE_PREFIX$source"
         }
-        if (text.isNullOrBlank() || source.isNullOrBlank()) {
+        if (text.isNullOrBlank()) {
             try {
                 text = sModuleRes.getString(RES_STRING_OPEN_APP_1)
                 source = sModuleRes.getString(RES_STRING_OPEN_APP_2)

@@ -40,6 +40,9 @@
             android:name="com.crossbowffs.quotelock.modules.hitokoto.app.HitkotoConfigActivity"
             android:label="@string/module_hitokoto_activity_label" />
         <activity
+            android:name="com.crossbowffs.quotelock.modules.fortune.app.FortuneConfigActivity"
+            android:label="@string/module_fortune_activity_label" />
+        <activity
             android:name="com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity"
             android:label="@string/quote_collections_activity_label" />
         <activity

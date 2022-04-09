@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="72dp"
     android:background="?android:attr/selectableItemBackground"
+    android:minHeight="72dp"
     android:padding="8dp">
+
     <TextView
         android:id="@+id/listitem_custom_quote_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:ellipsize="end"
         android:maxLines="1"
-        android:ellipsize="end"/>
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        app:layout_constraintBottom_toTopOf="@+id/listitem_custom_quote_source"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/open_quotelock_app_line1" />
+
     <TextView
         android:id="@+id/listitem_custom_quote_source"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:ellipsize="end"
         android:maxLines="1"
-        android:ellipsize="end"/>
-</LinearLayout>
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listitem_custom_quote_text"
+        tools:text="@string/open_quotelock_app_line2" />
+</androidx.constraintlayout.widget.ConstraintLayout>

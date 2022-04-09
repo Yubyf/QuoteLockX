@@ -109,6 +109,51 @@
         <item>l</item>
     </string-array>
 
+    <string-array name="fortune_categories">
+        <item>all</item>
+        <item>art</item>
+        <item>computers</item>
+        <item>cookie</item>
+        <item>debian</item>
+        <item>definitions</item>
+        <item>disclaimer</item>
+        <item>drugs</item>
+        <item>education</item>
+        <item>ethnic</item>
+        <item>food</item>
+        <item>fortunes</item>
+        <item>goedel</item>
+        <item>humorists</item>
+        <item>kids</item>
+        <item>knghtbrd</item>
+        <item>law</item>
+        <item>linux</item>
+        <item>literature</item>
+        <item>love</item>
+        <item>magic</item>
+        <item>medicine</item>
+        <item>men-women</item>
+        <item>miscellaneous</item>
+        <item>news</item>
+        <item>paradoxum</item>
+        <item>people</item>
+        <item>perl</item>
+        <item>pets</item>
+        <item>platitudes</item>
+        <item>politics</item>
+        <item>pratchett</item>
+        <item>riddles</item>
+        <item>science</item>
+        <item>songs-poems</item>
+        <item>sports</item>
+        <item>startrek</item>
+        <item>tao</item>
+        <item>translate-me</item>
+        <item>wisdom</item>
+        <item>work</item>
+        <item>zippy</item>
+    </string-array>
+
     <!--ModuleScope for LSPosed-->
     <string-array name="module_scope">
         <item>com.android.systemui</item>
