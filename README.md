@@ -67,7 +67,7 @@ the download service.
 
 ### In Progress
 
-- [] Add support for line spacing configuration between text and source.
+- [ ] Add support for line spacing configuration between text and source.
 
 ### Done
 
