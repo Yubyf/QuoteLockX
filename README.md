@@ -63,11 +63,11 @@ the download service.
 ### Todo
 
 - [ ] Add widget for launcher.
-- [ ] Add support for Chinese.
+- [ ] Add support for custom importing of fortune cookies.
 
 ### In Progress
 
-- [ ] Add support for line spacing configuration between text and source.
+- [ ] Add support for Chinese.
 
 ### Done
 
@@ -84,6 +84,7 @@ the download service.
 - [x] Redesign with Material You.
 - [x] Add CSV export format support.
 - [x] Add support for [fortune-mod](https://github.com/shlomif/fortune-mod/).
+- [x] Add support for line spacing configuration between text and source.
 
 ## License
 
