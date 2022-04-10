@@ -2,7 +2,6 @@
 <resources>
     <!-- Common strings -->
     <string name="quotelockx">QuoteLockX</string>
-    <string name="easter_egg" translatable="false">▲ + ▼ = ◆</string>
 
     <string name="ok">OK</string>
     <string name="edit">編輯</string>
@@ -115,9 +114,6 @@
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
     <string name="module_jinrishici_name">Jinrishici 今日詩詞 (中文)</string>
-    <string name="module_freakuotes_name" translatable="false">Freakuotes (Español)</string>
-    <string name="module_natune_name" translatable="false">Natune.net (Deutsch)</string>
-    <string name="module_brainy_name" translatable="false">BrainyQuote (English)</string>
     <string name="module_fortune_name">Fortune-mod (多語言)</string>
     <string name="module_custom_name">自定義</string>
     <string name="module_collections_name">收藏</string>
@@ -135,11 +131,6 @@
 
     <!-- BrainyQuote -->
     <string name="module_brainy_activity_label">BrainyQuote 設定</string>
-    <string name="module_brainy_activity_type_general" translatable="false">QotD - General</string>
-    <string name="module_brainy_activity_type_art" translatable="false">QotD - Art</string>
-    <string name="module_brainy_activity_type_funny" translatable="false">QotD - Funny</string>
-    <string name="module_brainy_activity_type_love" translatable="false">QotD - Love</string>
-    <string name="module_brainy_activity_type_nature" translatable="false">QotD - Nature</string>
 
     <!-- Hitokoto -->
     <string name="module_hitokoto_activity_label">一言設定</string>
