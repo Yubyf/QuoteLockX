@@ -75,10 +75,8 @@ private suspend fun handleQuote(quote: QuoteData?) {
         Xlog.d(TAG, "Text: $quoteText")
         Xlog.d(TAG, "Source: $quoteSource")
         Xlog.d(TAG, "Author: $quoteAuthor")
-        if ("$quoteText$quoteSource".md5() !=
-            App.INSTANCE.getString(R.string.module_custom_setup_lines_md5)
-            && "$quoteText$quoteSource".md5() !=
-            App.INSTANCE.getString(R.string.module_collections_setup_lines_md5)
+        if (quoteSource != App.INSTANCE.getString(R.string.module_custom_setup_line2)
+            && quoteSource != App.INSTANCE.getString(R.string.module_collections_setup_line2)
         ) {
             insertQuoteHistory(quoteText, quoteSource, quoteAuthor)
         }

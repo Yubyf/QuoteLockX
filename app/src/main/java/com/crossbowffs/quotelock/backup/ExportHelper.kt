@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -55,7 +56,12 @@ object ExportHelper {
 
     val PREF_EXPORT_ROOT_DIR: File =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-    val PREF_EXPORT_RELATIVE_PATH = App.INSTANCE.resources.getString(R.string.quotelockx)
+    val PREF_EXPORT_RELATIVE_PATH = App.INSTANCE.let {
+        // Get english application name for the default export path
+        it.createConfigurationContext(Configuration(it.resources.configuration).apply {
+            setLocale(Locale.ENGLISH)
+        }).resources.getString(R.string.quotelockx)
+    }
 
     /** Check necessary permissions.  */
     private fun verifyPermissions(activity: Activity, requestCode: Int): Boolean {

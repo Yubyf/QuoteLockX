@@ -63,12 +63,12 @@ the download service.
 
 ### Todo
 
-- [ ] Add widget for launcher.
 - [ ] Add support for custom importing of fortune cookies.
 
 ### In Progress
 
-- [ ] Add support for Chinese.
+- [ ] Add widget for launcher.
+- [ ] Optimize lockscreen layout.
 
 ### Done
 
@@ -86,6 +86,7 @@ the download service.
 - [x] Add CSV export format support.
 - [x] Add support for [fortune-mod](https://github.com/shlomif/fortune-mod/).
 - [x] Add support for line spacing configuration between text and source.
+- [x] Add support for Chinese.
 
 ## License
 

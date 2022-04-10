@@ -26,7 +26,6 @@ import com.crossbowffs.quotelock.data.commonDataStore
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.dp2px
-import com.crossbowffs.quotelock.utils.md5
 import com.google.android.material.card.MaterialCardView
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
@@ -49,8 +48,8 @@ class PreviewFragment : PreferenceFragmentCompat() {
                 if (!it.isNullOrBlank()) {
                     "$PREF_QUOTE_SOURCE_PREFIX$it${if (source.isNullOrBlank()) "" else " $source"}"
                 } else {
-                    if ("$quote$source".md5() == getString(R.string.module_custom_setup_lines_md5)
-                        || "$quote$source".md5() == getString(R.string.module_collections_setup_lines_md5)
+                    if (source == getString(R.string.module_custom_setup_line2)
+                        || source == getString(R.string.module_collections_setup_line2)
                     ) {
                         source
                     } else {
@@ -128,10 +127,8 @@ class PreviewFragment : PreferenceFragmentCompat() {
                                 if (!it.isNullOrBlank()) {
                                     "$PREF_QUOTE_SOURCE_PREFIX$it${if (source.isNullOrBlank()) "" else " $source"}"
                                 } else {
-                                    if ("$quote$source".md5() ==
-                                        getString(R.string.module_custom_setup_lines_md5)
-                                        || "$quote$source".md5() ==
-                                        getString(R.string.module_collections_setup_lines_md5)
+                                    if (source == getString(R.string.module_custom_setup_line2)
+                                        || source == getString(R.string.module_collections_setup_line2)
                                     ) {
                                         source
                                     } else {

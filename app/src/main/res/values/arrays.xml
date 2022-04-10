@@ -9,7 +9,7 @@
         <item>6 hours</item>
         <item>24 hours</item>
     </string-array>
-    <string-array name="refresh_interval_values">
+    <string-array name="refresh_interval_values" translatable="false">
         <item>60</item>
         <item>300</item>
         <item>900</item>
@@ -18,7 +18,7 @@
         <item>21600</item>
         <item>86400</item>
     </string-array>
-    <string-array name="font_size_entries">
+    <string-array name="font_size_entries" translatable="false">
         <item>14 pt</item>
         <item>16 pt</item>
         <item>18 pt</item>
@@ -26,7 +26,7 @@
         <item>22 pt</item>
         <item>24 pt</item>
     </string-array>
-    <string-array name="font_size_values">
+    <string-array name="font_size_values" translatable="false">
         <item>14</item>
         <item>16</item>
         <item>18</item>
@@ -40,7 +40,7 @@
         <item>Great Vibes</item>
         <item>Poiret One</item>
     </string-array>
-    <string-array name="font_family_values">
+    <string-array name="font_family_values" translatable="false">
         <item>system</item>
         <item>liujianmaocao</item>
         <item>great_vibes</item>
@@ -51,7 +51,7 @@
         <item>Great Vibes</item>
         <item>Poiret One</item>
     </string-array>
-    <string-array name="font_family_latin_values">
+    <string-array name="font_family_latin_values" translatable="false">
         <item>system</item>
         <item>great_vibes</item>
         <item>poiret_one</item>
@@ -60,7 +60,7 @@
         <item>System</item>
         <item>钟齐流江毛草</item>
     </string-array>
-    <string-array name="font_family_cjk_values">
+    <string-array name="font_family_cjk_values" translatable="false">
         <item>system</item>
         <item>liujianmaocao</item>
     </string-array>
@@ -68,39 +68,39 @@
         <item>Bold</item>
         <item>Italic</item>
     </string-array>
-    <string-array name="font_style_values">
+    <string-array name="font_style_values" translatable="false">
         <item>bold</item>
         <item>italic</item>
     </string-array>
-    <string-array name="layout_padding_entries">
+    <string-array name="layout_padding_entries" translatable="false">
         <item>0 pt</item>
         <item>8 pt</item>
         <item>16 pt</item>
         <item>24 pt</item>
         <item>32 pt</item>
     </string-array>
-    <string-array name="layout_quote_spacing_values">
+    <string-array name="layout_quote_spacing_values" translatable="false">
         <item>0</item>
         <item>4</item>
         <item>8</item>
         <item>12</item>
         <item>16</item>
     </string-array>
-    <string-array name="layout_quote_spacing_entries">
+    <string-array name="layout_quote_spacing_entries" translatable="false">
         <item>0 pt</item>
         <item>4 pt</item>
         <item>8 pt</item>
         <item>12 pt</item>
         <item>16 pt</item>
     </string-array>
-    <string-array name="layout_padding_values">
+    <string-array name="layout_padding_values" translatable="false">
         <item>0</item>
         <item>8</item>
         <item>16</item>
         <item>24</item>
         <item>32</item>
     </string-array>
-    <string-array name="brainy_quote_type_values">
+    <string-array name="brainy_quote_type_values" translatable="false">
         <item>BR</item>
         <item>AR</item>
         <item>FU</item>
@@ -108,7 +108,7 @@
         <item>NA</item>
     </string-array>
 
-    <string-array name="hitokoto_type_values">
+    <string-array name="hitokoto_type_values" translatable="false">
         <item>a</item>
         <item>b</item>
         <item>c</item>
@@ -123,7 +123,7 @@
         <item>l</item>
     </string-array>
 
-    <string-array name="fortune_categories">
+    <string-array name="fortune_categories" translatable="false">
         <item>all</item>
         <item>art</item>
         <item>computers</item>
@@ -169,7 +169,7 @@
     </string-array>
 
     <!--ModuleScope for LSPosed-->
-    <string-array name="module_scope">
+    <string-array name="module_scope" translatable="false">
         <item>com.android.systemui</item>
     </string-array>
 </resources>

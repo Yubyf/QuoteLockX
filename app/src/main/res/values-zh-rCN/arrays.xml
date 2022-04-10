@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="refresh_interval_entries">
+        <item>1 分钟</item>
+        <item>5 分钟</item>
+        <item>15 分钟</item>
+        <item>30 分钟</item>
+        <item>1 小时</item>
+        <item>6 小时</item>
+        <item>24 小时</item>
+    </string-array>
+    <string-array name="font_family_entries">
+        <item>System</item>
+        <item>钟齐流江毛草</item>
+        <item>Great Vibes</item>
+        <item>Poiret One</item>
+    </string-array>
+    <string-array name="font_family_latin_entries">
+        <item>系统</item>
+        <item>Great Vibes</item>
+        <item>Poiret One</item>
+    </string-array>
+    <string-array name="font_family_cjk_entries">
+        <item>系统</item>
+        <item>钟齐流江毛草</item>
+    </string-array>
+    <string-array name="font_style_entries">
+        <item>粗体</item>
+        <item>斜体</item>
+    </string-array>
+</resources>

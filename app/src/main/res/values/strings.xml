@@ -2,7 +2,7 @@
 <resources>
     <!-- Common strings -->
     <string name="quotelockx">QuoteLockX</string>
-    <string name="easter_egg">▲ + ▼ = ◆</string>
+    <string name="easter_egg" translatable="false">▲ + ▼ = ◆</string>
 
     <string name="ok">OK</string>
     <string name="edit">Edit</string>
@@ -35,7 +35,7 @@
         Android does not normally allow apps to add text to the lockscreen.\n\nFor QuoteLockX to function correctly, you must enable the included Xposed module.
     </string>
     <string name="module_outdated_title">Xposed module updated</string>
-    <string name="module_outdated_message">Please reboot your device for changes to take effect.</string>
+    <string name="module_outdated_message">Please reboot your device or restart System UI for changes to take effect.</string>
     <string name="xposed_not_installed">Xposed not installed</string>
     <string name="report_bug">Report bug</string>
     <string name="battery_optimization_title">Battery optimization enabled</string>
@@ -76,15 +76,16 @@
     <string name="pref_about_credits_title">Credits</string>
     <string name="pref_about_credits_summary">Who did what now?</string>
     <string name="pref_about_github">View project on GitHub</string>
+    <string name="pref_about_restart_system_ui_title">Restart System UI</string>
+    <string name="pref_debug_restart_system_ui_summary">Re-hook lockscreen</string>
     <string name="pref_about_version">Version</string>
-    <string name="refesh_quote">Refresh quote</string>
+    <string name="refresh_quote">Refresh quote</string>
     <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>
     <string name="quote_download_success">Quote downloaded successfully</string>
     <string name="open_quotelock_app_line1">Welcome to QuoteLockX!</string>
     <string name="open_quotelock_app_line2">Please open the configuration app</string>
     <string name="selected_module_not_found">Selected module could not be found</string>
-    <string name="pref_debug_restart_system_ui_title">Restart System UI</string>
     <string name="credits_title">Credits</string>
     <string name="credits_message">
         <![CDATA[
@@ -111,13 +112,12 @@
     </string>
 
     <!-- Provider-specific strings -->
-    <string name="module_vnaas_name">Visual Novel as a Service (日本語)</string>
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
     <string name="module_jinrishici_name">Jinrishici 今日诗词 (中文)</string>
-    <string name="module_freakuotes_name">Freakuotes (Español)</string>
-    <string name="module_natune_name">Natune.net (Deutsch)</string>
-    <string name="module_brainy_name">BrainyQuote (English)</string>
+    <string name="module_freakuotes_name" translatable="false">Freakuotes (Español)</string>
+    <string name="module_natune_name" translatable="false">Natune.net (Deutsch)</string>
+    <string name="module_brainy_name" translatable="false">BrainyQuote (English)</string>
     <string name="module_fortune_name">Fortune-mod (multilingual)</string>
     <string name="module_custom_name">Custom</string>
     <string name="module_collections_name">Collections</string>
@@ -125,7 +125,6 @@
     <!-- Custom quotes -->
     <string name="module_custom_setup_line1">No custom quotes set</string>
     <string name="module_custom_setup_line2">Please open the provider settings</string>
-    <string name="module_custom_setup_lines_md5">1c05daafaefde17e6b2d0e7adaa202ee</string>
     <string name="module_custom_activity_label">Custom quotes</string>
     <string name="module_custom_enter_quote">Enter quote</string>
     <string name="module_custom_create_quote">Create quote</string>
@@ -136,11 +135,11 @@
 
     <!-- BrainyQuote -->
     <string name="module_brainy_activity_label">BrainyQuote setup</string>
-    <string name="module_brainy_activity_type_general">QotD - General</string>
-    <string name="module_brainy_activity_type_art">QotD - Art</string>
-    <string name="module_brainy_activity_type_funny">QotD - Funny</string>
-    <string name="module_brainy_activity_type_love">QotD - Love</string>
-    <string name="module_brainy_activity_type_nature">QotD - Nature</string>
+    <string name="module_brainy_activity_type_general" translatable="false">QotD - General</string>
+    <string name="module_brainy_activity_type_art" translatable="false">QotD - Art</string>
+    <string name="module_brainy_activity_type_funny" translatable="false">QotD - Funny</string>
+    <string name="module_brainy_activity_type_love" translatable="false">QotD - Love</string>
+    <string name="module_brainy_activity_type_nature" translatable="false">QotD - Nature</string>
 
     <!-- Hitokoto -->
     <string name="module_hitokoto_activity_label">Hitokoto setup</string>
@@ -163,7 +162,6 @@
     <!-- Quotes collections -->
     <string name="quote_collections_activity_label">Collections</string>
     <string name="module_collections_setup_line1">No collections set</string>
-    <string name="module_collections_setup_lines_md5">a11180e1d67430306515e26b0c68ebd8</string>
     <string name="module_collections_setup_line2">Please open the collections settings</string>
 
     <!-- Quote histories-->

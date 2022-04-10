@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/refesh_quote"
-        android:title="@string/refesh_quote"
+        android:title="@string/refresh_quote"
         android:icon="@drawable/ic_round_refresh_24dp"
         app:showAsAction="ifRoom" />
 </menu>

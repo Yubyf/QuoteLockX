@@ -131,8 +131,8 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_restart_system_ui"
-            android:summary="Re-hook lockscreen"
-            android:title="@string/pref_debug_restart_system_ui_title"
+            android:summary="@string/pref_debug_restart_system_ui_summary"
+            android:title="@string/pref_about_restart_system_ui_title"
             app:iconSpaceReserved="false" />
         <Preference
             android:key="pref_about_version"
