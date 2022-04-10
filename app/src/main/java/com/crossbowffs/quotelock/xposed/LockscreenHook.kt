@@ -92,7 +92,11 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         mSourceTextView.text = source
         // Cache original source information in the source TextView's hint attribute.
         mSourceTextView.hint = originalSource
+
+        // Use animation vector drawable to show collection state
+        val stateSet = intArrayOf(android.R.attr.state_checked * if (collectionState) 1 else -1)
         mCollectImageView.isSelected = collectionState
+        mCollectImageView.setImageState(stateSet, true)
 
         // Hide source textview if there is no source
         if (TextUtils.isEmpty(source)) {
@@ -343,7 +347,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        resetTranslationAnimator()
+        if (key != PREF_QUOTES_COLLECTION_STATE) {
+            // Block translation animation resetting when the quote is collecting
+            resetTranslationAnimator()
+        }
         refreshLockscreenQuote()
         // Refresh the injected AOD quote views on thread of AOD layout.
         mAodHandler?.post { refreshAodQuote() }
@@ -553,7 +560,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         /** For OnePlus AOD  */
         private const val RES_ID_OP_AOD_CONTAINER = "op_aod_system_info_container"
         private const val RES_ID_REFRESH_ICON = "ic_round_refresh_24dp"
-        private const val RES_ID_COLLECT_ICON = "selector_star"
+        private const val RES_ID_COLLECT_ICON = "anim_star"
         private const val LAYOUT_ANIMATION_DURATION: Long = 500
         private var sModulePath: String? = null
         private lateinit var sModuleRes: XSafeModuleResources
