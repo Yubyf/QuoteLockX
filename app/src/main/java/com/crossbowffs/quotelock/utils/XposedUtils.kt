@@ -56,7 +56,7 @@ object XposedUtils {
         }.recoverCatching {
             startEdXposedActivity()
         }.recoverCatching {
-            startEdXposedActivity()
+            startLSPosedActivity()
         }.getOrNull() ?: false
     }
 
@@ -68,12 +68,16 @@ object XposedUtils {
         return true
     }
 
-    @Throws(ActivityNotFoundException::class)
     private fun Context.startLSPosedActivity(): Boolean {
-        startActivity(Intent(Intent.ACTION_MAIN).apply {
-            component = ComponentName(LSPOSED_PACKAGE, LSPOSED_MODULES_PAGE)
-            data = Uri.parse(XPOSED_SECTION_MODULES)
-        })
+        runCatching {
+            startActivity(Intent(Intent.ACTION_MAIN).apply {
+                component = ComponentName(LSPOSED_PACKAGE, LSPOSED_MODULES_PAGE)
+                data = Uri.parse(XPOSED_SECTION_MODULES)
+            })
+        }.onFailure {
+            return executeShellCommand("service call phone 1 s16 \"*%23*%235776733%23*%23*\"",
+                false)
+        }.onFailure { return false }
         return true
     }
 
