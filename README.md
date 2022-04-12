@@ -63,12 +63,13 @@ the download service.
 
 ### Todo
 
+- [ ] ~~Add widget for launcher.~~
 - [ ] Add support for custom importing of fortune cookies.
 
 ### In Progress
 
-- [ ] Add widget for launcher.
 - [ ] Optimize lockscreen layout.
+- [ ] Optimize style for Android S.
 
 ### Done
 
