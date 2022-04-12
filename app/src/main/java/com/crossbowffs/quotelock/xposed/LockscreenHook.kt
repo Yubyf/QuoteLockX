@@ -369,27 +369,36 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Notifications on Android S will cover a part of quote view.
             // Added a padding to avoid this.
-            hookNotificationStackScrollLayout(lpparam)
+            hookKeyguardClockPositionAlgorithm(lpparam)
         }
         Xlog.i(TAG, "QuoteLockX Xposed module initialized!")
     }
 
+    /**
+     * Hook and modify `com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout#updateTopPadding()`
+     * will cause the animation stuck when clicking on the blank area of the lockscreen on Android S.
+     * So we need to hook `com.android.systemui.statusbar.phone.KeyguardClockPositionAlgorithm#loadDimens()`
+     * to modify `mStatusViewBottomMargin` field to change the margin between
+     * the bottom of the status view and the notification shade.
+     *
+     * @see [com.android.systemui.statusbar.phone.KeyguardClockPositionAlgorithm](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android12-release/packages/SystemUI/src/com/android/systemui/statusbar/phone/KeyguardClockPositionAlgorithm.java)
+     */
     @RequiresApi(Build.VERSION_CODES.S)
-    private fun hookNotificationStackScrollLayout(lpparam: LoadPackageParam) {
+    private fun hookKeyguardClockPositionAlgorithm(lpparam: LoadPackageParam) {
         XposedHelpers.findAndHookMethod(
-            "com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout",
+            "com.android.systemui.statusbar.phone.KeyguardClockPositionAlgorithm",
             lpparam.classLoader,
-            "updateTopPadding",
-            Float::class.javaPrimitiveType,
-            Boolean::class.javaPrimitiveType,
+            "loadDimens",
+            "android.content.res.Resources",
             object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    Xlog.d(TAG, "NotificationStackScrollLayout#updateTopPadding calling...")
-                    (param.args[0] as? Float)?.let {
-                        param.args[0] = it + 28F.dp2px()
-                        Xlog.d(TAG, "Added extra padding on notification stacks on Android R")
-                    } ?: Xlog.e(TAG,
-                        "NotificationStackScrollLayout#updateTopPadding args[0] is null")
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    Xlog.d(TAG,
+                        "KeyguardClockPositionAlgorithm#loadDimens calling...")
+                    param.thisObject.apply {
+                        getReflectionField<Int>("mStatusViewBottomMargin")?.let {
+                            setReflectionField("mStatusViewBottomMargin", it + 28F.dp2px().toInt())
+                        }
+                    }
                 }
             })
     }
