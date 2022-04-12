@@ -91,11 +91,11 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                         "${QuoteHistoryContract.TEXT} TEXT NOT NULL, " +
                         "${QuoteHistoryContract.SOURCE} TEXT NOT NULL, " +
                         "${QuoteHistoryContract.MD5} TEXT UNIQUE NOT NULL, " +
-                        "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL)")
+                        "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')")
                 database.execSQL("CREATE UNIQUE INDEX index_" +
                         "${"${QuoteHistoryContract.TABLE}_${QuoteHistoryContract.MD5}"} " +
                         "on ${QuoteHistoryContract.TABLE}(${QuoteHistoryContract.MD5})")
-                database.execSQL("INSERT OR IGNORE INTO ${QuoteHistoryContract.TABLE}(" +
+                database.execSQL("INSERT OR REPLACE INTO ${QuoteHistoryContract.TABLE}(" +
                         "${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
                         "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
                         "${QuoteHistoryContract.AUTHOR}) " +

@@ -121,11 +121,11 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                         "${QuoteCollectionContract.TEXT} TEXT NOT NULL, " +
                         "${QuoteCollectionContract.SOURCE} TEXT NOT NULL, " +
                         "${QuoteCollectionContract.MD5} TEXT UNIQUE NOT NULL, " +
-                        "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL)")
+                        "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')")
                 database.execSQL("CREATE UNIQUE INDEX index_" +
                         "${"${QuoteCollectionContract.TABLE}_${QuoteCollectionContract.MD5}"} " +
                         "on ${QuoteCollectionContract.TABLE}(${QuoteCollectionContract.MD5})")
-                database.execSQL("INSERT OR IGNORE INTO ${QuoteCollectionContract.TABLE}(" +
+                database.execSQL("INSERT OR REPLACE INTO ${QuoteCollectionContract.TABLE}(" +
                         "${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
                         "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
                         "${QuoteCollectionContract.AUTHOR}) " +
@@ -165,7 +165,7 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                     QuoteCollectionDatabase::class.java,
                     name
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .createFromFile(file)
                     .build()
             }

@@ -88,8 +88,8 @@ abstract class CustomQuoteDatabase : RoomDatabase() {
                         "${CustomQuoteContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         "${CustomQuoteContract.TEXT} TEXT NOT NULL, " +
                         "${CustomQuoteContract.SOURCE} TEXT NOT NULL, " +
-                        "${CustomQuoteContract.AUTHOR} TEXT NOT NULL)")
-                database.execSQL("INSERT INTO ${CustomQuoteContract.TABLE}(" +
+                        "${CustomQuoteContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')")
+                database.execSQL("INSERT OR REPLACE INTO ${CustomQuoteContract.TABLE}(" +
                         "${CustomQuoteContract.ID}, ${CustomQuoteContract.TEXT}, " +
                         "${CustomQuoteContract.SOURCE}, ${CustomQuoteContract.AUTHOR}) " +
                         "SELECT ${CustomQuoteContract.ID}, ${CustomQuoteContract.TEXT}, " +
