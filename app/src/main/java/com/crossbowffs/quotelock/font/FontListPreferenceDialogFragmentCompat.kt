@@ -1,18 +1,26 @@
-package com.crossbowffs.quotelock.components
+package com.crossbowffs.quotelock.font
 
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.ListPreference
+import com.crossbowffs.quotelock.components.MaterialPreferenceDialogFragmentCompat
+import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_DEFAULT
+import com.crossbowffs.quotelock.font.app.FontManagementActivity
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
-import com.crossbowffs.quotelock.utils.getFontFromName
 import com.yubyf.quotelockx.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * Show font list with specific font styles
@@ -22,8 +30,10 @@ import com.yubyf.quotelockx.R
  */
 class FontListPreferenceDialogFragmentCompat : MaterialPreferenceDialogFragmentCompat() {
     private var mClickedDialogEntryIndex/* synthetic access */ = 0
-    private lateinit var mEntries: Array<CharSequence?>
+    private lateinit var mEntries: Array<CharSequence>
     private lateinit var mEntryValues: Array<CharSequence>
+    private val mFontList = mutableListOf<FontInfo>()
+    private var mAdapter: FontStyleCheckedItemAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
@@ -33,11 +43,21 @@ class FontListPreferenceDialogFragmentCompat : MaterialPreferenceDialogFragmentC
             mClickedDialogEntryIndex = listPreference.findIndexOfValue(listPreference.value)
             mEntries = listPreference.entries
             mEntryValues = listPreference.entryValues
+            mEntries.forEachIndexed { index, charSequence ->
+                val fontInfo = FontInfo(name = charSequence.toString(),
+                    mEntryValues[index].toString())
+                mFontList.add(fontInfo)
+            }
         } else {
             mClickedDialogEntryIndex = savedInstanceState.getInt(SAVE_STATE_INDEX, 0)
             mEntries = savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRIES) ?: arrayOf()
             mEntryValues =
                 savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRY_VALUES) ?: arrayOf()
+            mEntries.forEachIndexed { index, charSequence ->
+                val fontInfo = FontInfo(name = charSequence.toString(),
+                    mEntryValues[index].toString())
+                mFontList.add(fontInfo)
+            }
         }
     }
 
@@ -60,9 +80,9 @@ class FontListPreferenceDialogFragmentCompat : MaterialPreferenceDialogFragmentC
         val layout =
             a.getResourceId(androidx.appcompat.R.styleable.AlertDialog_singleChoiceItemLayout, 0)
         a.recycle()
-        val adapter = FontStyleCheckedItemAdapter(requireContext(), layout,
-            android.R.id.text1, mEntries, mEntryValues)
-        builder.setSingleChoiceItems(adapter, mClickedDialogEntryIndex
+        mAdapter = FontStyleCheckedItemAdapter(requireContext(), layout,
+            android.R.id.text1, mFontList)
+        builder.setSingleChoiceItems(mAdapter, mClickedDialogEntryIndex
         ) { dialog, which ->
             mClickedDialogEntryIndex = which
 
@@ -71,11 +91,29 @@ class FontListPreferenceDialogFragmentCompat : MaterialPreferenceDialogFragmentC
             onClick(dialog, DialogInterface.BUTTON_POSITIVE)
             dialog.dismiss()
         }
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                mFontList.forEach {
+                    if (it.path == PREF_COMMON_FONT_FAMILY_DEFAULT) {
+                        return@forEach
+                    }
+                    FontManager.loadFontInfo(File(it.path))?.let { fontInfo ->
+                        it.name = fontInfo.name
+                        withContext(Dispatchers.Main) { mAdapter?.notifyDataSetChanged() }
+                    }
+                }
+            }
+        }
         //endregion
 
         // The typical interaction for list-based dialogs is to have click-on-an-item dismiss the
         // dialog instead of the user having to press 'Ok'.
         builder.setPositiveButton(null, null)
+
+        // Start fonts management page
+        builder.setNeutralButton(R.string.pref_font_family_custom) { _, _ ->
+            startActivity(Intent(requireContext(), FontManagementActivity::class.java))
+        }
     }
 
     override fun onDialogClosed(positiveResult: Boolean) {
@@ -88,23 +126,26 @@ class FontListPreferenceDialogFragmentCompat : MaterialPreferenceDialogFragmentC
         }
     }
 
-    //region Modified part
     /**
      * Stylize the list item by specific font family.
      */
     private class FontStyleCheckedItemAdapter(
-        context: Context, resource: Int, textViewResourceId: Int,
-        objects: Array<CharSequence?>, private val values: Array<CharSequence>,
-    ) : ArrayAdapter<CharSequence?>(context, resource, textViewResourceId, objects) {
+        context: Context, resource: Int, textViewResourceId: Int, objects: List<FontInfo>,
+    ) : ArrayAdapter<FontInfo>(context, resource, textViewResourceId, objects) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = super.getView(position, convertView, parent)
-            if (view is TextView && values.size > position) {
-                val fontName = values[position] as String
-                runCatching {
-                    view.typeface = context.getFontFromName(fontName)
-                }.onFailure {
-                    view.typeface = null
-                    Xlog.e(TAG, "Failed to get font from name: $fontName")
+            (view as? TextView)?.apply {
+                getItem(position)?.let { font ->
+                    text = font.name
+                    typeface = if (PREF_COMMON_FONT_FAMILY_DEFAULT == font.path) {
+                        null
+                    } else {
+                        runCatching {
+                            FontManager.loadTypeface(font.path)
+                        }.onFailure {
+                            Xlog.e(TAG, "Failed to get font from name: $font")
+                        }.getOrNull()
+                    }
                 }
             }
             return view
@@ -118,7 +159,6 @@ class FontListPreferenceDialogFragmentCompat : MaterialPreferenceDialogFragmentC
             return position.toLong()
         }
     }
-    //endregion
 
     companion object {
         val TAG = className<FontListPreferenceDialogFragmentCompat>()
@@ -132,4 +172,6 @@ class FontListPreferenceDialogFragmentCompat : MaterialPreferenceDialogFragmentC
                 arguments = Bundle(1).apply { putString(ARG_KEY, key) }
             }
     }
+
+    private data class FontInfo(var name: String, var path: String)
 }

@@ -2,7 +2,6 @@ package com.crossbowffs.quotelock.app
 
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -11,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.lifecycle.Lifecycle
@@ -24,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.commonDataStore
 import com.crossbowffs.quotelock.data.quotesDataStore
+import com.crossbowffs.quotelock.font.FontManager
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.dp2px
 import com.google.android.material.card.MaterialCardView
@@ -66,23 +65,16 @@ class PreviewFragment : PreferenceFragmentCompat() {
             val sourceStyles = commonDataStore.getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
             val quoteStyle = getTypefaceStyle(quoteStyles)
             val sourceStyle = getTypefaceStyle(sourceStyles)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val font = commonDataStore.getString(
-                    PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
-                if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-                    val fontId = requireContext().resources.getIdentifier(font, "font",
-                        requireContext().packageName)
-                    val typeface = ResourcesCompat.getFont(requireContext(), fontId)
-                    this.quoteTypeface = typeface
-                    this.quoteStyle = quoteStyle
-                    this.sourceTypeface = typeface
-                    this.sourceStyle = sourceStyle
-                } else {
-                    this.quoteTypeface = null
-                    this.quoteStyle = quoteStyle
-                    this.sourceTypeface = null
-                    this.sourceStyle = sourceStyle
+            val font = commonDataStore.getString(
+                PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
+            if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
+                val typeface = font?.let {
+                    runCatching { FontManager.loadTypeface(font) }.getOrNull()
                 }
+                this.quoteTypeface = typeface
+                this.quoteStyle = quoteStyle
+                this.sourceTypeface = typeface
+                this.sourceStyle = sourceStyle
             } else {
                 this.quoteTypeface = null
                 this.quoteStyle = quoteStyle
@@ -152,21 +144,14 @@ class PreviewFragment : PreferenceFragmentCompat() {
                                 (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_SOURCE)]
                                     ?: PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT).toFloat()
                             PREF_COMMON_FONT_FAMILY -> {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    val font =
-                                        preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
-                                            ?: PREF_COMMON_FONT_FAMILY_DEFAULT
-                                    if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-                                        val fontId = requireContext().resources.getIdentifier(font,
-                                            "font", requireContext().packageName)
-                                        mPreviewPreference?.quoteTypeface =
-                                            ResourcesCompat.getFont(requireContext(), fontId)
-                                        mPreviewPreference?.sourceTypeface =
-                                            ResourcesCompat.getFont(requireContext(), fontId)
-                                    } else {
-                                        mPreviewPreference?.quoteTypeface = null
-                                        mPreviewPreference?.sourceTypeface = null
-                                    }
+                                val font =
+                                    preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
+                                        ?: PREF_COMMON_FONT_FAMILY_DEFAULT
+                                if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
+                                    val typeface =
+                                        runCatching { FontManager.loadTypeface(font) }.getOrNull()
+                                    mPreviewPreference?.quoteTypeface = typeface
+                                    mPreviewPreference?.sourceTypeface = typeface
                                 } else {
                                     mPreviewPreference?.quoteTypeface = null
                                     mPreviewPreference?.sourceTypeface = null

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.res.Resources.NotFoundException
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -49,6 +50,14 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     private lateinit var mQuotePrefs: RemotePreferences
     private var mDisplayOnAod = false
     private var mAodHandler: Handler? = null
+
+    private val typefaceCache = HashMap<String, Typeface>()
+
+    private fun loadTypeface(fontPath: String): Typeface {
+        return typefaceCache.getOrPut(fontPath) {
+            Typeface.createFromFile(fontPath)
+        }
+    }
 
     private fun refreshLockscreenQuote() {
         Xlog.d(TAG, "Quote changed, updating lockscreen layout")
@@ -134,16 +143,14 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val sourceStyles = mCommonPrefs.getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
         val quoteStyle = getTypefaceStyle(quoteStyles)
         val sourceStyle = getTypefaceStyle(sourceStyles)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val font = mCommonPrefs.getString(
-                PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
-            if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-                mQuoteTextView.setTypeface(sModuleRes.getFont(font!!), quoteStyle)
-                mSourceTextView.setTypeface(sModuleRes.getFont(font), sourceStyle)
-            } else {
-                mQuoteTextView.setTypeface(null, quoteStyle)
-                mSourceTextView.setTypeface(null, sourceStyle)
+        val font = mCommonPrefs.getString(
+            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
+        if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
+            val typeface = font?.let {
+                runCatching { loadTypeface(font) }.getOrNull()
             }
+            mQuoteTextView.setTypeface(typeface, quoteStyle)
+            mSourceTextView.setTypeface(typeface, sourceStyle)
         } else {
             mQuoteTextView.setTypeface(null, quoteStyle)
             mSourceTextView.setTypeface(null, sourceStyle)
@@ -227,17 +234,14 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val sourceStyles = mCommonPrefs.getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
         val quoteStyle = getTypefaceStyle(quoteStyles)
         val sourceStyle = getTypefaceStyle(sourceStyles)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val font = mCommonPrefs.getString(
-                PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
-            if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-                mAodQuoteTextView.setTypeface(sModuleRes.getFont(font!!), quoteStyle)
-                mAodSourceTextView.setTypeface(sModuleRes.getFont(
-                    font), sourceStyle)
-            } else {
-                mAodQuoteTextView.setTypeface(null, quoteStyle)
-                mAodSourceTextView.setTypeface(null, sourceStyle)
+        val font = mCommonPrefs.getString(
+            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
+        if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
+            val typeface = font?.let {
+                runCatching { loadTypeface(font) }.getOrNull()
             }
+            mAodQuoteTextView.setTypeface(typeface, quoteStyle)
+            mAodSourceTextView.setTypeface(typeface, sourceStyle)
         } else {
             mAodQuoteTextView.setTypeface(null, quoteStyle)
             mAodSourceTextView.setTypeface(null, sourceStyle)

@@ -34,35 +34,11 @@
         <item>22</item>
         <item>24</item>
     </string-array>
-    <string-array name="font_family_entries">
+    <string-array name="default_font_family_entries">
         <item>System</item>
-        <item>钟齐流江毛草</item>
-        <item>Great Vibes</item>
-        <item>Poiret One</item>
     </string-array>
-    <string-array name="font_family_values" translatable="false">
+    <string-array name="default_font_family_values" translatable="false">
         <item>system</item>
-        <item>liujianmaocao</item>
-        <item>great_vibes</item>
-        <item>poiret_one</item>
-    </string-array>
-    <string-array name="font_family_latin_entries">
-        <item>System</item>
-        <item>Great Vibes</item>
-        <item>Poiret One</item>
-    </string-array>
-    <string-array name="font_family_latin_values" translatable="false">
-        <item>system</item>
-        <item>great_vibes</item>
-        <item>poiret_one</item>
-    </string-array>
-    <string-array name="font_family_cjk_entries">
-        <item>System</item>
-        <item>钟齐流江毛草</item>
-    </string-array>
-    <string-array name="font_family_cjk_values" translatable="false">
-        <item>system</item>
-        <item>liujianmaocao</item>
     </string-array>
     <string-array name="font_style_entries">
         <item>Bold</item>

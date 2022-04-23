@@ -176,7 +176,6 @@ class QuoteListAdapter<T : QuoteEntity>(
             view.setOnClickListener { viewHolderListener?.invoke(holder, quote) }
         }
 
-        // Call startPostponedEnterTransition only when the 'selected' image loading is completed.
         if (lastSelectPosition == position) {
             if (!enterTransitionStarted.getAndSet(true)) {
                 onSelectedItemLoaded?.invoke()

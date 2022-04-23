@@ -48,6 +48,9 @@
         <activity
             android:name="com.crossbowffs.quotelock.history.app.QuoteHistoryActivity"
             android:label="@string/quote_histories_activity_label" />
+        <activity
+            android:name="com.crossbowffs.quotelock.font.app.FontManagementActivity"
+            android:label="@string/quote_histories_activity_label" />
 
         <service
             android:name="com.crossbowffs.quotelock.account.authenticator.AuthenticationService"

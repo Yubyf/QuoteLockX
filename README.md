@@ -20,6 +20,7 @@ LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) no
 - Import/Export collections in .db or .csv format on local storage.
 - Backup/Restore collections on Google Drive.
 - Displays quotes on the AmbientDisplay page of *OnePlus7Pro OOS11* (**ALPHA**)
+- Imports custom fonts.
 
 ## Screenshots
 
@@ -70,7 +71,6 @@ the download service.
 
 - [ ] Optimize lockscreen layout.
 - [ ] Optimize style for Android S.
-- [ ] Add support for custom fonts.
 
 ### Done
 
@@ -89,6 +89,7 @@ the download service.
 - [x] Add support for [fortune-mod](https://github.com/shlomif/fortune-mod/).
 - [x] Add support for line spacing configuration between text and source.
 - [x] Add support for Chinese.
+- [x] Add support for custom fonts.
 
 ## License
 

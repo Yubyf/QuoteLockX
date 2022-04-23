@@ -8,6 +8,7 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="enable">Enable</string>
+    <string name="download">Download</string>
     <string name="reboot">Reboot</string>
     <string name="ignore">Ignore</string>
     <string name="save">Save</string>
@@ -56,6 +57,7 @@
     <string name="pref_font_style_source_summary">Font style of the source text</string>
     <string name="pref_font_family_title">Font family</string>
     <string name="pref_font_family_summary">Font family of the quote and source text</string>
+    <string name="pref_font_family_custom">Custom</string>
     <string name="pref_layout_padding_top_title">Padding top</string>
     <string name="pref_layout_quote_spacing_summary">Spacing between quote text and source</string>
     <string name="pref_layout_quote_spacing_title">Quote spacing</string>
@@ -167,6 +169,21 @@
     <!-- Quote histories-->
     <string name="quote_histories_activity_label">Histories</string>
     <string name="quote_histories_cleared_quote">Cleared quote</string>
+
+    <!-- Fonts -->
+    <string name="quote_fonts_magisk_module_needed_title">Magisk module needed</string>
+    <string name="quote_fonts_magisk_module_needed_message">
+        Android does not normally allow apps to share imported fonts to the lockscreen.\n\nTo use the QuoteLockX custom fonts feature, you must download and install the QuoteLockX-CustomFonts module in magisk..
+    </string>
+    <string name="quote_fonts_management_activity_label">Custom Fonts</string>
+    <string name="quote_fonts_management_import">Import</string>
+    <string name="quote_fonts_management_font_imported">Font %s imported</string>
+    <string name="quote_fonts_management_import_failed">Import font failed</string>
+    <string name="quote_fonts_management_inactive">Inactive</string>
+    <string name="quote_fonts_management_delete_font_failed">Delete font %s failed</string>
+    <string name="quote_fonts_management_delete_active_font_successfully">Reboot device for deletion to take effect</string>
+    <string name="quote_fonts_management_delete_inactive_font_successfully">Font %s deleted</string>
+    <string name="quote_fonts_management_activate_tips">Reboot the device to activate imported fonts</string>
 
     <!-- Data retention-->
     <string name="database_exported">Database exported to</string>

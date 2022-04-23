@@ -21,12 +21,13 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
-import com.crossbowffs.quotelock.components.FontListPreferenceDialogFragmentCompat
 import com.crossbowffs.quotelock.components.MaterialListPreferenceDialogFragmentCompat
 import com.crossbowffs.quotelock.components.MaterialMultiSelectListPreferenceDialogFragmentCompat
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.commonDataStore
 import com.crossbowffs.quotelock.data.quotesDataStore
+import com.crossbowffs.quotelock.font.FontListPreferenceDialogFragmentCompat
+import com.crossbowffs.quotelock.font.FontManager
 import com.crossbowffs.quotelock.history.app.QuoteHistoryActivity
 import com.crossbowffs.quotelock.modules.ModuleManager
 import com.crossbowffs.quotelock.modules.ModuleNotFoundException
@@ -185,8 +186,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     PREF_COMMON_FONT_STYLE_TEXT,
                     PREF_COMMON_FONT_STYLE_SOURCE,
                     -> MaterialMultiSelectListPreferenceDialogFragmentCompat.newInstance(key)
-                    PREF_COMMON_FONT_FAMILY ->
+                    PREF_COMMON_FONT_FAMILY -> {
+                        findPreference<ListPreference>(PREF_COMMON_FONT_FAMILY)?.run {
+                            FontManager.loadActiveFontFilesList()?.let { fontList ->
+                                val entries =
+                                    arrayOfNulls<CharSequence>(fontList.size + 1)
+                                val entryValues =
+                                    arrayOfNulls<CharSequence>(entries.size)
+                                entries[0] = "System"
+                                entryValues[0] = PREF_COMMON_FONT_FAMILY_DEFAULT
+                                fontList.forEachIndexed { index, fontInfo ->
+                                    entries[index + 1] = fontInfo.nameWithoutExtension
+                                    entryValues[index + 1] = fontInfo.path
+                                }
+                                setEntries(entries)
+                                setEntryValues(entryValues)
+                                if (findIndexOfValue(value) < 0) {
+                                    setValueIndex(0)
+                                }
+                            }
+                        }
                         FontListPreferenceDialogFragmentCompat.newInstance(key)
+                    }
                     else -> null
                 }
             }
@@ -270,25 +291,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         // Update quotes.
         requireContext().run { ioScope.launch { downloadQuote() } }
-
-        // Update font family options
-        val fontFamilyPref = findPreference<ListPreference>(PREF_COMMON_FONT_FAMILY)
-        var entries = R.array.font_family_entries
-        var values = R.array.font_family_values
-        if (QuoteModule.CHARACTER_TYPE_LATIN == module.characterType) {
-            entries = R.array.font_family_latin_entries
-            values = R.array.font_family_latin_values
-        } else if (QuoteModule.CHARACTER_TYPE_CJK == module.characterType) {
-            entries = R.array.font_family_cjk_entries
-            values = R.array.font_family_cjk_values
-        }
-        fontFamilyPref?.run {
-            setEntries(entries)
-            setEntryValues(values)
-            if (findIndexOfValue(value) < 0) {
-                setValueIndex(0)
-            }
-        }
     }
 
     private fun startActivity(componentName: ComponentName?) {

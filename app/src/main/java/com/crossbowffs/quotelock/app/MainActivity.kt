@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.enable_xposed_module_title)
             .setMessage(R.string.enable_xposed_module_message)
-            .setIcon(R.drawable.ic_baseline_warning_24dp)
+            .setIcon(R.drawable.ic_round_warning_24dp)
             .setPositiveButton(R.string.enable) { _, _ -> startXposedPage(XposedUtils.XPOSED_SECTION_MODULES) }
             .setNeutralButton(R.string.report_bug) { _, _ -> startBrowserActivity(Urls.GITHUB_QUOTELOCK_CURRENT_ISSUES) }
             .setNegativeButton(R.string.ignore, null)
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.module_outdated_title)
             .setMessage(R.string.module_outdated_message)
-            .setIcon(R.drawable.ic_baseline_warning_24dp)
+            .setIcon(R.drawable.ic_round_warning_24dp)
             .setPositiveButton(R.string.reboot) { _, _ -> startXposedPage(XposedUtils.XPOSED_SECTION_INSTALL) }
             .setNegativeButton(R.string.ignore, null)
             .show()

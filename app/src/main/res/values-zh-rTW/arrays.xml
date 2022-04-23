@@ -9,20 +9,8 @@
         <item>6 小時</item>
         <item>24 小時</item>
     </string-array>
-    <string-array name="font_family_entries">
-        <item>System</item>
-        <item>鍾齊流江毛草</item>
-        <item>Great Vibes</item>
-        <item>Poiret One</item>
-    </string-array>
-    <string-array name="font_family_latin_entries">
+    <string-array name="default_font_family_entries">
         <item>系統</item>
-        <item>Great Vibes</item>
-        <item>Poiret One</item>
-    </string-array>
-    <string-array name="font_family_cjk_entries">
-        <item>系統</item>
-        <item>鍾齊流江毛草</item>
     </string-array>
     <string-array name="font_style_entries">
         <item>粗體</item>

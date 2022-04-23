@@ -73,8 +73,8 @@
             app:iconSpaceReserved="false" />
         <ListPreference
             android:defaultValue="system"
-            android:entries="@array/font_family_entries"
-            android:entryValues="@array/font_family_values"
+            android:entries="@array/default_font_family_entries"
+            android:entryValues="@array/default_font_family_values"
             android:key="pref_common_font_family"
             android:summary="@string/pref_font_family_summary"
             android:title="@string/pref_font_family_title"
