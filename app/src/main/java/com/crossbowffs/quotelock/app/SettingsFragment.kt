@@ -193,8 +193,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                     arrayOfNulls<CharSequence>(fontList.size + 1)
                                 val entryValues =
                                     arrayOfNulls<CharSequence>(entries.size)
-                                entries[0] = "System"
-                                entryValues[0] = PREF_COMMON_FONT_FAMILY_DEFAULT
+                                getEntries()?.let { defaultEntries ->
+                                    entries[0] = defaultEntries[0]
+                                }
+                                getEntryValues()?.let { defaultEntryValues ->
+                                    entryValues[0] = defaultEntryValues[0]
+                                }
                                 fontList.forEachIndexed { index, fontInfo ->
                                     entries[index + 1] = fontInfo.nameWithoutExtension
                                     entryValues[index + 1] = fontInfo.path
