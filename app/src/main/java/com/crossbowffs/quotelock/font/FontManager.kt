@@ -82,6 +82,11 @@ object FontManager {
         return true
     }
 
+    fun isFontActivated(fileName: String): Boolean {
+        val fontFile = File(SYSTEM_CUSTOM_FONT_DIR, fileName)
+        return fontFile.exists()
+    }
+
     fun loadActiveFontFilesList(): List<File>? {
         val pendingRemoveFonts = INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
             ?.filter {

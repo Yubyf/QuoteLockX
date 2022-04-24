@@ -76,13 +76,18 @@ class FontManagementActivity : AppCompatActivity() {
                             null
                         }
                     }?.let {
-                        supportFragmentManager.findFragmentById(R.id.content_frame)
-                            ?.let { fragment ->
-                                (fragment as FontManagementFragment).onFontListChanged()
-                            }
-                        Snackbar.make(container,
-                            getString(R.string.quote_fonts_management_font_imported, it.name),
-                            Snackbar.LENGTH_SHORT).show()
+                        if (FontManager.isFontActivated(it.fileName)) {
+                            FontManager.deleteInactiveFont(it.fileName)
+                            getString(R.string.quote_fonts_management_font_already_exists, it.name)
+                        } else {
+                            supportFragmentManager.findFragmentById(R.id.content_frame)
+                                ?.let { fragment ->
+                                    (fragment as FontManagementFragment).onFontListChanged()
+                                }
+                            getString(R.string.quote_fonts_management_font_imported, it.name)
+                        }.let { message ->
+                            Snackbar.make(container, message, Snackbar.LENGTH_SHORT).show()
+                        }
                     } ?: run {
                         withContext(Dispatchers.Main) {
                             Snackbar.make(container,

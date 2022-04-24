@@ -185,4 +185,5 @@
     </string>
     <string name="download">下载</string>
     <string name="quote_fonts_management_activate_tips">重启设备以使导入字体生效</string>
+    <string name="quote_fonts_management_font_already_exists">字体 %s 已存在</string>
 </resources>
