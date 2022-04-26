@@ -2,6 +2,7 @@
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Yubyf/QuoteLockX)](https://github.com/Yubyf/QuoteLockX/releases/latest)
 [![LSPosed module](https://img.shields.io/badge/LSPosed-Module-red)](https://modules.lsposed.org/module/com.yubyf.quotelockx)
+[![Build](https://github.com/Yubyf/QuoteLockX/actions/workflows/build.yml/badge.svg)](https://github.com/Yubyf/QuoteLockX/actions/workflows/build.yml)
 [![License](https://img.shields.io/github/license/Yubyf/QuoteLockX)](https://github.com/Yubyf/QuoteLockX/blob/master/LICENSE.txt)
 
 This new fork will be continuously maintained as the
