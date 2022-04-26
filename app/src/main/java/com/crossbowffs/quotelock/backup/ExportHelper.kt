@@ -181,8 +181,11 @@ object ExportHelper {
         return try {
             context.contentResolver.openInputStream(fileUri)?.toFile(temporaryDatabaseFile)
                 ?: throw Exception()
-            importCollectionDatabaseFrom(context, temporaryDatabaseFile)
-            true
+            if (importCollectionDatabaseFrom(context, temporaryDatabaseFile)) {
+                true
+            } else {
+                throw Exception("Open database failed")
+            }
         } catch (e: Exception) {
             Xlog.e(TAG, "Failed to import database: $e")
             throw Exception(context.getString(R.string.unable_to_import_database))
@@ -244,16 +247,17 @@ object ExportHelper {
  * Import collection database from .db file by replacing data contents.
  */
 @Throws(NoSuchElementException::class)
-suspend fun importCollectionDatabaseFrom(context: Context, file: File) {
-    withContext(Dispatchers.IO) {
+suspend fun importCollectionDatabaseFrom(context: Context, file: File): Boolean {
+    return withContext(Dispatchers.IO) {
         val temporaryCollectionDatabase =
             QuoteCollectionDatabase.openTemporaryDatabaseFrom(context,
                 "${QuoteCollectionContract.DATABASE_NAME}_${System.currentTimeMillis()}", file)
         val collections = temporaryCollectionDatabase.dao().getAll().first()
-        quoteCollectionDatabase.dao().clear()
         if (collections.isNotEmpty()) {
+            quoteCollectionDatabase.dao().clear()
             quoteCollectionDatabase.dao().insert(collections)
         }
         temporaryCollectionDatabase.close()
+        collections.isNotEmpty()
     }
 }

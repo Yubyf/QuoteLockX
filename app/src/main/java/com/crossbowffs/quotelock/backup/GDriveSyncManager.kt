@@ -256,7 +256,9 @@ class GDriveSyncManager {
                     DigestInputStream(this, digest).use { it.toFile(temporaryDatabaseFile) }
                 } ?: throw IOException()
             }
-            importCollectionDatabaseFrom(context, temporaryDatabaseFile)
+            if (!importCollectionDatabaseFrom(context, temporaryDatabaseFile)) {
+                throw Exception("Open database failed")
+            }
             readFileResult.first
         } catch (e: Exception) {
             Xlog.e(TAG, "Unable to read file via REST.", e)
