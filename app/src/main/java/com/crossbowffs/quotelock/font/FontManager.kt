@@ -90,10 +90,10 @@ object FontManager {
     fun loadActiveFontFilesList(): List<File>? {
         val pendingRemoveFonts = INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
             ?.filter {
-                it.name.endsWith(".ttf") || it.name.endsWith(".otf")
+                it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
             }
         val systemCustomFonts = SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
-            (it.name.endsWith(".ttf") || it.name.endsWith(".otf"))
+            (it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true))
                     && pendingRemoveFonts?.find { pending -> pending.name == it.name } == null
         }
         return systemCustomFonts
@@ -103,10 +103,10 @@ object FontManager {
         val allFonts = mutableListOf<FontInfoWithState>()
         val pendingRemoveFonts = INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
             ?.filter {
-                it.name.endsWith(".ttf") || it.name.endsWith(".otf")
+                it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
             }
         val systemCustomFonts = SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
-            it.name.endsWith(".ttf") || it.name.endsWith(".otf")
+            it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
         }?.map {
             loadFontInfo(it)?.let { fontInfo ->
                 FontInfoWithState(fontInfo, systemFont = true,
@@ -115,7 +115,7 @@ object FontManager {
         }
         val pendingImportFonts = INTERNAL_CUSTOM_FONT_PENDING_IMPORT_DIR.listFiles()
             ?.filter {
-                it.name.endsWith(".ttf") || it.name.endsWith(".otf")
+                it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
             }?.map {
                 loadFontInfo(it)?.let { fontInfo ->
                     FontInfoWithState(fontInfo, systemFont = false, active = false)
