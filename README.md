@@ -21,13 +21,13 @@ LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) no
 - Import/Export collections in .db or .csv format on local storage.
 - Backup/Restore collections on Google Drive.
 - Displays quotes on the AmbientDisplay page of *OnePlus7Pro OOS11* (**ALPHA**)
-- Imports custom fonts.
+- Imports custom fonts ([Magisk module](https://github.com/Yubyf/QuoteLockX-CustomFonts) needed).
 
 ## Screenshots
 
-| &nbsp;&nbsp;&nbsp;&nbsp;Lockscreen&nbsp;&nbsp;&nbsp;&nbsp; | AmbientDisplay |
+| &nbsp;&nbsp;Lockscreen&nbsp;&nbsp; | CustomFonts |
 | :---: | :---: |
-| <img src="screenshots/lockscreen.png" title="Lockscreen" width="360px" /> | <img src="screenshots/ambient_display.png" title="AmbientDisplay" width="360px" /> |
+| <img src="screenshots/lockscreen.png" title="Lockscreen" width="360px" /> | <img src="screenshots/custom_fonts.png" title="CustomFonts" width="360px" /> |
 
 Long press on the quotes to show refresh and collect buttons:
 
