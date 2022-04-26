@@ -30,3 +30,6 @@ gradlew.bat
 
 # Mac
 .DS_Store
+
+# Keystore
+*.jks

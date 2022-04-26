@@ -1,11 +1,41 @@
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.kapt")
 }
 
+//region Keystore
+val localProperties = gradleLocalProperties(rootDir)
+// Local keystore file, config file path in local.properties
+var keystoreFilepath =
+    (localProperties["keystore.path"] as String?)?.let { rootDir.absolutePath + File.separatorChar + it }
+var keystoreStorePassword = localProperties["keystore.store_password"] as String?
+var keystoreAlias = localProperties["keystore.alias"] as String?
+var keystorePassword = localProperties["keystore.password"] as String?
+//endregion
+
 android {
     compileSdk = 31
+
+    signingConfigs {
+        create("release") {
+            keystoreFilepath?.let {
+                storeFile = file(it)
+                storePassword = keystoreStorePassword
+                keyAlias = keystoreAlias
+                keyPassword = keystorePassword
+            } ?: run {
+                // Github workflow does not have keystore variables in local.properties
+                storeFile = file(System.getenv("SIGNING_KEYSTORE_PATH"))
+                storePassword = System.getenv("SIGNING_STORE_PASSWORD")
+                keyAlias = System.getenv("SIGNING_KEY_ALIAS")
+                keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "com.yubyf.quotelockx"
@@ -39,6 +69,7 @@ android {
         }
 
         release {
+            signingConfig = signingConfigs.getByName("release")
             // Enables code shrinking.
             isMinifyEnabled = true
 
@@ -50,6 +81,11 @@ android {
 
             buildConfigField("int", "LOG_LEVEL", "4")
             buildConfigField("boolean", "LOG_TO_XPOSED", "true")
+
+            applicationVariants.all {
+                outputs.map { it as BaseVariantOutputImpl }
+                    .forEach { output -> output.outputFileName = "QuoteLockX-$versionName.apk" }
+            }
         }
     }
 
