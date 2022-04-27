@@ -33,5 +33,6 @@
         android:layout_margin="16dp"
         android:visibility="gone"
         tools:icon="@drawable/ic_round_add_24dp"
-        tools:text="Add" />
+        tools:text="Add"
+        tools:visibility="visible" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

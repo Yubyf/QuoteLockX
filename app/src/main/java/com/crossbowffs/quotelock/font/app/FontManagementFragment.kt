@@ -6,7 +6,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.crossbowffs.quotelock.components.ContextMenuRecyclerView
 import com.crossbowffs.quotelock.font.FontInfoWithState
 import com.crossbowffs.quotelock.font.FontManager
@@ -31,8 +34,7 @@ class FontManagementFragment : Fragment() {
         return inflater.inflate(R.layout.layout_recycler_list, container, false).apply {
             recyclerView = findViewById<RecyclerView>(R.id.recycler_view).apply {
                 layoutManager = LinearLayoutManager(requireContext())
-                addItemDecoration(DividerItemDecoration(context,
-                    DividerItemDecoration.VERTICAL))
+                addItemDecoration(FontItemDecoration(context))
                 adapter = FontManagementAdapter()
                 registerForContextMenu(this)
 
