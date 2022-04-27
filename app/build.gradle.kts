@@ -8,31 +8,37 @@ plugins {
 }
 
 //region Keystore
-val localProperties = gradleLocalProperties(rootDir)
-// Local keystore file, config file path in local.properties
-var keystoreFilepath =
-    (localProperties["keystore.path"] as String?)?.let { rootDir.absolutePath + File.separatorChar + it }
-var keystoreStorePassword = localProperties["keystore.store_password"] as String?
-var keystoreAlias = localProperties["keystore.alias"] as String?
-var keystorePassword = localProperties["keystore.password"] as String?
+var keystoreFilepath: String? = null
+var keystoreStorePassword: String? = null
+var keystoreAlias: String? = null
+var keystorePassword: String? = null
+// Load the local keystore file first. Configure variables in local.properties.
+keystoreFilepath = gradleLocalProperties(rootDir).let { properties ->
+    (properties["keystore.path"] as String?)?.let { path ->
+        rootDir.absolutePath + File.separatorChar + path
+    }?.also {
+        keystoreStorePassword = properties["keystore.store_password"] as String?
+        keystoreAlias = properties["keystore.alias"] as String?
+        keystorePassword = properties["keystore.password"] as String?
+    } ?: System.getenv("SIGNING_KEYSTORE_PATH")?.also {
+        // If the local keystore does not exist, try to read keystore variables in the Github workflow.
+        keystoreStorePassword = System.getenv("SIGNING_STORE_PASSWORD")
+        keystoreAlias = System.getenv("SIGNING_KEY_ALIAS")
+        keystorePassword = System.getenv("SIGNING_KEY_PASSWORD")
+    }
+}
 //endregion
 
 android {
     compileSdk = 31
 
-    signingConfigs {
-        create("release") {
-            keystoreFilepath?.let {
-                storeFile = file(it)
+    keystoreFilepath?.let { keystore ->
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystore)
                 storePassword = keystoreStorePassword
                 keyAlias = keystoreAlias
                 keyPassword = keystorePassword
-            } ?: run {
-                // Github workflow does not have keystore variables in local.properties
-                storeFile = file(System.getenv("SIGNING_KEYSTORE_PATH"))
-                storePassword = System.getenv("SIGNING_STORE_PASSWORD")
-                keyAlias = System.getenv("SIGNING_KEY_ALIAS")
-                keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
             }
         }
     }
@@ -69,7 +75,11 @@ android {
         }
 
         release {
-            signingConfig = signingConfigs.getByName("release")
+            runCatching {
+                signingConfig = signingConfigs.getByName("release")
+            }.onFailure {
+                logger.error("Failed to set signing config: ${it.message}")
+            }
             // Enables code shrinking.
             isMinifyEnabled = true
 
@@ -83,8 +93,10 @@ android {
             buildConfigField("boolean", "LOG_TO_XPOSED", "true")
 
             applicationVariants.all {
-                outputs.map { it as BaseVariantOutputImpl }
-                    .forEach { output -> output.outputFileName = "QuoteLockX-$versionName.apk" }
+                outputs.map { it as BaseVariantOutputImpl }.forEach { output ->
+                    output.outputFileName =
+                        "QuoteLockX-$versionName${if (signingConfig == null) "-unsigned" else ""}.apk"
+                }
             }
         }
     }
