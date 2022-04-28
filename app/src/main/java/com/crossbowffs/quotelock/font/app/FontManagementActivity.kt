@@ -4,12 +4,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.consts.Urls.GITHUB_QUOTELOCK_CUSTOM_FONTS_RELEASE
 import com.crossbowffs.quotelock.font.FontManager
-import com.crossbowffs.quotelock.font.FontManager.REQUEST_CODE_PICK_FONT
 import com.crossbowffs.quotelock.utils.className
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -30,6 +30,47 @@ class FontManagementActivity : AppCompatActivity() {
     private lateinit var toolbar: MaterialToolbar
     private lateinit var fab: ExtendedFloatingActionButton
     private var loadingDialog: ProgressAlertDialog? = null
+
+    private val pickFontFileLauncher =
+        registerForActivityResult(StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    showProgress()
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            val importResult =
+                                FontManager.importFont(this@FontManagementActivity, uri)
+                            if (!importResult.isNullOrEmpty()) {
+                                FontManager.loadFontInfo(File(importResult))
+                            } else {
+                                null
+                            }
+                        }?.let {
+                            if (FontManager.isFontActivated(it.fileName)) {
+                                FontManager.deleteInactiveFont(it.fileName)
+                                getString(R.string.quote_fonts_management_font_already_exists,
+                                    it.name)
+                            } else {
+                                supportFragmentManager.findFragmentById(R.id.content_frame)
+                                    ?.let { fragment ->
+                                        (fragment as FontManagementFragment).onFontListChanged()
+                                    }
+                                getString(R.string.quote_fonts_management_font_imported, it.name)
+                            }.let { message ->
+                                Snackbar.make(container, message, Snackbar.LENGTH_SHORT).show()
+                            }
+                        } ?: run {
+                            withContext(Dispatchers.Main) {
+                                Snackbar.make(container,
+                                    R.string.quote_fonts_management_import_failed,
+                                    Snackbar.LENGTH_SHORT).show()
+                            }
+                        }
+                        withContext(Dispatchers.Main) { hideProgress() }
+                    }
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,52 +103,13 @@ class FontManagementActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_PICK_FONT && resultCode == RESULT_OK) {
-            data?.data?.let { uri ->
-                showProgress()
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        val result = FontManager.importFont(this@FontManagementActivity, uri)
-                        if (!result.isNullOrEmpty()) {
-                            FontManager.loadFontInfo(File(result))
-                        } else {
-                            null
-                        }
-                    }?.let {
-                        if (FontManager.isFontActivated(it.fileName)) {
-                            FontManager.deleteInactiveFont(it.fileName)
-                            getString(R.string.quote_fonts_management_font_already_exists, it.name)
-                        } else {
-                            supportFragmentManager.findFragmentById(R.id.content_frame)
-                                ?.let { fragment ->
-                                    (fragment as FontManagementFragment).onFontListChanged()
-                                }
-                            getString(R.string.quote_fonts_management_font_imported, it.name)
-                        }.let { message ->
-                            Snackbar.make(container, message, Snackbar.LENGTH_SHORT).show()
-                        }
-                    } ?: run {
-                        withContext(Dispatchers.Main) {
-                            Snackbar.make(container,
-                                R.string.quote_fonts_management_import_failed,
-                                Snackbar.LENGTH_SHORT).show()
-                        }
-                    }
-                    withContext(Dispatchers.Main) { hideProgress() }
-                }
-            }
-        }
-    }
-
     private fun pickFontFile() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "*/*"
             putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("font/ttf", "font/otf"))
         }
-        startActivityForResult(intent, REQUEST_CODE_PICK_FONT)
+        pickFontFileLauncher.launch(intent)
     }
 
     private fun showEnableMagiskModuleDialog() {

@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.util.Pair
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.ioScope
@@ -62,9 +63,12 @@ class GDriveSyncManager {
             .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
     }
 
-    private fun checkGoogleAccount(activity: Activity, requestCode: Int): Boolean {
+    private fun checkGoogleAccount(
+        activity: Activity,
+        resultLauncher: ActivityResultLauncher<Intent>,
+    ): Boolean {
         return if (!ensureDriveService(activity)) {
-            requestSignIn(activity, requestCode)
+            requestSignIn(activity, resultLauncher)
             false
         } else true
     }
@@ -108,7 +112,7 @@ class GDriveSyncManager {
      * Starts a sign-in activity using [.REQUEST_CODE_SIGN_IN],
      * [.REQUEST_CODE_SIGN_IN_BACKUP] or [.REQUEST_CODE_SIGN_IN_RESTORE].
      */
-    fun requestSignIn(activity: Activity, code: Int) {
+    fun requestSignIn(activity: Activity, resultLauncher: ActivityResultLauncher<Intent>) {
         Xlog.d(TAG, "Requesting sign-in")
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestProfile()
@@ -117,8 +121,8 @@ class GDriveSyncManager {
             .build()
         val client = GoogleSignIn.getClient(activity, signInOptions)
 
-        // The result of the sign-in Intent is handled in onActivityResult.
-        activity.startActivityForResult(client.signInIntent, code)
+        // The result of the sign-in Intent is handled in ActivityResultCallback.
+        resultLauncher.launch(client.signInIntent)
     }
 
     fun signOutAccount(
@@ -299,11 +303,12 @@ class GDriveSyncManager {
 
     fun performDriveBackupAsync(
         activity: Activity,
+        resultLauncher: ActivityResultLauncher<Intent>,
         databaseName: String,
         progressAction: ((String) -> Unit),
         resultAction: (success: Boolean, message: String) -> Unit,
     ) {
-        if (!checkGoogleAccount(activity, REQUEST_CODE_SIGN_IN_BACKUP)) {
+        if (!checkGoogleAccount(activity, resultLauncher)) {
             return
         }
         drive.run {
@@ -374,11 +379,12 @@ class GDriveSyncManager {
 
     fun performDriveRestoreAsync(
         activity: Activity,
+        resultLauncher: ActivityResultLauncher<Intent>,
         databaseName: String,
         progressAction: ((String) -> Unit),
         resultAction: (success: Boolean, message: String) -> Unit,
     ) {
-        if (!checkGoogleAccount(activity, REQUEST_CODE_SIGN_IN_RESTORE)) {
+        if (!checkGoogleAccount(activity, resultLauncher)) {
             return
         }
         drive.run {
@@ -454,9 +460,6 @@ class GDriveSyncManager {
     companion object {
         private const val TAG = "RemoteBackup"
         private const val NEEDED_FILE_FIELDS = "md5Checksum,name,modifiedTime"
-        const val REQUEST_CODE_SIGN_IN = 1
-        const val REQUEST_CODE_SIGN_IN_BACKUP = 2
-        const val REQUEST_CODE_SIGN_IN_RESTORE = 3
         val INSTANCE = GDriveSyncManager()
     }
 }

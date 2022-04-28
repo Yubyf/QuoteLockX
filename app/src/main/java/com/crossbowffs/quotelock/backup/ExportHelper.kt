@@ -49,8 +49,6 @@ object ExportHelper {
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
     const val REQUEST_CODE_PERMISSIONS_EXPORT = 55
-    const val REQUEST_CODE_PICK_CSV_FILE = 42
-    const val REQUEST_CODE_PICK_DB_FILE = 43
 
     private val TAG = className<ExportHelper>()
 

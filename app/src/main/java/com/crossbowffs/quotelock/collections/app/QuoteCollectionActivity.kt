@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener
 import androidx.core.view.MenuCompat
@@ -36,6 +37,77 @@ class QuoteCollectionActivity : AppCompatActivity() {
     private lateinit var toolbar: MaterialToolbar
     private var mLoadingDialog: ProgressAlertDialog? = null
 
+    private val pickDbFileLauncher = registerForActivityResult(StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.data?.let {
+                showProgress(getString(R.string.importing_database))
+                import(ImportExportType.DB, it)
+            }
+        }
+    }
+
+    private val pickCsvFileLauncher =
+        registerForActivityResult(StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let {
+                    showProgress(getString(R.string.importing_csv))
+                    import(ImportExportType.CSV, it)
+                }
+            }
+        }
+
+    private val googleSignInLauncher =
+        registerForActivityResult(StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                GDriveSyncManager.INSTANCE.handleSignInResult(
+                    this, result.data
+                ) { success, message ->
+                    if (success) {
+                        showTerminateMessage(R.string.google_account_connected)
+                        initMenu(toolbar.menu)
+                        invalidateOptionsMenu()
+                        val accountName =
+                            GDriveSyncManager.INSTANCE.getSignedInGoogleAccountEmail(this)
+                        if (!accountName.isNullOrEmpty()) {
+                            SyncAccountManager.instance.addOrUpdateAccount(accountName)
+                        }
+                    } else {
+                        showTerminateMessage(message)
+                    }
+                }
+            }
+        }
+
+    private val googleBackupLauncher =
+        registerForActivityResult(StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                GDriveSyncManager.INSTANCE.handleSignInResult(
+                    this, result.data,
+                ) { success, message ->
+                    if (success) {
+                        remoteBackup()
+                    } else {
+                        showTerminateMessage(message)
+                    }
+                }
+            }
+        }
+
+    private val googleRestoreLauncher =
+        registerForActivityResult(StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                GDriveSyncManager.INSTANCE.handleSignInResult(
+                    this, result.data,
+                ) { success, message ->
+                    if (success) {
+                        remoteRestore()
+                    } else {
+                        showTerminateMessage(message)
+                    }
+                }
+            }
+        }
+
     private val menuItemClickListener: OnMenuItemClickListener = object : OnMenuItemClickListener {
         override fun onMenuItemClick(item: MenuItem?): Boolean {
             if (item == null) {
@@ -60,7 +132,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
                         }
                     } else {
                         GDriveSyncManager.INSTANCE.requestSignIn(this@QuoteCollectionActivity,
-                            GDriveSyncManager.REQUEST_CODE_SIGN_IN)
+                            googleSignInLauncher)
                     }
                 }
                 R.id.export_database -> {
@@ -138,74 +210,6 @@ class QuoteCollectionActivity : AppCompatActivity() {
         }
     }
 
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            GDriveSyncManager.REQUEST_CODE_SIGN_IN -> {
-                if (resultCode == RESULT_OK && data != null) {
-                    GDriveSyncManager.INSTANCE.handleSignInResult(
-                        this, data
-                    ) { success, message ->
-                        if (success) {
-                            showTerminateMessage(R.string.google_account_connected)
-                            initMenu(toolbar.menu)
-                            invalidateOptionsMenu()
-                            val accountName =
-                                GDriveSyncManager.INSTANCE.getSignedInGoogleAccountEmail(this)
-                            if (!accountName.isNullOrEmpty()) {
-                                SyncAccountManager.instance.addOrUpdateAccount(accountName)
-                            }
-                        } else {
-                            showTerminateMessage(message)
-                        }
-                    }
-                }
-            }
-            GDriveSyncManager.REQUEST_CODE_SIGN_IN_BACKUP -> {
-                if (resultCode == RESULT_OK && data != null) {
-                    GDriveSyncManager.INSTANCE.handleSignInResult(
-                        this, data,
-                    ) { success, message ->
-                        if (success) {
-                            remoteBackup()
-                        } else {
-                            showTerminateMessage(message)
-                        }
-                    }
-                }
-            }
-            GDriveSyncManager.REQUEST_CODE_SIGN_IN_RESTORE -> {
-                if (resultCode == RESULT_OK && data != null) {
-                    GDriveSyncManager.INSTANCE.handleSignInResult(
-                        this, data,
-                    ) { success, message ->
-                        if (success) {
-                            remoteRestore()
-                        } else {
-                            showTerminateMessage(message)
-                        }
-                    }
-                }
-            }
-            ExportHelper.REQUEST_CODE_PICK_DB_FILE -> {
-                if (resultCode == RESULT_OK) {
-                    data?.data?.let {
-                        showProgress(getString(R.string.importing_database))
-                        import(ImportExportType.DB, it)
-                    }
-                }
-            }
-            ExportHelper.REQUEST_CODE_PICK_CSV_FILE -> {
-                if (resultCode == RESULT_OK) {
-                    data?.data?.let {
-                        showProgress(getString(R.string.importing_csv))
-                        import(ImportExportType.CSV, it)
-                    }
-                }
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun onDestroy() {
         mLoadingDialog = null
         super.onDestroy()
@@ -261,10 +265,11 @@ class QuoteCollectionActivity : AppCompatActivity() {
                         ExportHelper.PREF_EXPORT_RELATIVE_PATH)))
             }
         }
-
-        startActivityForResult(intent,
-            if (importType == ImportExportType.CSV) ExportHelper.REQUEST_CODE_PICK_CSV_FILE
-            else ExportHelper.REQUEST_CODE_PICK_DB_FILE)
+        if (importType == ImportExportType.CSV) {
+            pickCsvFileLauncher.launch(intent)
+        } else {
+            pickDbFileLauncher.launch(intent)
+        }
     }
 
     private fun export(@ImportExportType exportType: Int = ImportExportType.DB) {
@@ -299,7 +304,9 @@ class QuoteCollectionActivity : AppCompatActivity() {
     }
 
     private fun remoteBackup() {
-        GDriveSyncManager.INSTANCE.performDriveBackupAsync(this,
+        GDriveSyncManager.INSTANCE.performDriveBackupAsync(
+            this,
+            googleBackupLauncher,
             QuoteCollectionContract.DATABASE_NAME,
             ::showProgress
         ) { success, message ->
@@ -314,6 +321,7 @@ class QuoteCollectionActivity : AppCompatActivity() {
     private fun remoteRestore() {
         GDriveSyncManager.INSTANCE.performDriveRestoreAsync(
             this,
+            googleRestoreLauncher,
             QuoteCollectionContract.DATABASE_NAME,
             ::showProgress
         ) { success, message ->

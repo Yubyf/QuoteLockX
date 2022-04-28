@@ -19,7 +19,6 @@ import java.util.*
  */
 object FontManager {
 
-    const val REQUEST_CODE_PICK_FONT = 1
     private val SYSTEM_CUSTOM_FONT_DIR = File("/system/fonts", "custom")
     private val INTERNAL_CUSTOM_FONT_DIR = File(App.INSTANCE.getExternalFilesDir(null), "fonts")
     private val INTERNAL_CUSTOM_FONT_PENDING_DIR = File(INTERNAL_CUSTOM_FONT_DIR, "pending")
