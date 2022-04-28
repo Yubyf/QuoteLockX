@@ -37,7 +37,7 @@ private suspend fun Context.fetchQuote(): QuoteData? {
 
     Xlog.d(TAG, "Attempting to download new quote...")
     val module: QuoteModule = try {
-        ModuleManager.getModule(this, mModuleName)
+        ModuleManager.getModule(mModuleName)
     } catch (e: ModuleNotFoundException) {
         Xlog.e(TAG, "Selected module not found", e)
         return null

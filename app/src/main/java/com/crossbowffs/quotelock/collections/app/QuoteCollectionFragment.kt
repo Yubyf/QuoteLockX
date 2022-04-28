@@ -30,13 +30,6 @@ class QuoteCollectionFragment : BaseQuoteListFragment<QuoteCollectionEntity>() {
 
     private var collectionsObserver: Job? = null
 
-    @Suppress("UNCHECKED_CAST")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        observeCollections()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,7 +37,9 @@ class QuoteCollectionFragment : BaseQuoteListFragment<QuoteCollectionEntity>() {
     ): View? {
         setFragmentResult(REQUEST_KEY_COLLECTION_LIST_PAGE,
             bundleOf(BUNDLE_KEY_COLLECTION_SHOW_DETAIL_PAGE to false))
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return super.onCreateView(inflater, container, savedInstanceState).also {
+            observeCollections()
+        }
     }
 
     override fun onCreateContextMenu(
@@ -90,8 +85,8 @@ class QuoteCollectionFragment : BaseQuoteListFragment<QuoteCollectionEntity>() {
     @Suppress("UNCHECKED_CAST")
     private fun observeCollections() {
         collectionsObserver?.cancel()
-        collectionsObserver = lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        collectionsObserver = viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 quoteCollectionDatabase.dao().getAll().collect {
                     (recyclerView.adapter as? QuoteListAdapter<QuoteCollectionEntity>)?.submitList(
                         it)

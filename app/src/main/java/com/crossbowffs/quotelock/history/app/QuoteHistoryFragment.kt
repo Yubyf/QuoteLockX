@@ -26,19 +26,6 @@ import kotlinx.coroutines.withContext
 class QuoteHistoryFragment : BaseQuoteListFragment<QuoteHistoryEntity>() {
 
     @Suppress("UNCHECKED_CAST")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                quoteHistoryDatabase.dao().getAll().collect {
-                    (recyclerView.adapter as? QuoteListAdapter<QuoteHistoryEntity>)?.submitList(it)
-                    scrollToPosition()
-                }
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,7 +33,17 @@ class QuoteHistoryFragment : BaseQuoteListFragment<QuoteHistoryEntity>() {
     ): View? {
         setFragmentResult(REQUEST_KEY_HISTORY_LIST_PAGE,
             bundleOf(BUNDLE_KEY_HISTORY_SHOW_DETAIL_PAGE to false))
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return super.onCreateView(inflater, container, savedInstanceState).also {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    quoteHistoryDatabase.dao().getAll().collect {
+                        (recyclerView.adapter as? QuoteListAdapter<QuoteHistoryEntity>)?.submitList(
+                            it)
+                        scrollToPosition()
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreateContextMenu(

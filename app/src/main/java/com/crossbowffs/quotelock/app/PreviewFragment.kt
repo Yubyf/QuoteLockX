@@ -39,7 +39,6 @@ class PreviewFragment : PreferenceFragmentCompat() {
         preferenceManager.preferenceDataStore = commonDataStore
         setPreferencesFromResource(R.xml.preview_preference, rootKey)
         mPreviewPreference = findPreference<Preference>(PREF_PREVIEW) as? PreviewPreference
-        observePreferences()
         mPreviewPreference?.run {
             quote = quotesDataStore.getString(PREF_QUOTES_TEXT, "")
             source = quotesDataStore.getString(PREF_QUOTES_AUTHOR, "").let {
@@ -93,6 +92,16 @@ class PreviewFragment : PreferenceFragmentCompat() {
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        return super.onCreateView(inflater, container, savedInstanceState).also {
+            observePreferences()
+        }
+    }
+
     override fun onCreateRecyclerView(
         inflater: LayoutInflater,
         parent: ViewGroup,
@@ -104,15 +113,12 @@ class PreviewFragment : PreferenceFragmentCompat() {
     }
 
     private fun observePreferences() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
                     quotesDataStore.collectSuspend { preferences, _ ->
-                        val quote: String
                         mPreviewPreference?.quote =
-                            preferences[stringPreferencesKey(PREF_QUOTES_TEXT)].also {
-                                quote = it ?: ""
-                            }
+                            preferences[stringPreferencesKey(PREF_QUOTES_TEXT)] ?: ""
                         mPreviewPreference?.source =
                             preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)].let {
                                 val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]

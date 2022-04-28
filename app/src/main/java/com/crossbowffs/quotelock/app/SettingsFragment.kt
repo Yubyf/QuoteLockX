@@ -6,6 +6,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.text.HtmlCompat
@@ -71,7 +74,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     lastUpdate)) else "-")
 
         // Get quote module list
-        val quoteModules = ModuleManager.getAllModules(requireContext())
+        val quoteModules = ModuleManager.getAllModules()
         val moduleNames = arrayOfNulls<String>(quoteModules.size)
         val moduleClsNames = arrayOfNulls<String>(quoteModules.size)
         for (i in moduleNames.indices) {
@@ -88,29 +91,37 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         // Update preferences related to module
         onSelectedModuleChanged()
+    }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    quotesDataStore.collectSuspend { preferences, key ->
-                        if (key?.name != PREF_QUOTES_LAST_UPDATED) {
-                            return@collectSuspend
-                        }
-                        preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)]?.run {
-                            findPreference<Preference>(PREF_COMMON_UPDATE_INFO)?.summary =
-                                getString(R.string.pref_refresh_info_summary,
-                                    if (this > 0) DATE_FORMATTER.format(Date(
-                                        this)) else "-")
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        return super.onCreateView(inflater, container, savedInstanceState).apply {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    launch {
+                        quotesDataStore.collectSuspend { preferences, key ->
+                            if (key?.name != PREF_QUOTES_LAST_UPDATED) {
+                                return@collectSuspend
+                            }
+                            preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)]?.run {
+                                findPreference<Preference>(PREF_COMMON_UPDATE_INFO)?.summary =
+                                    getString(R.string.pref_refresh_info_summary,
+                                        if (this > 0) DATE_FORMATTER.format(Date(
+                                            this)) else "-")
+                            }
                         }
                     }
-                }
-                launch {
-                    commonDataStore.collectSuspend { _, key ->
-                        when (key?.name) {
-                            PREF_COMMON_QUOTE_MODULE -> onSelectedModuleChanged()
-                            PREF_COMMON_REFRESH_RATE, PREF_COMMON_REFRESH_RATE_OVERRIDE ->
-                                WorkUtils.createQuoteDownloadWork(requireContext(), true)
-                            else -> {}
+                    launch {
+                        commonDataStore.collectSuspend { _, key ->
+                            when (key?.name) {
+                                PREF_COMMON_QUOTE_MODULE -> onSelectedModuleChanged()
+                                PREF_COMMON_REFRESH_RATE, PREF_COMMON_REFRESH_RATE_OVERRIDE ->
+                                    WorkUtils.createQuoteDownloadWork(requireContext(), true)
+                                else -> {}
+                            }
                         }
                     }
                 }
@@ -159,7 +170,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val moduleClsName =
             prefs.getString(PREF_COMMON_QUOTE_MODULE, PREF_COMMON_QUOTE_MODULE_DEFAULT)
         return try {
-            ModuleManager.getModule(requireContext(), moduleClsName ?: "")
+            ModuleManager.getModule(moduleClsName ?: "")
         } catch (e: ModuleNotFoundException) {
             // Reset to the default module if the currently
             // selected one was not found. Change through the
@@ -223,17 +234,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
     ): Boolean {
         // check if dialog is already showing
         val dialogTag = runCatching {
-            getReflectionField<String>("DIALOG_FRAGMENT_TAG1")
-        }.getOrNull()
-            ?: "androidx.preference.PreferenceFragment.DIALOG"
+            getReflectionField<String>("DIALOG_FRAGMENT_TAG")
+        }.getOrNull() ?: "androidx.preference.PreferenceFragment.DIALOG"
         if (parentFragmentManager.findFragmentByTag(dialogTag) != null) {
             return false
         }
-        dialogBlock.invoke(preference)?.let {
+        return dialogBlock.invoke(preference)?.let {
+            // PreferenceDialogFragmentCompat still uses deprecated getTargetFragment() internally
+            @Suppress("DEPRECATION")
             it.setTargetFragment(this, 0)
             it.show(parentFragmentManager, dialogTag)
-            return true
-        } ?: return false
+        } != null
     }
 
     private fun showCreditsDialog() {

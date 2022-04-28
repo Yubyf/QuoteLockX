@@ -3,7 +3,6 @@ package com.crossbowffs.quotelock.app
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
 import com.crossbowffs.quotelock.consts.PREF_BOOT_NOTIFY_FLAG
 import com.crossbowffs.quotelock.data.quotesDataStore
 import com.crossbowffs.quotelock.utils.WorkUtils
@@ -14,11 +13,9 @@ class CommonReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         Xlog.d(TAG, "Received action: %s", action ?: "-")
-        if (Intent.ACTION_BOOT_COMPLETED == action || ConnectivityManager.CONNECTIVITY_ACTION == action) {
-            if (Intent.ACTION_BOOT_COMPLETED == action) {
-                // Notify LockscreenHook to show current quotes after booting.
-                notifyBooted()
-            }
+        if (Intent.ACTION_BOOT_COMPLETED == action) {
+            // Notify LockscreenHook to show current quotes after booting.
+            notifyBooted()
             WorkUtils.createQuoteDownloadWork(context, false)
         }
     }

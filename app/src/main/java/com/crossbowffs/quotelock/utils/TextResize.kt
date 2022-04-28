@@ -25,6 +25,9 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.Keep
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.transition.Transition
 import androidx.transition.TransitionValues
 import kotlin.math.roundToInt
@@ -230,10 +233,12 @@ class TextResize : Transition {
         /**
          * The color of the text being displayed.
          */
+        @Keep
         var textColor = 0
             set(textColor) {
                 field = textColor
-                setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
+                colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                    textColor, BlendModeCompat.SRC_IN)
                 invalidateSelf()
             }
 

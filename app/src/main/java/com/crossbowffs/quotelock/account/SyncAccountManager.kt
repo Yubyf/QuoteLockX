@@ -70,6 +70,7 @@ class SyncAccountManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             mAccountManager.removeAccountExplicitly(account)
         } else {
+            @Suppress("DEPRECATION")
             mAccountManager.removeAccount(account, null, null)
         }
     }

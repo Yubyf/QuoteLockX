@@ -1,6 +1,5 @@
 package com.crossbowffs.quotelock.modules
 
-import android.content.Context
 import com.crossbowffs.quotelock.api.QuoteModule
 import com.crossbowffs.quotelock.modules.brainyquote.BrainyQuoteQuoteModule
 import com.crossbowffs.quotelock.modules.collections.CollectionsQuoteModule
@@ -32,12 +31,12 @@ object ModuleManager {
         sModules[className] = module
     }
 
-    fun getModule(context: Context?, className: String): QuoteModule {
+    fun getModule(className: String): QuoteModule {
         val module = sModules[className]
         return module ?: throw ModuleNotFoundException("Module not found for class: $className")
     }
 
-    fun getAllModules(context: Context?): List<QuoteModule> {
+    fun getAllModules(): List<QuoteModule> {
         return ArrayList(sModules.values)
     }
 }

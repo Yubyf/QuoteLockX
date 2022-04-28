@@ -192,10 +192,6 @@ class TTFFile internal constructor() {
                     }
                     // Preferred Family
                     16 -> preferFamilyName = txt
-                    // Preferred Family
-                    19 -> {
-                        val sin = txt
-                    }
                     else -> {}
                 }
             }

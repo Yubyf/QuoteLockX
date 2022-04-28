@@ -2,6 +2,8 @@ package com.crossbowffs.quotelock.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import androidx.preference.PreferenceDataStore
 import androidx.work.*
 import com.crossbowffs.quotelock.app.QuoteWorker
@@ -13,6 +15,39 @@ import java.util.concurrent.TimeUnit
 object WorkUtils {
     private val TAG = className<WorkUtils>()
 
+    /** Reference: https://stackoverflow.com/a/53532456/4985530 */
+    private fun isInternetAvailable(context: Context): Boolean {
+        var result = false
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val actNw =
+                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            result = when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                        || actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                        || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            connectivityManager.run {
+                @Suppress("DEPRECATION")
+                connectivityManager.activeNetworkInfo?.run {
+                    isConnected
+                    result = when (type) {
+                        ConnectivityManager.TYPE_WIFI,
+                        ConnectivityManager.TYPE_MOBILE,
+                        ConnectivityManager.TYPE_ETHERNET,
+                        -> true
+                        else -> false
+                    }
+                }
+            }
+        }
+        return result
+    }
+
     fun shouldRefreshQuote(context: Context): Boolean {
         // If our provider doesn't require internet access, we should always be
         // refreshing the quote.
@@ -23,8 +58,7 @@ object WorkUtils {
 
         // If we're not connected to the internet, we shouldn't refresh the quote.
         val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-        val netInfo = manager?.activeNetworkInfo
-        if (netInfo == null || !netInfo.isConnected) {
+        if (!isInternetAvailable(context)) {
             Xlog.d(TAG, "WorkUtils#shouldRefreshQuote: NO (not connected to internet)")
             return false
         }
@@ -34,7 +68,7 @@ object WorkUtils {
         val unmeteredOnly =
             commonDataStore.getBoolean(PREF_COMMON_UNMETERED_ONLY,
                 PREF_COMMON_UNMETERED_ONLY_DEFAULT)
-        if (unmeteredOnly && manager.isActiveNetworkMetered) {
+        if (unmeteredOnly && manager?.isActiveNetworkMetered == true) {
             Xlog.d(TAG,
                 "WorkUtils#shouldRefreshQuote: NO (can only update on unmetered connections)")
             return false
