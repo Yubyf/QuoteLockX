@@ -42,7 +42,12 @@ class FontManagementFragment : Fragment() {
                     withContext(Dispatchers.IO) {
                         FontManager.loadFontsList()
                     }?.let {
-                        (recyclerView.adapter as? FontManagementAdapter)?.submitList(it)
+                        (recyclerView.adapter as? FontManagementAdapter)?.apply {
+                            submitList(it) {
+                                recyclerView.invalidateItemDecorations()
+                                recyclerView.smoothScrollToPosition(itemCount - 1)
+                            }
+                        }
                     }
                 }
             }
@@ -101,7 +106,12 @@ class FontManagementFragment : Fragment() {
             withContext(Dispatchers.IO) {
                 FontManager.loadFontsList()
             }?.let {
-                (recyclerView.adapter as? FontManagementAdapter)?.submitList(it)
+                (recyclerView.adapter as? FontManagementAdapter)?.apply {
+                    submitList(it) {
+                        recyclerView.invalidateItemDecorations()
+                        recyclerView.smoothScrollToPosition(itemCount - 1)
+                    }
+                }
             }
         }
     }
