@@ -30,7 +30,7 @@ keystoreFilepath = gradleLocalProperties(rootDir).let { properties ->
 //endregion
 
 android {
-    compileSdk = 31
+    compileSdk = 32
 
     keystoreFilepath?.let { keystore ->
         signingConfigs {
@@ -49,7 +49,7 @@ android {
         versionName = "2.2.0"
         minSdk = 21
 
-        targetSdk = 29
+        targetSdk = 32
 
         buildConfigField("int", "MODULE_VERSION", "3")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "4")

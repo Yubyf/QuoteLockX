@@ -24,7 +24,9 @@
         android:label="@string/quotelockx"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme">
-        <activity android:name="com.crossbowffs.quotelock.app.MainActivity">
+        <activity
+            android:name="com.crossbowffs.quotelock.app.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -81,7 +83,9 @@
             android:authorities="${applicationId}.collection.provider"
             android:exported="false" />
 
-        <receiver android:name="com.crossbowffs.quotelock.app.CommonReceiver">
+        <receiver
+            android:name="com.crossbowffs.quotelock.app.CommonReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
