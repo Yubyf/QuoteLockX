@@ -95,7 +95,7 @@ object FontManager {
         val systemCustomFonts = SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
             (it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true))
                     && pendingRemoveFonts?.find { pending -> pending.name == it.name } == null
-        }
+        }?.sortedBy { it.lastModified() }
         return systemCustomFonts
     }
 
@@ -107,7 +107,7 @@ object FontManager {
             }
         val systemCustomFonts = SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
             it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
-        }?.map {
+        }?.sortedBy { it.lastModified() }?.map {
             loadFontInfo(it)?.let { fontInfo ->
                 FontInfoWithState(fontInfo, systemFont = true,
                     active = pendingRemoveFonts?.find { pending -> pending.name == it.name } == null)
@@ -116,7 +116,7 @@ object FontManager {
         val pendingImportFonts = INTERNAL_CUSTOM_FONT_PENDING_IMPORT_DIR.listFiles()
             ?.filter {
                 it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
-            }?.map {
+            }?.sortedBy { it.lastModified() }?.map {
                 loadFontInfo(it)?.let { fontInfo ->
                     FontInfoWithState(fontInfo, systemFont = false, active = false)
                 } ?: return null
