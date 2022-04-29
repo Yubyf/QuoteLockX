@@ -57,13 +57,14 @@ class FontManagementActivity : AppCompatActivity() {
                                     }
                                 getString(R.string.quote_fonts_management_font_imported, it.name)
                             }.let { message ->
-                                Snackbar.make(container, message, Snackbar.LENGTH_SHORT).show()
+                                Snackbar.make(container, message, Snackbar.LENGTH_SHORT)
+                                    .apply { setAnchorView(R.id.fab) }.show()
                             }
                         } ?: run {
                             withContext(Dispatchers.Main) {
                                 Snackbar.make(container,
                                     R.string.quote_fonts_management_import_failed,
-                                    Snackbar.LENGTH_SHORT).show()
+                                    Snackbar.LENGTH_SHORT).apply { setAnchorView(R.id.fab) }.show()
                             }
                         }
                         withContext(Dispatchers.Main) { hideProgress() }

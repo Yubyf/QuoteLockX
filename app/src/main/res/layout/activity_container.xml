@@ -32,6 +32,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:visibility="gone"
+        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
         tools:icon="@drawable/ic_round_add_24dp"
         tools:text="Add"
         tools:visibility="visible" />

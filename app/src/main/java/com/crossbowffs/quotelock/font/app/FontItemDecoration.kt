@@ -4,10 +4,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
-import com.crossbowffs.quotelock.utils.dp2px
 import kotlin.math.roundToInt
 
 class FontItemDecoration(context: Context) : DividerItemDecoration(context, VERTICAL) {
@@ -48,18 +46,5 @@ class FontItemDecoration(context: Context) : DividerItemDecoration(context, VERT
             drawable.draw(canvas)
         }
         canvas.restore()
-    }
-
-    override fun getItemOffsets(
-        outRect: Rect,
-        view: View,
-        parent: RecyclerView,
-        state: RecyclerView.State,
-    ) {
-        parent.adapter?.let {
-            outRect.bottom =
-                if (parent.getChildAdapterPosition(view) != it.itemCount - 1) 0
-                else (56 + 16).dp2px().toInt()
-        }
     }
 }

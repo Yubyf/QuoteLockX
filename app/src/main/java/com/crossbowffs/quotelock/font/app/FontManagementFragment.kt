@@ -87,7 +87,8 @@ class FontManagementFragment : Fragment() {
                         }
                     }
                 }?.let {
-                    Snackbar.make(recyclerView, it, Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(recyclerView, it, Snackbar.LENGTH_SHORT)
+                        .apply { setAnchorView(R.id.fab) }.show()
                 }
                 onFontListChanged()
             }
@@ -104,7 +105,6 @@ class FontManagementFragment : Fragment() {
                 (recyclerView.adapter as? FontManagementAdapter)?.apply {
                     val sizeChanged = currentList.size - it.size != 0
                     submitList(it) {
-                        recyclerView.invalidateItemDecorations()
                         if (sizeChanged) {
                             recyclerView.smoothScrollToPosition(itemCount - 1)
                         }
@@ -199,6 +199,7 @@ class FontItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         view.isLongClickable = true
         ivFontActiveHint.setOnClickListener {
             Snackbar.make(it, R.string.quote_fonts_management_activate_tips, Snackbar.LENGTH_SHORT)
+                .apply { setAnchorView(R.id.fab) }
                 .show()
         }
     }
