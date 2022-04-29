@@ -146,8 +146,12 @@ dependencies {
     implementation("io.coil-kt:coil:1.4.0")
 
     implementation("com.google.android.gms:play-services-auth:20.1.0")
-    implementation("com.google.api-client:google-api-client-android:1.33.2")
-    implementation("com.google.apis:google-api-services-drive:v3-rev20220214-1.32.1")
+    implementation("com.google.api-client:google-api-client-android:1.33.2") {
+        exclude(group = "org.apache.httpcomponents")
+    }
+    implementation("com.google.apis:google-api-services-drive:v3-rev20220214-1.32.1") {
+        exclude(group = "org.apache.httpcomponents")
+    }
 
     // Room
     val roomVersion = "2.4.2"
@@ -155,5 +159,7 @@ dependencies {
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
 
-    implementation("com.opencsv:opencsv:5.6")
+    implementation("com.opencsv:opencsv:5.6") {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
 }
