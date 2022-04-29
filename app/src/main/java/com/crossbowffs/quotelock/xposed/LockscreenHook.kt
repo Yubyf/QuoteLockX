@@ -473,12 +473,16 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                         }
                     }
                     Xlog.i(TAG, "View injection complete, registering preferences...")
-                    mCommonPrefs =
-                        RemotePreferences(context, PreferenceProvider.AUTHORITY, PREF_COMMON)
-                    mCommonPrefs.registerOnSharedPreferenceChangeListener(this@LockscreenHook)
-                    mQuotePrefs =
-                        RemotePreferences(context, PreferenceProvider.AUTHORITY, PREF_QUOTES)
-                    mQuotePrefs.registerOnSharedPreferenceChangeListener(this@LockscreenHook)
+                    if (!::mCommonPrefs.isInitialized) {
+                        mCommonPrefs =
+                            RemotePreferences(context, PreferenceProvider.AUTHORITY, PREF_COMMON)
+                        mCommonPrefs.registerOnSharedPreferenceChangeListener(this@LockscreenHook)
+                    }
+                    if (!::mQuotePrefs.isInitialized) {
+                        mQuotePrefs =
+                            RemotePreferences(context, PreferenceProvider.AUTHORITY, PREF_QUOTES)
+                        mQuotePrefs.registerOnSharedPreferenceChangeListener(this@LockscreenHook)
+                    }
                     Xlog.i(TAG, "Preferences registered, performing initial refresh...")
                     refreshLockscreenQuote()
                 }
