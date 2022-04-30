@@ -95,7 +95,7 @@ android {
             applicationVariants.all {
                 outputs.map { it as BaseVariantOutputImpl }.forEach { output ->
                     output.outputFileName =
-                        "QuoteLockX-$versionName${if (signingConfig == null) "-unsigned" else ""}.apk"
+                        "QuoteLockX-v$versionName${if (signingConfig == null) "-unsigned" else ""}.apk"
                 }
             }
         }
