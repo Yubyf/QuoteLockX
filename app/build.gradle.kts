@@ -134,6 +134,7 @@ dependencies {
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
     implementation("io.github.yubyf.datastorepreferences:datastorepreferences:1.2.1")
+    implementation("io.github.yubyf:truetypeparser-light:2.0.1")
     implementation("com.google.android.material:material:1.5.0")
     compileOnly("de.robv.android.xposed:api:82")
     compileOnly("de.robv.android.xposed:api:82:sources")

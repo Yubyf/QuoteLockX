@@ -67,7 +67,7 @@ class FontManagementActivity : AppCompatActivity() {
                                     Snackbar.LENGTH_SHORT).apply { setAnchorView(R.id.fab) }.show()
                             }
                         }
-                        withContext(Dispatchers.Main) { hideProgress() }
+                        hideProgress()
                     }
                 }
             }

@@ -6,10 +6,10 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.annotation.WorkerThread
 import com.crossbowffs.quotelock.app.App
-import com.crossbowffs.quotelock.font.parser.TTFFile
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.toFile
+import com.yubyf.truetypeparser.TTFFile
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -130,12 +130,10 @@ object FontManager {
         return runCatching {
             FONT_INFO_CACHE.getOrPut(file.absolutePath) {
                 val ttfFile = TTFFile.open(file)
-                FontInfo(getDisplayFontName(ttfFile.fullNames),
+                FontInfo(ttfFile.getFullName(Locale.getDefault()),
                     file.name,
                     file.absolutePath).apply {
-                    if (!ttfFile.fullNames.containsKey(Locale.CHINESE.language)) {
-                        descriptionLocale = ""
-                    }
+                    descriptionLocale = generateLocaleDescription(ttfFile.fullName)
                 }
             }
         }.onFailure {
@@ -149,9 +147,14 @@ object FontManager {
         }
     }
 
-    private fun getDisplayFontName(names: Map<String, String>): String {
-        val locale = Locale.getDefault()
-        return names[locale.language] ?: names[Locale.ENGLISH.language] ?: names.values.first()
+    private fun generateLocaleDescription(names: Map<String, String>): String {
+        return when {
+            names.containsKey(Locale.SIMPLIFIED_CHINESE.toLanguageTag()) ->
+                FONT_DESCRIPTION_SIMPLIFIED_CHINESE
+            names.containsKey(Locale.TRADITIONAL_CHINESE.toLanguageTag()) ->
+                FONT_DESCRIPTION_TRADITIONAL_CHINESE
+            else -> ""
+        }
     }
 
     private fun ensureInternalFontDir(): Boolean {
@@ -181,3 +184,4 @@ data class FontInfoWithState(
 
 private const val FONT_DESCRIPTION_LATIN = "Lorem ipsum dolor sit amet"
 private const val FONT_DESCRIPTION_SIMPLIFIED_CHINESE = "落霞与孤鹜齐飞，秋水共长天一色"
+private const val FONT_DESCRIPTION_TRADITIONAL_CHINESE = "落霞與孤鶩齊飛，秋水共長天一色"
