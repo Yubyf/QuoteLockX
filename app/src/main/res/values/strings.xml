@@ -102,6 +102,7 @@
             - <a href="https://freakuotes.com/">Freakuotes</a><br>
             - <a href="https://natune.net/zitate/">Natune.net</a><br>
             - <a href="https://www.brainyquote.com/">BrainyQuote</a><br>
+            - <a href="https://libquotes.com/">Lib Quotes</a><br>
             - <a href="https://github.com/shlomif/fortune-mod/">Fortune-mod</a><br>
 
             <br><b>Libraries used</b><br>
@@ -125,6 +126,7 @@
     <string name="module_natune_name" translatable="false">Natune.net (Deutsch)</string>
     <string name="module_brainy_name" translatable="false">BrainyQuote (English)</string>
     <string name="module_fortune_name">Fortune-mod (multilingual)</string>
+    <string name="module_libquotes_name" translatable="false">Libquotes QotD (English)</string>
     <string name="module_custom_name">Custom</string>
     <string name="module_collections_name">Collections</string>
 

@@ -58,6 +58,7 @@ the download service.
 - [Freakuotes (Español)](https://freakuotes.com/)
 - [Natune.net (Deutsch)](https://natune.net/zitate/)
 - [BrainyQuote (English)](https://www.brainyquote.com/)
+- [Lib Quotes (English)](https://libquotes.com/)
 - [Fortune-mod (multilingual)](https://github.com/shlomif/fortune-mod/)
 - Custom (write your own!)
 - Collections (your favorites)

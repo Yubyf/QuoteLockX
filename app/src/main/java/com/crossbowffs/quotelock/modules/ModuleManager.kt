@@ -8,6 +8,7 @@ import com.crossbowffs.quotelock.modules.fortune.FortuneQuoteModule
 import com.crossbowffs.quotelock.modules.freakuotes.FreakuotesQuoteModule
 import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule
 import com.crossbowffs.quotelock.modules.jinrishici.JinrishiciQuoteModule
+import com.crossbowffs.quotelock.modules.libquotes.LibquotesQuoteModule
 import com.crossbowffs.quotelock.modules.natune.NatuneQuoteModule
 import com.crossbowffs.quotelock.modules.wikiquote.WikiquoteQuoteModule
 
@@ -21,6 +22,7 @@ object ModuleManager {
         addLocalModule(FreakuotesQuoteModule())
         addLocalModule(NatuneQuoteModule())
         addLocalModule(BrainyQuoteQuoteModule())
+        addLocalModule(LibquotesQuoteModule())
         addLocalModule(FortuneQuoteModule())
         addLocalModule(CustomQuoteModule())
         addLocalModule(CollectionsQuoteModule())
