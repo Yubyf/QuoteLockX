@@ -88,9 +88,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             entries = moduleNames
             entryValues = moduleClsNames
         }
-
-        // Update preferences related to module
-        onSelectedModuleChanged()
     }
 
     override fun onCreateView(
@@ -127,6 +124,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
             }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Update preferences related to module
+        onSelectedModuleChanged()
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
