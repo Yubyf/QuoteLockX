@@ -8,8 +8,14 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.crossbowffs.quotelock.app.settings.PreviewFragment
+import com.crossbowffs.quotelock.app.settings.SettingsFragment
 import com.crossbowffs.quotelock.components.ProgressAlertDialog
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.utils.WorkUtils.createQuoteDownloadWork
@@ -17,15 +23,17 @@ import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.XposedUtils.isModuleEnabled
 import com.crossbowffs.quotelock.utils.XposedUtils.isModuleUpdated
 import com.crossbowffs.quotelock.utils.XposedUtils.startXposedActivity
-import com.crossbowffs.quotelock.utils.mainScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.R
-import kotlinx.coroutines.CancellationException
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
 
     private lateinit var rootView: View
     private lateinit var mDialog: ProgressAlertDialog
@@ -38,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         // Toolbar
         findViewById<MaterialToolbar>(R.id.toolbar).setOnMenuItemClickListener {
             if (it.itemId == R.id.refesh_quote) {
-                refreshQuote()
+                viewModel.refreshQuote()
             }
             true
         }
@@ -46,10 +54,6 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.preview_frame, PreviewFragment())
-            .commit()
-
-        supportFragmentManager
-            .beginTransaction()
             .replace(R.id.settings_frame, SettingsFragment())
             .commit()
 
@@ -64,24 +68,46 @@ class MainActivity : AppCompatActivity() {
             }
         }
         checkBatteryOptimization()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiEvent.collect {
+                    when (it) {
+                        is MainUiEvent.SnackBarMessage -> {
+                            it.message?.let { message ->
+                                Snackbar.make(rootView, message, it.duration).show()
+                            }
+                        }
+                        is MainUiEvent.ProgressMessage -> {
+                            if (it.show) {
+                                mDialog = ProgressAlertDialog(this@MainActivity, it.message,
+                                    cancelable = true, canceledOnTouchOutside = false)
+                                mDialog.show()
+                            } else {
+                                mDialog.dismiss()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun refreshQuote() {
-        mainScope.launch {
-            mDialog =
-                ProgressAlertDialog(this@MainActivity, getString(R.string.downloading_quote),
-                    false)
-            mDialog.show()
-            val quote = try {
-                downloadQuote()
-            } catch (e: CancellationException) {
-                null
-            }
-            mDialog.dismiss()
-            Snackbar.make(rootView,
-                if (quote == null) R.string.quote_download_failed else R.string.quote_download_success,
-                Snackbar.LENGTH_SHORT).show()
-        }
+//        mainScope.launch {
+//            mDialog =
+//                ProgressAlertDialog(this@MainActivity, getString(R.string.downloading_quote),
+//                    false)
+//            mDialog.show()
+//            val quote = try {
+//                quoteRepository.downloadQuote()
+//            } catch (e: CancellationException) {
+//                null
+//            }
+//            mDialog.dismiss()
+//            Snackbar.make(rootView,
+//                if (quote == null) R.string.quote_download_failed else R.string.quote_download_success,
+//                Snackbar.LENGTH_SHORT).show()
+//        }
     }
 
     private fun startBrowserActivity(url: String) {

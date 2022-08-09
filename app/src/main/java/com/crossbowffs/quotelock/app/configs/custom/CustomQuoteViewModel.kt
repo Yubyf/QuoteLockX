@@ -1,0 +1,85 @@
+package com.crossbowffs.quotelock.app.configs.custom
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.data.api.QuoteData
+import com.crossbowffs.quotelock.data.modules.custom.CustomQuoteRepository
+import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteEntity
+import com.yubyf.quotelockx.R
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
+
+/**
+ * UI event for the quote history list screen.
+ */
+data class CustomQuoteUiEvent(val message: Int?)
+
+/**
+ * UI state for the quote history list screen.
+ */
+data class CustomQuoteListUiState(val items: List<CustomQuoteEntity>)
+
+/**
+ * @author Yubyf
+ */
+@HiltViewModel
+class CustomQuoteViewModel @Inject constructor(
+    private val customQuoteRepository: CustomQuoteRepository,
+) : ViewModel() {
+
+    private val _uiEvent = MutableSharedFlow<CustomQuoteUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
+    private val _uiListState: MutableStateFlow<CustomQuoteListUiState> =
+        MutableStateFlow(CustomQuoteListUiState(emptyList()))
+    val uiListState = _uiListState.asStateFlow()
+
+    init {
+        viewModelScope.run {
+            launch {
+                customQuoteRepository.getAll().stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = emptyList()
+                ).collect {
+                    _uiListState.update { currentState ->
+                        currentState.copy(items = it)
+                    }
+                }
+            }
+        }
+    }
+
+    fun queryQuote(rowId: Long): QuoteData {
+        return if (rowId < 0) {
+            QuoteData()
+        } else runBlocking {
+            customQuoteRepository.getById(rowId)?.let {
+                QuoteData(it.text, it.source)
+            } ?: QuoteData()
+        }
+    }
+
+    fun persistQuote(rowId: Long, text: String, source: String) {
+        viewModelScope.launch {
+            if (rowId >= 0) {
+                customQuoteRepository
+                    .update(CustomQuoteEntity(rowId.toInt(), text, source))
+            } else {
+                customQuoteRepository
+                    .insert(CustomQuoteEntity(text = text, source = source))
+            }
+            _uiEvent.emit(CustomQuoteUiEvent(R.string.module_custom_saved_quote))
+        }
+    }
+
+    fun delete(id: Long) {
+        viewModelScope.launch {
+            customQuoteRepository.delete(id)
+            _uiEvent.emit(CustomQuoteUiEvent(R.string.module_custom_deleted_quote))
+        }
+    }
+}

@@ -4,7 +4,7 @@ import android.accounts.*
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.crossbowffs.quotelock.collections.app.QuoteCollectionActivity
+import com.crossbowffs.quotelock.app.configs.collections.QuoteCollectionActivity
 import com.crossbowffs.quotelock.utils.className
 
 internal class Authenticator(

@@ -6,20 +6,32 @@ import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
-import com.crossbowffs.quotelock.app.downloadQuote
-import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
-import com.crossbowffs.quotelock.collections.database.QuoteCollectionEntity
-import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
-import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
-import com.crossbowffs.quotelock.data.quotesDataStore
-import com.crossbowffs.quotelock.utils.ioScope
+import com.crossbowffs.quotelock.data.modules.QuoteRepository
+import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
+import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
+import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
+import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
+import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
 import com.yubyf.quotelockx.BuildConfig
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) : ContentProvider() {
 
     private val mUriMatcher: UriMatcher = UriMatcher(UriMatcher.NO_MATCH)
+
+    private val quoteRepository: QuoteRepository by lazy {
+        EntryPointAccessors.fromApplication(context!!.applicationContext,
+            QuoteProviderEntryPoint::class.java).quoteRepository()
+    }
+
+    private val collectionRepository: QuoteCollectionRepository by lazy {
+        EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(context!!.applicationContext)
+            .collectionRepository()
+    }
 
     override fun onCreate(): Boolean {
         return true
@@ -34,7 +46,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
     ): Cursor? {
         val matchCode = mUriMatcher.match(uri)
         require(matchCode == 1) { "Invalid query URI: $uri" }
-        context?.run { ioScope.launch { downloadQuote() } }
+        CoroutineScope(Dispatchers.Default).launch { quoteRepository.downloadQuote() }
         return null
     }
 
@@ -42,12 +54,12 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         return null
     }
 
-    override fun insert(uri: Uri, values: ContentValues?): Uri? {
+    override fun insert(uri: Uri, values: ContentValues?): Uri {
         val matchCode = mUriMatcher.match(uri)
         require(matchCode >= 2) { "Invalid insert URI: $uri" }
         val result = collectQuote(values)
         if (result != -1L) {
-            quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, true)
+            quoteRepository.setQuoteCollectionState(true)
         }
         return ContentUris.withAppendedId(uri, result ?: -1)
     }
@@ -62,7 +74,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         }
         val result = deleteCollectedQuote(value)
         if (result >= 0) {
-            quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, false)
+            quoteRepository.setQuoteCollectionState(false)
         }
         return result
     }
@@ -76,24 +88,19 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         return 0
     }
 
-    private fun collectQuote(values: ContentValues?): Long? {
-        return values?.let {
-            runBlocking {
-                quoteCollectionDatabase.dao()
-                    .insert(QuoteCollectionEntity(
-                        text = it[QuoteCollectionContract.TEXT].toString(),
-                        source = it[QuoteCollectionContract.SOURCE].toString(),
-                        author = it[QuoteCollectionContract.AUTHOR].toString(),
-                        md5 = it[QuoteCollectionContract.MD5].toString(),
-                    ))
-            }
+    private fun collectQuote(values: ContentValues?): Long? = values?.let {
+        runBlocking {
+            collectionRepository.insert(QuoteCollectionEntity(
+                text = it[QuoteCollectionContract.TEXT].toString(),
+                source = it[QuoteCollectionContract.SOURCE].toString(),
+                author = it[QuoteCollectionContract.AUTHOR].toString(),
+                md5 = it[QuoteCollectionContract.MD5].toString(),
+            ))
         }
     }
 
-    private fun deleteCollectedQuote(md5: String): Int {
-        return runBlocking {
-            quoteCollectionDatabase.dao().delete(md5)
-        }
+    private fun deleteCollectedQuote(md5: String): Int = runBlocking {
+        collectionRepository.delete(md5)
     }
 
     companion object {

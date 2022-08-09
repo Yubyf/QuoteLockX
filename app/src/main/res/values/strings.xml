@@ -75,6 +75,7 @@
     <string name="pref_module_preferences_summary_alt">No preferences for selected provider</string>
     <string name="pref_collection_title">Collections</string>
     <string name="pref_history_title">Histories</string>
+    <string name="pref_detail_title">Detail</string>
     <string name="pref_about_credits_title">Credits</string>
     <string name="pref_about_credits_summary">Who did what now?</string>
     <string name="pref_about_github">View project on GitHub</string>

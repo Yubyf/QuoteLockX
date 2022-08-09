@@ -1,6 +1,6 @@
 package com.crossbowffs.quotelock.consts
 
-import com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule
+import com.crossbowffs.quotelock.data.modules.hitokoto.HitokotoQuoteModule
 
 const val PREF_COMMON = "common"
 const val PREF_COMMON_DISPLAY_ON_AOD = "pref_common_display_on_aod"

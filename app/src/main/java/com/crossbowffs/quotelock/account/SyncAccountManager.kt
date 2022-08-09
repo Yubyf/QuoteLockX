@@ -3,31 +3,31 @@ package com.crossbowffs.quotelock.account
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.ContentResolver
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import com.crossbowffs.quotelock.account.syncadapter.SyncAdapter
-import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
-import com.crossbowffs.quotelock.collections.database.quoteCollectionDatabase
+import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
+import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
-import com.crossbowffs.quotelock.utils.ioScope
 import com.yubyf.quotelockx.BuildConfig
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
  * @author Yubyf
  * @date 2021/6/20.
  */
-class SyncAccountManager {
+class SyncAccountManager constructor(
+    private val accountManager: AccountManager,
+    private val collectionRepository: QuoteCollectionRepository,
+    private val dispatcher: CoroutineDispatcher,
+) {
 
-    private lateinit var mAccountManager: AccountManager
-
-    fun initialize(context: Context) {
-        mAccountManager = AccountManager.get(context)
-        ioScope.launch {
-            quoteCollectionDatabase.dao().getAll().collect {
+    fun initialize() {
+        CoroutineScope(dispatcher).launch {
+            collectionRepository.getAllStream().collect {
                 /*
                  * Ask the framework to run sync adapter.
                  * To maintain backward compatibility, assume that
@@ -47,13 +47,13 @@ class SyncAccountManager {
             if (name == account.name) {
                 Xlog.d(TAG, "The current signed-in account is already added.")
             } else {
-                mAccountManager.renameAccount(account, name, null, null)
+                accountManager.renameAccount(account, name, null, null)
                 Xlog.d(TAG, "Updated account with name $name")
                 clearAccountUserData(account)
             }
         } else {
             account = Account(name, ACCOUNT_TYPE)
-            mAccountManager.addAccountExplicitly(account, null, null)
+            accountManager.addAccountExplicitly(account, null, null)
             Xlog.d(TAG, "Added account of name $name")
             clearAccountUserData(account)
         }
@@ -68,17 +68,17 @@ class SyncAccountManager {
         clearAccountUserData(account)
         Xlog.d(TAG, "Remove account - $name.")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            mAccountManager.removeAccountExplicitly(account)
+            accountManager.removeAccountExplicitly(account)
         } else {
             @Suppress("DEPRECATION")
-            mAccountManager.removeAccount(account, null, null)
+            accountManager.removeAccount(account, null, null)
         }
     }
 
     private fun clearAccountUserData(account: Account) {
         Xlog.d(TAG, "Clear user data of " + account.name + ".")
-        mAccountManager.setUserData(account, SyncAdapter.SYNC_MARKER_KEY, null)
-        mAccountManager.setUserData(account, SyncAdapter.SYNC_TIMESTAMP_KEY, "-1")
+        accountManager.setUserData(account, SyncAdapter.SYNC_MARKER_KEY, null)
+        accountManager.setUserData(account, SyncAdapter.SYNC_TIMESTAMP_KEY, "-1")
     }
 
     private fun enableAccountSync(account: Account) {
@@ -92,12 +92,11 @@ class SyncAccountManager {
     }
 
     val currentSyncAccount: Account?
-        get() = mAccountManager.getAccountsByType(ACCOUNT_TYPE)
+        get() = accountManager.getAccountsByType(ACCOUNT_TYPE)
             .run { if (isNotEmpty()) this[0] else null }
 
     companion object {
         private val TAG = className<SyncAccountManager>()
         private const val ACCOUNT_TYPE = BuildConfig.APPLICATION_ID + ".account"
-        val instance = SyncAccountManager()
     }
 }

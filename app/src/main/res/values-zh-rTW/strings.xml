@@ -72,6 +72,7 @@
     <string name="pref_module_preferences_summary_alt">所選提供服務沒有單獨的選項設定</string>
     <string name="pref_collection_title">收藏</string>
     <string name="pref_history_title">歷史</string>
+    <string name="pref_detail_title">詳情</string>
     <string name="pref_about_credits_title">致謝</string>
     <string name="pref_about_credits_summary">貢獻名單</string>
     <string name="pref_about_github">Github 地址</string>

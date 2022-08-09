@@ -4,12 +4,12 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.preference.PreferenceDataStore
 import androidx.work.*
-import com.crossbowffs.quotelock.app.QuoteWorker
-import com.crossbowffs.quotelock.consts.*
-import com.crossbowffs.quotelock.data.commonDataStore
-import com.crossbowffs.quotelock.data.quotesDataStore
+import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.di.ConfigurationEntryPoint
+import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
+import com.crossbowffs.quotelock.worker.QuoteWorker
+import dagger.hilt.android.EntryPointAccessors
 import java.util.concurrent.TimeUnit
 
 object WorkUtils {
@@ -49,9 +49,12 @@ object WorkUtils {
     }
 
     fun shouldRefreshQuote(context: Context): Boolean {
+        val configurationRepository =
+            EntryPointAccessors.fromApplication(context.applicationContext,
+                ConfigurationEntryPoint::class.java).configurationRepository()
         // If our provider doesn't require internet access, we should always be
         // refreshing the quote.
-        if (!commonDataStore.getBoolean(PREF_COMMON_REQUIRES_INTERNET, true)) {
+        if (!configurationRepository.isRequireInternet()) {
             Xlog.d(TAG, "WorkUtils#shouldRefreshQuote: YES (provider doesn't require internet)")
             return true
         }
@@ -65,10 +68,7 @@ object WorkUtils {
 
         // Check if we're on a metered connection and act according to the
         // user's preference.
-        val unmeteredOnly =
-            commonDataStore.getBoolean(PREF_COMMON_UNMETERED_ONLY,
-                PREF_COMMON_UNMETERED_ONLY_DEFAULT)
-        if (unmeteredOnly && manager?.isActiveNetworkMetered == true) {
+        if (configurationRepository.isUnmeteredNetworkOnly() && manager?.isActiveNetworkMetered == true) {
             Xlog.d(TAG,
                 "WorkUtils#shouldRefreshQuote: NO (can only update on unmetered connections)")
             return false
@@ -96,8 +96,11 @@ object WorkUtils {
         val existingWorkPolicy =
             if (recreate) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP
         Xlog.d(TAG, "ExistingWorkPolicy - $existingWorkPolicy")
-        val delay = getUpdateDelay()
-        val networkType = getNetworkType()
+        val configurationRepository =
+            EntryPointAccessors.fromApplication(context.applicationContext,
+                ConfigurationEntryPoint::class.java).configurationRepository()
+        val delay = getUpdateDelay(context, getRefreshInterval(configurationRepository))
+        val networkType = getNetworkType(configurationRepository)
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(networkType)
             .build()
@@ -116,14 +119,15 @@ object WorkUtils {
         Xlog.d(TAG, "Scheduled quote download work with delay: %d", delay)
     }
 
-    private fun getUpdateDelay(): Int {
+    private fun getUpdateDelay(context: Context, refreshInterval: Int): Int {
         // This compensates for the time since the last update in order
         // to ensure that the quote will be updated in a reasonable time
         // window. If the quote was updated >= refreshInterval time ago,
         // the update will be scheduled with zero delay.
-        val refreshInterval = getRefreshInterval(commonDataStore)
         val currentTime = System.currentTimeMillis()
-        val lastUpdateTime = quotesDataStore.getLong(PREF_QUOTES_LAST_UPDATED, currentTime)
+        val quoteRepository = EntryPointAccessors.fromApplication(context.applicationContext,
+            QuoteProviderEntryPoint::class.java).quoteRepository()
+        val lastUpdateTime = quoteRepository.getLastUpdateTime().takeIf { it > 0L } ?: currentTime
         Xlog.d(TAG, "Current time: %d", currentTime)
         Xlog.d(TAG, "Last update time: %d", lastUpdateTime)
         var deltaSecs = ((currentTime - lastUpdateTime) / 1000).toInt()
@@ -141,13 +145,8 @@ object WorkUtils {
         return delay
     }
 
-    private fun getRefreshInterval(commonPrefs: PreferenceDataStore): Int {
-        var refreshInterval = commonPrefs.getInt(PREF_COMMON_REFRESH_RATE_OVERRIDE, 0)
-        if (refreshInterval == 0) {
-            val refreshIntervalStr =
-                commonPrefs.getString(PREF_COMMON_REFRESH_RATE, PREF_COMMON_REFRESH_RATE_DEFAULT)!!
-            refreshInterval = refreshIntervalStr.toInt()
-        }
+    private fun getRefreshInterval(configurationRepository: ConfigurationRepository): Int {
+        var refreshInterval = configurationRepository.getRefreshInterval()
         if (refreshInterval < 60) {
             Xlog.w(TAG, "Refresh period too short, clamping to 60 seconds")
             refreshInterval = 60
@@ -155,13 +154,11 @@ object WorkUtils {
         return refreshInterval
     }
 
-    private fun getNetworkType(): NetworkType {
-        if (!commonDataStore.getBoolean(PREF_COMMON_REQUIRES_INTERNET, true)) {
-            return NetworkType.NOT_REQUIRED
+    private fun getNetworkType(configurationRepository: ConfigurationRepository): NetworkType {
+        return when {
+            !configurationRepository.isRequireInternet() -> NetworkType.NOT_REQUIRED
+            configurationRepository.isUnmeteredNetworkOnly() -> NetworkType.UNMETERED
+            else -> NetworkType.CONNECTED
         }
-        val unmeteredOnly =
-            commonDataStore.getBoolean(PREF_COMMON_UNMETERED_ONLY,
-                PREF_COMMON_UNMETERED_ONLY_DEFAULT)
-        return if (unmeteredOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
     }
 }

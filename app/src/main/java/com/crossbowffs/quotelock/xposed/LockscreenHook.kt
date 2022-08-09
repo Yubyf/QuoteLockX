@@ -19,9 +19,8 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.annotation.RequiresApi
-import com.crossbowffs.quotelock.app.getTypefaceStyle
-import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.provider.ActionProvider
 import com.crossbowffs.quotelock.provider.PreferenceProvider
 import com.crossbowffs.quotelock.utils.*

@@ -20,3 +20,17 @@ fun Context.getFontFromName(fontResName: String): Typeface? {
     }
     return getFont(this, resId)
 }
+
+fun getTypefaceStyle(styles: Set<String>?): Int {
+    var style = Typeface.NORMAL
+    if (styles != null) {
+        if (styles.contains("bold") && styles.contains("italic")) {
+            style = Typeface.BOLD_ITALIC
+        } else if (styles.contains("bold")) {
+            style = Typeface.BOLD
+        } else if (styles.contains("italic")) {
+            style = Typeface.ITALIC
+        }
+    }
+    return style
+}

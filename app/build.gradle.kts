@@ -5,6 +5,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 //region Keystore
@@ -128,11 +129,14 @@ android {
 
 dependencies {
     implementation("androidx.core:core:1.7.0")
+    implementation("androidx.activity:activity-ktx:1.5.1")
+    implementation("androidx.fragment:fragment-ktx:1.5.1")
     implementation("com.crossbowffs.remotepreferences:remotepreferences:0.9")
     implementation("org.jsoup:jsoup:1.13.1")
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("androidx.preference:preference:1.2.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0")
     implementation("io.github.yubyf.datastorepreferences:datastorepreferences:1.2.1")
     implementation("io.github.yubyf:truetypeparser-light:2.0.1")
     implementation("com.google.android.material:material:1.5.0")
@@ -159,6 +163,11 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
+
+    // Hilt
+    val hiltVersion = "2.42"
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    kapt("com.google.dagger:hilt-compiler:$hiltVersion")
 
     implementation("com.opencsv:opencsv:5.6") {
         exclude(group = "commons-logging", module = "commons-logging")

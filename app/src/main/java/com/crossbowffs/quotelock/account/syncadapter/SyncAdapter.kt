@@ -8,19 +8,24 @@ import android.content.Context
 import android.content.SyncResult
 import android.os.Bundle
 import android.text.TextUtils
-import com.crossbowffs.quotelock.backup.GDriveSyncManager
-import com.crossbowffs.quotelock.collections.database.QuoteCollectionContract
+import com.crossbowffs.quotelock.account.google.GoogleAccountHelper
+import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
+import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
+import com.crossbowffs.quotelock.utils.getDatabaseInfo
 import com.yubyf.quotelockx.BuildConfig
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 /**
  * @author Yubyf
  * @date 2021/6/20.
  */
 class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
-    AbstractThreadedSyncAdapter(
-        mContext, autoInitialize) {
+    AbstractThreadedSyncAdapter(mContext, autoInitialize) {
 
     private val mAccountManager: AccountManager = AccountManager.get(mContext)
 
@@ -29,11 +34,13 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
         provider: ContentProviderClient, syncResult: SyncResult,
     ) {
         Xlog.d(TAG, "Performing account sync...")
-        if (!GDriveSyncManager.INSTANCE.isGoogleAccountSignedIn(mContext)) {
+        if (!GoogleAccountHelper.isGoogleAccountSignedIn(mContext)) {
             Xlog.d(TAG, "No account signed in.")
             syncResult.stats.numAuthExceptions++
             return
         }
+        val repository = EntryPointAccessors.fromApplication(
+            mContext.applicationContext, SyncAdapterEntryPoint::class.java).collectionRepository()
         val action = checkBackupOrRestore(account)
         val result = when {
             action == 0 -> {
@@ -41,13 +48,11 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
             }
             action < 0 -> {
                 Xlog.d(TAG, "Performing remote restore...")
-                GDriveSyncManager.INSTANCE.performSafeDriveRestoreSync(mContext,
-                    QuoteCollectionContract.DATABASE_NAME)
+                repository.gDriveRestoreSync()
             }
             else -> {
                 Xlog.d(TAG, "Performing remote backup...")
-                GDriveSyncManager.INSTANCE.performSafeDriveBackupSync(mContext,
-                    QuoteCollectionContract.DATABASE_NAME)
+                repository.gDriveBackupSync()
             }
         }
         if (result.success) {
@@ -70,8 +75,7 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
     private fun checkBackupOrRestore(account: Account): Int {
         val serverMarker = getServerSyncMarker(account)
         val syncTimestamp = getSyncTimestamp(account)
-        val databaseInfo = GDriveSyncManager.INSTANCE
-            .getDatabaseInfo(mContext, QuoteCollectionContract.DATABASE_NAME)
+        val databaseInfo = mContext.getDatabaseInfo(QuoteCollectionContract.DATABASE_NAME)
         return if (serverMarker.isNullOrEmpty() || syncTimestamp < 0 || databaseInfo.first.isNullOrEmpty()
         ) {
             Xlog.d(TAG,
@@ -118,4 +122,9 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
         const val SYNC_TIMESTAMP_KEY = BuildConfig.APPLICATION_ID + ".sync.timestamp"
     }
 
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface SyncAdapterEntryPoint {
+        fun collectionRepository(): QuoteCollectionRepository
+    }
 }
