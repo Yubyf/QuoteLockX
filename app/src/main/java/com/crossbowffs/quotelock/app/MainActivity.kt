@@ -92,24 +92,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun refreshQuote() {
-//        mainScope.launch {
-//            mDialog =
-//                ProgressAlertDialog(this@MainActivity, getString(R.string.downloading_quote),
-//                    false)
-//            mDialog.show()
-//            val quote = try {
-//                quoteRepository.downloadQuote()
-//            } catch (e: CancellationException) {
-//                null
-//            }
-//            mDialog.dismiss()
-//            Snackbar.make(rootView,
-//                if (quote == null) R.string.quote_download_failed else R.string.quote_download_success,
-//                Snackbar.LENGTH_SHORT).show()
-//        }
-    }
-
     private fun startBrowserActivity(url: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         startActivity(intent)
