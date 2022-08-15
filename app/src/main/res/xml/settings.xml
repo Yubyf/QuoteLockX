@@ -11,7 +11,7 @@
             android:title="@string/pref_display_on_aod_title"
             app:iconSpaceReserved="false" />
         <ListPreference
-            android:defaultValue="com.crossbowffs.quotelock.modules.hitokoto.HitokotoQuoteModule"
+            android:defaultValue="com.crossbowffs.quotelock.data.modules.hitokoto.HitokotoQuoteModule"
             android:key="pref_common_quote_module"
             android:summary="@string/pref_quote_module_summary"
             android:title="@string/pref_quote_module_title"

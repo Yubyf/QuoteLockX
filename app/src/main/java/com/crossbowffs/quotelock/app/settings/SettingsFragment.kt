@@ -122,16 +122,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             }
                         }
                     }.launchIn(this)
+
+                    // Update preferences related to module
+                    viewModel.refreshSelectedModule()
                 }
             }
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // Update preferences related to module
-        viewModel.refreshSelectedModule()
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
