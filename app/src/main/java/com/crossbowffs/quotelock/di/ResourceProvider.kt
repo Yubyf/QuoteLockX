@@ -16,7 +16,7 @@ class ResourceProvider @Inject constructor(@ApplicationContext private val conte
         return context.getString(resId)
     }
 
-    fun getString(@StringRes resId: Int, vararg args: String): String {
-        return context.getString(resId, args)
+    fun getString(@StringRes resId: Int, vararg args: Any): String {
+        return context.getString(resId, *args)
     }
 }
