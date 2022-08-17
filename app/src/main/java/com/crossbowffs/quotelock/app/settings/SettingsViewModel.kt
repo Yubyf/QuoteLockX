@@ -113,6 +113,9 @@ class SettingsViewModel @Inject constructor(
         val module = loadSelectedModule()
 
         val quoteModuleData = quoteRepository.getQuoteModuleData(module)
+        if (quoteModuleData == _uiState.value.moduleData) {
+            return
+        }
         _uiState.update { currentState ->
             currentState.copy(moduleData = quoteModuleData)
         }
