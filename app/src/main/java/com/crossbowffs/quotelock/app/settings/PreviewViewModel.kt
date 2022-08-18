@@ -43,29 +43,29 @@ class PreviewViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.apply {
             launch {
-                launch {
-                    quoteRepository.observeQuoteData { preferences, key ->
-                        when (key?.name) {
-                            PREF_QUOTES_TEXT,
-                            PREF_QUOTES_AUTHOR,
-                            PREF_QUOTES_SOURCE,
-                            -> {
-                                val quote =
-                                    preferences[stringPreferencesKey(PREF_QUOTES_TEXT)] ?: ""
-                                val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
-                                val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
-                                _uiState.update { currentState ->
-                                    currentState.copy(
-                                        quoteViewData = buildQuoteViewData(quote, source, author)
-                                    )
-                                }
+                quoteRepository.observeQuoteData { preferences, key ->
+                    when (key?.name) {
+                        PREF_QUOTES_TEXT,
+                        PREF_QUOTES_AUTHOR,
+                        PREF_QUOTES_SOURCE,
+                        -> {
+                            val quote =
+                                preferences[stringPreferencesKey(PREF_QUOTES_TEXT)] ?: ""
+                            val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
+                            val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    quoteViewData = buildQuoteViewData(quote, source, author)
+                                )
                             }
                         }
                     }
                 }
+            }
 
+            launch {
                 configurationRepository.observeConfigurationDataStore { preferences, key ->
                     when (key?.name) {
                         PREF_COMMON_FONT_SIZE_TEXT -> _uiState.update { currentState ->
