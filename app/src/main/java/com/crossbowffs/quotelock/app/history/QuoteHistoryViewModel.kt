@@ -1,12 +1,17 @@
 package com.crossbowffs.quotelock.app.history
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,11 +36,12 @@ class QuoteHistoryViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<QuoteHistoryUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiListState: MutableStateFlow<QuoteHistoryListUiState> =
-        MutableStateFlow(QuoteHistoryListUiState(emptyList(), false))
-    val uiListState = _uiListState.asStateFlow()
+    private val _uiListState = mutableStateOf(QuoteHistoryListUiState(emptyList(), false))
+    val uiListState: State<QuoteHistoryListUiState>
+        get() = _uiListState
 
     init {
+        mutableStateOf(Boolean)
         viewModelScope.run {
             launch {
                 historyRepository.getAll().stateIn(
@@ -43,9 +49,8 @@ class QuoteHistoryViewModel @Inject constructor(
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = emptyList()
                 ).collect {
-                    _uiListState.update { currentState ->
-                        currentState.copy(items = it, showClearMenu = it.isNotEmpty())
-                    }
+                    _uiListState.value =
+                        QuoteHistoryListUiState(items = it, showClearMenu = it.isNotEmpty())
                 }
             }
         }
