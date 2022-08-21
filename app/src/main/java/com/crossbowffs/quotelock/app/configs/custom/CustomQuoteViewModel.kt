@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.app.configs.custom
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.data.api.QuoteData
@@ -7,7 +8,10 @@ import com.crossbowffs.quotelock.data.modules.custom.CustomQuoteRepository
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteEntity
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -33,9 +37,8 @@ class CustomQuoteViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<CustomQuoteUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiListState: MutableStateFlow<CustomQuoteListUiState> =
-        MutableStateFlow(CustomQuoteListUiState(emptyList()))
-    val uiListState = _uiListState.asStateFlow()
+    private val _uiListState = mutableStateOf(CustomQuoteListUiState(emptyList()))
+    val uiListState = _uiListState
 
     init {
         viewModelScope.run {
@@ -45,9 +48,7 @@ class CustomQuoteViewModel @Inject constructor(
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = emptyList()
                 ).collect {
-                    _uiListState.update { currentState ->
-                        currentState.copy(items = it)
-                    }
+                    _uiListState.value = _uiListState.value.copy(items = it)
                 }
             }
         }
