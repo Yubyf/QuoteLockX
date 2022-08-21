@@ -333,7 +333,9 @@ fun CollectionSyncMenu(
     ) {
         Text(
             text = stringResource(id = R.string.sync),
-            modifier = Modifier.padding(MenuDefaults.DropdownMenuItemContentPadding),
+            modifier = Modifier
+                .padding(MenuDefaults.DropdownMenuItemContentPadding)
+                .padding(vertical = 8.dp),
             color = QuoteLockTheme.materialColors.onSurfaceVariant,
             fontSize = QuoteLockTheme.typography.labelSmall.fontSize,
         )
