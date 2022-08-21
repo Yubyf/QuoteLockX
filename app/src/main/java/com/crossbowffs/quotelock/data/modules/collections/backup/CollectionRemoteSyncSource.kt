@@ -18,7 +18,7 @@ package com.crossbowffs.quotelock.data.modules.collections.backup
 
 import android.content.Context
 import androidx.core.util.Pair
-import com.crossbowffs.quotelock.account.google.GoogleAccountHelper.getGoogleAccount
+import com.crossbowffs.quotelock.account.google.GoogleAccountManager
 import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.di.ResourceProvider
@@ -53,13 +53,14 @@ import javax.inject.Singleton
 class CollectionRemoteSyncSource @Inject internal constructor(
     @ApplicationContext private val context: Context,
     private val localBackupSource: CollectionLocalBackupSource,
+    private val googleAccountManager: GoogleAccountManager,
     private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
     private lateinit var drive: Drive
 
     fun updateDriveService() {
-        getGoogleAccount(context).also {
+        googleAccountManager.getGoogleAccount().also {
             // Use the authenticated account to sign in to the Drive service.
             val credential = GoogleAccountCredential.usingOAuth2(
                 context, setOf(DriveScopes.DRIVE_FILE))

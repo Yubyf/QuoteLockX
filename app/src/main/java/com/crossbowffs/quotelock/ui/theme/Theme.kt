@@ -139,4 +139,9 @@ object QuoteLockTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalQuoteLockColors.current
+
+    val typography: Typography
+        @Composable
+        @ReadOnlyComposable
+        get() = MaterialTheme.typography
 }

@@ -1,10 +1,9 @@
 package com.crossbowffs.quotelock.account.google
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.activity.result.ActivityResultLauncher
+import com.crossbowffs.quotelock.data.api.GoogleAccount
 import com.crossbowffs.quotelock.utils.Xlog
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -13,6 +12,8 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.Scope
 import com.google.api.services.drive.DriveScopes
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * @author Yubyf
@@ -35,6 +36,14 @@ object GoogleAccountHelper {
                 && GoogleSignIn.hasPermissions(getGoogleAccount(context), GDRIVE_SCOPE)
     }
 
+    fun getSignedInGoogleAccount(context: Context): GoogleAccount? =
+        if (!isGoogleAccountSignedIn(context)) null
+        else getGoogleAccount(context).let {
+            it.email?.let { email ->
+                GoogleAccount(email, it.photoUrl)
+            }
+        }
+
     fun getSignedInGoogleAccountEmail(context: Context): String? {
         return getGoogleAccount(context).email
     }
@@ -47,50 +56,45 @@ object GoogleAccountHelper {
      * Starts a sign-in activity using [.REQUEST_CODE_SIGN_IN],
      * [.REQUEST_CODE_SIGN_IN_BACKUP] or [.REQUEST_CODE_SIGN_IN_RESTORE].
      */
-    fun requestSignIn(activity: Activity, resultLauncher: ActivityResultLauncher<Intent>) {
-        Xlog.d(TAG, "Requesting sign-in")
+    fun getSignInIntent(context: Context): Intent {
+        Xlog.d(TAG, "Requesting Google account sign-in")
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestProfile()
             .requestEmail()
             .requestScopes(GDRIVE_SCOPE)
             .build()
-        val client = GoogleSignIn.getClient(activity, signInOptions)
-
-        // The result of the sign-in Intent is handled in ActivityResultCallback.
-        resultLauncher.launch(client.signInIntent)
+        return GoogleSignIn.getClient(context, signInOptions).signInIntent
     }
 
-    fun signOutAccount(
-        activity: Activity,
-        resultAction: (success: Boolean, message: String) -> Unit,
-    ) {
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build()
-        val client = GoogleSignIn.getClient(activity, signInOptions)
-        val signedEmail = getSignedInGoogleAccountEmail(activity)
-        client.signOut().addOnCompleteListener {
-            resultAction.invoke(true, signedEmail ?: "")
-        }.addOnFailureListener {
-            resultAction.invoke(false, it.message ?: "")
+    suspend fun signOutAccount(context: Context): Pair<Boolean, String> =
+        suspendCoroutine { continuation ->
+            val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build()
+            val client = GoogleSignIn.getClient(context, signInOptions)
+            val signedEmail = getSignedInGoogleAccountEmail(context)
+            client.signOut().addOnCompleteListener {
+                continuation.resume(Pair(true, signedEmail ?: ""))
+            }.addOnFailureListener {
+                continuation.resume(Pair(false, it.message ?: ""))
+            }
         }
-    }
 
     /**
-     * Handles the `result` of a completed sign-in activity initiated from [ ][.requestSignIn].
+     * Handles the `result` of a completed sign-in activity initiated from [getSignInIntent].
      */
-    fun handleSignInResult(
-        result: Intent?,
-        resultAction: (success: Boolean) -> Unit,
-    ) {
-        GoogleSignIn.getSignedInAccountFromIntent(result)
-            .addOnSuccessListener {
-                Xlog.d(TAG, "Signed in as " + it.email)
-                resultAction.invoke(true)
-            }
-            .addOnFailureListener {
-                Xlog.e(TAG, "Unable to sign in.", it)
-                resultAction.invoke(false)
-            }
-    }
+    suspend fun handleSignInResult(result: Intent?): GoogleAccount? =
+        suspendCoroutine { continuation ->
+            GoogleSignIn.getSignedInAccountFromIntent(result)
+                .addOnSuccessListener { googleSignInAccount ->
+                    Xlog.d(TAG, "Signed in as " + googleSignInAccount.email)
+                    continuation.resume(googleSignInAccount.email?.let { it ->
+                        GoogleAccount(it, googleSignInAccount.photoUrl)
+                    })
+                }
+                .addOnFailureListener {
+                    Xlog.e(TAG, "Unable to sign in.", it)
+                    continuation.resume(null)
+                }
+        }
 }

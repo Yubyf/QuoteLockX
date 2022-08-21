@@ -1,18 +1,26 @@
 package com.crossbowffs.quotelock.app.configs.collections
 
+import android.content.Intent
 import android.net.Uri
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.account.SyncAccountManager
+import com.crossbowffs.quotelock.account.google.GoogleAccountManager
 import com.crossbowffs.quotelock.data.AsyncResult
+import com.crossbowffs.quotelock.data.api.GoogleAccount
 import com.crossbowffs.quotelock.data.failedMessage
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
 import com.crossbowffs.quotelock.di.ResourceProvider
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,7 +40,7 @@ sealed class QuoteCollectionUiEvent {
 
     data class SnackBarMessage(
         override val message: String? = null,
-        @BaseTransientBottomBar.Duration val duration: Int = Snackbar.LENGTH_SHORT,
+        val duration: SnackbarDuration = SnackbarDuration.Short,
         val actionText: String? = null,
     ) : QuoteCollectionUiEvent()
 
@@ -43,11 +51,19 @@ sealed class QuoteCollectionUiEvent {
 }
 
 /**
+ * UI state for the quote collection menu.
+ */
+data class QuoteCollectionMenuUiState(
+    val exportEnabled: Boolean = false,
+    val syncEnabled: Boolean = false,
+    val googleAccount: GoogleAccount? = null,
+)
+
+/**
  * UI state for the quote collection list screen.
  */
 data class QuoteCollectionListUiState(
-    val items: List<QuoteCollectionEntity>,
-    val exportEnabled: Boolean,
+    val items: List<QuoteCollectionEntity> = emptyList(),
 )
 
 /**
@@ -56,15 +72,24 @@ data class QuoteCollectionListUiState(
 @HiltViewModel
 class QuoteCollectionViewModel @Inject constructor(
     private val collectionRepository: QuoteCollectionRepository,
+    private val googleAccountManager: GoogleAccountManager,
+    private val syncAccountManager: SyncAccountManager,
     private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<QuoteCollectionUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiListState: MutableStateFlow<QuoteCollectionListUiState> =
-        MutableStateFlow(QuoteCollectionListUiState(emptyList(), false))
-    val uiListState = _uiListState.asStateFlow()
+    private val _uiMenuState = mutableStateOf(QuoteCollectionMenuUiState(
+        syncEnabled = googleAccountManager.checkGooglePlayService(),
+        googleAccount = googleAccountManager.getSignedInGoogleAccount(),
+    ))
+    val uiMenuState: State<QuoteCollectionMenuUiState>
+        get() = _uiMenuState
+
+    private val _uiListState = mutableStateOf(QuoteCollectionListUiState())
+    val uiListState: State<QuoteCollectionListUiState>
+        get() = _uiListState
 
     init {
         viewModelScope.run {
@@ -74,11 +99,23 @@ class QuoteCollectionViewModel @Inject constructor(
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = emptyList()
                 ).collect {
-                    _uiListState.update { currentState ->
-                        currentState.copy(items = it, exportEnabled = it.isNotEmpty())
-                    }
+                    _uiListState.value = _uiListState.value.copy(items = it)
+                    _uiMenuState.value = _uiMenuState.value.copy(
+                        exportEnabled = it.isNotEmpty()
+                    )
                 }
             }
+        }
+    }
+
+    fun onPermissionDenied() {
+        viewModelScope.launch {
+            _uiEvent.emit(
+                QuoteCollectionUiEvent.SnackBarMessage(
+                    message = resourceProvider.getString(R.string.grant_storage_permission_tips),
+                    duration = SnackbarDuration.Short
+                )
+            )
         }
     }
 
@@ -101,7 +138,7 @@ class QuoteCollectionViewModel @Inject constructor(
                         message = resourceProvider.getString(R.string.database_exported)
                             .plus(" ")
                             .plus(result.data),
-                        duration = Snackbar.LENGTH_LONG,
+                        duration = SnackbarDuration.Long,
                         actionText = resourceProvider.getString(R.string.ok),
                     ))
                 }
@@ -140,9 +177,44 @@ class QuoteCollectionViewModel @Inject constructor(
         }
     }
 
-    fun updateDriveService() = collectionRepository.updateDriveService()
+    fun getGoogleAccountSignInIntent(): Intent = googleAccountManager.getSignInIntent()
 
-    fun ensureDriveService() = collectionRepository.ensureDriveService()
+    fun handleSignInResult(result: Intent?) = viewModelScope.launch {
+        val account = googleAccountManager.handleSignInResult(result)
+        _uiMenuState.value = _uiMenuState.value.copy(googleAccount = account)
+        if (account != null) {
+            collectionRepository.updateDriveService()
+            _uiEvent.emit(QuoteCollectionUiEvent.SnackBarMessage(
+                message = resourceProvider.getString(R.string.google_account_connected))
+            )
+            if (account.email.isNotEmpty()) {
+                syncAccountManager.addOrUpdateAccount(account.email)
+            }
+        } else {
+            _uiEvent.emit(QuoteCollectionUiEvent.SnackBarMessage(
+                message = resourceProvider.getString(R.string.google_account_sign_in_failed))
+            )
+        }
+    }
+
+    fun signOut() = viewModelScope.launch {
+        _uiEvent.emit(QuoteCollectionUiEvent.ProgressMessage(
+            show = true,
+            message = resourceProvider.getString(R.string.sign_out_google_account))
+        )
+        val result = googleAccountManager.signOutAccount()
+        _uiEvent.emit(QuoteCollectionUiEvent.ProgressMessage(show = false))
+        if (result.first) {
+            _uiMenuState.value = _uiMenuState.value.copy(googleAccount = null)
+            if (result.first) {
+                syncAccountManager.removeAccount(result.second)
+            }
+        } else {
+            _uiEvent.emit(QuoteCollectionUiEvent.SnackBarMessage(message = result.second))
+        }
+    }
+
+    private fun ensureDriveService() = collectionRepository.ensureDriveService()
 
     fun gDriveBackup() {
         ensureDriveService()

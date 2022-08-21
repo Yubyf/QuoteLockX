@@ -5,14 +5,15 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.crossbowffs.quotelock.app.configs.collections.CollectionDestination
+import com.crossbowffs.quotelock.app.configs.collections.collectionGraph
 import com.crossbowffs.quotelock.app.detail.detailGraph
 import com.crossbowffs.quotelock.app.detail.navigateToDetail
 import com.crossbowffs.quotelock.app.history.HistoryDestination
 import com.crossbowffs.quotelock.app.history.historyGraph
-import okio.ByteString.Companion.encodeUtf8
 
 @Composable
-fun QuoteNavHost(
+fun QuoteHistoryNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = HistoryDestination.screen,
@@ -27,9 +28,29 @@ fun QuoteNavHost(
             navController.popBackStack()
         }
         historyGraph(
-            onItemClick = { quote, source ->
-                navController.navigateToDetail(quote.encodeUtf8().hex(), source.encodeUtf8().hex())
-            },
+            onItemClick = navController::navigateToDetail,
+            onBack = onBack
+        )
+    }
+}
+
+@Composable
+fun QuoteCollectionNavHost(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = CollectionDestination.screen,
+    onBack: () -> Unit,
+) {
+    NavHost(
+        navController = navController,
+        startDestination = startDestination,
+        modifier = modifier
+    ) {
+        detailGraph {
+            navController.popBackStack()
+        }
+        collectionGraph(
+            onItemClick = navController::navigateToDetail,
             onBack = onBack
         )
     }

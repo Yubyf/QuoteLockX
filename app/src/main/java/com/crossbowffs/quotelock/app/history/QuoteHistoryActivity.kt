@@ -3,7 +3,7 @@ package com.crossbowffs.quotelock.app.history
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import com.crossbowffs.quotelock.ui.navigation.QuoteNavHost
+import com.crossbowffs.quotelock.ui.navigation.QuoteHistoryNavHost
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,7 +18,7 @@ class QuoteHistoryActivity : AppCompatActivity() {
 
         setContent {
             QuoteLockTheme {
-                QuoteNavHost {
+                QuoteHistoryNavHost {
                     finish()
                 }
             }

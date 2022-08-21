@@ -152,7 +152,7 @@ fun QuoteCard(
                     textAlign = TextAlign.Start,
                     modifier = Modifier.fillMaxWidth())
                 if (!source.isNullOrBlank()) {
-                    Text(text = PREF_QUOTE_SOURCE_PREFIX + source,
+                    Text(text = source,
                         style = MaterialTheme.typography.titleMedium,
                         fontFamily = FontFamily(sourceTypeface ?: Typeface.DEFAULT),
                         textAlign = TextAlign.Start,
@@ -169,10 +169,6 @@ class QuotePreviewParameterProvider : PreviewParameterProvider<Pair<String, Stri
     override val values: Sequence<Pair<String, String>> = sequenceOf(
         Pair("落霞与孤鹜齐飞，秋水共长天一色", "${PREF_QUOTE_SOURCE_PREFIX}王勃 《滕王阁序》"),
         Pair("Knowledge is power.", "${PREF_QUOTE_SOURCE_PREFIX}Francis Bacon"),
-        Pair("时维九月，序属三秋。潦水尽而寒潭清，烟光凝而暮山紫。俨骖騑于上路，访风景于崇阿；临帝子之长洲，得天人之旧馆。层峦耸翠，上出重霄；飞阁流丹[註 4]，下临无地。鹤汀凫渚，穷岛屿之萦回；桂殿兰宫，即冈峦之体势。\n" +
-                "\n" +
-                "披绣闼，俯雕甍，山原旷其盈视，川泽纡其骇瞩。闾阎扑地，钟鸣鼎食之家；舸舰弥津，青雀黄龙之舳。云销雨霁，彩彻区明。落霞与孤鹜齐飞，秋水共长天一色。渔舟唱晚，响穷彭蠡之滨；雁阵惊寒，声断衡阳之浦。",
-            "${PREF_QUOTE_SOURCE_PREFIX}王勃 《滕王阁序》"),
     )
 }
 
@@ -200,11 +196,12 @@ private fun QuoteLightPreview(
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun DetailScreenPreview() {
+private fun DetailScreenPreview(
+    @PreviewParameter(QuotePreviewParameterProvider::class) quote: Pair<String, String>,
+) {
     QuoteLockTheme {
         Surface {
-            QuoteDetailScreen(quote = "落霞与孤鹜齐飞，秋水共长天一色",
-                source = "${PREF_QUOTE_SOURCE_PREFIX}王勃 《滕王阁序》") {}
+            QuoteDetailScreen(quote = quote.first, source = quote.second) {}
         }
     }
 }

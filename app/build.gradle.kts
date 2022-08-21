@@ -187,6 +187,10 @@ dependencies {
     implementation("androidx.compose.compiler:compiler:1.3.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
     implementation("androidx.navigation:navigation-compose:$navVersion")
+    // Material design icons
+    implementation("androidx.compose.material:material-icons-core:1.2.1")
+    implementation("androidx.compose.material:material-icons-extended:1.2.1")
+    implementation("io.coil-kt:coil-compose:2.2.0")
 
     implementation("com.opencsv:opencsv:5.6") {
         exclude(group = "commons-logging", module = "commons-logging")

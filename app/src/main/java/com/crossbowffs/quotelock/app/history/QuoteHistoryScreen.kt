@@ -22,9 +22,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.data.api.QuoteEntity
+import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
+import com.crossbowffs.quotelock.ui.components.DeletableQuoteListItem
 import com.crossbowffs.quotelock.ui.components.HistoryAppBar
-import com.crossbowffs.quotelock.ui.components.QuoteItem
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import kotlinx.coroutines.launch
 
@@ -32,7 +33,7 @@ import kotlinx.coroutines.launch
 fun QuoteHistoryRoute(
     modifier: Modifier = Modifier,
     viewModel: QuoteHistoryViewModel = hiltViewModel(),
-    onItemClick: (String, String) -> Unit,
+    onItemClick: (ReadableQuote) -> Unit,
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiListState
@@ -54,7 +55,7 @@ fun QuoteHistoryScreen(
     modifier: Modifier = Modifier,
     uiState: QuoteHistoryListUiState,
     uiEvent: QuoteHistoryUiEvent?,
-    onItemClick: (String, String) -> Unit,
+    onItemClick: (ReadableQuote) -> Unit,
     onBack: () -> Unit,
     onClear: () -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
@@ -64,7 +65,7 @@ fun QuoteHistoryScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            HistoryAppBar(onBackPressed = onBack,
+            HistoryAppBar(onBack = onBack,
                 if (uiState.showClearMenu) onClear else null)
         }
     ) { padding ->
@@ -90,7 +91,7 @@ fun QuoteHistoryScreen(
 private fun HistoryItemList(
     modifier: Modifier = Modifier,
     entities: List<QuoteEntity>,
-    onItemClick: (String, String) -> Unit,
+    onItemClick: (ReadableQuote) -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
 ) {
     Surface {
@@ -102,12 +103,12 @@ private fun HistoryItemList(
                 easing = LinearOutSlowInEasing,
             )
             itemsIndexed(entities, key = { _, item -> item.id ?: -1 }) { index, entity ->
-                QuoteItem(
-                    entity,
+                DeletableQuoteListItem(
                     modifier = Modifier
                         .animateItemPlacement(animationSpec)
                         .fillMaxWidth(),
-                    onClick = { quote, source -> onItemClick.invoke(quote, source) }
+                    entity = entity,
+                    onClick = { quote -> onItemClick.invoke(quote) }
                 ) {
                     entity.id?.let {
                         onDeleteMenuClicked.invoke(it.toLong())
@@ -123,7 +124,6 @@ private fun HistoryItemList(
     }
 }
 
-
 class HistoryPreviewParameterProvider : PreviewParameterProvider<List<QuoteHistoryEntity>> {
     override val values: Sequence<List<QuoteHistoryEntity>> = sequenceOf(List(20) {
         QuoteHistoryEntity(it, "", "落霞与孤鹜齐飞，秋水共长天一色", "《滕王阁序》", "王勃")
@@ -137,7 +137,7 @@ class HistoryPreviewParameterProvider : PreviewParameterProvider<List<QuoteHisto
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun HistoryScreenLightPreview(
+private fun HistoryScreenPreview(
     @PreviewParameter(HistoryPreviewParameterProvider::class) entities: List<QuoteHistoryEntity>,
 ) {
     QuoteLockTheme {
@@ -145,7 +145,7 @@ private fun HistoryScreenLightPreview(
             QuoteHistoryScreen(
                 uiState = QuoteHistoryListUiState(entities, true),
                 uiEvent = null,
-                onItemClick = { _, _ -> },
+                onItemClick = {},
                 onBack = {},
                 onClear = {},
                 onDeleteMenuClicked = {},

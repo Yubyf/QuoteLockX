@@ -8,21 +8,23 @@ import android.os.Bundle
 import com.crossbowffs.quotelock.account.syncadapter.SyncAdapter
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
+import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * @author Yubyf
  * @date 2021/6/20.
  */
-class SyncAccountManager constructor(
+class SyncAccountManager @Inject constructor(
     private val accountManager: AccountManager,
     private val collectionRepository: QuoteCollectionRepository,
-    private val dispatcher: CoroutineDispatcher,
+    @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
 
     fun initialize() {

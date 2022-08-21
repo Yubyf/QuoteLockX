@@ -1,9 +1,6 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.crossbowffs.quotelock.ui.components
 
 import android.content.res.Configuration
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
@@ -22,28 +19,68 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.crossbowffs.quotelock.data.api.QuoteEntity
+import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.toReadableQuote
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 
-@ExperimentalFoundationApi
 @Composable
-fun QuoteItem(
-    entity: QuoteEntity,
+fun EditableQuoteListItem(
     modifier: Modifier = Modifier,
-    onClick: (String, String) -> Unit = { _, _ -> },
-    onDelete: (() -> Unit)? = null,
+    entity: QuoteEntity,
+    onClick: (ReadableQuote) -> Unit = {},
+    onEdit: (QuoteEntity) -> Unit = {},
+    onDelete: (Int?) -> Unit = {},
 ) {
-    val quote = entity.text
-    val source = entity.source.run {
-        if (!entity.author.isNullOrBlank()) {
-            "${entity.author}${if (this.isBlank()) "" else " $this"}"
-        } else {
-            this
-        }
+    QuoteListItem(entity = entity, modifier = modifier, onClick = onClick) { closeMenu ->
+        DropdownMenuItem(
+            text = { Text(text = stringResource(id = R.string.edit)) },
+            onClick = {
+                closeMenu()
+                onEdit.invoke(entity)
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(text = stringResource(id = R.string.delete)) },
+            onClick = {
+                closeMenu()
+                onDelete.invoke(entity.id)
+            }
+        )
     }
+}
+
+@Composable
+fun DeletableQuoteListItem(
+    modifier: Modifier = Modifier,
+    entity: QuoteEntity,
+    onClick: (ReadableQuote) -> Unit = {},
+    onDelete: (Int?) -> Unit = {},
+) {
+    QuoteListItem(entity = entity, modifier = modifier, onClick = onClick) { closeMenu ->
+        DropdownMenuItem(
+            text = { Text(text = stringResource(id = R.string.delete)) },
+            onClick = {
+                closeMenu()
+                onDelete.invoke(entity.id)
+            }
+        )
+    }
+}
+
+@Composable
+fun QuoteListItem(
+    modifier: Modifier = Modifier,
+    entity: QuoteEntity,
+    onClick: (ReadableQuote) -> Unit = { },
+    content: @Composable ColumnScope.(() -> Unit) -> Unit,
+) {
+    val readableQuote = entity.toReadableQuote()
     val height = 72.dp
     var contextMenuExpanded by remember {
         mutableStateOf(false)
@@ -73,7 +110,7 @@ fun QuoteItem(
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
                     onTap = {
-                        onClick.invoke(quote, source)
+                        onClick.invoke(readableQuote)
                     }
                 )
             }
@@ -83,13 +120,13 @@ fun QuoteItem(
             .padding(8.dp)
             .wrapContentHeight()
         ) {
-            Text(text = quote,
+            Text(text = readableQuote.text,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Start,
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth())
-            if (source.isNotBlank()) {
-                Text(text = source,
+            if (!readableQuote.source.isNullOrBlank()) {
+                Text(text = readableQuote.source,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
@@ -102,68 +139,47 @@ fun QuoteItem(
                 with(LocalDensity.current) { contextMenuOffset.y.toDp() } - height),
             onDismissRequest = { contextMenuExpanded = false },
         ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(id = R.string.delete)) },
-                onClick = {
-                    contextMenuExpanded = false
-                    onDelete?.invoke()
-                }
-            )
+            content { contextMenuExpanded = false }
         }
     }
 }
 
-private val PREVIEW_FULL_ENTITY = object : QuoteEntity {
-    override val id: Int
-        get() = 0
-    override val md5: String
-        get() = ""
-    override val text: String
-        get() = "落霞与孤鹜齐飞，秋水共长天一色"
-    override val source: String
-        get() = "《滕王阁序》"
-    override val author: String
-        get() = "王勃"
+class QuoteListItemPreviewParameterProvider : PreviewParameterProvider<QuoteEntity> {
+    override val values: Sequence<QuoteEntity> = sequenceOf(
+        object : QuoteEntity {
+            override val id: Int = 0
+            override val md5: String = ""
+            override val text: String = "落霞与孤鹜齐飞，秋水共长天一色"
+            override val source: String = "《滕王阁序》"
+            override val author: String = "王勃"
 
-    override fun equals(other: Any?): Boolean = false
+            override fun equals(other: Any?): Boolean = false
+        },
+        object : QuoteEntity {
+            override val id: Int = 0
+            override val md5: String = ""
+            override val text: String = "落霞与孤鹜齐飞，秋水共长天一色"
+            override val source: String = ""
+            override val author: String? = null
+
+            override fun equals(other: Any?): Boolean = false
+        }
+    )
 }
 
-private val PREVIEW_SINGLE_LINE_ENTITY = object : QuoteEntity {
-    override val id: Int
-        get() = 0
-    override val md5: String
-        get() = ""
-    override val text: String
-        get() = "落霞与孤鹜齐飞，秋水共长天一色"
-    override val source: String
-        get() = ""
-    override val author: String?
-        get() = null
-
-    override fun equals(other: Any?): Boolean = false
-}
-
-@Preview(name = "Quote Item Light Full",
+@Preview(name = "Quote Item Light",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Quote Item Dark Full",
+@Preview(name = "Quote Item Dark",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun HistoryTopAppBarLightPreview() {
+private fun HistoryTopAppBarPreview(
+    @PreviewParameter(QuoteListItemPreviewParameterProvider::class) entity: QuoteEntity,
+) {
     QuoteLockTheme {
         Surface {
-            QuoteItem(PREVIEW_FULL_ENTITY)
-        }
-    }
-}
-
-@Preview(name = "Quote Item Light Single Line", showBackground = true)
-@Composable
-private fun HistoryTopAppBarSingleLinePreview() {
-    QuoteLockTheme {
-        Surface {
-            QuoteItem(PREVIEW_SINGLE_LINE_ENTITY)
+            DeletableQuoteListItem(entity = entity)
         }
     }
 }

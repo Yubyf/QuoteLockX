@@ -2,7 +2,6 @@ package com.crossbowffs.quotelock.di
 
 import android.accounts.AccountManager
 import android.content.Context
-import com.crossbowffs.quotelock.account.SyncAccountManager
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.history.QuoteHistoryDatabase
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
@@ -44,12 +43,9 @@ object SyncModule {
 
     @Singleton
     @Provides
-    fun provideSyncAccountManager(
+    fun provideAccountManager(
         @ApplicationContext context: Context,
-        collectionRepository: QuoteCollectionRepository,
-        @IoDispatcher dispatcher: CoroutineDispatcher,
-    ): SyncAccountManager =
-        SyncAccountManager(AccountManager.get(context), collectionRepository, dispatcher)
+    ): AccountManager = AccountManager.get(context)
 }
 
 @Module

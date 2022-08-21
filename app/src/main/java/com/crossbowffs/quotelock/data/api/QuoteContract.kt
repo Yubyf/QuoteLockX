@@ -23,3 +23,19 @@ interface QuoteEntity {
 
     override fun equals(other: Any?): Boolean
 }
+
+fun QuoteEntity.toReadableQuote(): ReadableQuote = ReadableQuote(
+    text,
+    source.run {
+        if (!author.isNullOrBlank()) {
+            "${author}${if (this.isBlank()) "" else " $this"}"
+        } else {
+            this
+        }
+    }
+)
+
+data class ReadableQuote(
+    val text: String,
+    val source: String?,
+)

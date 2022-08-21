@@ -5,8 +5,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
+import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
 import okio.ByteString.Companion.decodeHex
+import okio.ByteString.Companion.encodeUtf8
 
 object DetailDestination : QuoteNavigationDestination {
     const val QUOTE_ARG = "quote"
@@ -30,16 +33,20 @@ fun NavGraphBuilder.detailGraph(onBack: () -> Unit) {
         val quote =
             it.arguments?.getString(DetailDestination.QUOTE_ARG)?.decodeHex()?.utf8().orEmpty()
         val source =
-            it.arguments?.getString(DetailDestination.SOURCE_ARG)?.decodeHex()?.utf8().orEmpty()
+            it.arguments?.getString(DetailDestination.SOURCE_ARG)?.decodeHex()?.utf8()
         QuoteDetailRoute(quote = quote, source = source, onBack = onBack)
     }
 }
 
-fun NavHostController.navigateToDetail(quote: String, source: String) {
+fun NavHostController.navigateToDetail(quote: ReadableQuote) {
+    val encodedText = quote.text.encodeUtf8().hex()
+    val encodedSource = quote.source?.let {
+        (PREF_QUOTE_SOURCE_PREFIX + it).encodeUtf8().hex()
+    }
     navigate(
-        "${DetailDestination.screen}/$quote".let {
-            if (source.isNotEmpty()) {
-                "$it?${DetailDestination.SOURCE_ARG}=$source"
+        "${DetailDestination.screen}/$encodedText".let {
+            if (!encodedSource.isNullOrBlank()) {
+                "$it?${DetailDestination.SOURCE_ARG}=$encodedSource"
             } else it
         }
     )
