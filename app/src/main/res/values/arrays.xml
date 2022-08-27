@@ -9,7 +9,7 @@
         <item>6 hours</item>
         <item>24 hours</item>
     </string-array>
-    <string-array name="refresh_interval_values" translatable="false">
+    <integer-array name="refresh_interval_values" translatable="false">
         <item>60</item>
         <item>300</item>
         <item>900</item>
@@ -17,7 +17,7 @@
         <item>3600</item>
         <item>21600</item>
         <item>86400</item>
-    </string-array>
+    </integer-array>
     <string-array name="font_size_entries" translatable="false">
         <item>14 pt</item>
         <item>16 pt</item>
@@ -26,14 +26,14 @@
         <item>22 pt</item>
         <item>24 pt</item>
     </string-array>
-    <string-array name="font_size_values" translatable="false">
+    <integer-array name="font_size_values" translatable="false">
         <item>14</item>
         <item>16</item>
         <item>18</item>
         <item>20</item>
         <item>22</item>
         <item>24</item>
-    </string-array>
+    </integer-array>
     <string-array name="default_font_family_entries">
         <item>System</item>
     </string-array>
@@ -55,13 +55,13 @@
         <item>24 pt</item>
         <item>32 pt</item>
     </string-array>
-    <string-array name="layout_quote_spacing_values" translatable="false">
+    <integer-array name="layout_quote_spacing_values" translatable="false">
         <item>0</item>
         <item>4</item>
         <item>8</item>
         <item>12</item>
         <item>16</item>
-    </string-array>
+    </integer-array>
     <string-array name="layout_quote_spacing_entries" translatable="false">
         <item>0 pt</item>
         <item>4 pt</item>
@@ -69,13 +69,13 @@
         <item>12 pt</item>
         <item>16 pt</item>
     </string-array>
-    <string-array name="layout_padding_values" translatable="false">
+    <integer-array name="layout_padding_values" translatable="false">
         <item>0</item>
         <item>8</item>
         <item>16</item>
         <item>24</item>
         <item>32</item>
-    </string-array>
+    </integer-array>
     <string-array name="brainy_quote_type_values" translatable="false">
         <item>BR</item>
         <item>AR</item>
@@ -147,5 +147,38 @@
     <!--ModuleScope for LSPosed-->
     <string-array name="module_scope" translatable="false">
         <item>com.android.systemui</item>
+    </string-array>
+
+    <string-array name="layout_quote_spacing_values1" translatable="false">
+        <item>0</item>
+        <item>4</item>
+        <item>8</item>
+        <item>12</item>
+        <item>16</item>
+    </string-array>
+    <string-array name="refresh_interval_values1" translatable="false">
+        <item>60</item>
+        <item>300</item>
+        <item>900</item>
+        <item>1800</item>
+        <item>3600</item>
+        <item>21600</item>
+        <item>86400</item>
+    </string-array>
+
+    <string-array name="font_size_values1" translatable="false">
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+        <item>20</item>
+        <item>22</item>
+        <item>24</item>
+    </string-array>
+    <string-array name="layout_padding_values1" translatable="false">
+        <item>0</item>
+        <item>8</item>
+        <item>16</item>
+        <item>24</item>
+        <item>32</item>
     </string-array>
 </resources>

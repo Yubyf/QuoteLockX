@@ -7,7 +7,7 @@ import com.crossbowffs.quotelock.data.datastore.PreferenceDataStoreAdapter
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
-import com.crossbowffs.quotelock.di.QuotesDataStore
+import com.crossbowffs.quotelock.di.QuotesDataStoreAdapter
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.md5
@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 @Singleton
 class QuoteLocalSource @Inject constructor(
-    @QuotesDataStore private val quotesDataStore: PreferenceDataStoreAdapter,
+    @QuotesDataStoreAdapter private val quotesDataStoreAdapter: PreferenceDataStoreAdapter,
     private val collectionRepository: QuoteCollectionRepository,
     private val historyRepository: QuoteHistoryRepository,
     private val resourceProvider: ResourceProvider,
@@ -49,7 +49,7 @@ class QuoteLocalSource @Inject constructor(
             insertQuoteHistory(quoteText, quoteSource, quoteAuthor)
         }
         val collectionState = queryQuoteCollectionState(quoteText, quoteSource, quoteAuthor)
-        quotesDataStore.bulkPut(
+        quotesDataStoreAdapter.bulkPut(
             mapOf(PREF_QUOTES_TEXT to quoteText,
                 PREF_QUOTES_SOURCE to quoteSource,
                 PREF_QUOTES_AUTHOR to quoteAuthor,
@@ -58,28 +58,28 @@ class QuoteLocalSource @Inject constructor(
     }
 
     fun setQuoteCollectionState(state: Boolean) {
-        quotesDataStore.putBoolean(PREF_QUOTES_COLLECTION_STATE, state)
+        quotesDataStoreAdapter.putBoolean(PREF_QUOTES_COLLECTION_STATE, state)
     }
 
-    fun getLastUpdateTime() = quotesDataStore.getLong(PREF_QUOTES_LAST_UPDATED, -1)
+    fun getLastUpdateTime() = quotesDataStoreAdapter.getLong(PREF_QUOTES_LAST_UPDATED, -1)
 
     fun getCurrentQuote() = QuoteData(
-        quotesDataStore.getString(PREF_QUOTES_TEXT, "")!!,
-        quotesDataStore.getString(PREF_QUOTES_SOURCE, "")!!,
-        quotesDataStore.getString(PREF_QUOTES_AUTHOR, "")!!,
+        quotesDataStoreAdapter.getString(PREF_QUOTES_TEXT, "")!!,
+        quotesDataStoreAdapter.getString(PREF_QUOTES_SOURCE, "")!!,
+        quotesDataStoreAdapter.getString(PREF_QUOTES_AUTHOR, "")!!,
     )
 
     fun notifyBooted() {
-        val hasBootNotifyFlag = quotesDataStore.contains(PREF_BOOT_NOTIFY_FLAG)
+        val hasBootNotifyFlag = quotesDataStoreAdapter.contains(PREF_BOOT_NOTIFY_FLAG)
         if (!hasBootNotifyFlag) {
-            quotesDataStore.putInt(PREF_BOOT_NOTIFY_FLAG, 0)
+            quotesDataStoreAdapter.putInt(PREF_BOOT_NOTIFY_FLAG, 0)
         } else {
-            quotesDataStore.remove(PREF_BOOT_NOTIFY_FLAG)
+            quotesDataStoreAdapter.remove(PREF_BOOT_NOTIFY_FLAG)
         }
     }
 
     suspend fun observeQuoteDataStore(collector: suspend (Preferences, Preferences.Key<*>?) -> Unit) =
-        quotesDataStore.collectSuspend(collector)
+        quotesDataStoreAdapter.collectSuspend(collector)
 
     companion object {
         private const val TAG = "QuoteDownloader"

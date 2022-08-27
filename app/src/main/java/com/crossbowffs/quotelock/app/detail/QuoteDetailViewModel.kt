@@ -37,7 +37,7 @@ class QuoteDetailViewModel @Inject constructor(
 
     init {
         _uiState.update { currentState ->
-            val style = configurationRepository.getQuoteStyle()
+            val style = configurationRepository.quoteStyle
             currentState.copy(quoteTypeface = style.quoteTypeface,
                 sourceTypeface = style.sourceTypeface)
         }

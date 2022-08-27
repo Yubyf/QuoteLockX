@@ -5,90 +5,161 @@ import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.QuoteStyle
-import com.crossbowffs.quotelock.data.datastore.PreferenceDataStoreAdapter
 import com.crossbowffs.quotelock.di.CommonDataStore
-import com.crossbowffs.quotelock.utils.dp2px
 import com.crossbowffs.quotelock.utils.getTypefaceStyle
+import com.yubyf.datastore.DataStoreDelegate
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 @Singleton
 class ConfigurationRepository @Inject internal constructor(
-    @CommonDataStore private val commonDataStore: PreferenceDataStoreAdapter,
+    @CommonDataStore private val commonDataStore: DataStoreDelegate,
 ) {
 
-    fun getCurrentModuleName() =
-        commonDataStore.getString(PREF_COMMON_QUOTE_MODULE, PREF_COMMON_QUOTE_MODULE_DEFAULT)!!
+    class DataStoreValue<T>(private val key: String, private val default: T) :
+        ReadWriteProperty<ConfigurationRepository, T> {
+        @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
+        override fun getValue(thisRef: ConfigurationRepository, property: KProperty<*>): T {
+            return runBlocking {
+                with(thisRef.commonDataStore) {
+                    when (default) {
+                        is Int -> getIntSuspend(key, default)
+                        is String,
+                        is String?,
+                        -> getStringSuspend(key) ?: default
+                        is Boolean -> getBooleanSuspend(key, default)
+                        is Float -> getFloatSuspend(key, default)
+                        is Long -> getLongSuspend(key, default)
+                        is Set<*>?,
+                        is Set<*>,
+                        -> getStringSetSuspend(key)
+                            ?: default as Set<String>
+                        else -> throw IllegalArgumentException("Type not supported: ${default?.let { it::class } ?: "null"}")
+                    } as T
+                }
+            }
+        }
+
+        override fun setValue(thisRef: ConfigurationRepository, property: KProperty<*>, value: T) {
+            thisRef.commonDataStore.put(key, value)
+        }
+    }
+
+    var displayOnAod: Boolean by DataStoreValue(PREF_COMMON_DISPLAY_ON_AOD, false)
+
+    var currentModuleName: String by DataStoreValue(PREF_COMMON_QUOTE_MODULE,
+        PREF_COMMON_QUOTE_MODULE_DEFAULT)
+
+    var refreshInterval: Int
+        get() = runBlocking {
+            var refreshInterval =
+                commonDataStore.getIntSuspend(PREF_COMMON_REFRESH_RATE_OVERRIDE, 0)
+            if (refreshInterval == 0) {
+                val refreshIntervalStr =
+                    commonDataStore.getStringSuspend(PREF_COMMON_REFRESH_RATE)
+                        ?: PREF_COMMON_REFRESH_RATE_DEFAULT
+                refreshInterval = refreshIntervalStr.toInt()
+            }
+            refreshInterval
+        }
+        set(value) = commonDataStore.put(PREF_COMMON_REFRESH_RATE, value.toString())
+
+    var isRequireInternet: Boolean by DataStoreValue(PREF_COMMON_REQUIRES_INTERNET, true)
+
+    var isUnmeteredNetworkOnly: Boolean by DataStoreValue(PREF_COMMON_UNMETERED_ONLY,
+        PREF_COMMON_UNMETERED_ONLY_DEFAULT)
+
+    private var _quoteSize: String by DataStoreValue(PREF_COMMON_FONT_SIZE_TEXT,
+        PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)
+
+    var quoteSize: Int
+        get() = _quoteSize.toInt()
+        set(value) {
+            _quoteSize = value.toString()
+        }
+
+    private var _sourceSize: String by DataStoreValue(PREF_COMMON_FONT_SIZE_SOURCE,
+        PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)
+
+    var sourceSize: Int
+        get() = _sourceSize.toInt()
+        set(value) {
+            _sourceSize = value.toString()
+        }
+
+    var quoteStyles: Set<String>? by DataStoreValue(PREF_COMMON_FONT_STYLE_TEXT, emptySet())
+
+    var sourceStyles: Set<String>? by DataStoreValue(PREF_COMMON_FONT_STYLE_SOURCE, emptySet())
+
+    var fontFamily: String by DataStoreValue(PREF_COMMON_FONT_FAMILY,
+        PREF_COMMON_FONT_FAMILY_DEFAULT)
+
+    private var _quoteSpacing: String by DataStoreValue(PREF_COMMON_QUOTE_SPACING,
+        PREF_COMMON_QUOTE_SPACING_DEFAULT)
+
+    var quoteSpacing: Int
+        get() = _quoteSpacing.toInt()
+        set(value) {
+            _quoteSpacing = value.toString()
+        }
+
+    private var _paddingTop: String by DataStoreValue(PREF_COMMON_PADDING_TOP,
+        PREF_COMMON_PADDING_TOP_DEFAULT)
+
+    var paddingTop: Int
+        get() = _paddingTop.toInt()
+        set(value) {
+            _paddingTop = value.toString()
+        }
+
+    private var _paddingBottom: String by DataStoreValue(PREF_COMMON_PADDING_BOTTOM,
+        PREF_COMMON_PADDING_BOTTOM_DEFAULT)
+
+    var paddingBottom: Int
+        get() = _paddingBottom.toInt()
+        set(value) {
+            _paddingBottom = value.toString()
+        }
 
     fun updateConfiguration(moduleData: QuoteModuleData) {
         if (moduleData.minimumRefreshInterval != 0) {
-            commonDataStore.putInt(PREF_COMMON_REFRESH_RATE_OVERRIDE,
+            commonDataStore.put(PREF_COMMON_REFRESH_RATE_OVERRIDE,
                 moduleData.minimumRefreshInterval)
         } else {
             commonDataStore.remove(PREF_COMMON_REFRESH_RATE_OVERRIDE)
         }
 
-        if (!moduleData.requiresInternetConnectivity) {
-            commonDataStore.putBoolean(PREF_COMMON_REQUIRES_INTERNET, false)
-        } else {
-            commonDataStore.remove(PREF_COMMON_REQUIRES_INTERNET)
-        }
+        isRequireInternet = moduleData.requiresInternetConnectivity
     }
 
-    fun getRefreshInterval(): Int {
-        var refreshInterval = commonDataStore.getInt(PREF_COMMON_REFRESH_RATE_OVERRIDE, 0)
-        if (refreshInterval == 0) {
-            val refreshIntervalStr =
-                commonDataStore.getString(PREF_COMMON_REFRESH_RATE,
-                    PREF_COMMON_REFRESH_RATE_DEFAULT)!!
-            refreshInterval = refreshIntervalStr.toInt()
+    val quoteStyle: QuoteStyle
+        get() {
+            // Font properties
+            val quoteStyle = getTypefaceStyle(quoteStyles)
+            val sourceStyle = getTypefaceStyle(sourceStyles)
+            fontFamily.takeIf { PREF_COMMON_FONT_FAMILY_DEFAULT != it }?.runCatching {
+                FontManager.loadTypeface(this)
+            }?.getOrNull()
+            val typeface =
+                fontFamily.takeIf { PREF_COMMON_FONT_FAMILY_DEFAULT != it }?.runCatching {
+                    FontManager.loadTypeface(this)
+                }?.getOrNull()
+
+            return QuoteStyle(
+                quoteSize,
+                sourceSize,
+                typeface,
+                quoteStyle,
+                typeface,
+                sourceStyle,
+                quoteSpacing,
+                paddingTop,
+                paddingBottom
+            )
         }
-        return refreshInterval
-    }
-
-    fun isRequireInternet() = commonDataStore.getBoolean(PREF_COMMON_REQUIRES_INTERNET, true)
-
-    fun isUnmeteredNetworkOnly() = commonDataStore.getBoolean(PREF_COMMON_UNMETERED_ONLY,
-        PREF_COMMON_UNMETERED_ONLY_DEFAULT)
-
-    fun getQuoteStyle(): QuoteStyle {
-        val quoteSize = commonDataStore.getString(PREF_COMMON_FONT_SIZE_TEXT,
-            PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
-        val sourceSize = commonDataStore.getString(PREF_COMMON_FONT_SIZE_SOURCE,
-            PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toFloat()
-        // Font properties
-        val quoteStyles = commonDataStore.getStringSet(PREF_COMMON_FONT_STYLE_TEXT, null)
-        val sourceStyles = commonDataStore.getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
-        val quoteStyle = getTypefaceStyle(quoteStyles)
-        val sourceStyle = getTypefaceStyle(sourceStyles)
-        val font = commonDataStore.getString(
-            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
-        val typeface = if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-            font?.let {
-                runCatching { FontManager.loadTypeface(font) }.getOrNull()
-            }
-        } else {
-            null
-        }
-
-        // Quote spacing
-        val quoteSpacing = commonDataStore.getString(PREF_COMMON_QUOTE_SPACING,
-            PREF_COMMON_QUOTE_SPACING_DEFAULT)!!.toInt().dp2px().toInt()
-        // Layout padding
-        val paddingTop = commonDataStore.getString(PREF_COMMON_PADDING_TOP,
-            PREF_COMMON_PADDING_TOP_DEFAULT)!!.toInt().dp2px().toInt()
-        val paddingBottom = commonDataStore.getString(PREF_COMMON_PADDING_BOTTOM,
-            PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toInt().dp2px().toInt()
-        return QuoteStyle(quoteSize,
-            sourceSize,
-            typeface,
-            quoteStyle,
-            typeface,
-            sourceStyle,
-            quoteSpacing,
-            paddingTop,
-            paddingBottom)
-    }
 
     suspend fun observeConfigurationDataStore(collector: suspend (Preferences, Preferences.Key<*>?) -> Unit) =
         commonDataStore.collectSuspend(collector)

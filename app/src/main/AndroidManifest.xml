@@ -30,7 +30,7 @@
             android:required="false" />
 
         <activity
-            android:name="com.crossbowffs.quotelock.app.MainActivity"
+            android:name="com.crossbowffs.quotelock.app.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,9 +52,6 @@
         <activity
             android:name="com.crossbowffs.quotelock.app.configs.collections.QuoteCollectionActivity"
             android:label="@string/quote_collections_activity_label" />
-        <activity
-            android:name="com.crossbowffs.quotelock.app.history.QuoteHistoryActivity"
-            android:label="@string/quote_histories_activity_label" />
         <activity
             android:name="com.crossbowffs.quotelock.app.font.app.FontManagementActivity"
             android:label="@string/quote_histories_activity_label" />

@@ -1,13 +1,18 @@
+@file:OptIn(ExperimentalAnimationApi::class)
+
 package com.crossbowffs.quotelock.app.detail
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
+import com.google.accompanist.navigation.animation.composable
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 
@@ -28,7 +33,15 @@ fun NavGraphBuilder.detailGraph(onBack: () -> Unit) {
                 type = NavType.StringType
                 nullable = true
             },
-        )
+        ),
+        enterTransition = {
+            slideIntoContainer(AnimatedContentScope.SlideDirection.Left,
+                animationSpec = tween(500))
+        },
+        exitTransition = {
+            slideOutOfContainer(AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(500))
+        }
     ) {
         val quote =
             it.arguments?.getString(DetailDestination.QUOTE_ARG)?.decodeHex()?.utf8().orEmpty()

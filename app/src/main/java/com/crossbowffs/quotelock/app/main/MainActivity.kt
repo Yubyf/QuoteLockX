@@ -1,26 +1,21 @@
-package com.crossbowffs.quotelock.app.history
+package com.crossbowffs.quotelock.app.main
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import com.crossbowffs.quotelock.ui.navigation.QuoteHistoryNavHost
+import com.crossbowffs.quotelock.ui.navigation.MainNavHost
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import dagger.hilt.android.AndroidEntryPoint
 
-/**
- * @author Yubyf
- */
 @AndroidEntryPoint
-class QuoteHistoryActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             QuoteLockTheme {
-                QuoteHistoryNavHost {
-                    finish()
-                }
+                MainNavHost()
             }
         }
     }

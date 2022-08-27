@@ -54,7 +54,7 @@ object WorkUtils {
                 ConfigurationEntryPoint::class.java).configurationRepository()
         // If our provider doesn't require internet access, we should always be
         // refreshing the quote.
-        if (!configurationRepository.isRequireInternet()) {
+        if (!configurationRepository.isRequireInternet) {
             Xlog.d(TAG, "WorkUtils#shouldRefreshQuote: YES (provider doesn't require internet)")
             return true
         }
@@ -68,7 +68,7 @@ object WorkUtils {
 
         // Check if we're on a metered connection and act according to the
         // user's preference.
-        if (configurationRepository.isUnmeteredNetworkOnly() && manager?.isActiveNetworkMetered == true) {
+        if (configurationRepository.isUnmeteredNetworkOnly && manager?.isActiveNetworkMetered == true) {
             Xlog.d(TAG,
                 "WorkUtils#shouldRefreshQuote: NO (can only update on unmetered connections)")
             return false
@@ -146,7 +146,7 @@ object WorkUtils {
     }
 
     private fun getRefreshInterval(configurationRepository: ConfigurationRepository): Int {
-        var refreshInterval = configurationRepository.getRefreshInterval()
+        var refreshInterval = configurationRepository.refreshInterval
         if (refreshInterval < 60) {
             Xlog.w(TAG, "Refresh period too short, clamping to 60 seconds")
             refreshInterval = 60
@@ -156,8 +156,8 @@ object WorkUtils {
 
     private fun getNetworkType(configurationRepository: ConfigurationRepository): NetworkType {
         return when {
-            !configurationRepository.isRequireInternet() -> NetworkType.NOT_REQUIRED
-            configurationRepository.isUnmeteredNetworkOnly() -> NetworkType.UNMETERED
+            !configurationRepository.isRequireInternet -> NetworkType.NOT_REQUIRED
+            configurationRepository.isUnmeteredNetworkOnly -> NetworkType.UNMETERED
             else -> NetworkType.CONNECTED
         }
     }

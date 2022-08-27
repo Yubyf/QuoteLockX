@@ -190,6 +190,8 @@ dependencies {
     // Material design icons
     implementation("androidx.compose.material:material-icons-core:1.2.1")
     implementation("androidx.compose.material:material-icons-extended:1.2.1")
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.26.2-beta")
+
     implementation("io.coil-kt:coil-compose:2.2.0")
 
     implementation("com.opencsv:opencsv:5.6") {

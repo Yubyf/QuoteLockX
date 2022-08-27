@@ -10,7 +10,6 @@ import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteStyle
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.di.ResourceProvider
-import com.crossbowffs.quotelock.utils.dp2px
 import com.crossbowffs.quotelock.utils.getTypefaceStyle
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,7 +38,7 @@ class PreviewViewModel @Inject constructor(
 
     private val _uiState: MutableStateFlow<PreviewUiState> =
         MutableStateFlow(PreviewUiState(getQuoteViewData(),
-            configurationRepository.getQuoteStyle()))
+            configurationRepository.quoteStyle))
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -73,7 +72,7 @@ class PreviewViewModel @Inject constructor(
                                 quoteStyle = currentState.quoteStyle.copy(
                                     quoteSize = (preferences[stringPreferencesKey(
                                         PREF_COMMON_FONT_SIZE_TEXT)]
-                                        ?: PREF_COMMON_FONT_SIZE_TEXT_DEFAULT).toFloat())
+                                        ?: PREF_COMMON_FONT_SIZE_TEXT_DEFAULT).toInt())
                             )
                         }
                         PREF_COMMON_FONT_SIZE_SOURCE -> _uiState.update { currentState ->
@@ -81,7 +80,7 @@ class PreviewViewModel @Inject constructor(
                                 quoteStyle = currentState.quoteStyle.copy(
                                     sourceSize = (preferences[stringPreferencesKey(
                                         PREF_COMMON_FONT_SIZE_SOURCE)]
-                                        ?: PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT).toFloat())
+                                        ?: PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT).toInt())
                             )
                         }
                         PREF_COMMON_FONT_FAMILY -> {
@@ -130,8 +129,7 @@ class PreviewViewModel @Inject constructor(
                                 quoteStyle = currentState.quoteStyle.copy(
                                     quoteSpacing = (preferences[stringPreferencesKey(
                                         PREF_COMMON_QUOTE_SPACING)]
-                                        ?: PREF_COMMON_QUOTE_SPACING_DEFAULT).toInt().dp2px()
-                                        .toInt()
+                                        ?: PREF_COMMON_QUOTE_SPACING_DEFAULT).toInt()
                                 )
                             )
                         }
@@ -140,7 +138,7 @@ class PreviewViewModel @Inject constructor(
                                 quoteStyle = currentState.quoteStyle.copy(
                                     paddingTop = (preferences[stringPreferencesKey(
                                         PREF_COMMON_PADDING_TOP)]
-                                        ?: PREF_COMMON_PADDING_TOP_DEFAULT).toInt().dp2px().toInt()
+                                        ?: PREF_COMMON_PADDING_TOP_DEFAULT).toInt()
                                 )
                             )
                         }
@@ -149,14 +147,16 @@ class PreviewViewModel @Inject constructor(
                                 quoteStyle = currentState.quoteStyle.copy(
                                     paddingBottom = (preferences[stringPreferencesKey(
                                         PREF_COMMON_PADDING_BOTTOM)]
-                                        ?: PREF_COMMON_PADDING_BOTTOM_DEFAULT).toInt().dp2px()
-                                        .toInt()
+                                        ?: PREF_COMMON_PADDING_BOTTOM_DEFAULT).toInt()
                                 )
                             )
                         }
                         else -> {}
                     }
                 }
+            }
+            _uiState.update { currentState ->
+                currentState.copy(quoteStyle = configurationRepository.quoteStyle)
             }
         }
     }

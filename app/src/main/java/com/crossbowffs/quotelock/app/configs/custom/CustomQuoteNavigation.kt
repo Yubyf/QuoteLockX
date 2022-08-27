@@ -1,9 +1,9 @@
 package com.crossbowffs.quotelock.app.configs.custom
 
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
 import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
+import com.crossbowffs.quotelock.ui.navigation.quoteItemPageComposable
 
 object CustomQuoteDestination : QuoteNavigationDestination {
     override val screen: String = "custom_quote"
@@ -11,7 +11,7 @@ object CustomQuoteDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.customQuoteGraph(onItemClick: (ReadableQuote) -> Unit, onBack: () -> Unit) {
-    composable(route = CustomQuoteDestination.route) {
+    quoteItemPageComposable(route = CustomQuoteDestination.route) {
         CustomQuoteRoute(onItemClick = onItemClick, onBack = onBack)
     }
 }

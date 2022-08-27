@@ -2,6 +2,7 @@
 <resources>
     <string name="quotelockx">格言锁屏 X</string>
     <string name="ok">好</string>
+    <string name="confirm">确认</string>
     <string name="edit">编辑</string>
     <string name="delete">删除</string>
     <string name="enable">启用</string>
@@ -112,9 +113,9 @@
             - <a href="https://github.com/cracky5322">Jia-Bin</a>(繁体中文)<br>
         ]]>
     </string>
-    <string name="module_hitokoto_name">" 一言 (中文)"</string>
+    <string name="module_hitokoto_name">一言 (中文)</string>
     <string name="module_jinrishici_name">今日诗词 (中文)</string>
-    <string name="module_wikiquote_name" translatable="false">维基每日一句(中文)</string>
+    <string name="module_wikiquote_name">维基每日一句(中文)</string>
     <string name="module_fortune_name">Fortune-mod (多语言)</string>
     <string name="module_custom_name">自定义</string>
     <string name="module_collections_name">收藏</string>

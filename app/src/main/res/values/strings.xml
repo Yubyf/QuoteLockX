@@ -5,6 +5,7 @@
     <string name="easter_egg" translatable="false">▲ + ▼ = ◆</string>
 
     <string name="ok">OK</string>
+    <string name="confirm">Confirm</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="enable">Enable</string>
