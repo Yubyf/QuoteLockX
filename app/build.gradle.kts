@@ -180,7 +180,7 @@ dependencies {
     // Jetpack Compose
     val navVersion = "2.5.1"
     implementation("androidx.activity:activity-compose:1.5.1")
-    implementation("androidx.compose.material3:material3:1.0.0-alpha16")
+    implementation("androidx.compose.material3:material3:1.0.0-beta01")
     implementation("androidx.compose.animation:animation:1.2.1")
     implementation("androidx.compose.ui:ui-tooling:1.2.1")
     implementation("androidx.compose.ui:ui-tooling-preview:1.2.1")

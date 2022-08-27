@@ -5,10 +5,10 @@ import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_MODULE
 import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_MODULE_DEFAULT
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
-import com.crossbowffs.quotelock.data.datastore.PreferenceDataStoreAdapter
-import com.crossbowffs.quotelock.di.CommonDataStoreAdapter
+import com.crossbowffs.quotelock.di.CommonDataStore
 import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.utils.Xlog
+import com.yubyf.datastore.DataStoreDelegate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,7 +19,7 @@ import javax.inject.Singleton
 @Singleton
 class QuoteRemoteSource @Inject constructor(
     @ApplicationContext private val context: Context,
-    @CommonDataStoreAdapter private val commonDataStoreAdapter: PreferenceDataStoreAdapter,
+    @CommonDataStore private val commonDataStore: DataStoreDelegate,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
 
@@ -31,7 +31,7 @@ class QuoteRemoteSource @Inject constructor(
     }
 
     private suspend fun Context.fetchQuote(): QuoteData? {
-        val moduleName: String = commonDataStoreAdapter.getString(PREF_COMMON_QUOTE_MODULE,
+        val moduleName: String = commonDataStore.getStringSuspend(PREF_COMMON_QUOTE_MODULE,
             PREF_COMMON_QUOTE_MODULE_DEFAULT)!!
 
         Xlog.d(TAG, "Attempting to download new quote...")
