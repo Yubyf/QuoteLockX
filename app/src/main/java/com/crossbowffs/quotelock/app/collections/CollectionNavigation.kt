@@ -1,13 +1,10 @@
-@file:OptIn(ExperimentalAnimationApi::class)
+package com.crossbowffs.quotelock.app.collections
 
-package com.crossbowffs.quotelock.app.configs.collections
-
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
-import com.crossbowffs.quotelock.ui.navigation.quoteItemPageComposable
+import com.crossbowffs.quotelock.ui.navigation.standardPageComposable
 
 object CollectionDestination : QuoteNavigationDestination {
     override val screen: String = "collection"
@@ -15,7 +12,7 @@ object CollectionDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.collectionGraph(onItemClick: (ReadableQuote) -> Unit, onBack: () -> Unit) {
-    quoteItemPageComposable(route = CollectionDestination.route) {
+    standardPageComposable(route = CollectionDestination.route) {
         QuoteCollectionRoute(onItemClick = onItemClick, onBack = onBack)
     }
 }

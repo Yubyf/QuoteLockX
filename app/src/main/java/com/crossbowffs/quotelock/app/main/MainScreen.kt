@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel(),
+    onModuleConfigItemClicked: (String) -> Unit,
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
 ) {
@@ -67,8 +68,11 @@ fun MainScreen(
             .padding(padding)
         ) {
             PreviewRoute()
-            SettingsRoute(onCollectionItemClicked = onCollectionItemClicked,
-                onHistoryItemClicked = onHistoryItemClicked)
+            SettingsRoute(
+                onModuleConfigItemClicked = onModuleConfigItemClicked,
+                onCollectionItemClicked = onCollectionItemClicked,
+                onHistoryItemClicked = onHistoryItemClicked
+            )
         }
     }
     fun cancelDialog() = viewModel.cancelDialog()

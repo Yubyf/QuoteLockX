@@ -1,8 +1,7 @@
 package com.crossbowffs.quotelock.data.modules.fortune
 
-import android.content.ComponentName
 import android.content.Context
-import com.crossbowffs.quotelock.app.configs.fortune.FortuneConfigActivity
+import com.crossbowffs.quotelock.app.configs.fortune.FortuneNavigation
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys.PREF_FORTUNE_DEFAULT_CATEGORY
 import com.crossbowffs.quotelock.data.api.QuoteData
@@ -19,9 +18,7 @@ class FortuneQuoteModule : QuoteModule {
         return context.getString(R.string.module_fortune_name)
     }
 
-    override fun getConfigActivity(context: Context): ComponentName {
-        return ComponentName(context, FortuneConfigActivity::class.java)
-    }
+    override fun getConfigRoute(): String = FortuneNavigation.route
 
     override fun getMinimumRefreshInterval(context: Context): Int {
         return 0

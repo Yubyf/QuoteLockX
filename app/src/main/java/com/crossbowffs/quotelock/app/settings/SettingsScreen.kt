@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 fun SettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
+    onModuleConfigItemClicked: (String) -> Unit = {},
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
 ) {
@@ -49,6 +50,7 @@ fun SettingsRoute(
         uiEvent = uiEvent,
         onDisplayOnAodChanged = { viewModel.switchDisplayOnAod(it) },
         onModuleProviderItemClicked = { viewModel.loadModuleProviders() },
+        onModuleConfigItemClicked = onModuleConfigItemClicked,
         onRefreshIntervalItemClicked = { viewModel.loadRefreshInterval() },
         onUnmeteredOnlyChanged = { viewModel.switchUnmeteredOnly(it) },
         onQuoteSizeItemClicked = { viewModel.loadQuoteSize() },
@@ -87,6 +89,7 @@ fun SettingsScreen(
     uiEvent: SettingsUiEvent?,
     onDisplayOnAodChanged: (Boolean) -> Unit = {},
     onModuleProviderItemClicked: () -> Unit = {},
+    onModuleConfigItemClicked: (String) -> Unit = {},
     onRefreshIntervalItemClicked: () -> Unit = {},
     onUnmeteredOnlyChanged: (Boolean) -> Unit = {},
     onQuoteSizeItemClicked: () -> Unit = {},
@@ -147,11 +150,9 @@ fun SettingsScreen(
             PreferenceItem(
                 titleRes = R.string.pref_module_preferences_title,
                 summaryRes = R.string.pref_module_preferences_summary,
-                enabled = uiState.moduleData?.configActivity != null
+                enabled = uiState.moduleData?.configRoute != null
             ) {
-                uiState.moduleData?.configActivity?.let {
-                    with(context) { startActivity(Intent().apply { component = it }) }
-                }
+                uiState.moduleData?.configRoute?.let(onModuleConfigItemClicked::invoke)
             }
             // Set refresh interval override and disable preference if necessary.
             // This is kind of a lazy solution, but it's better than nothing.

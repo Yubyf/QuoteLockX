@@ -19,7 +19,7 @@ class QuoteRepository @Inject internal constructor(
 
     fun getQuoteModuleData(module: QuoteModule): QuoteModuleData = QuoteModuleData(
         displayName = module.getDisplayName(context),
-        configActivity = module.getConfigActivity(context),
+        configRoute = module.getConfigRoute(),
         minimumRefreshInterval = module.getMinimumRefreshInterval(context),
         requiresInternetConnectivity = module.requiresInternetConnectivity(context),
     )

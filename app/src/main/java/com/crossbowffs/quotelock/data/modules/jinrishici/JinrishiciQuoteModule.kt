@@ -1,6 +1,5 @@
 package com.crossbowffs.quotelock.data.modules.jinrishici
 
-import android.content.ComponentName
 import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
@@ -29,9 +28,7 @@ class JinrishiciQuoteModule : QuoteModule {
         return context.getString(R.string.module_jinrishici_name)
     }
 
-    override fun getConfigActivity(context: Context): ComponentName? {
-        return null
-    }
+    override fun getConfigRoute(): String? = null
 
     override fun getMinimumRefreshInterval(context: Context): Int {
         return 0

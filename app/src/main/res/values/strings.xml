@@ -144,38 +144,21 @@
     <string name="module_custom_deleted_quote">Deleted quote</string>
 
     <!-- BrainyQuote -->
-    <string name="module_brainy_activity_label">BrainyQuote setup</string>
-    <string name="module_brainy_activity_type_general" translatable="false">QotD - General</string>
-    <string name="module_brainy_activity_type_art" translatable="false">QotD - Art</string>
-    <string name="module_brainy_activity_type_funny" translatable="false">QotD - Funny</string>
-    <string name="module_brainy_activity_type_love" translatable="false">QotD - Love</string>
-    <string name="module_brainy_activity_type_nature" translatable="false">QotD - Nature</string>
+    <string name="module_brainy_config_label">BrainyQuote setup</string>
 
     <!-- Hitokoto -->
-    <string name="module_hitokoto_activity_label">Hitokoto setup</string>
-    <string name="module_hitokoto_activity_type_anime">Anime</string>
-    <string name="module_hitokoto_activity_type_comic">Comic</string>
-    <string name="module_hitokoto_activity_type_game">Game</string>
-    <string name="module_hitokoto_activity_type_novel">Novel</string>
-    <string name="module_hitokoto_activity_type_myself">Myself</string>
-    <string name="module_hitokoto_activity_type_internet">From Internet</string>
-    <string name="module_hitokoto_activity_type_other">Other</string>
-    <string name="module_hitokoto_activity_type_film">Film</string>
-    <string name="module_hitokoto_activity_type_poem">Poem</string>
-    <string name="module_hitokoto_activity_type_netease_cloud">NetEase Cloud</string>
-    <string name="module_hitokoto_activity_type_philosophy">Philosophy</string>
-    <string name="module_hitokoto_activity_type_one_line">One-Line</string>
+    <string name="module_hitokoto_config_label">Hitokoto setup</string>
 
     <!-- Fortune -->
-    <string name="module_fortune_activity_label">Fortune-mod setup</string>
+    <string name="module_fortune_config_label">Fortune-mod setup</string>
 
     <!-- Quotes collections -->
-    <string name="quote_collections_activity_label">Collections</string>
+    <string name="quote_collections_screen_label">Collections</string>
     <string name="module_collections_setup_line1">No collections set</string>
     <string name="module_collections_setup_line2">Please open the collections settings</string>
 
     <!-- Quote histories-->
-    <string name="quote_histories_activity_label">Histories</string>
+    <string name="quote_histories_screen_label">Histories</string>
     <string name="quote_histories_cleared_quote">Cleared quote</string>
 
     <!-- Fonts -->

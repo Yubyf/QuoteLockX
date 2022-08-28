@@ -1,8 +1,7 @@
 package com.crossbowffs.quotelock.data.modules.hitokoto
 
-import android.content.ComponentName
 import android.content.Context
-import com.crossbowffs.quotelock.app.configs.hitokoto.HitkotoConfigActivity
+import com.crossbowffs.quotelock.app.configs.hitokoto.HitkotoNavigation
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
@@ -20,9 +19,7 @@ class HitokotoQuoteModule : QuoteModule {
         return context.getString(R.string.module_hitokoto_name)
     }
 
-    override fun getConfigActivity(context: Context): ComponentName {
-        return ComponentName(context, HitkotoConfigActivity::class.java)
-    }
+    override fun getConfigRoute(): String = HitkotoNavigation.route
 
     override fun getMinimumRefreshInterval(context: Context): Int {
         return 0

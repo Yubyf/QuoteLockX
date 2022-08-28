@@ -1,8 +1,7 @@
 package com.crossbowffs.quotelock.data.modules.brainyquote
 
-import android.content.ComponentName
 import android.content.Context
-import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuoteConfigActivity
+import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuoteDestination
 import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys.PREF_BRAINY_TYPE_STRING
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
@@ -19,9 +18,7 @@ class BrainyQuoteQuoteModule : QuoteModule {
         return context.getString(R.string.module_brainy_name)
     }
 
-    override fun getConfigActivity(context: Context): ComponentName {
-        return ComponentName(context, BrainyQuoteConfigActivity::class.java)
-    }
+    override fun getConfigRoute(): String = BrainyQuoteDestination.route
 
     override fun getMinimumRefreshInterval(context: Context): Int {
         return 86400

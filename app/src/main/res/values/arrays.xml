@@ -76,6 +76,14 @@
         <item>24</item>
         <item>32</item>
     </integer-array>
+
+    <string-array name="brainy_quote_type_entries" translatable="false">
+        <item>QotD - General</item>
+        <item>QotD - Art</item>
+        <item>QotD - Funny</item>
+        <item>QotD - Love</item>
+        <item>QotD - Nature</item>
+    </string-array>
     <string-array name="brainy_quote_type_values" translatable="false">
         <item>BR</item>
         <item>AR</item>
@@ -84,6 +92,20 @@
         <item>NA</item>
     </string-array>
 
+    <string-array name="hitokoto_type_entries">
+        <item>Anime</item>
+        <item>Comic</item>
+        <item>Game</item>
+        <item>Novel</item>
+        <item>Myself</item>
+        <item>From Internet</item>
+        <item>Other</item>
+        <item>Film</item>
+        <item>Poem</item>
+        <item>NetEase Cloud</item>
+        <item>Philosophy</item>
+        <item>One-Line</item>
+    </string-array>
     <string-array name="hitokoto_type_values" translatable="false">
         <item>a</item>
         <item>b</item>

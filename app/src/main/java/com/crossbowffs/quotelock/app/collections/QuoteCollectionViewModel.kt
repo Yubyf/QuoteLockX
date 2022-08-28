@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.app.configs.collections
+package com.crossbowffs.quotelock.app.collections
 
 import android.content.Intent
 import android.net.Uri

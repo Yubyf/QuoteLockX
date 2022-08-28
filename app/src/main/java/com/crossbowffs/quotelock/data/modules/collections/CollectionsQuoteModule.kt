@@ -1,8 +1,7 @@
 package com.crossbowffs.quotelock.data.modules.collections
 
-import android.content.ComponentName
 import android.content.Context
-import com.crossbowffs.quotelock.app.configs.collections.QuoteCollectionActivity
+import com.crossbowffs.quotelock.app.collections.CollectionDestination
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAULT
@@ -18,9 +17,7 @@ class CollectionsQuoteModule : QuoteModule {
         return context.getString(R.string.module_collections_name)
     }
 
-    override fun getConfigActivity(context: Context): ComponentName {
-        return ComponentName(context, QuoteCollectionActivity::class.java)
-    }
+    override fun getConfigRoute(): String = CollectionDestination.route
 
     override fun getMinimumRefreshInterval(context: Context): Int {
         return 0

@@ -7,10 +7,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.*
-import com.crossbowffs.quotelock.app.configs.collections.collectionGraph
-import com.crossbowffs.quotelock.app.configs.collections.navigateToCollection
+import com.crossbowffs.quotelock.app.collections.collectionGraph
+import com.crossbowffs.quotelock.app.collections.navigateToCollection
+import com.crossbowffs.quotelock.app.configs.configGraphs
 import com.crossbowffs.quotelock.app.configs.custom.CustomQuoteDestination
 import com.crossbowffs.quotelock.app.configs.custom.customQuoteGraph
+import com.crossbowffs.quotelock.app.configs.navigateToConfigScreen
 import com.crossbowffs.quotelock.app.detail.DetailDestination
 import com.crossbowffs.quotelock.app.detail.detailGraph
 import com.crossbowffs.quotelock.app.detail.navigateToDetail
@@ -34,8 +36,13 @@ fun MainNavHost(
         modifier = modifier
     ) {
         mainGraph(
+            onModuleConfigItemClicked = navController::navigateToConfigScreen,
             onCollectionItemClicked = navController::navigateToCollection,
             onHistoryItemClicked = navController::navigateToHistory,
+        )
+        customQuoteGraph(
+            onItemClick = navController::navigateToDetail,
+            onBack = navController::popBackStack
         )
         historyGraph(
             onItemClick = navController::navigateToDetail,
@@ -46,6 +53,7 @@ fun MainNavHost(
             onBack = navController::popBackStack
         )
         detailGraph(navController::popBackStack)
+        configGraphs(navController::popBackStack)
     }
 }
 
@@ -71,32 +79,33 @@ fun CustomQuoteNavHost(
     }
 }
 
-fun NavGraphBuilder.quoteItemPageComposable(
+fun NavGraphBuilder.standardPageComposable(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
     content: @Composable AnimatedVisibilityScope.(NavBackStackEntry) -> Unit,
 ) {
+    val animationDuration = 300
     val enterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?) = {
         slideIntoContainer(AnimatedContentScope.SlideDirection.Left,
-            animationSpec = tween(500))
+            animationSpec = tween(animationDuration))
     }
     val exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) = {
         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left,
-            animationSpec = tween(500))
+            animationSpec = tween(animationDuration))
     }
     val popEnterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?) = {
         when (initialState.destination.route) {
             DetailDestination.route -> {
                 slideIntoContainer(AnimatedContentScope.SlideDirection.Right,
-                    animationSpec = tween(500))
+                    animationSpec = tween(animationDuration))
             }
             else -> EnterTransition.None
         }
     }
     val popExitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) = {
         slideOutOfContainer(AnimatedContentScope.SlideDirection.Right,
-            animationSpec = tween(500))
+            animationSpec = tween(animationDuration))
     }
     composable(
         route = route,

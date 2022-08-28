@@ -4,7 +4,7 @@ import android.accounts.*
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.crossbowffs.quotelock.app.configs.collections.QuoteCollectionActivity
+import com.crossbowffs.quotelock.app.main.MainActivity
 import com.crossbowffs.quotelock.utils.className
 
 internal class Authenticator(
@@ -16,7 +16,7 @@ internal class Authenticator(
         response: AccountAuthenticatorResponse, accountType: String,
         authTokenType: String, requiredFeatures: Array<String>, options: Bundle,
     ): Bundle {
-        val intent = Intent(mContext, QuoteCollectionActivity::class.java)
+        val intent = Intent(mContext, MainActivity::class.java)
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
         val bundle = Bundle()
         bundle.putParcelable(AccountManager.KEY_INTENT, intent)

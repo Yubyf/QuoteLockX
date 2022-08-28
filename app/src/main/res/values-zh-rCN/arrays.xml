@@ -16,4 +16,19 @@
         <item>粗体</item>
         <item>斜体</item>
     </string-array>
+
+    <string-array name="hitokoto_type_entries">
+        <item>动画</item>
+        <item>漫画</item>
+        <item>游戏</item>
+        <item>文学</item>
+        <item>原创</item>
+        <item>来自网络</item>
+        <item>其他</item>
+        <item>影视</item>
+        <item>诗词</item>
+        <item>网易云</item>
+        <item>哲学</item>
+        <item>抖机灵</item>
+    </string-array>
 </resources>

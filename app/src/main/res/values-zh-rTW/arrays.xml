@@ -16,4 +16,19 @@
         <item>粗體</item>
         <item>斜體</item>
     </string-array>
+
+    <string-array name="hitokoto_type_entries">
+        <item>動畫</item>
+        <item>漫畫</item>
+        <item>遊戲</item>
+        <item>文學</item>
+        <item>原創</item>
+        <item>來自網路</item>
+        <item>其他</item>
+        <item>影音</item>
+        <item>詩詞</item>
+        <item>網易雲</item>
+        <item>哲學</item>
+        <item>抖機靈</item>
+    </string-array>
 </resources>

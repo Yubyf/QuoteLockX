@@ -4,7 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
-import com.crossbowffs.quotelock.ui.navigation.quoteItemPageComposable
+import com.crossbowffs.quotelock.ui.navigation.standardPageComposable
 
 object HistoryDestination : QuoteNavigationDestination {
     override val screen: String = "history"
@@ -12,7 +12,7 @@ object HistoryDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.historyGraph(onItemClick: (ReadableQuote) -> Unit, onBack: () -> Unit) {
-    quoteItemPageComposable(route = HistoryDestination.route) {
+    standardPageComposable(route = HistoryDestination.route) {
         QuoteHistoryRoute(onItemClick = onItemClick, onBack = onBack)
     }
 }

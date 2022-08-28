@@ -1,6 +1,5 @@
 package com.crossbowffs.quotelock.data.modules.libquotes
 
-import android.content.ComponentName
 import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
@@ -22,9 +21,7 @@ class LibquotesQuoteModule : QuoteModule {
         return context.getString(R.string.module_libquotes_name)
     }
 
-    override fun getConfigActivity(context: Context): ComponentName? {
-        return null
-    }
+    override fun getConfigRoute(): String? = null
 
     override fun getMinimumRefreshInterval(context: Context): Int {
         return 86400

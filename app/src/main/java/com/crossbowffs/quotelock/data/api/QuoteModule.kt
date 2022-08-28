@@ -1,6 +1,5 @@
 package com.crossbowffs.quotelock.data.api
 
-import android.content.ComponentName
 import android.content.Context
 import androidx.annotation.IntDef
 
@@ -19,11 +18,11 @@ interface QuoteModule {
     fun getDisplayName(context: Context): String
 
     /**
-     * Gets a [ComponentName] representing the configuration
-     * [android.app.Activity] for this module.
-     * Returns `null` if there is no configuration activity.
+     * Gets a route representing the configuration page in
+     * [androidx.navigation.Navigation] graph for this module.
+     * Returns `null` if there is no configuration page.
      */
-    fun getConfigActivity(context: Context): ComponentName?
+    fun getConfigRoute(): String?
 
     /**
      * Returns a minimum refresh interval (in seconds) for the quote source.

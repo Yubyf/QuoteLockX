@@ -2,7 +2,7 @@
     ExperimentalFoundationApi::class,
     ExperimentalLayoutApi::class)
 
-package com.crossbowffs.quotelock.app.configs.collections
+package com.crossbowffs.quotelock.app.collections
 
 import android.Manifest
 import android.content.Context
@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.crossbowffs.quotelock.app.configs.collections.QuoteCollectionUiEvent.ProgressMessage
-import com.crossbowffs.quotelock.app.configs.collections.QuoteCollectionUiEvent.SnackBarMessage
+import com.crossbowffs.quotelock.app.collections.QuoteCollectionUiEvent.ProgressMessage
+import com.crossbowffs.quotelock.app.collections.QuoteCollectionUiEvent.SnackBarMessage
 import com.crossbowffs.quotelock.data.api.GoogleAccount
 import com.crossbowffs.quotelock.data.api.QuoteEntity
 import com.crossbowffs.quotelock.data.api.ReadableQuote

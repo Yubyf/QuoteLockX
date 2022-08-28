@@ -3,6 +3,7 @@
 package com.crossbowffs.quotelock.ui.components
 
 import android.content.res.Configuration
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -142,6 +143,25 @@ fun DetailAppBar(
         title = { Text(text = stringResource(id = R.string.pref_detail_title)) },
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
+                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
+fun ConfigsAppBar(
+    @StringRes titleRes: Int,
+    onBack: () -> Unit,
+) {
+    CenterAlignedTopAppBar(
+        title = { Text(text = stringResource(id = titleRes)) },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
                 Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
             }
         },

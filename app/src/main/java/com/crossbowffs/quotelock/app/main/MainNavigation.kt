@@ -13,11 +13,15 @@ object MainDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.mainGraph(
+    onModuleConfigItemClicked: (String) -> Unit,
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
 ) {
     composable(route = MainDestination.route) {
-        MainScreen(onCollectionItemClicked = onCollectionItemClicked,
-            onHistoryItemClicked = onHistoryItemClicked)
+        MainScreen(
+            onModuleConfigItemClicked = onModuleConfigItemClicked,
+            onCollectionItemClicked = onCollectionItemClicked,
+            onHistoryItemClicked = onHistoryItemClicked
+        )
     }
 }

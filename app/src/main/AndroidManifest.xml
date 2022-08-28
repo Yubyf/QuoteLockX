@@ -38,23 +38,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.crossbowffs.quotelock.app.configs.custom.CustomQuoteConfigActivity"
-            android:label="@string/module_custom_activity_label" />
-        <activity
-            android:name="com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuoteConfigActivity"
-            android:label="@string/module_brainy_activity_label" />
-        <activity
-            android:name="com.crossbowffs.quotelock.app.configs.hitokoto.HitkotoConfigActivity"
-            android:label="@string/module_hitokoto_activity_label" />
-        <activity
-            android:name="com.crossbowffs.quotelock.app.configs.fortune.FortuneConfigActivity"
-            android:label="@string/module_fortune_activity_label" />
-        <activity
-            android:name="com.crossbowffs.quotelock.app.configs.collections.QuoteCollectionActivity"
-            android:label="@string/quote_collections_activity_label" />
-        <activity
             android:name="com.crossbowffs.quotelock.app.font.app.FontManagementActivity"
-            android:label="@string/quote_histories_activity_label" />
+            android:label="@string/quote_histories_screen_label" />
 
         <service
             android:name="com.crossbowffs.quotelock.account.authenticator.AuthenticationService"
