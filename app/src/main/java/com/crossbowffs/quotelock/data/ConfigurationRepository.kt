@@ -6,7 +6,8 @@ import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.QuoteStyle
 import com.crossbowffs.quotelock.di.CommonDataStore
-import com.crossbowffs.quotelock.utils.getTypefaceStyle
+import com.crossbowffs.quotelock.utils.getComposeFontStyle
+import com.crossbowffs.quotelock.utils.getComposeFontWeight
 import com.yubyf.datastore.DataStoreDelegate
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -138,8 +139,10 @@ class ConfigurationRepository @Inject internal constructor(
     val quoteStyle: QuoteStyle
         get() {
             // Font properties
-            val quoteStyle = getTypefaceStyle(quoteStyles)
-            val sourceStyle = getTypefaceStyle(sourceStyles)
+            val quoteFontStyle = getComposeFontStyle(quoteStyles)
+            val sourceFontStyle = getComposeFontStyle(sourceStyles)
+            val quoteFontWeight = getComposeFontWeight(quoteStyles)
+            val sourceFontWeight = getComposeFontWeight(sourceStyles)
             fontFamily.takeIf { PREF_COMMON_FONT_FAMILY_DEFAULT != it }?.runCatching {
                 FontManager.loadTypeface(this)
             }?.getOrNull()
@@ -149,15 +152,17 @@ class ConfigurationRepository @Inject internal constructor(
                 }?.getOrNull()
 
             return QuoteStyle(
-                quoteSize,
-                sourceSize,
-                typeface,
-                quoteStyle,
-                typeface,
-                sourceStyle,
-                quoteSpacing,
-                paddingTop,
-                paddingBottom
+                quoteSize = quoteSize,
+                sourceSize = sourceSize,
+                quoteTypeface = typeface,
+                quoteFontWeight = quoteFontWeight,
+                quoteFontStyle = quoteFontStyle,
+                sourceTypeface = typeface,
+                sourceFontWeight = sourceFontWeight,
+                sourceFontStyle = sourceFontStyle,
+                quoteSpacing = quoteSpacing,
+                paddingTop = paddingTop,
+                paddingBottom = paddingBottom
             )
         }
 

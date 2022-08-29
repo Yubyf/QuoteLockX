@@ -2,24 +2,9 @@
 
 package com.crossbowffs.quotelock.utils
 
-import android.content.Context
-import android.content.res.Resources.NotFoundException
 import android.graphics.Typeface
-import androidx.annotation.FontRes
-import androidx.core.content.res.ResourcesCompat
-
-private fun getFont(context: Context, @FontRes id: Int): Typeface? {
-    return ResourcesCompat.getFont(context, id)
-}
-
-fun Context.getFontFromName(fontResName: String): Typeface? {
-    val res = resources
-    val resId = res.getIdentifier(fontResName, "font", packageName)
-    if (resId == 0) {
-        throw NotFoundException("Could not find font: $fontResName")
-    }
-    return getFont(this, resId)
-}
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 
 fun getTypefaceStyle(styles: Set<String>?): Int {
     var style = Typeface.NORMAL
@@ -33,4 +18,20 @@ fun getTypefaceStyle(styles: Set<String>?): Int {
         }
     }
     return style
+}
+
+fun getComposeFontStyle(styles: Set<String>?): FontStyle {
+    return if (styles != null && styles.contains("italic")) {
+        FontStyle.Italic
+    } else {
+        FontStyle.Normal
+    }
+}
+
+fun getComposeFontWeight(styles: Set<String>?): FontWeight {
+    return if (styles != null && styles.contains("bold")) {
+        FontWeight.Bold
+    } else {
+        FontWeight.Normal
+    }
 }

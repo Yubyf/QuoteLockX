@@ -10,7 +10,8 @@ import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteStyle
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.di.ResourceProvider
-import com.crossbowffs.quotelock.utils.getTypefaceStyle
+import com.crossbowffs.quotelock.utils.getComposeFontStyle
+import com.crossbowffs.quotelock.utils.getComposeFontWeight
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -107,7 +108,8 @@ class PreviewViewModel @Inject constructor(
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     quoteStyle = currentState.quoteStyle.copy(
-                                        quoteStyle = getTypefaceStyle(quoteStyles)
+                                        quoteFontWeight = getComposeFontWeight(quoteStyles),
+                                        quoteFontStyle = getComposeFontStyle(quoteStyles),
                                     )
                                 )
                             }
@@ -119,7 +121,8 @@ class PreviewViewModel @Inject constructor(
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     quoteStyle = currentState.quoteStyle.copy(
-                                        sourceStyle = getTypefaceStyle(sourceStyles)
+                                        sourceFontWeight = getComposeFontWeight(sourceStyles),
+                                        sourceFontStyle = getComposeFontStyle(sourceStyles),
                                     )
                                 )
                             }

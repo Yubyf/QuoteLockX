@@ -15,6 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -55,9 +57,13 @@ fun PreviewScreen(
             quote = uiState.quoteViewData.text,
             quoteSize = uiState.quoteStyle.quoteSize.toFloat(),
             quoteTypeface = uiState.quoteStyle.quoteTypeface,
+            quoteFontWeight = uiState.quoteStyle.quoteFontWeight,
+            quoteFontStyle = uiState.quoteStyle.quoteFontStyle,
             source = uiState.quoteViewData.source,
             sourceSize = uiState.quoteStyle.sourceSize.toFloat(),
             sourceTypeface = uiState.quoteStyle.sourceTypeface,
+            sourceFontWeight = uiState.quoteStyle.sourceFontWeight,
+            sourceFontStyle = uiState.quoteStyle.sourceFontStyle,
             quoteSpacing = uiState.quoteStyle.quoteSpacing.dp,
             paddingTop = uiState.quoteStyle.paddingTop.dp,
             paddingBottom = uiState.quoteStyle.paddingBottom.dp
@@ -71,9 +77,13 @@ fun QuoteLayout(
     quote: String?,
     quoteSize: Float = PREF_COMMON_FONT_SIZE_TEXT_DEFAULT.toFloat(),
     quoteTypeface: Typeface? = null,
+    quoteFontWeight: FontWeight = FontWeight.Normal,
+    quoteFontStyle: FontStyle = FontStyle.Normal,
     source: String? = null,
     sourceSize: Float = PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT.toFloat(),
     sourceTypeface: Typeface? = null,
+    sourceFontWeight: FontWeight = FontWeight.Normal,
+    sourceFontStyle: FontStyle = FontStyle.Normal,
     quoteSpacing: Dp = 0.dp,
     paddingTop: Dp = 0.dp,
     paddingBottom: Dp = 0.dp,
@@ -93,6 +103,8 @@ fun QuoteLayout(
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = TextUnit(quoteSize, TextUnitType.Sp),
                 fontFamily = quoteTypeface?.let { FontFamily(it) },
+                fontWeight = quoteFontWeight,
+                fontStyle = quoteFontStyle
             )
             if (!source.isNullOrBlank()) {
                 Text(
@@ -102,6 +114,8 @@ fun QuoteLayout(
                         .padding(top = quoteSpacing),
                     fontSize = TextUnit(sourceSize, TextUnitType.Sp),
                     fontFamily = sourceTypeface?.let { FontFamily(it) },
+                    fontWeight = sourceFontWeight,
+                    fontStyle = sourceFontStyle
                 )
             }
         }
