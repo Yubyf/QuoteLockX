@@ -5,6 +5,7 @@ import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys
 import com.crossbowffs.quotelock.consts.PREF_COMMON
+import com.crossbowffs.quotelock.consts.PREF_QUOTES
 import com.crossbowffs.quotelock.data.modules.jinrishici.JinrishiciQuoteModule
 import com.yubyf.datastore.DataStoreDelegate
 import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
@@ -54,7 +55,7 @@ object DataStoreModules {
     @QuotesDataStore
     @Provides
     fun provideQuotesDataStore(@ApplicationContext context: Context): DataStoreDelegate =
-        context.getDataStoreDelegate(PREF_COMMON, migrate = true)
+        context.getDataStoreDelegate(PREF_QUOTES, migrate = true)
 
     @Singleton
     @BrainyDataStore
