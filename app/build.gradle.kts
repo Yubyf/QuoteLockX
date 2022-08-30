@@ -136,17 +136,11 @@ android {
 
 dependencies {
     implementation("androidx.core:core:1.8.0")
-    implementation("androidx.activity:activity-ktx:1.5.1")
-    implementation("androidx.fragment:fragment-ktx:1.5.1")
     implementation("com.crossbowffs.remotepreferences:remotepreferences:0.9")
     implementation("org.jsoup:jsoup:1.13.1")
-    implementation("androidx.appcompat:appcompat:1.4.1")
-    implementation("androidx.preference:preference:1.2.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0")
     implementation("io.github.yubyf.datastorepreferences:datastorepreferences:1.2.1")
     implementation("io.github.yubyf:truetypeparser-light:2.0.1")
-    implementation("com.google.android.material:material:1.5.0")
+    implementation("com.google.android.material:material:1.6.1")
     compileOnly("de.robv.android.xposed:api:82")
     compileOnly("de.robv.android.xposed:api:82:sources")
 
@@ -154,8 +148,6 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     // Fix the conflict between concurrent-futures and guava libs.
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
-
-    implementation("io.coil-kt:coil:1.4.0")
 
     implementation("com.google.android.gms:play-services-auth:20.1.0")
     implementation("com.google.api-client:google-api-client-android:1.33.2") {
