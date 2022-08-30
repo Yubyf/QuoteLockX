@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * UI state for the settings screen.
+ * UI state for the preview screen in the settings page.
  */
 data class PreviewUiState(val quoteViewData: QuoteViewData, val quoteStyle: QuoteStyle)
 

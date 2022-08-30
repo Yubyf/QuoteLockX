@@ -17,12 +17,12 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 /**
- * UI event for the quote history list screen.
+ * UI event for the custom quote list screen.
  */
 data class CustomQuoteUiEvent(val message: Int?)
 
 /**
- * UI state for the quote history list screen.
+ * UI state for the custom quote list screen.
  */
 data class CustomQuoteListUiState(val items: List<CustomQuoteEntity>)
 

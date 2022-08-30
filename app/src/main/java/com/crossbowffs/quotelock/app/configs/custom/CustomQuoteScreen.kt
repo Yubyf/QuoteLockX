@@ -152,10 +152,10 @@ class CustomQuotePreviewParameterProvider : PreviewParameterProvider<List<Custom
     })
 }
 
-@Preview(name = "History Screen Light",
+@Preview(name = "Custom Quote Screen Light",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "History Screen Dark",
+@Preview(name = "Custom Quote Screen Dark",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

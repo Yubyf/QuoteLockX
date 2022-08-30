@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * UI state for the settings screen.
+ * UI state for the quote detail screen.
  */
 data class QuoteDetailUiState(
     val quoteTypeface: Typeface? = null,

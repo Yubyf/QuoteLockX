@@ -41,7 +41,6 @@ class QuoteHistoryViewModel @Inject constructor(
         get() = _uiListState
 
     init {
-        mutableStateOf(Boolean)
         viewModelScope.run {
             launch {
                 historyRepository.getAll().stateIn(

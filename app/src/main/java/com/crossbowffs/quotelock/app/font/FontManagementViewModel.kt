@@ -28,7 +28,7 @@ sealed class FontManagementUiEvent {
 }
 
 /**
- * UI state for the quote history list screen.
+ * UI state for the font management list screen.
  */
 data class FontManagementListUiState(
     val items: List<FontInfoWithState>,
@@ -36,7 +36,7 @@ data class FontManagementListUiState(
 )
 
 /**
- * UI state for the settings screen.
+ * Dialog UI state for the font management screen.
  */
 sealed class FontManagementDialogUiState {
     data class ProgressDialog(val message: String?) : FontManagementDialogUiState()
