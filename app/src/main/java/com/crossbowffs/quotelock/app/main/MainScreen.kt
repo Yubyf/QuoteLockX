@@ -37,6 +37,7 @@ fun MainScreen(
     onModuleConfigItemClicked: (String) -> Unit,
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
+    onFontCustomize: () -> Unit,
 ) {
     val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
     val uiState by viewModel.uiState
@@ -71,7 +72,8 @@ fun MainScreen(
             SettingsRoute(
                 onModuleConfigItemClicked = onModuleConfigItemClicked,
                 onCollectionItemClicked = onCollectionItemClicked,
-                onHistoryItemClicked = onHistoryItemClicked
+                onHistoryItemClicked = onHistoryItemClicked,
+                onFontCustomize = onFontCustomize
             )
         }
     }

@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_DEFAULT
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
@@ -31,9 +29,7 @@ class FontDialogViewModel @Inject constructor() : ViewModel() {
                     if (it == PREF_COMMON_FONT_FAMILY_DEFAULT) {
                         null
                     } else {
-                        withContext(Dispatchers.IO) {
-                            FontManager.loadFontInfo(File(it))
-                        }?.name
+                        FontManager.loadFontInfo(File(it))?.name
                     }
                 lazyFontDisplayNames += displayName
                 _uiState.value = FontDialogUiState(lazyFontDisplayNames.toList())

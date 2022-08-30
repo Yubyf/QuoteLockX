@@ -37,9 +37,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.crossbowffs.quotelock.app.font.app.FontManagementActivity"
-            android:label="@string/quote_histories_screen_label" />
 
         <service
             android:name="com.crossbowffs.quotelock.account.authenticator.AuthenticationService"

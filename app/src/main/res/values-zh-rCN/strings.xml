@@ -166,8 +166,9 @@
     <string name="google_drive_importing_file">正在通过谷歌云端硬盘导入已有备份文件…</string>
     <string name="google_drive_read_failed">无法读取谷歌云端硬盘的文件</string>
     <string name="pref_font_family_custom">自定义</string>
-    <string name="quote_fonts_management_activity_label">自定义字体</string>
+    <string name="quote_fonts_management_screen_label">自定义字体</string>
     <string name="quote_fonts_management_import">导入</string>
+    <string name="quote_fonts_management_importing">正在导入字体…</string>
     <string name="quote_fonts_management_font_imported">字体 %s 已导入</string>
     <string name="quote_fonts_management_import_failed">导入字体失败</string>
     <string name="quote_fonts_management_inactive">未生效</string>

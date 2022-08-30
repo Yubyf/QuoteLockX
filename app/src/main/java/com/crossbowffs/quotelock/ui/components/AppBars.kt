@@ -6,10 +6,7 @@ import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -163,6 +160,24 @@ fun ConfigsAppBar(
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
+fun FontManagementAppBar(
+    onBack: () -> Unit,
+) {
+    CenterAlignedTopAppBar(
+        title = { Text(text = stringResource(id = R.string.quote_fonts_management_screen_label)) },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(Icons.Rounded.Close, contentDescription = "Close")
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

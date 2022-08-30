@@ -10,12 +10,13 @@ import androidx.navigation.*
 import com.crossbowffs.quotelock.app.collections.collectionGraph
 import com.crossbowffs.quotelock.app.collections.navigateToCollection
 import com.crossbowffs.quotelock.app.configs.configGraphs
-import com.crossbowffs.quotelock.app.configs.custom.CustomQuoteDestination
 import com.crossbowffs.quotelock.app.configs.custom.customQuoteGraph
 import com.crossbowffs.quotelock.app.configs.navigateToConfigScreen
 import com.crossbowffs.quotelock.app.detail.DetailDestination
 import com.crossbowffs.quotelock.app.detail.detailGraph
 import com.crossbowffs.quotelock.app.detail.navigateToDetail
+import com.crossbowffs.quotelock.app.font.fontManagementGraph
+import com.crossbowffs.quotelock.app.font.navigateToFontManagement
 import com.crossbowffs.quotelock.app.history.historyGraph
 import com.crossbowffs.quotelock.app.history.navigateToHistory
 import com.crossbowffs.quotelock.app.main.MainDestination
@@ -39,6 +40,7 @@ fun MainNavHost(
             onModuleConfigItemClicked = navController::navigateToConfigScreen,
             onCollectionItemClicked = navController::navigateToCollection,
             onHistoryItemClicked = navController::navigateToHistory,
+            onFontCustomize = navController::navigateToFontManagement,
         )
         customQuoteGraph(
             onItemClick = navController::navigateToDetail,
@@ -54,28 +56,7 @@ fun MainNavHost(
         )
         detailGraph(navController::popBackStack)
         configGraphs(navController::popBackStack)
-    }
-}
-
-@Composable
-fun CustomQuoteNavHost(
-    modifier: Modifier = Modifier,
-    navController: NavHostController = rememberAnimatedNavController(),
-    startDestination: String = CustomQuoteDestination.screen,
-    onBack: () -> Unit,
-) {
-    AnimatedNavHost(
-        navController = navController,
-        startDestination = startDestination,
-        modifier = modifier
-    ) {
-        customQuoteGraph(
-            onItemClick = navController::navigateToDetail,
-            onBack = onBack
-        )
-        detailGraph {
-            navController.popBackStack()
-        }
+        fontManagementGraph(navController::popBackStack)
     }
 }
 

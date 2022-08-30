@@ -25,7 +25,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.crossbowffs.quotelock.app.font.app.FontManagementActivity
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
@@ -40,6 +39,7 @@ fun SettingsRoute(
     onModuleConfigItemClicked: (String) -> Unit = {},
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
+    onFontCustomize: () -> Unit,
 ) {
     val uiPreferenceState by viewModel.uiState
     val uiDialogState by viewModel.uiDialogState
@@ -48,37 +48,38 @@ fun SettingsRoute(
         modifier = modifier,
         uiState = uiPreferenceState,
         uiEvent = uiEvent,
-        onDisplayOnAodChanged = { viewModel.switchDisplayOnAod(it) },
-        onModuleProviderItemClicked = { viewModel.loadModuleProviders() },
+        onDisplayOnAodChanged = viewModel::switchDisplayOnAod,
+        onModuleProviderItemClicked = viewModel::loadModuleProviders,
         onModuleConfigItemClicked = onModuleConfigItemClicked,
-        onRefreshIntervalItemClicked = { viewModel.loadRefreshInterval() },
-        onUnmeteredOnlyChanged = { viewModel.switchUnmeteredOnly(it) },
-        onQuoteSizeItemClicked = { viewModel.loadQuoteSize() },
-        onSourceSizeItemClicked = { viewModel.loadSourceSize() },
-        onQuoteStylesItemClicked = { viewModel.loadQuoteStyles() },
-        onSourceStylesItemClicked = { viewModel.loadSourceStyles() },
-        onFontFamilyItemClicked = { viewModel.loadFontFamily() },
-        onQuoteSpacingItemClicked = { viewModel.loadQuoteSpacing() },
-        onPaddingTopItemClicked = { viewModel.loadPaddingTop() },
-        onPaddingBottomItemClicked = { viewModel.loadPaddingBottom() },
+        onRefreshIntervalItemClicked = viewModel::loadRefreshInterval,
+        onUnmeteredOnlyChanged = viewModel::switchUnmeteredOnly,
+        onQuoteSizeItemClicked = viewModel::loadQuoteSize,
+        onSourceSizeItemClicked = viewModel::loadSourceSize,
+        onQuoteStylesItemClicked = viewModel::loadQuoteStyles,
+        onSourceStylesItemClicked = viewModel::loadSourceStyles,
+        onFontFamilyItemClicked = viewModel::loadFontFamily,
+        onQuoteSpacingItemClicked = viewModel::loadQuoteSpacing,
+        onPaddingTopItemClicked = viewModel::loadPaddingTop,
+        onPaddingBottomItemClicked = viewModel::loadPaddingBottom,
         onCollectionItemClicked = onCollectionItemClicked,
         onHistoryItemClicked = onHistoryItemClicked,
-        onCreditsItemClicked = { viewModel.showCreditsDialog() },
-        onRestartSystemUiItemClicked = { viewModel.restartSystemUi() },
+        onCreditsItemClicked = viewModel::showCreditsDialog,
+        onRestartSystemUiItemClicked = viewModel::restartSystemUi,
     )
     SettingsDialogs(
         uiDialogState = uiDialogState,
-        onModuleSelected = { viewModel.selectModule(it) },
-        onRefreshIntervalSelected = { viewModel.selectRefreshInterval(it) },
-        onQuoteSizeSelected = { viewModel.selectQuoteSize(it) },
-        onSourceSizeSelected = { viewModel.selectSourceSize(it) },
-        onQuoteStylesSelected = { viewModel.selectQuoteStyles(it) },
-        onSourceStylesSelected = { viewModel.selectSourceStyles(it) },
-        onFontFamilySelected = { viewModel.selectFontFamily(it) },
-        onQuoteSpacingSelected = { viewModel.selectQuoteSpacing(it) },
-        onPaddingTopSelected = { viewModel.selectPaddingTop(it) },
-        onPaddingBottomSelected = { viewModel.selectPaddingBottom(it) },
-        onDialogDismiss = { viewModel.cancelDialog() }
+        onModuleSelected = viewModel::selectModule,
+        onRefreshIntervalSelected = viewModel::selectRefreshInterval,
+        onQuoteSizeSelected = viewModel::selectQuoteSize,
+        onSourceSizeSelected = viewModel::selectSourceSize,
+        onQuoteStylesSelected = viewModel::selectQuoteStyles,
+        onSourceStylesSelected = viewModel::selectSourceStyles,
+        onFontFamilySelected = viewModel::selectFontFamily,
+        onFontCustomize = onFontCustomize,
+        onQuoteSpacingSelected = viewModel::selectQuoteSpacing,
+        onPaddingTopSelected = viewModel::selectPaddingTop,
+        onPaddingBottomSelected = viewModel::selectPaddingBottom,
+        onDialogDismiss = viewModel::cancelDialog
     )
 }
 
@@ -278,11 +279,12 @@ fun SettingsDialogs(
     onSourceSizeSelected: (Int) -> Unit,
     onQuoteStylesSelected: (Set<String>?) -> Unit,
     onSourceStylesSelected: (Set<String>?) -> Unit,
-    onFontFamilySelected: (String) -> Unit = {},
+    onFontFamilySelected: (String) -> Unit,
+    onFontCustomize: () -> Unit,
     onQuoteSpacingSelected: (Int) -> Unit,
     onPaddingTopSelected: (Int) -> Unit,
     onPaddingBottomSelected: (Int) -> Unit,
-    onDialogDismiss: () -> Unit = {},
+    onDialogDismiss: () -> Unit,
 ) = when (uiDialogState) {
     is SettingsDialogUiState.ModuleProviderDialog -> {
         ListPreferenceDialog(
@@ -347,7 +349,6 @@ fun SettingsDialogs(
         )
     }
     is SettingsDialogUiState.FontFamilyDialog -> {
-        val context = LocalContext.current
         FontListPreferenceDialog(
             title = stringResource(id = R.string.pref_font_style_source_title),
             entries = stringArrayResource(id = R.array.default_font_family_entries)
@@ -356,9 +357,7 @@ fun SettingsDialogs(
                     + (uiDialogState.fonts?.second ?: emptyArray()),
             selectedItem = uiDialogState.currentFont,
             onItemSelected = onFontFamilySelected,
-            onCustomize = {
-                with(context) { startActivity(Intent(context, FontManagementActivity::class.java)) }
-            },
+            onCustomize = onFontCustomize,
             onDismiss = onDialogDismiss
         )
     }

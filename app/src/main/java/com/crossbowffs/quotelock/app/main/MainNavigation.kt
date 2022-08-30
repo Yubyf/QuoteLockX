@@ -16,12 +16,14 @@ fun NavGraphBuilder.mainGraph(
     onModuleConfigItemClicked: (String) -> Unit,
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
+    onFontCustomize: () -> Unit,
 ) {
     composable(route = MainDestination.route) {
         MainScreen(
             onModuleConfigItemClicked = onModuleConfigItemClicked,
             onCollectionItemClicked = onCollectionItemClicked,
-            onHistoryItemClicked = onHistoryItemClicked
+            onHistoryItemClicked = onHistoryItemClicked,
+            onFontCustomize = onFontCustomize
         )
     }
 }

@@ -185,8 +185,9 @@
     <string name="google_drive_importing_file">正在透過 Google 雲端硬碟匯入已有備份檔案…</string>
     <string name="google_drive_read_failed">無法讀取 Google 雲端硬碟的檔案</string>
     <string name="pref_font_family_custom">自定義</string>
-    <string name="quote_fonts_management_activity_label">自定義字體</string>
+    <string name="quote_fonts_management_screen_label">自定義字體</string>
     <string name="quote_fonts_management_import">匯入</string>
+    <string name="quote_fonts_management_importing">正在匯入字體…</string>
     <string name="quote_fonts_management_font_imported">字體 %s 已匯入</string>
     <string name="quote_fonts_management_import_failed">匯入字體失敗</string>
     <string name="quote_fonts_management_inactive">未生效</string>
