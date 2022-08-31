@@ -26,13 +26,9 @@ interface QuoteEntity {
 
 fun QuoteEntity.toReadableQuote(): ReadableQuote = ReadableQuote(
     text,
-    source.run {
-        if (!author.isNullOrBlank()) {
-            "${author}${if (this.isBlank()) "" else " $this"}"
-        } else {
-            this
-        }
-    }
+    source.let {
+        if (!author.isNullOrBlank()) "${author}${if (it.isBlank()) "" else " $it"}" else it
+    }.takeIf(String::isNotBlank)
 )
 
 data class ReadableQuote(
