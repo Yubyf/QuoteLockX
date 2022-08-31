@@ -5,10 +5,7 @@ package com.crossbowffs.quotelock.app.settings
 import android.content.res.Configuration
 import android.graphics.Typeface
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.ShapeDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -88,9 +86,11 @@ fun QuoteLayout(
     paddingTop: Dp = 0.dp,
     paddingBottom: Dp = 0.dp,
 ) {
-    OutlinedCard(
+    ElevatedCard(
         modifier = modifier.padding(start = 24.dp, end = 24.dp),
-        shape = ShapeDefaults.Small
+        shape = ShapeDefaults.ExtraSmall,
+        colors = CardDefaults.cardColors(),
+        elevation = CardDefaults.cardElevation()
     ) {
         Column(modifier = Modifier.padding(start = 8.dp,
             top = paddingTop,
@@ -104,7 +104,9 @@ fun QuoteLayout(
                 fontSize = TextUnit(quoteSize, TextUnitType.Sp),
                 fontFamily = quoteTypeface?.let { FontFamily(it) },
                 fontWeight = quoteFontWeight,
-                fontStyle = quoteFontStyle
+                fontStyle = quoteFontStyle,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             if (!source.isNullOrBlank()) {
                 Text(
