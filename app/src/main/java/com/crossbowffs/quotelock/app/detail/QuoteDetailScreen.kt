@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontFamily
@@ -70,9 +71,7 @@ fun QuoteDetailScreen(
                 .padding(internalPadding)
                 .padding(horizontal = 24.dp, vertical = 8.dp)
                 .consumedWindowInsets(internalPadding)
-                .onGloballyPositioned { coordinates ->
-                    containerHeight = coordinates.size.height
-                }
+                .onGloballyPositioned { containerHeight = it.size.height }
                 .verticalScroll(state = rememberScrollState(),
                     enabled = contentHeight > containerHeight)
         ) {
@@ -91,15 +90,13 @@ fun QuoteDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .onGloballyPositioned { coordinates ->
-                        contentHeight = coordinates.size.height
-                    },
+                    .onSizeChanged { contentHeight = it.height },
                 quote = quote,
                 source = source,
                 quoteTypeface,
                 sourceTypeface,
                 minHeight = if (!LocalInspectionMode.current) {
-                    with(LocalDensity.current) { (containerHeight * 0.5F).toDp() }
+                    with(LocalDensity.current) { (containerHeight * 0.6F).toDp() }
                 } else 360.dp,
             )
         }
@@ -140,7 +137,7 @@ fun QuoteCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(16.dp)
+                    .padding(24.dp)
                     .align(alignment = Alignment.Center),
                 horizontalAlignment = Alignment.End,
             ) {
@@ -158,7 +155,7 @@ fun QuoteCard(
                         textAlign = TextAlign.Start,
                         modifier = Modifier
                             .wrapContentWidth()
-                            .padding(top = 16.dp))
+                            .padding(top = 24.dp))
                 }
             }
         }
@@ -179,7 +176,7 @@ class QuotePreviewParameterProvider : PreviewParameterProvider<Pair<String, Stri
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun QuoteLightPreview(
+private fun QuoteCardPreview(
     @PreviewParameter(QuotePreviewParameterProvider::class) quote: Pair<String, String>,
 ) {
     QuoteLockTheme {
