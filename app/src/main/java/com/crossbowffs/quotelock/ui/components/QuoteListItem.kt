@@ -28,6 +28,7 @@ import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.data.api.toReadableQuote
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditableQuoteListItem(
@@ -92,6 +93,10 @@ fun QuoteListItem(
         MutableInteractionSource()
     }
     val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+    var press: PressInteraction.Press? by remember {
+        mutableStateOf(null)
+    }
     Box(contentAlignment = Alignment.CenterStart,
         modifier = modifier
             .height(height)
@@ -99,17 +104,30 @@ fun QuoteListItem(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
-                        val press = PressInteraction.Press(it)
-                        interactionSource.emit(press)
                         tryAwaitRelease()
-                        interactionSource.emit(PressInteraction.Release(press))
+                        press?.let { interactionSource.emit(PressInteraction.Release(it)) }
                     },
-                    onLongPress = {
+                    onLongPress = { offset ->
                         contextMenuExpanded = true
-                        contextMenuOffset = it
+                        contextMenuOffset = offset
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        scope.launch {
+                            press = PressInteraction
+                                .Press(offset)
+                                .also {
+                                    interactionSource.emit(it)
+                                }
+                        }
                     },
-                    onTap = {
+                    onTap = { offset ->
+                        scope.launch {
+                            PressInteraction
+                                .Press(offset)
+                                .apply {
+                                    interactionSource.emit(this)
+                                    interactionSource.emit(PressInteraction.Release(this))
+                                }
+                        }
                         onClick.invoke(readableQuote)
                     }
                 )

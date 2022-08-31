@@ -35,6 +35,7 @@ import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontInfoWithState
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
+import kotlinx.coroutines.launch
 
 @Composable
 fun DeletableFontListItem(
@@ -78,6 +79,10 @@ fun FontListItem(
     val interactionSource = remember {
         MutableInteractionSource()
     }
+    val scope = rememberCoroutineScope()
+    var press: PressInteraction.Press? by remember {
+        mutableStateOf(null)
+    }
     val haptic = LocalHapticFeedback.current
     Box(contentAlignment = Alignment.CenterStart,
         modifier = modifier
@@ -87,17 +92,30 @@ fun FontListItem(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
-                        val press = PressInteraction.Press(it)
-                        interactionSource.emit(press)
                         tryAwaitRelease()
-                        interactionSource.emit(PressInteraction.Release(press))
+                        press?.let { interactionSource.emit(PressInteraction.Release(it)) }
                     },
-                    onLongPress = {
+                    onLongPress = { offset ->
                         contextMenuExpanded = true
-                        contextMenuOffset = it
+                        contextMenuOffset = offset
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        scope.launch {
+                            press = PressInteraction
+                                .Press(offset)
+                                .also {
+                                    interactionSource.emit(it)
+                                }
+                        }
                     },
-                    onTap = {
+                    onTap = { offset ->
+                        scope.launch {
+                            PressInteraction
+                                .Press(offset)
+                                .apply {
+                                    interactionSource.emit(this)
+                                    interactionSource.emit(PressInteraction.Release(this))
+                                }
+                        }
                         onClick.invoke(fontInfoWithState)
                     }
                 )
