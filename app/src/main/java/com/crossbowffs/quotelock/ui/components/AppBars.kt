@@ -140,7 +140,7 @@ fun DetailAppBar(
         title = { Text(text = stringResource(id = R.string.pref_detail_title)) },
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
-                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+                Icon(Icons.Rounded.Close, contentDescription = "Back")
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

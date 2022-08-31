@@ -2,9 +2,7 @@
 
 package com.crossbowffs.quotelock.app.detail
 
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -12,7 +10,7 @@ import androidx.navigation.navArgument
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
-import com.google.accompanist.navigation.animation.composable
+import com.crossbowffs.quotelock.ui.navigation.standalonePageComposable
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 
@@ -25,7 +23,7 @@ object DetailDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.detailGraph(onBack: () -> Unit) {
-    composable(
+    standalonePageComposable(
         route = DetailDestination.route,
         arguments = listOf(
             navArgument(DetailDestination.QUOTE_ARG) { type = NavType.StringType },
@@ -34,14 +32,6 @@ fun NavGraphBuilder.detailGraph(onBack: () -> Unit) {
                 nullable = true
             },
         ),
-        enterTransition = {
-            slideIntoContainer(AnimatedContentScope.SlideDirection.Left,
-                animationSpec = tween(500))
-        },
-        exitTransition = {
-            slideOutOfContainer(AnimatedContentScope.SlideDirection.Right,
-                animationSpec = tween(500))
-        }
     ) {
         val quote =
             it.arguments?.getString(DetailDestination.QUOTE_ARG)?.decodeHex()?.utf8().orEmpty()

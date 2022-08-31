@@ -71,16 +71,11 @@ fun NavGraphBuilder.standardPageComposable(
         slideIntoContainer(AnimatedContentScope.SlideDirection.Left,
             animationSpec = tween(animationDuration))
     }
-    val exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) = {
-        slideOutOfContainer(AnimatedContentScope.SlideDirection.Left,
-            animationSpec = tween(animationDuration))
-    }
+    val exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) =
+        { SCALE_FADE_OUT_TRANSITION }
     val popEnterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?) = {
         when (initialState.destination.route) {
-            DetailDestination.route -> {
-                slideIntoContainer(AnimatedContentScope.SlideDirection.Right,
-                    animationSpec = tween(animationDuration))
-            }
+            DetailDestination.route -> SCALE_FADE_IN_TRANSITION
             else -> EnterTransition.None
         }
     }
@@ -99,3 +94,23 @@ fun NavGraphBuilder.standardPageComposable(
         content = content
     )
 }
+
+fun NavGraphBuilder.standalonePageComposable(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    content: @Composable AnimatedVisibilityScope.(NavBackStackEntry) -> Unit,
+) = composable(
+    route = route,
+    arguments = arguments,
+    deepLinks = deepLinks,
+    enterTransition = { SCALE_FADE_IN_TRANSITION },
+    exitTransition = { SCALE_FADE_OUT_TRANSITION },
+    popEnterTransition = { SCALE_FADE_IN_TRANSITION },
+    popExitTransition = { SCALE_FADE_OUT_TRANSITION },
+    content = content
+)
+
+private const val ANIMATION_SCALE_VALUE = 0.8F
+private val SCALE_FADE_IN_TRANSITION = scaleIn(initialScale = ANIMATION_SCALE_VALUE) + fadeIn()
+private val SCALE_FADE_OUT_TRANSITION = scaleOut(targetScale = ANIMATION_SCALE_VALUE) + fadeOut()

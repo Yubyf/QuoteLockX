@@ -3,7 +3,7 @@ package com.crossbowffs.quotelock.app.font
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
-import com.crossbowffs.quotelock.ui.navigation.standardPageComposable
+import com.crossbowffs.quotelock.ui.navigation.standalonePageComposable
 
 object FontManagementDestination : QuoteNavigationDestination {
     override val screen: String = "font_management"
@@ -11,7 +11,7 @@ object FontManagementDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.fontManagementGraph(onBack: () -> Unit) {
-    standardPageComposable(route = FontManagementDestination.route) {
+    standalonePageComposable(route = FontManagementDestination.route) {
         FontManagementRoute(onBack = onBack)
     }
 }
