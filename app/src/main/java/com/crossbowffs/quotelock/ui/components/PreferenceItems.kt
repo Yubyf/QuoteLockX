@@ -96,9 +96,7 @@ fun BasePreferenceItem(
                     onClick()
                 }
             }
-            // FIXME: Use 38% alpha for disabled content since ContentAlpha.disabled is not able in the Material3 library 1.0.0-alpha16.
-            // See https://developer.android.com/reference/kotlin/androidx/compose/material/package-summary#LocalContentAlpha()
-            .alpha(if (enabled) 1F else 0.38F)
+            .alpha(if (enabled) 1F else ContentAlpha.disabled)
     ) {
         Row(
             modifier = Modifier
@@ -129,9 +127,7 @@ fun BasePreferenceItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 2.dp)
-                            // FIXME: Use 60% alpha for subtitle content since ContentAlpha.medium is not able in the Material3 library 1.0.0-alpha16.
-                            // See https://developer.android.com/reference/kotlin/androidx/compose/material/package-summary#LocalContentAlpha()
-                            .alpha(if (enabled) 0.6F else 1F)
+                            .alpha(if (enabled) 0.6F else ContentAlpha.medium)
                     )
                 }
             }

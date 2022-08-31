@@ -7,10 +7,14 @@ import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -18,11 +22,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.crossbowffs.quotelock.data.api.QuoteEntity
 import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.data.api.toReadableQuote
@@ -135,20 +141,25 @@ fun QuoteListItem(
     ) {
         Column(Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .wrapContentHeight()
         ) {
             Text(text = readableQuote.text,
-                style = MaterialTheme.typography.titleLarge,
+                fontSize = 20.sp,
                 textAlign = TextAlign.Start,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth())
             if (!readableQuote.source.isNullOrBlank()) {
                 Text(text = readableQuote.source,
-                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 14.sp,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
-                    modifier = Modifier.fillMaxWidth())
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .alpha(ContentAlpha.high)
+                        .padding(top = 4.dp))
             }
         }
         DropdownMenu(

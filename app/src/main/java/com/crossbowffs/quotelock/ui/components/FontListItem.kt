@@ -120,7 +120,7 @@ fun FontListItem(
                     }
                 )
             }
-            .padding(8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         if (!fontInfoWithState.active) {
             Text(
@@ -142,9 +142,7 @@ fun FontListItem(
             Column(Modifier
                 .weight(1F)
                 .wrapContentHeight()
-                // FIXME: Use 38% alpha for disabled content since ContentAlpha.disabled is not able in the Material3 library 1.0.0-alpha16.
-                // See https://developer.android.com/reference/kotlin/androidx/compose/material/package-summary#LocalContentAlpha()
-                .alpha(if (fontInfoWithState.active) 1F else 0.38F)
+                .alpha(if (fontInfoWithState.active) 1F else ContentAlpha.disabled)
             ) {
                 val fontInfo = fontInfoWithState.fontInfo
                 Text(text = fontInfo.name,
