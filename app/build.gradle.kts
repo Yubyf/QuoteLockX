@@ -135,7 +135,6 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core:1.8.0")
     implementation("com.crossbowffs.remotepreferences:remotepreferences:0.9")
     implementation("org.jsoup:jsoup:1.13.1")
     implementation("io.github.yubyf.datastorepreferences:datastorepreferences:1.2.1")
@@ -182,9 +181,12 @@ dependencies {
     // Material design icons
     implementation("androidx.compose.material:material-icons-core:1.2.1")
     implementation("androidx.compose.material:material-icons-extended:1.2.1")
-    implementation("com.google.accompanist:accompanist-navigation-animation:0.26.2-beta")
-
     implementation("io.coil-kt:coil-compose:2.2.0")
+
+    // Accompanist
+    val accompanistVersion = "0.26.2-beta"
+    implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
 
     implementation("com.opencsv:opencsv:5.6") {
         exclude(group = "commons-logging", module = "commons-logging")
