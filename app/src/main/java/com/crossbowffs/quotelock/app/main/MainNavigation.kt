@@ -4,6 +4,7 @@ package com.crossbowffs.quotelock.app.main
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.navigation.NavGraphBuilder
+import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
 import com.google.accompanist.navigation.animation.composable
 
@@ -13,6 +14,7 @@ object MainDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.mainGraph(
+    onPreviewClick: (ReadableQuote) -> Unit,
     onModuleConfigItemClicked: (String) -> Unit,
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
@@ -20,6 +22,7 @@ fun NavGraphBuilder.mainGraph(
 ) {
     composable(route = MainDestination.route) {
         MainScreen(
+            onPreviewClick = onPreviewClick,
             onModuleConfigItemClicked = onModuleConfigItemClicked,
             onCollectionItemClicked = onCollectionItemClicked,
             onHistoryItemClicked = onHistoryItemClicked,

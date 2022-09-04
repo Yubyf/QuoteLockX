@@ -1,6 +1,7 @@
 package com.crossbowffs.quotelock.consts
 
 import com.crossbowffs.quotelock.data.modules.hitokoto.HitokotoQuoteModule
+import com.yubyf.quotelockx.BuildConfig
 
 const val PREF_COMMON = "common"
 const val PREF_COMMON_DISPLAY_ON_AOD = "pref_common_display_on_aod"
@@ -46,3 +47,12 @@ const val PREF_PREVIEW = "pref_preview"
 const val PREF_DEBUG_RESTART_SYSTEM_UI = "pref_restart_system_ui"
 
 const val PREF_QUOTE_SOURCE_PREFIX = "―"
+
+const val PREF_QUOTE_CARD_ELEVATION_DP = 10
+
+const val PREF_SHARE_FILE_AUTHORITY = "${BuildConfig.APPLICATION_ID}.fileprovider"
+const val PREF_SHARE_IMAGE_FRAME_WIDTH = 36F
+const val PREF_SHARE_IMAGE_EXTENSION = ".png"
+const val PREF_SHARE_IMAGE_CHILD_PATH = "share/"
+const val PREF_SHARE_IMAGE_MIME_TYPE = "image/png"
+const val PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX = 36F

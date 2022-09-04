@@ -201,4 +201,7 @@
     <string name="download">下載</string>
     <string name="quote_fonts_management_activate_tips">重啟設備以使匯入字體生效</string>
     <string name="quote_fonts_management_font_already_exists">字體 %s 已存在</string>
+
+    <string name="quote_image_share">分享</string>
+    <string name="quote_image_share_title">分享格言</string>
 </resources>

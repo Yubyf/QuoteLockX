@@ -1,7 +1,10 @@
 package com.crossbowffs.quotelock.di
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.appcompat.content.res.AppCompatResources
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,5 +21,9 @@ class ResourceProvider @Inject constructor(@ApplicationContext private val conte
 
     fun getString(@StringRes resId: Int, vararg args: Any): String {
         return context.getString(resId, *args)
+    }
+
+    fun getDrawable(@DrawableRes resId: Int): Drawable? {
+        return AppCompatResources.getDrawable(context, resId)
     }
 }

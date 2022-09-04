@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalUnitApi::class)
+@file:OptIn(ExperimentalUnitApi::class, ExperimentalMaterial3Api::class)
 
 package com.crossbowffs.quotelock.app.settings
 
@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
+import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.components.PreferenceTitle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -32,15 +33,17 @@ import com.yubyf.quotelockx.R
 fun PreviewRoute(
     modifier: Modifier = Modifier,
     viewModel: PreviewViewModel = hiltViewModel(),
+    onPreviewClick: (ReadableQuote) -> Unit,
 ) {
     val uiState: PreviewUiState by viewModel.uiState.collectAsState()
-    PreviewScreen(modifier, uiState)
+    PreviewScreen(modifier, uiState, onPreviewClick)
 }
 
 @Composable
 fun PreviewScreen(
     modifier: Modifier = Modifier,
     uiState: PreviewUiState,
+    onPreviewClick: (ReadableQuote) -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -64,7 +67,11 @@ fun PreviewScreen(
             sourceFontStyle = uiState.quoteStyle.sourceFontStyle,
             quoteSpacing = uiState.quoteStyle.quoteSpacing.dp,
             paddingTop = uiState.quoteStyle.paddingTop.dp,
-            paddingBottom = uiState.quoteStyle.paddingBottom.dp
+            paddingBottom = uiState.quoteStyle.paddingBottom.dp,
+            onClick = {
+                onPreviewClick.invoke(ReadableQuote(uiState.quoteViewData.text,
+                    uiState.quoteViewData.source))
+            }
         )
     }
 }
@@ -85,12 +92,14 @@ fun QuoteLayout(
     quoteSpacing: Dp = 0.dp,
     paddingTop: Dp = 0.dp,
     paddingBottom: Dp = 0.dp,
+    onClick: () -> Unit = {},
 ) {
     ElevatedCard(
         modifier = modifier.padding(start = 24.dp, end = 24.dp),
         shape = ShapeDefaults.ExtraSmall,
         colors = CardDefaults.cardColors(),
-        elevation = CardDefaults.cardElevation()
+        elevation = CardDefaults.cardElevation(),
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(start = 8.dp,
             top = paddingTop,

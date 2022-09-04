@@ -37,6 +37,7 @@ fun MainNavHost(
         modifier = modifier
     ) {
         mainGraph(
+            onPreviewClick = navController::navigateToDetail,
             onModuleConfigItemClicked = navController::navigateToConfigScreen,
             onCollectionItemClicked = navController::navigateToCollection,
             onHistoryItemClicked = navController::navigateToHistory,

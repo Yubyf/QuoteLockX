@@ -44,7 +44,8 @@ fun NavGraphBuilder.detailGraph(onBack: () -> Unit) {
 fun NavHostController.navigateToDetail(quote: ReadableQuote) {
     val encodedText = quote.text.encodeUtf8().hex()
     val encodedSource = quote.source?.let {
-        (PREF_QUOTE_SOURCE_PREFIX + it).encodeUtf8().hex()
+        (if (it.startsWith(PREF_QUOTE_SOURCE_PREFIX)) it else PREF_QUOTE_SOURCE_PREFIX + it)
+            .encodeUtf8().hex()
     }
     navigate(
         "${DetailDestination.screen}/$encodedText".let {

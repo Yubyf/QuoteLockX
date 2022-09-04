@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.settings.PreviewRoute
 import com.crossbowffs.quotelock.app.settings.SettingsRoute
 import com.crossbowffs.quotelock.consts.Urls
+import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.components.LoadingDialog
 import com.crossbowffs.quotelock.ui.components.MainAppBar
 import com.crossbowffs.quotelock.utils.XposedUtils
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel(),
+    onPreviewClick: (ReadableQuote) -> Unit,
     onModuleConfigItemClicked: (String) -> Unit,
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
@@ -68,7 +70,7 @@ fun MainScreen(
             .fillMaxSize()
             .padding(padding)
         ) {
-            PreviewRoute()
+            PreviewRoute(onPreviewClick = onPreviewClick)
             SettingsRoute(
                 onModuleConfigItemClicked = onModuleConfigItemClicked,
                 onCollectionItemClicked = onCollectionItemClicked,

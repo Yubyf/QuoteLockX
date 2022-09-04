@@ -2,33 +2,44 @@
 
 package com.crossbowffs.quotelock.app.detail
 
+import android.content.ClipData
+import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Canvas
 import android.graphics.Typeface
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
-import com.crossbowffs.quotelock.ui.components.DetailAppBar
+import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
+import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
+import com.yubyf.quotelockx.R
 
 
 @Composable
@@ -39,12 +50,33 @@ fun QuoteDetailRoute(
     viewModel: QuoteDetailViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
-    val uiState: QuoteDetailUiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
+    uiEvent?.let {
+        it.shareFile?.let { file ->
+            val context = LocalContext.current
+            val imageFileUri: Uri =
+                FileProvider.getUriForFile(context, PREF_SHARE_FILE_AUTHORITY, file)
+            Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, imageFileUri)
+                type = PREF_SHARE_IMAGE_MIME_TYPE
+                clipData = ClipData.newRawUri("", imageFileUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            }.let { intent ->
+                context.startActivity(Intent.createChooser(intent, "Share Quote"))
+            }
+        }
+    }
     QuoteDetailScreen(modifier,
         quote,
         source,
         uiState.quoteTypeface,
-        uiState.sourceTypeface) { onBack() }
+        uiState.sourceTypeface,
+        onSharedCard = viewModel::shareQuote,
+        onBack = onBack
+    )
 }
 
 @Composable
@@ -54,32 +86,56 @@ fun QuoteDetailScreen(
     source: String?,
     quoteTypeface: Typeface? = Typeface.DEFAULT,
     sourceTypeface: Typeface? = Typeface.DEFAULT,
-    onBackPressed: () -> Unit,
+    onSharedCard: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
+    onBack: () -> Unit,
 ) {
     var containerHeight by remember {
         mutableStateOf(0)
     }
-    var contentHeight by remember {
-        mutableStateOf(0)
+    var contentSize by remember {
+        mutableStateOf(IntSize.Zero)
     }
+    val snapshotStates = Snapshotables()
     Scaffold(
-        topBar = { DetailAppBar(onBackPressed = onBackPressed) }
+        topBar = { DetailAppBar(onBackPressed = onBack) },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text(text = stringResource(id = R.string.quote_image_share)) },
+                icon = {
+                    Icon(Icons.Rounded.Share,
+                        contentDescription = stringResource(id = R.string.quote_image_share))
+                },
+                onClick = {
+                    contentSize.takeIf { it != IntSize.Zero }?.let {
+                        val size = snapshotStates.bounds
+                        size?.let {
+                            onSharedCard.invoke(it) { canvas ->
+                                snapshotStates.forEach { snapshot ->
+                                    snapshot.snapshot(canvas)
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { internalPadding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(internalPadding)
-                .padding(horizontal = 24.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .consumedWindowInsets(internalPadding)
                 .onGloballyPositioned { containerHeight = it.size.height }
                 .verticalScroll(state = rememberScrollState(),
-                    enabled = contentHeight > containerHeight)
+                    enabled = contentSize.height > containerHeight)
         ) {
             Spacer(
                 modifier = Modifier.height(
                     if (!LocalInspectionMode.current) {
                         with(LocalDensity.current) {
-                            (containerHeight * 0.382F - contentHeight / 2).toDp()
+                            (containerHeight * 0.382F - contentSize.height / 2).toDp()
                         }.coerceAtLeast(0.dp)
                     } else {
                         100.dp
@@ -90,7 +146,7 @@ fun QuoteDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .onSizeChanged { contentHeight = it.height },
+                    .onSizeChanged { contentSize = it },
                 quote = quote,
                 source = source,
                 quoteTypeface,
@@ -98,6 +154,7 @@ fun QuoteDetailScreen(
                 minHeight = if (!LocalInspectionMode.current) {
                     with(LocalDensity.current) { (containerHeight * 0.6F).toDp() }
                 } else 360.dp,
+                snapshotStates = snapshotStates
             )
         }
     }
@@ -111,52 +168,54 @@ fun QuoteCard(
     quoteTypeface: Typeface? = Typeface.DEFAULT,
     sourceTypeface: Typeface? = Typeface.DEFAULT,
     minHeight: Dp = 0.dp,
+    snapshotStates: Snapshotables = Snapshotables(),
 ) {
-    var cardHeight by remember {
-        mutableStateOf(0)
-    }
-    ElevatedCard(
+    val containerColor = QuoteLockTheme.quotelockColors.quoteCardSurface
+    val contentColor = QuoteLockTheme.quotelockColors.quoteCardOnSurface
+    SnapshotCard(
         modifier = modifier
-            .padding(4.dp)
-            .heightIn(min = minHeight)
-            .onGloballyPositioned { coordinates ->
-                cardHeight = coordinates.size.height
-            },
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = QuoteLockTheme.quotelockColors.quoteCardSurface,
-            contentColor = QuoteLockTheme.quotelockColors.quoteCardOnSurface,
-        ),
-        shape = RoundedCornerShape(2.dp),
+            .heightIn(min = minHeight),
+        containerColor = containerColor,
+        contentColor = contentColor,
+        elevation = PREF_QUOTE_CARD_ELEVATION_DP.dp,
+        cornerSize = 8.dp,
+        contentAlignment = Alignment.Center,
+        rememberSnapshotState("card").also { snapshotStates += it }
     ) {
-        Box(
-            if (!LocalInspectionMode.current) {
-                Modifier.heightIn(min = with(LocalDensity.current) { cardHeight.toDp() })
-            } else Modifier.height(minHeight)
+        var columnBounds: Rect by remember { mutableStateOf(Rect.Zero) }
+        // Text container position snapshot
+        snapshotStates += rememberSnapshotState("text_container", false).apply {
+            snapshotCallback = { canvas -> canvas.translate(columnBounds.left, columnBounds.top) }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(24.dp)
+                .align(alignment = Alignment.Center)
+                .onGloballyPositioned { columnBounds = it.boundsInParent() },
+            horizontalAlignment = Alignment.End,
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(24.dp)
-                    .align(alignment = Alignment.Center),
-                horizontalAlignment = Alignment.End,
-            ) {
-                Text(text = quote,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontSize = 36.sp,
-                    fontFamily = FontFamily(quoteTypeface ?: Typeface.DEFAULT),
-                    lineHeight = 1.3F.em,
+            SnapshotText(text = quote,
+                fontSize = 36.sp,
+                fontFamily = quoteTypeface,
+                lineHeight = 1.3F.em,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth(),
+                snapshotable = rememberSnapshotState("quote", false)
+                    .also { snapshotStates += it }
+            )
+            if (!source.isNullOrBlank()) {
+                SnapshotText(text = source,
+                    fontSize = 16.sp,
+                    fontFamily = sourceTypeface,
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth())
-                if (!source.isNullOrBlank()) {
-                    Text(text = source,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontFamily = FontFamily(sourceTypeface ?: Typeface.DEFAULT),
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .padding(top = 24.dp))
-                }
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(top = 24.dp),
+                    snapshotable = rememberSnapshotState("source", false)
+                        .also { snapshotStates += it }
+                )
             }
         }
     }
