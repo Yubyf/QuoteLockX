@@ -3,6 +3,7 @@ package com.crossbowffs.quotelock.app.detail
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.text.TextPaint
 import androidx.compose.ui.geometry.Size
@@ -108,7 +109,7 @@ class QuoteDetailViewModel @Inject constructor(
                         canvas.restore()
 
                         // Watermark
-                        val watermarkAlpha = 0.4F
+                        val watermarkAlpha = 0.3F
                         canvas.translate(PREF_QUOTE_CARD_ELEVATION_DP.dp2px()
                                 + PREF_SHARE_IMAGE_FRAME_WIDTH,
                             imageSize.height + watermarkPadding / 4)
@@ -116,22 +117,25 @@ class QuoteDetailViewModel @Inject constructor(
                             color = Color.Black.copy(alpha = watermarkAlpha).toArgb()
                             textSize = PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX
                         }
-                        val textY = -(watermarkPaint.descent() + watermarkPaint.ascent()) / 2
-                        resourceProvider.getDrawable(R.drawable.ic_launcher_foreground)?.apply {
-                            canvas.translate(-PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX / 2, 0F)
+                        val watermarkIconSize = PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX * 0.9F
+                        resourceProvider.getDrawable(R.drawable.ic_quotelockx)?.apply {
                             setBounds(0,
-                                -PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX.roundToInt(),
-                                (PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX * 2).roundToInt(),
-                                PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX.roundToInt())
+                                -(watermarkIconSize / 2).roundToInt(),
+                                watermarkIconSize.roundToInt(),
+                                (watermarkIconSize / 2).roundToInt())
                             setTint(Color.Black.toArgb())
                             alpha = (255 * watermarkAlpha).roundToInt()
+                            canvas.translate(watermarkIconSize / 2F, 0F)
                             draw(canvas)
-                            canvas.translate(bounds.width().toFloat(), 0F)
+                            canvas.translate(watermarkIconSize * 1.5F, 0F)
                         }
+                        val watermark = resourceProvider.getString(R.string.quotelockx)
+                        val textBounds = Rect()
+                        watermarkPaint.getTextBounds(watermark, 0, watermark.length, textBounds)
+                        // Draw watermark text vertically centered.
+                        canvas.translate(0F, -textBounds.exactCenterY())
                         canvas.drawText(resourceProvider.getString(R.string.quotelockx),
-                            0F,
-                            textY,
-                            watermarkPaint)
+                            0F, 0F, watermarkPaint)
                     }
             }
             val sharedFile =
