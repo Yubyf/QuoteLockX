@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.app.settings
+package com.crossbowffs.quotelock.app.lockscreen.styles
 
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -8,11 +8,12 @@ import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteStyle
+import com.crossbowffs.quotelock.data.api.QuoteViewData
+import com.crossbowffs.quotelock.data.api.buildQuoteViewData
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.getComposeFontStyle
 import com.crossbowffs.quotelock.utils.getComposeFontWeight
-import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,8 +25,6 @@ import javax.inject.Inject
  * UI state for the preview screen in the settings page.
  */
 data class PreviewUiState(val quoteViewData: QuoteViewData, val quoteStyle: QuoteStyle)
-
-data class QuoteViewData(val text: String = "", val source: String = "")
 
 /**
  * @author Yubyf
@@ -57,7 +56,10 @@ class PreviewViewModel @Inject constructor(
                             val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    quoteViewData = buildQuoteViewData(quote, source, author)
+                                    quoteViewData = resourceProvider.buildQuoteViewData(
+                                        quote,
+                                        source,
+                                        author)
                                 )
                             }
                         }
@@ -166,29 +168,9 @@ class PreviewViewModel @Inject constructor(
 
     private fun getQuoteViewData(): QuoteViewData {
         val quoteData = quoteRepository.getCurrentQuote()
-        return buildQuoteViewData(quoteData.quoteText, quoteData.quoteSource, quoteData.quoteAuthor)
-    }
-
-    private fun buildQuoteViewData(text: String, source: String?, author: String?): QuoteViewData {
-        return QuoteViewData(
-            text,
-            author.let {
-                if (!it.isNullOrBlank()) {
-                    "$PREF_QUOTE_SOURCE_PREFIX$it${if (source.isNullOrBlank()) "" else " $source"}"
-                } else {
-                    if (source == resourceProvider.getString(R.string.module_custom_setup_line2)
-                        || source == resourceProvider.getString(R.string.module_collections_setup_line2)
-                    ) {
-                        source
-                    } else {
-                        if (source.isNullOrBlank()) {
-                            ""
-                        } else {
-                            "$PREF_QUOTE_SOURCE_PREFIX$source"
-                        }
-                    }
-                }
-            }
-        )
+        return resourceProvider.buildQuoteViewData(
+            quoteData.quoteText,
+            quoteData.quoteSource,
+            quoteData.quoteAuthor)
     }
 }

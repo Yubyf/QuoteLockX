@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.app.settings
 
 import android.content.Context
-import android.os.Build
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -9,7 +8,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteModule
@@ -49,7 +47,6 @@ sealed class SettingsUiEvent {
 data class SettingsUiState(
     val enableAod: Boolean,
     val displayOnAod: Boolean,
-    val enableFontFamily: Boolean,
     val unmeteredOnly: Boolean,
     val moduleData: QuoteModuleData?,
     val updateInfo: String,
@@ -66,39 +63,6 @@ sealed class SettingsDialogUiState {
 
     data class RefreshIntervalDialog(
         val currentInterval: Int,
-    ) : SettingsDialogUiState()
-
-    data class QuoteSizeDialog(
-        val currentSize: Int,
-    ) : SettingsDialogUiState()
-
-    data class SourceSizeDialog(
-        val currentSize: Int,
-    ) : SettingsDialogUiState()
-
-    data class QuoteStylesDialog(
-        val currentStyles: Set<String>?,
-    ) : SettingsDialogUiState()
-
-    data class SourceStylesDialog(
-        val currentStyles: Set<String>?,
-    ) : SettingsDialogUiState()
-
-    data class FontFamilyDialog(
-        val fonts: Pair<Array<String>, Array<String>>?,
-        val currentFont: String,
-    ) : SettingsDialogUiState()
-
-    data class QuoteSpacingDialog(
-        val spacing: Int,
-    ) : SettingsDialogUiState()
-
-    data class PaddingTopDialog(
-        val padding: Int,
-    ) : SettingsDialogUiState()
-
-    data class PaddingBottomDialog(
-        val padding: Int,
     ) : SettingsDialogUiState()
 
     object CreditsDialog : SettingsDialogUiState()
@@ -125,8 +89,6 @@ class SettingsViewModel @Inject constructor(
             // Only enable DisplayOnAOD on tested devices.
             XposedUtils.isAodHookAvailable,
             configurationRepository.displayOnAod,
-            // Only enable font family above API26
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
             configurationRepository.isUnmeteredNetworkOnly,
             null,
             resourceProvider.getString(
@@ -184,7 +146,7 @@ class SettingsViewModel @Inject constructor(
                     if (updateTime > 0) DATE_FORMATTER.format(Date(updateTime)) else "-")
             )
             launch {
-                onSelectedModuleChanged()
+                updateCurrentModule()
             }
         }
     }
@@ -193,7 +155,7 @@ class SettingsViewModel @Inject constructor(
         configurationRepository.displayOnAod = checked
     }
 
-    fun getModuleList(): Pair<Array<String>, Array<String?>> {
+    private fun getModuleList(): Pair<Array<String>, Array<String?>> {
         // Get quote module list
         val quoteModules = quoteRepository.getAllModules()
         return quoteModules.map { module ->
@@ -227,84 +189,6 @@ class SettingsViewModel @Inject constructor(
         configurationRepository.refreshInterval = interval
     }
 
-    fun loadQuoteSize() {
-        _uiDialogState.value =
-            SettingsDialogUiState.QuoteSizeDialog(configurationRepository.quoteSize)
-    }
-
-    fun selectQuoteSize(size: Int) {
-        configurationRepository.quoteSize = size
-    }
-
-    fun loadSourceSize() {
-        _uiDialogState.value =
-            SettingsDialogUiState.SourceSizeDialog(configurationRepository.sourceSize)
-    }
-
-    fun selectSourceSize(size: Int) {
-        configurationRepository.sourceSize = size
-    }
-
-    fun loadQuoteStyles() {
-        _uiDialogState.value =
-            SettingsDialogUiState.QuoteStylesDialog(configurationRepository.quoteStyles)
-    }
-
-    fun selectQuoteStyles(styles: Set<String>?) {
-        configurationRepository.quoteStyles = styles
-    }
-
-    fun loadSourceStyles() {
-        _uiDialogState.value =
-            SettingsDialogUiState.SourceStylesDialog(configurationRepository.sourceStyles)
-    }
-
-    fun selectSourceStyles(styles: Set<String>?) {
-        configurationRepository.sourceStyles = styles
-    }
-
-    fun loadFontFamily() {
-        val fonts = FontManager.loadActiveFontFilesList()?.map { file ->
-            file.nameWithoutExtension to file.path
-        }?.unzip()?.let {
-            it.first.toTypedArray() to it.second.toTypedArray()
-        }
-        _uiDialogState.value =
-            SettingsDialogUiState.FontFamilyDialog(fonts = fonts,
-                currentFont = configurationRepository.fontFamily)
-    }
-
-    fun selectFontFamily(fontFamily: String) {
-        configurationRepository.fontFamily = fontFamily
-    }
-
-    fun loadQuoteSpacing() {
-        _uiDialogState.value =
-            SettingsDialogUiState.QuoteSpacingDialog(configurationRepository.quoteSpacing)
-    }
-
-    fun selectQuoteSpacing(spacing: Int) {
-        configurationRepository.quoteSpacing = spacing
-    }
-
-    fun loadPaddingTop() {
-        _uiDialogState.value =
-            SettingsDialogUiState.PaddingTopDialog(configurationRepository.paddingTop)
-    }
-
-    fun selectPaddingTop(padding: Int) {
-        configurationRepository.paddingTop = padding
-    }
-
-    fun loadPaddingBottom() {
-        _uiDialogState.value =
-            SettingsDialogUiState.PaddingBottomDialog(configurationRepository.paddingBottom)
-    }
-
-    fun selectPaddingBottom(padding: Int) {
-        configurationRepository.paddingBottom = padding
-    }
-
     fun showCreditsDialog() {
         _uiDialogState.value = SettingsDialogUiState.CreditsDialog
     }
@@ -318,16 +202,25 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun onSelectedModuleChanged() {
+        if (updateCurrentModule()) {
+            // Update quotes.
+            quoteRepository.downloadQuote()
+        }
+    }
+
+    /**
+     * @return true if current module is changed.
+     */
+    private suspend fun updateCurrentModule(): Boolean {
         val module = loadSelectedModule()
 
         val quoteModuleData = quoteRepository.getQuoteModuleData(module)
         if (quoteModuleData == _uiState.value.moduleData) {
-            return
+            return false
         }
         _uiState.value = _uiState.value.copy(moduleData = quoteModuleData)
         configurationRepository.updateConfiguration(quoteModuleData)
-        // Update quotes.
-        quoteRepository.downloadQuote()
+        return true
     }
 
     private suspend fun loadSelectedModule(): QuoteModule {

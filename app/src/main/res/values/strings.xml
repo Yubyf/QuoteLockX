@@ -16,8 +16,9 @@
     <string name="disable">disable</string>
     <string name="cancel">Cancel</string>
     <string name="settings">Settings</string>
+    <string name="lockscreen_styles">Lockscreen Styles</string>
+    <string name="style">Style</string>
     <string name="preview">Preview</string>
-    <string name="features">Features</string>
     <string name="about">About</string>
     <string name="close">Close</string>
     <string name="data_retention">Data Retention</string>
@@ -83,7 +84,7 @@
     <string name="pref_about_restart_system_ui_title">Restart System UI</string>
     <string name="pref_debug_restart_system_ui_summary">Re-hook lockscreen</string>
     <string name="pref_about_version">Version</string>
-    <string name="refresh_quote">Refresh quote</string>
+    <string name="refresh_quote">Refresh</string>
     <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>
     <string name="quote_download_success">Quote downloaded successfully</string>

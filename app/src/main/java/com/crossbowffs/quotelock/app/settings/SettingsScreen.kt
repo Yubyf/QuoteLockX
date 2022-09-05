@@ -36,14 +36,13 @@ import kotlinx.coroutines.launch
 fun SettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
-    onModuleConfigItemClicked: (String) -> Unit = {},
-    onCollectionItemClicked: () -> Unit,
-    onHistoryItemClicked: () -> Unit,
-    onFontCustomize: () -> Unit,
+    onModuleConfigItemClicked: (String) -> Unit,
+    onBack: () -> Unit,
 ) {
     val uiPreferenceState by viewModel.uiState
     val uiDialogState by viewModel.uiDialogState
     val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
+
     SettingsScreen(
         modifier = modifier,
         uiState = uiPreferenceState,
@@ -53,32 +52,14 @@ fun SettingsRoute(
         onModuleConfigItemClicked = onModuleConfigItemClicked,
         onRefreshIntervalItemClicked = viewModel::loadRefreshInterval,
         onUnmeteredOnlyChanged = viewModel::switchUnmeteredOnly,
-        onQuoteSizeItemClicked = viewModel::loadQuoteSize,
-        onSourceSizeItemClicked = viewModel::loadSourceSize,
-        onQuoteStylesItemClicked = viewModel::loadQuoteStyles,
-        onSourceStylesItemClicked = viewModel::loadSourceStyles,
-        onFontFamilyItemClicked = viewModel::loadFontFamily,
-        onQuoteSpacingItemClicked = viewModel::loadQuoteSpacing,
-        onPaddingTopItemClicked = viewModel::loadPaddingTop,
-        onPaddingBottomItemClicked = viewModel::loadPaddingBottom,
-        onCollectionItemClicked = onCollectionItemClicked,
-        onHistoryItemClicked = onHistoryItemClicked,
         onCreditsItemClicked = viewModel::showCreditsDialog,
         onRestartSystemUiItemClicked = viewModel::restartSystemUi,
+        onBack = onBack
     )
     SettingsDialogs(
         uiDialogState = uiDialogState,
         onModuleSelected = viewModel::selectModule,
         onRefreshIntervalSelected = viewModel::selectRefreshInterval,
-        onQuoteSizeSelected = viewModel::selectQuoteSize,
-        onSourceSizeSelected = viewModel::selectSourceSize,
-        onQuoteStylesSelected = viewModel::selectQuoteStyles,
-        onSourceStylesSelected = viewModel::selectSourceStyles,
-        onFontFamilySelected = viewModel::selectFontFamily,
-        onFontCustomize = onFontCustomize,
-        onQuoteSpacingSelected = viewModel::selectQuoteSpacing,
-        onPaddingTopSelected = viewModel::selectPaddingTop,
-        onPaddingBottomSelected = viewModel::selectPaddingBottom,
         onDialogDismiss = viewModel::cancelDialog
     )
 }
@@ -93,23 +74,15 @@ fun SettingsScreen(
     onModuleConfigItemClicked: (String) -> Unit = {},
     onRefreshIntervalItemClicked: () -> Unit = {},
     onUnmeteredOnlyChanged: (Boolean) -> Unit = {},
-    onQuoteSizeItemClicked: () -> Unit = {},
-    onSourceSizeItemClicked: () -> Unit = {},
-    onQuoteStylesItemClicked: () -> Unit = {},
-    onSourceStylesItemClicked: () -> Unit = {},
-    onFontFamilyItemClicked: () -> Unit = {},
-    onQuoteSpacingItemClicked: () -> Unit = {},
-    onPaddingTopItemClicked: () -> Unit = {},
-    onPaddingBottomItemClicked: () -> Unit = {},
-    onCollectionItemClicked: () -> Unit = {},
-    onHistoryItemClicked: () -> Unit = {},
     onCreditsItemClicked: () -> Unit = {},
     onRestartSystemUiItemClicked: () -> Unit = {},
+    onBack: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        topBar = { SettingsAppBar(onBack = onBack) }
     ) { padding ->
         when (uiEvent) {
             is SettingsUiEvent.SnackBarMessage -> {
@@ -134,7 +107,6 @@ fun SettingsScreen(
             .verticalScroll(state = scrollState)
         ) {
             val context = LocalContext.current
-            PreferenceTitle(R.string.settings)
             if (uiState.enableAod) {
                 SwitchablePreferenceItem(
                     titleRes = R.string.pref_display_on_aod_title,
@@ -178,58 +150,6 @@ fun SettingsScreen(
                 checked = uiState.unmeteredOnly,
                 onSwitchChange = onUnmeteredOnlyChanged
             )
-            PreferenceItem(
-                titleRes = R.string.pref_font_size_text_title,
-                summaryRes = R.string.pref_font_size_text_summary,
-                onClick = onQuoteSizeItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_font_size_source_title,
-                summaryRes = R.string.pref_font_size_source_summary,
-                onClick = onSourceSizeItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_font_style_text_title,
-                summaryRes = R.string.pref_font_style_text_summary,
-                onClick = onQuoteStylesItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_font_style_source_title,
-                summaryRes = R.string.pref_font_style_source_summary,
-                onClick = onSourceStylesItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_font_family_title,
-                summaryRes = R.string.pref_font_family_summary,
-                enabled = uiState.enableFontFamily,
-                onClick = onFontFamilyItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_layout_quote_spacing_title,
-                summaryRes = R.string.pref_layout_quote_spacing_summary,
-                onClick = onQuoteSpacingItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_layout_padding_top_title,
-                summaryRes = R.string.pref_layout_padding_top_summary,
-                onClick = onPaddingTopItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_layout_padding_bottom_title,
-                summaryRes = R.string.pref_layout_padding_bottom_summary,
-                onClick = onPaddingBottomItemClicked
-            )
-            Divider()
-            PreferenceTitle(R.string.features)
-            PreferenceItem(
-                titleRes = R.string.pref_collection_title,
-                onClick = onCollectionItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_history_title,
-                onClick = onHistoryItemClicked
-            )
-            Divider()
             PreferenceTitle(R.string.about)
             PreferenceItem(
                 titleRes = R.string.pref_about_credits_title,
@@ -275,15 +195,6 @@ fun SettingsDialogs(
     uiDialogState: SettingsDialogUiState,
     onModuleSelected: (String) -> Unit = {},
     onRefreshIntervalSelected: (Int) -> Unit,
-    onQuoteSizeSelected: (Int) -> Unit,
-    onSourceSizeSelected: (Int) -> Unit,
-    onQuoteStylesSelected: (Set<String>?) -> Unit,
-    onSourceStylesSelected: (Set<String>?) -> Unit,
-    onFontFamilySelected: (String) -> Unit,
-    onFontCustomize: () -> Unit,
-    onQuoteSpacingSelected: (Int) -> Unit,
-    onPaddingTopSelected: (Int) -> Unit,
-    onPaddingBottomSelected: (Int) -> Unit,
     onDialogDismiss: () -> Unit,
 ) = when (uiDialogState) {
     is SettingsDialogUiState.ModuleProviderDialog -> {
@@ -305,89 +216,6 @@ fun SettingsDialogs(
             entryValues = integerArrayResource(id = R.array.refresh_interval_values).toTypedArray(),
             selectedItem = uiDialogState.currentInterval,
             onItemSelected = onRefreshIntervalSelected,
-            onDismiss = onDialogDismiss
-        )
-    }
-    is SettingsDialogUiState.QuoteSizeDialog -> {
-        ListPreferenceDialog(
-            title = stringResource(id = R.string.pref_font_size_text_title),
-            entries = stringArrayResource(id = R.array.font_size_entries),
-            entryValues = integerArrayResource(id = R.array.font_size_values).toTypedArray(),
-            selectedItem = uiDialogState.currentSize,
-            onItemSelected = onQuoteSizeSelected,
-            onDismiss = onDialogDismiss
-        )
-    }
-    is SettingsDialogUiState.SourceSizeDialog -> {
-        ListPreferenceDialog(
-            title = stringResource(id = R.string.pref_font_size_source_title),
-            entries = stringArrayResource(id = R.array.font_size_entries),
-            entryValues = integerArrayResource(id = R.array.font_size_values).toTypedArray(),
-            selectedItem = uiDialogState.currentSize,
-            onItemSelected = onSourceSizeSelected,
-            onDismiss = onDialogDismiss
-        )
-    }
-    is SettingsDialogUiState.QuoteStylesDialog -> {
-        MultiSelectListPreferenceDialog(
-            title = stringResource(id = R.string.pref_font_style_text_title),
-            entries = stringArrayResource(id = R.array.font_style_entries),
-            entryValues = stringArrayResource(id = R.array.font_style_values),
-            selectedItems = uiDialogState.currentStyles,
-            onItemsSelected = onQuoteStylesSelected,
-            onDismiss = onDialogDismiss
-        )
-    }
-    is SettingsDialogUiState.SourceStylesDialog -> {
-        MultiSelectListPreferenceDialog(
-            title = stringResource(id = R.string.pref_font_style_source_title),
-            entries = stringArrayResource(id = R.array.font_style_entries),
-            entryValues = stringArrayResource(id = R.array.font_style_values),
-            selectedItems = uiDialogState.currentStyles,
-            onItemsSelected = onSourceStylesSelected,
-            onDismiss = onDialogDismiss
-        )
-    }
-    is SettingsDialogUiState.FontFamilyDialog -> {
-        FontListPreferenceDialog(
-            title = stringResource(id = R.string.pref_font_style_source_title),
-            entries = stringArrayResource(id = R.array.default_font_family_entries)
-                    + (uiDialogState.fonts?.first ?: emptyArray()),
-            entryValues = stringArrayResource(id = R.array.default_font_family_values)
-                    + (uiDialogState.fonts?.second ?: emptyArray()),
-            selectedItem = uiDialogState.currentFont,
-            onItemSelected = onFontFamilySelected,
-            onCustomize = onFontCustomize,
-            onDismiss = onDialogDismiss
-        )
-    }
-    is SettingsDialogUiState.QuoteSpacingDialog -> {
-        ListPreferenceDialog(
-            title = stringResource(id = R.string.pref_layout_quote_spacing_title),
-            entries = stringArrayResource(id = R.array.layout_quote_spacing_entries),
-            entryValues = integerArrayResource(id = R.array.layout_quote_spacing_values).toTypedArray(),
-            selectedItem = uiDialogState.spacing,
-            onItemSelected = onQuoteSpacingSelected,
-            onDismiss = onDialogDismiss
-        )
-    }
-    is SettingsDialogUiState.PaddingTopDialog -> {
-        ListPreferenceDialog(
-            title = stringResource(id = R.string.pref_layout_padding_top_title),
-            entries = stringArrayResource(id = R.array.layout_padding_entries),
-            entryValues = integerArrayResource(id = R.array.layout_padding_values).toTypedArray(),
-            selectedItem = uiDialogState.padding,
-            onItemSelected = onPaddingTopSelected,
-            onDismiss = onDialogDismiss
-        )
-    }
-    is SettingsDialogUiState.PaddingBottomDialog -> {
-        ListPreferenceDialog(
-            title = stringResource(id = R.string.pref_layout_padding_bottom_title),
-            entries = stringArrayResource(id = R.array.layout_padding_entries),
-            entryValues = integerArrayResource(id = R.array.layout_padding_values).toTypedArray(),
-            selectedItem = uiDialogState.padding,
-            onItemSelected = onPaddingBottomSelected,
             onDismiss = onDialogDismiss
         )
     }
@@ -434,7 +262,6 @@ private fun SettingsScreenPreview() {
             SettingsScreen(
                 uiState = SettingsUiState(enableAod = true,
                     displayOnAod = true,
-                    enableFontFamily = true,
                     unmeteredOnly = true,
                     moduleData = null,
                     updateInfo = ""),

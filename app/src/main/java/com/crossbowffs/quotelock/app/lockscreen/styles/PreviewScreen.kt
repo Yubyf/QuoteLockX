@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalUnitApi::class, ExperimentalMaterial3Api::class)
 
-package com.crossbowffs.quotelock.app.settings
+package com.crossbowffs.quotelock.app.lockscreen.styles
 
 import android.content.res.Configuration
 import android.graphics.Typeface
@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
+import com.crossbowffs.quotelock.data.api.QuoteViewData
 import com.crossbowffs.quotelock.data.api.ReadableQuote
 import com.crossbowffs.quotelock.ui.components.PreferenceTitle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme

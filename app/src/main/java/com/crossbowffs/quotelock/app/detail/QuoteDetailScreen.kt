@@ -3,6 +3,7 @@
 package com.crossbowffs.quotelock.app.detail
 
 import android.content.ClipData
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Canvas
@@ -40,6 +41,7 @@ import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
+import java.io.File
 
 
 @Composable
@@ -50,31 +52,17 @@ fun QuoteDetailRoute(
     viewModel: QuoteDetailViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState
     val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
-    uiEvent?.let {
-        it.shareFile?.let { file ->
-            val context = LocalContext.current
-            val imageFileUri: Uri =
-                FileProvider.getUriForFile(context, PREF_SHARE_FILE_AUTHORITY, file)
-            Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_STREAM, imageFileUri)
-                type = PREF_SHARE_IMAGE_MIME_TYPE
-                clipData = ClipData.newRawUri("", imageFileUri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            }.let { intent ->
-                context.startActivity(Intent.createChooser(intent, "Share Quote"))
-            }
-        }
+    uiEvent?.shareFile?.let { file ->
+        LocalContext.current.shareImage(file)
     }
     QuoteDetailScreen(modifier,
         quote,
         source,
         uiState.quoteTypeface,
         uiState.sourceTypeface,
-        onSharedCard = viewModel::shareQuote,
+        onShareQuote = viewModel::shareQuote,
         onBack = onBack
     )
 }
@@ -86,15 +74,9 @@ fun QuoteDetailScreen(
     source: String?,
     quoteTypeface: Typeface? = Typeface.DEFAULT,
     sourceTypeface: Typeface? = Typeface.DEFAULT,
-    onSharedCard: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
+    onShareQuote: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
     onBack: () -> Unit,
 ) {
-    var containerHeight by remember {
-        mutableStateOf(0)
-    }
-    var contentSize by remember {
-        mutableStateOf(IntSize.Zero)
-    }
     val snapshotStates = Snapshotables()
     Scaffold(
         topBar = { DetailAppBar(onBackPressed = onBack) },
@@ -106,13 +88,10 @@ fun QuoteDetailScreen(
                         contentDescription = stringResource(id = R.string.quote_image_share))
                 },
                 onClick = {
-                    contentSize.takeIf { it != IntSize.Zero }?.let {
-                        val size = snapshotStates.bounds
-                        size?.let {
-                            onSharedCard.invoke(it) { canvas ->
-                                snapshotStates.forEach { snapshot ->
-                                    snapshot.snapshot(canvas)
-                                }
+                    snapshotStates.bounds?.let {
+                        onShareQuote.invoke(it) { canvas ->
+                            snapshotStates.forEach { snapshot ->
+                                snapshot.snapshot(canvas)
                             }
                         }
                     }
@@ -121,41 +100,64 @@ fun QuoteDetailScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { internalPadding ->
-        Column(
+        QuoteDetailPage(
             modifier = modifier
                 .fillMaxSize()
                 .padding(internalPadding)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .consumedWindowInsets(internalPadding)
-                .onGloballyPositioned { containerHeight = it.size.height }
-                .verticalScroll(state = rememberScrollState(),
-                    enabled = contentSize.height > containerHeight)
-        ) {
-            Spacer(
-                modifier = Modifier.height(
-                    if (!LocalInspectionMode.current) {
-                        with(LocalDensity.current) {
-                            (containerHeight * 0.382F - contentSize.height / 2).toDp()
-                        }.coerceAtLeast(0.dp)
-                    } else {
-                        100.dp
-                    }
-                )
-            )
-            QuoteCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .onSizeChanged { contentSize = it },
-                quote = quote,
-                source = source,
-                quoteTypeface,
-                sourceTypeface,
-                minHeight = if (!LocalInspectionMode.current) {
-                    with(LocalDensity.current) { (containerHeight * 0.6F).toDp() }
-                } else 360.dp,
-                snapshotStates = snapshotStates
-            )
+                .consumedWindowInsets(internalPadding),
+            quote = quote,
+            source = source,
+            quoteTypeface = quoteTypeface,
+            sourceTypeface = sourceTypeface,
+            snapshotStates = snapshotStates
+        )
+    }
+}
+
+@Composable
+fun QuoteDetailPage(
+    modifier: Modifier = Modifier,
+    quote: String,
+    source: String?,
+    quoteTypeface: Typeface? = Typeface.DEFAULT,
+    sourceTypeface: Typeface? = Typeface.DEFAULT,
+    snapshotStates: Snapshotables = Snapshotables(),
+) {
+    val extraPadding = 64.dp
+    var containerHeight by remember {
+        mutableStateOf(0)
+    }
+    var contentSize by remember {
+        mutableStateOf(IntSize.Zero)
+    }
+    val includeExtraPadding =
+        contentSize.height + with(LocalDensity.current) { extraPadding.toPx() } >= containerHeight
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .onGloballyPositioned { containerHeight = it.size.height }
+            .verticalScroll(state = rememberScrollState()),
+        verticalArrangement = Arrangement.Center
+    ) {
+        QuoteCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = 16.dp,
+                    bottom = 16.dp + if (includeExtraPadding) extraPadding else 0.dp)
+                .onSizeChanged { contentSize = it },
+            quote = quote,
+            source = source,
+            quoteTypeface = quoteTypeface,
+            sourceTypeface = sourceTypeface,
+            minHeight = if (!LocalInspectionMode.current) {
+                with(LocalDensity.current) { max(containerHeight.toDp(), 320.dp) * 0.6F }
+            } else 320.dp,
+            snapshotStates = snapshotStates
+        )
+        if (LocalInspectionMode.current || !LocalInspectionMode.current && !includeExtraPadding) {
+            Spacer(modifier = Modifier.height(extraPadding))
         }
     }
 }
@@ -218,6 +220,21 @@ fun QuoteCard(
                 )
             }
         }
+    }
+}
+
+internal fun Context.shareImage(file: File) {
+    val imageFileUri: Uri =
+        FileProvider.getUriForFile(this, PREF_SHARE_FILE_AUTHORITY, file)
+    Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_STREAM, imageFileUri)
+        type = PREF_SHARE_IMAGE_MIME_TYPE
+        clipData = ClipData.newRawUri("", imageFileUri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    }.let { intent ->
+        startActivity(Intent.createChooser(intent, "Share Quote"))
     }
 }
 

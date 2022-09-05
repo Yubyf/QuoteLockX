@@ -6,6 +6,8 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.text.TextPaint
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -23,7 +25,8 @@ import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -58,18 +61,15 @@ class QuoteDetailViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<QuoteDetailUiEvent?>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiState: MutableStateFlow<QuoteDetailUiState> =
-        MutableStateFlow(QuoteDetailUiState())
-    val uiState = _uiState.asStateFlow()
+    private val _uiState = mutableStateOf(QuoteDetailUiState())
+    val uiState: State<QuoteDetailUiState> = _uiState
 
     private var shareDir = File(context.getExternalFilesDir(null), PREF_SHARE_IMAGE_CHILD_PATH)
 
     init {
-        _uiState.update { currentState ->
-            val style = configurationRepository.quoteStyle
-            currentState.copy(quoteTypeface = style.quoteTypeface,
-                sourceTypeface = style.sourceTypeface)
-        }
+        val style = configurationRepository.quoteStyle
+        _uiState.value = _uiState.value.copy(quoteTypeface = style.quoteTypeface,
+            sourceTypeface = style.sourceTypeface)
         viewModelScope.launch {
             configurationRepository.observeConfigurationDataStore { preferences, key ->
                 if (key?.name == PREF_COMMON_FONT_FAMILY) {
@@ -81,10 +81,8 @@ class QuoteDetailViewModel @Inject constructor(
                     } else {
                         null
                     }
-                    _uiState.update { currentState ->
-                        currentState.copy(quoteTypeface = typeface,
-                            sourceTypeface = typeface)
-                    }
+                    _uiState.value = _uiState.value.copy(quoteTypeface = typeface,
+                        sourceTypeface = typeface)
                 }
             }
         }
@@ -144,6 +142,12 @@ class QuoteDetailViewModel @Inject constructor(
             if (sharedResult) {
                 _uiEvent.emit(QuoteDetailUiEvent(sharedFile))
             }
+        }
+    }
+
+    fun quoteShared() {
+        viewModelScope.launch {
+            _uiEvent.emit(null)
         }
     }
 }

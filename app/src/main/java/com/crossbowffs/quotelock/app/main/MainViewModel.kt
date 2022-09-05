@@ -6,9 +6,15 @@ import android.net.Uri
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_AUTHOR
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_SOURCE
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_TEXT
 import com.crossbowffs.quotelock.consts.Urls
+import com.crossbowffs.quotelock.data.api.QuoteViewData
+import com.crossbowffs.quotelock.data.api.buildQuoteViewData
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.WorkUtils
@@ -34,16 +40,14 @@ sealed class MainUiEvent {
     ) : MainUiEvent()
 }
 
-sealed class MainUiState {
-    data class ProgressDialog(
-        val message: String? = null,
-    ) : MainUiState()
+data class MainUiState(val quoteViewData: QuoteViewData, val refreshing: Boolean = false)
 
-    object EnableModuleDialog : MainUiState()
+sealed class MainDialogUiState {
+    object EnableModuleDialog : MainDialogUiState()
 
-    object ModuleUpdatedDialog : MainUiState()
+    object ModuleUpdatedDialog : MainDialogUiState()
 
-    object None : MainUiState()
+    object None : MainDialogUiState()
 }
 
 /**
@@ -56,36 +60,67 @@ class MainViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
-    private val _uiEvent = MutableSharedFlow<MainUiEvent>()
+    private val _uiEvent = MutableSharedFlow<MainUiEvent?>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiState = mutableStateOf<MainUiState>(MainUiState.None)
+    private val _uiState = mutableStateOf(MainUiState(getQuoteViewData()))
     val uiState: State<MainUiState> = _uiState
+
+    private val _uiDialogState = mutableStateOf<MainDialogUiState>(MainDialogUiState.None)
+    val uiDialogState: State<MainDialogUiState> = _uiDialogState
 
     init {
         // In case the user opens the app for the first time *after* rebooting,
         // we want to make sure the background work has been created.
         WorkUtils.createQuoteDownloadWork(context, false)
         if (!XposedUtils.isModuleEnabled) {
-            _uiState.value = MainUiState.EnableModuleDialog
+            _uiDialogState.value = MainDialogUiState.EnableModuleDialog
         } else if (XposedUtils.isModuleUpdated) {
-            _uiState.value = MainUiState.ModuleUpdatedDialog
+            _uiDialogState.value = MainDialogUiState.ModuleUpdatedDialog
         }
+
+        viewModelScope.apply {
+            launch {
+                quoteRepository.observeQuoteData { preferences, key ->
+                    when (key?.name) {
+                        PREF_QUOTES_TEXT,
+                        PREF_QUOTES_AUTHOR,
+                        PREF_QUOTES_SOURCE,
+                        -> {
+                            val quote =
+                                preferences[stringPreferencesKey(PREF_QUOTES_TEXT)] ?: ""
+                            val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
+                            val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
+                            _uiState.value = _uiState.value.copy(
+                                quoteViewData = resourceProvider.buildQuoteViewData(
+                                    quote,
+                                    source,
+                                    author)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        refreshQuote()
     }
 
     fun refreshQuote() = viewModelScope.launch {
-        _uiState.value =
-            MainUiState.ProgressDialog(resourceProvider.getString(R.string.downloading_quote))
+        _uiState.value = _uiState.value.copy(refreshing = true)
         val quote = try {
             quoteRepository.downloadQuote()
         } catch (e: CancellationException) {
             null
         }
-        _uiState.value = MainUiState.None
+        _uiState.value = _uiState.value.copy(refreshing = false)
         _uiEvent.emit(MainUiEvent.SnackBarMessage(
             message = resourceProvider.getString(
                 if (quote == null) R.string.quote_download_failed else R.string.quote_download_success)
         ))
+    }
+
+    fun snackbarShown() = viewModelScope.launch {
+        _uiEvent.emit(null)
     }
 
     fun Context.startXposedPage(section: String) {
@@ -102,7 +137,15 @@ class MainViewModel @Inject constructor(
     fun Context.startBrowserActivity(url: String) =
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
 
+    private fun getQuoteViewData(): QuoteViewData {
+        val quoteData = quoteRepository.getCurrentQuote()
+        return resourceProvider.buildQuoteViewData(
+            quoteData.quoteText,
+            quoteData.quoteSource,
+            quoteData.quoteAuthor)
+    }
+
     fun cancelDialog() {
-        _uiState.value = MainUiState.None
+        _uiDialogState.value = MainDialogUiState.None
     }
 }

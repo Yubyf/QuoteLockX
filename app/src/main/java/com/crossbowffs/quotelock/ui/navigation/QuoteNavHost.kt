@@ -19,8 +19,12 @@ import com.crossbowffs.quotelock.app.font.fontManagementGraph
 import com.crossbowffs.quotelock.app.font.navigateToFontManagement
 import com.crossbowffs.quotelock.app.history.historyGraph
 import com.crossbowffs.quotelock.app.history.navigateToHistory
+import com.crossbowffs.quotelock.app.lockscreen.styles.lockscreenStylesGraph
+import com.crossbowffs.quotelock.app.lockscreen.styles.navigateToLockscreenStyles
 import com.crossbowffs.quotelock.app.main.MainDestination
 import com.crossbowffs.quotelock.app.main.mainGraph
+import com.crossbowffs.quotelock.app.settings.navigateToSettings
+import com.crossbowffs.quotelock.app.settings.settingsGraph
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -37,11 +41,19 @@ fun MainNavHost(
         modifier = modifier
     ) {
         mainGraph(
-            onPreviewClick = navController::navigateToDetail,
-            onModuleConfigItemClicked = navController::navigateToConfigScreen,
+            onSettingsItemClick = navController::navigateToSettings,
+            onLockscreenStylesItemClick = navController::navigateToLockscreenStyles,
             onCollectionItemClicked = navController::navigateToCollection,
             onHistoryItemClicked = navController::navigateToHistory,
+        )
+        settingsGraph(
+            onModuleConfigItemClicked = navController::navigateToConfigScreen,
+            onBack = navController::popBackStack
+        )
+        lockscreenStylesGraph(
+            onPreviewClick = navController::navigateToDetail,
             onFontCustomize = navController::navigateToFontManagement,
+            onBack = navController::popBackStack
         )
         customQuoteGraph(
             onItemClick = navController::navigateToDetail,

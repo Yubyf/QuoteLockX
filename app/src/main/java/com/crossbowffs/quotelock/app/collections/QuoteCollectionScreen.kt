@@ -21,12 +21,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowRight
+import androidx.compose.material.icons.rounded.NavigateNext
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -209,15 +209,14 @@ fun CollectionDataRetentionMenu(
     var backupMenuExpanded by remember { mutableStateOf(false) }
     var syncMenuExpanded by remember { mutableStateOf(false) }
     TopAppBarDropdownMenu(iconContent = {
-        Icon(painter = painterResource(id = R.drawable.ic_round_settings_backup_restore_24dp),
-            contentDescription = "Backup&Restore")
+        Icon(Icons.Rounded.Restore, contentDescription = "Backup&Restore")
     }, content = { _, closeMenu ->
         DropdownMenuItem(
             text = {
                 Text(text = stringResource(id = R.string.import_export))
             },
             trailingIcon = {
-                Icon(Icons.Rounded.ArrowRight, contentDescription = null)
+                Icon(Icons.Rounded.NavigateNext, contentDescription = null)
             },
             onClick = {
                 closeMenu()
@@ -228,7 +227,7 @@ fun CollectionDataRetentionMenu(
             text = { Text(text = stringResource(id = R.string.sync)) },
             enabled = enableSync,
             trailingIcon = {
-                Icon(Icons.Rounded.ArrowRight, contentDescription = null)
+                Icon(Icons.Rounded.NavigateNext, contentDescription = null)
             },
             onClick = {
                 closeMenu()

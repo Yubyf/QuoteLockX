@@ -131,7 +131,7 @@ fun SnapshotText(
         content = {
             Canvas(modifier = Modifier) {
                 drawIntoCanvas { canvas ->
-                    textPicture?.draw(canvas.nativeCanvas) ?: textLayout?.let { layout ->
+                    textLayout?.let { layout ->
                         textPicture = Picture().apply {
                             layout.draw(beginRecording(layout.width, layout.height))
                             endRecording()
@@ -322,40 +322,33 @@ fun SnapshotCard(
                 .padding(elevation)
                 .drawWithContent {
                     drawIntoCanvas { canvas ->
-                        backgroundPicture
-                            ?.takeIf {
-                                it.width == size.width.roundToInt()
-                                        && it.height == size.height.roundToInt()
+                        backgroundPicture = Picture().apply {
+                            val pictureCanvas = beginRecording(size.width.roundToInt(),
+                                size.height.roundToInt())
+                            val rect = RectF(0F, 0F, size.width, size.height)
+                            val shadowPaint = Paint().apply {
+                                color = Color.Black
+                                    .copy(alpha = 0.2F)
+                                    .toArgb()
+                                style = Paint.Style.FILL
+                                maskFilter = BlurMaskFilter(elevation.toPx() * 2,
+                                    BlurMaskFilter.Blur.OUTER)
                             }
-                            ?.draw(canvas.nativeCanvas) ?: run {
-                            backgroundPicture = Picture().apply {
-                                val pictureCanvas = beginRecording(size.width.roundToInt(),
-                                    size.height.roundToInt())
-                                val rect = RectF(0F, 0F, size.width, size.height)
-                                val shadowPaint = Paint().apply {
-                                    color = Color.Black
-                                        .copy(alpha = 0.2F)
-                                        .toArgb()
-                                    style = Paint.Style.FILL
-                                    maskFilter = BlurMaskFilter(elevation.toPx() * 2,
-                                        BlurMaskFilter.Blur.OUTER)
-                                }
-                                val backgroundPaint = Paint().apply {
-                                    color = containerColor.toArgb()
-                                    style = Paint.Style.FILL
-                                }
-                                pictureCanvas.drawRoundRect(rect,
-                                    cornerSize.toPx(),
-                                    cornerSize.toPx(),
-                                    shadowPaint)
-                                pictureCanvas.drawRoundRect(rect,
-                                    cornerSize.toPx(),
-                                    cornerSize.toPx(),
-                                    backgroundPaint
-                                )
-                                endRecording()
-                                draw(canvas.nativeCanvas)
+                            val backgroundPaint = Paint().apply {
+                                color = containerColor.toArgb()
+                                style = Paint.Style.FILL
                             }
+                            pictureCanvas.drawRoundRect(rect,
+                                cornerSize.toPx(),
+                                cornerSize.toPx(),
+                                shadowPaint)
+                            pictureCanvas.drawRoundRect(rect,
+                                cornerSize.toPx(),
+                                cornerSize.toPx(),
+                                backgroundPaint
+                            )
+                            endRecording()
+                            draw(canvas.nativeCanvas)
                         }
                     }
                     drawContent()

@@ -13,7 +13,8 @@
     <string name="cancel">取消</string>
     <string name="settings">设置</string>
     <string name="preview">预览</string>
-    <string name="features">功能</string>
+    <string name="lockscreen_styles">锁屏样式</string>
+    <string name="style">样式</string>
     <string name="about">关于</string>
     <string name="close">关闭</string>
     <string name="data_retention">数据</string>
@@ -77,7 +78,7 @@
     <string name="pref_about_restart_system_ui_title">重启 System UI</string>
     <string name="pref_debug_restart_system_ui_summary">重新挂钩锁屏界面</string>
     <string name="pref_about_version">版本</string>
-    <string name="refresh_quote">刷新格言</string>
+    <string name="refresh_quote">刷新</string>
     <string name="downloading_quote">下载格言中…</string>
     <string name="quote_download_failed">格言下载失败</string>
     <string name="quote_download_success">格言下载成功</string>
