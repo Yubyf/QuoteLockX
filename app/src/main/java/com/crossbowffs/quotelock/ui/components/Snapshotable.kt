@@ -334,7 +334,7 @@ fun SnapshotCard(
                                 val rect = RectF(0F, 0F, size.width, size.height)
                                 val shadowPaint = Paint().apply {
                                     color = Color.Black
-                                        .copy(alpha = 0.3F)
+                                        .copy(alpha = 0.2F)
                                         .toArgb()
                                     style = Paint.Style.FILL
                                     maskFilter = BlurMaskFilter(elevation.toPx() * 2,
