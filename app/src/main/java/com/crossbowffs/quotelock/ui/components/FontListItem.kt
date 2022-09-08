@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -145,7 +146,7 @@ fun FontListItem(
                 .alpha(if (fontInfoWithState.active) 1F else ContentAlpha.disabled)
             ) {
                 val fontInfo = fontInfoWithState.fontInfo
-                Text(text = fontInfo.name,
+                Text(text = with(fontInfo) { LocalConfiguration.current.localeName },
                     fontFamily = FontFamily(fontInfo.typeface()),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Start,
@@ -192,11 +193,11 @@ fun FontListItem(
 
 class FontListItemPreviewParameterProvider : PreviewParameterProvider<FontInfoWithState> {
     override val values: Sequence<FontInfoWithState> = sequenceOf(
-        FontInfoWithState(FontInfo(name = "Roboto Regular",
+        FontInfoWithState(FontInfo(name = mapOf("en-US" to "Roboto Regular"),
             descriptionLatin = "Lorem ipsum dolor sit amet",
             descriptionLocale = " Lorem"
         ), systemFont = false, active = false),
-        FontInfoWithState(FontInfo(name = "方正新书宋",
+        FontInfoWithState(FontInfo(name = mapOf("en-US" to "方正新书宋"),
             descriptionLatin = "Lorem ipsum dolor sit amet",
             descriptionLocale = "落霞与孤鹜齐飞，秋水共长天一色"
         ), systemFont = true, active = true)

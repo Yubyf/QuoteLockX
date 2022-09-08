@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -25,12 +26,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_DEFAULT
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
-import com.crossbowffs.quotelock.utils.Xlog
 import com.yubyf.quotelockx.R
 
 private val LIST_DIALOG_ITEM_HEIGHT = 48.dp
@@ -285,23 +285,19 @@ fun <T> MultiSelectListPreferenceDialog(
 @Composable
 fun FontListPreferenceDialog(
     title: String,
-    entries: Array<String>,
-    entryValues: Array<String>,
+    fonts: List<FontInfo>,
     selectedItem: String? = null,
     onItemSelected: (String) -> Unit,
-    viewModel: FontDialogViewModel = hiltViewModel(),
     onCustomize: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    viewModel.loadFontFamilies(entryValues)
     var selectedItemIndex by remember {
-        mutableStateOf(entryValues.indexOfFirst { it == selectedItem }
-            .coerceIn(minimumValue = 0, maximumValue = entries.lastIndex))
+        mutableStateOf(fonts.indexOfFirst { it.path == selectedItem }
+            .coerceIn(minimumValue = 0, maximumValue = fonts.lastIndex))
     }
     var containerWidth by remember {
         mutableStateOf(0)
     }
-    val uiState by viewModel.uiState
     AlertDialog(
         onDismissRequest = { onDismiss() },
         modifier = Modifier.onGloballyPositioned { coordinates ->
@@ -314,7 +310,7 @@ fun FontListPreferenceDialog(
         title = { Text(text = title) },
         text = {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                itemsIndexed(entries.zip(entryValues)) { index, (entry, value) ->
+                itemsIndexed(fonts) { index, fontInfo ->
                     Row(
                         modifier = Modifier
                             .height(LIST_DIALOG_ITEM_HEIGHT)
@@ -323,7 +319,7 @@ fun FontListPreferenceDialog(
                             .requiredWidth(with(LocalDensity.current) { containerWidth.toDp() })
                             .clickable {
                                 selectedItemIndex = index
-                                onItemSelected(value)
+                                onItemSelected(fontInfo.path)
                                 onDismiss()
                             },
                         verticalAlignment = Alignment.CenterVertically,
@@ -336,17 +332,18 @@ fun FontListPreferenceDialog(
                             onClick = null,
                         )
                         Spacer(modifier = Modifier.width(24.dp))
-                        val typeface = if (PREF_COMMON_FONT_FAMILY_DEFAULT == value) {
+                        val typeface = if (PREF_COMMON_FONT_FAMILY_DEFAULT == fontInfo.path) {
                             null
                         } else {
                             runCatching {
-                                FontManager.loadTypeface(value)
-                            }.onFailure {
-                                Xlog.e("FontListPreferenceDialog",
-                                    "Failed to get font from name: $value")
+                                FontManager.loadTypeface(fontInfo.path)
                             }.getOrNull()
                         }
-                        Text(text = uiState.fontDisplayNames.getOrNull(index) ?: entry,
+                        val displayName = with(fontInfo) {
+                            LocalConfiguration.current.localeName.takeIf { it.isNotBlank() }
+                                ?: fileName
+                        }
+                        Text(text = displayName,
                             color = AlertDialogDefaults.textContentColor,
                             fontSize = QuoteLockTheme.typography.bodyLarge.fontSize,
                             fontFamily = typeface?.let { FontFamily(it) }

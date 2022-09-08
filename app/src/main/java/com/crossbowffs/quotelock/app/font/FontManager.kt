@@ -1,8 +1,10 @@
 package com.crossbowffs.quotelock.app.font
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.di.IoDispatcher
@@ -71,7 +73,7 @@ object FontManager {
         return fontFile.exists()
     }
 
-    fun loadActiveFontFilesList(): List<File>? {
+    fun loadActiveFontsList(): List<FontInfo>? {
         val pendingRemoveFonts = INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
             ?.filter {
                 it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
@@ -79,7 +81,9 @@ object FontManager {
         val systemCustomFonts = SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
             (it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true))
                     && pendingRemoveFonts?.find { pending -> pending.name == it.name } == null
-        }?.sortedBy { it.lastModified() }
+        }?.sortedBy { it.lastModified() }?.map {
+            FontInfo(fileName = it.nameWithoutExtension, path = it.absolutePath)
+        }
         return systemCustomFonts
     }
 
@@ -115,7 +119,7 @@ object FontManager {
         runCatching {
             FONT_INFO_CACHE.getOrPut(file.absolutePath) {
                 val ttfFile = TTFFile.open(file)
-                FontInfo(ttfFile.getFullName(Locale.getDefault()),
+                FontInfo(ttfFile.fullName.toMap(),
                     file.name,
                     file.absolutePath).apply {
                     descriptionLocale = generateLocaleDescription(ttfFile.fullName)
@@ -184,14 +188,36 @@ class FontImporter @Inject constructor(
 }
 
 data class FontInfo(
-    val name: String = "",
+    val name: Map<String, String> = emptyMap(),
     val fileName: String = "",
     val path: String = "",
     val descriptionLatin: String = FONT_DESCRIPTION_LATIN,
     var descriptionLocale: String = FONT_DESCRIPTION_SIMPLIFIED_CHINESE,
 ) {
     fun typeface() = FontManager.loadTypeface(path)
+
+    val Configuration.localeName: String
+        get() = getValueOrFallbackByLocale(name,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) locales[0] else locale)
 }
+
+/**
+ * Copy from [TTFFile] lib.
+ * TODO: To delete
+ */
+private fun getValueOrFallbackByLocale(map: Map<String, String>, locale: Locale): String =
+    if (map.isEmpty()) ""
+    else map[locale.toLanguageTag()]
+        ?: map.entries.firstOrNull { entry ->
+            Locale.forLanguageTag(entry.key).language == locale.language
+        }?.value
+        ?: map[Locale.US.toLanguageTag()]
+        ?: map.entries.firstOrNull { entry ->
+            Locale.forLanguageTag(entry.key).language == Locale.ENGLISH.language
+        }?.value
+        ?: map[Locale.ROOT.toLanguageTag()]
+        ?: map.values.firstOrNull()
+        ?: ""
 
 data class FontInfoWithState(
     val fontInfo: FontInfo,

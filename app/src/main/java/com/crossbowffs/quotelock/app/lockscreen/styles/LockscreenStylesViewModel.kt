@@ -5,11 +5,15 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -51,7 +55,7 @@ sealed class LockscreenStylesDialogUiState {
     ) : LockscreenStylesDialogUiState()
 
     data class FontFamilyDialog(
-        val fonts: Pair<Array<String>, Array<String>>?,
+        val fonts: List<FontInfo>,
         val currentFont: String,
     ) : LockscreenStylesDialogUiState()
 
@@ -129,14 +133,21 @@ class LockscreenStylesViewModel @Inject constructor(
     }
 
     fun loadFontFamily() {
-        val fonts = FontManager.loadActiveFontFilesList()?.map { file ->
-            file.nameWithoutExtension to file.path
-        }?.unzip()?.let {
-            it.first.toTypedArray() to it.second.toTypedArray()
+        val activeFonts = (FontManager.loadActiveFontsList() ?: emptyList())
+        _uiDialogState.value = LockscreenStylesDialogUiState.FontFamilyDialog(fonts = activeFonts,
+            currentFont = configurationRepository.fontFamily)
+        viewModelScope.launch {
+            activeFonts.forEach { (_, fileName, path) ->
+                val fontInfo = FontManager.loadFontInfo(File(path)) ?: return@forEach
+                (_uiDialogState.value as? LockscreenStylesDialogUiState.FontFamilyDialog)?.let {
+                    _uiDialogState.value = it.copy(
+                        fonts = it.fonts.toMutableList().apply {
+                            set(indexOfFirst { font -> font.fileName == fileName }, fontInfo)
+                        }.toList()
+                    )
+                }
+            }
         }
-        _uiDialogState.value =
-            LockscreenStylesDialogUiState.FontFamilyDialog(fonts = fonts,
-                currentFont = configurationRepository.fontFamily)
     }
 
     fun selectFontFamily(fontFamily: String) {
