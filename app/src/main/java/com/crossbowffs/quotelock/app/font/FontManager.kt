@@ -82,7 +82,8 @@ object FontManager {
             (it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true))
                     && pendingRemoveFonts?.find { pending -> pending.name == it.name } == null
         }?.sortedBy { it.lastModified() }?.map {
-            FontInfo(fileName = it.nameWithoutExtension, path = it.absolutePath)
+            FONT_INFO_CACHE[it.absolutePath] ?: FontInfo(fileName = it.nameWithoutExtension,
+                path = it.absolutePath)
         }
         return systemCustomFonts
     }
