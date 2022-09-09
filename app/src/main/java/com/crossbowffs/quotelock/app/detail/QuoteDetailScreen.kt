@@ -34,10 +34,13 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.*
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
+import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
+import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -49,22 +52,39 @@ fun QuoteDetailRoute(
     modifier: Modifier = Modifier,
     quote: String,
     source: String?,
-    viewModel: QuoteDetailViewModel = hiltViewModel(),
+    detailViewModel: QuoteDetailViewModel = hiltViewModel(),
+    cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
+    onFontCustomize: () -> Unit,
     onBack: () -> Unit,
 ) {
-    val uiState by viewModel.uiState
-    val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
+    val uiState by detailViewModel.uiState
+    val uiEvent by detailViewModel.uiEvent.collectAsState(initial = null)
+    val cardStyleUiState by cardStyleViewModel.uiState
     uiEvent?.shareFile?.let { file ->
         LocalContext.current.shareImage(file)
     }
     QuoteDetailScreen(modifier,
         quote,
         source,
-        uiState.quoteTypeface,
-        uiState.sourceTypeface,
-        onShareQuote = viewModel::shareQuote,
+        uiState.cardStyle,
+        onStyle = cardStyleViewModel::showStylePopup,
+        onShareQuote = detailViewModel::shareQuote,
         onBack = onBack
-    )
+    ) {
+        cardStyleUiState.takeIf { cardStyleUiState.show }?.let {
+            CardStylePopup(
+                fonts = it.fonts,
+                cardStyle = it.cardStyle,
+                onFontSelected = cardStyleViewModel::selectFontFamily,
+                onFontAdd = onFontCustomize,
+                onQuoteSizeChange = cardStyleViewModel::setQuoteSize,
+                onSourceSizeChange = cardStyleViewModel::setSourceSize,
+                onLineSpacingChange = cardStyleViewModel::setLineSpacing,
+                onCardPaddingChange = cardStyleViewModel::setCardPadding,
+                onDismiss = cardStyleViewModel::dismissStylePopup
+            )
+        }
+    }
 }
 
 @Composable
@@ -72,14 +92,15 @@ fun QuoteDetailScreen(
     modifier: Modifier = Modifier,
     quote: String,
     source: String?,
-    quoteTypeface: Typeface? = Typeface.DEFAULT,
-    sourceTypeface: Typeface? = Typeface.DEFAULT,
+    cardStyle: CardStyle = CardStyle(),
+    onStyle: () -> Unit,
     onShareQuote: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
     onBack: () -> Unit,
+    popupContent: @Composable () -> Unit = {},
 ) {
     val snapshotStates = Snapshotables()
     Scaffold(
-        topBar = { DetailAppBar(onBackPressed = onBack) },
+        topBar = { DetailAppBar(onStyle = onStyle, onBackPressed = onBack) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text(text = stringResource(id = R.string.quote_image_share)) },
@@ -100,17 +121,19 @@ fun QuoteDetailScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { internalPadding ->
-        QuoteDetailPage(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(internalPadding)
-                .consumedWindowInsets(internalPadding),
-            quote = quote,
-            source = source,
-            quoteTypeface = quoteTypeface,
-            sourceTypeface = sourceTypeface,
-            snapshotStates = snapshotStates
-        )
+        Box(modifier = modifier
+            .fillMaxSize()
+            .padding(internalPadding)
+            .consumedWindowInsets(internalPadding)
+        ) {
+            QuoteDetailPage(
+                quote = quote,
+                source = source,
+                cardStyle = cardStyle,
+                snapshotStates = snapshotStates
+            )
+            popupContent()
+        }
     }
 }
 
@@ -119,8 +142,7 @@ fun QuoteDetailPage(
     modifier: Modifier = Modifier,
     quote: String,
     source: String?,
-    quoteTypeface: Typeface? = Typeface.DEFAULT,
-    sourceTypeface: Typeface? = Typeface.DEFAULT,
+    cardStyle: CardStyle = CardStyle(),
     snapshotStates: Snapshotables = Snapshotables(),
 ) {
     val extraPadding = 64.dp
@@ -149,8 +171,11 @@ fun QuoteDetailPage(
                 .onSizeChanged { contentSize = it },
             quote = quote,
             source = source,
-            quoteTypeface = quoteTypeface,
-            sourceTypeface = sourceTypeface,
+            quoteSize = cardStyle.quoteSize.sp,
+            sourceSize = cardStyle.sourceSize.sp,
+            lineSpacing = cardStyle.lineSpacing.dp,
+            cardPadding = cardStyle.cardPadding.dp,
+            typeface = cardStyle.typeface,
             minHeight = if (!LocalInspectionMode.current) {
                 with(LocalDensity.current) { max(containerHeight.toDp(), 320.dp) * 0.6F }
             } else 320.dp,
@@ -167,8 +192,11 @@ fun QuoteCard(
     modifier: Modifier = Modifier,
     quote: String,
     source: String?,
-    quoteTypeface: Typeface? = Typeface.DEFAULT,
-    sourceTypeface: Typeface? = Typeface.DEFAULT,
+    quoteSize: TextUnit,
+    sourceSize: TextUnit,
+    lineSpacing: Dp,
+    cardPadding: Dp,
+    typeface: Typeface? = Typeface.DEFAULT,
     minHeight: Dp = 0.dp,
     snapshotStates: Snapshotables = Snapshotables(),
 ) {
@@ -193,14 +221,14 @@ fun QuoteCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(24.dp)
+                .padding(cardPadding)
                 .align(alignment = Alignment.Center)
                 .onGloballyPositioned { columnBounds = it.boundsInParent() },
             horizontalAlignment = Alignment.End,
         ) {
             SnapshotText(text = quote,
-                fontSize = 36.sp,
-                fontFamily = quoteTypeface,
+                fontSize = quoteSize,
+                fontFamily = typeface,
                 lineHeight = 1.3F.em,
                 textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth(),
@@ -209,12 +237,12 @@ fun QuoteCard(
             )
             if (!source.isNullOrBlank()) {
                 SnapshotText(text = source,
-                    fontSize = 16.sp,
-                    fontFamily = sourceTypeface,
+                    fontSize = sourceSize,
+                    fontFamily = typeface,
                     textAlign = TextAlign.Start,
                     modifier = Modifier
                         .wrapContentWidth()
-                        .padding(top = 24.dp),
+                        .padding(top = lineSpacing),
                     snapshotable = rememberSnapshotState("source", false)
                         .also { snapshotStates += it }
                 )
@@ -257,7 +285,15 @@ private fun QuoteCardPreview(
 ) {
     QuoteLockTheme {
         Surface {
-            QuoteCard(quote = quote.first, source = quote.second, minHeight = 240.dp)
+            QuoteCard(
+                quote = quote.first,
+                source = quote.second,
+                quoteSize = 36.sp,
+                sourceSize = 36.sp,
+                lineSpacing = 36.dp,
+                cardPadding = 36.dp,
+                minHeight = 240.dp
+            )
         }
     }
 }
@@ -274,7 +310,7 @@ private fun DetailScreenPreview(
 ) {
     QuoteLockTheme {
         Surface {
-            QuoteDetailScreen(quote = quote.first, source = quote.second) {}
+            QuoteDetailScreen(quote = quote.first, source = quote.second, onStyle = {}, onBack = {})
         }
     }
 }

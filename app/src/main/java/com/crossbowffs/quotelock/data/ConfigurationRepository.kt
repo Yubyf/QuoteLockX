@@ -8,6 +8,7 @@ import com.crossbowffs.quotelock.data.api.QuoteStyle
 import com.crossbowffs.quotelock.di.CommonDataStore
 import com.crossbowffs.quotelock.utils.getComposeFontStyle
 import com.crossbowffs.quotelock.utils.getComposeFontWeight
+import com.crossbowffs.quotelock.utils.getValueByDefault
 import com.yubyf.datastore.DataStoreDelegate
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -25,22 +26,7 @@ class ConfigurationRepository @Inject internal constructor(
         @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
         override fun getValue(thisRef: ConfigurationRepository, property: KProperty<*>): T {
             return runBlocking {
-                with(thisRef.commonDataStore) {
-                    when (default) {
-                        is Int -> getIntSuspend(key, default)
-                        is String,
-                        is String?,
-                        -> getStringSuspend(key) ?: default
-                        is Boolean -> getBooleanSuspend(key, default)
-                        is Float -> getFloatSuspend(key, default)
-                        is Long -> getLongSuspend(key, default)
-                        is Set<*>?,
-                        is Set<*>,
-                        -> getStringSetSuspend(key)
-                            ?: default as Set<String>
-                        else -> throw IllegalArgumentException("Type not supported: ${default?.let { it::class } ?: "null"}")
-                    } as T
-                }
+                thisRef.commonDataStore.getValueByDefault(key, default)
             }
         }
 

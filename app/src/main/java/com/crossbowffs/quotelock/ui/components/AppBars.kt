@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -23,16 +24,16 @@ import com.yubyf.quotelockx.R
 
 @Composable
 fun MainAppBar(
-    onFormat: () -> Unit = {},
+    onStyle: () -> Unit = {},
     onMenuMore: @Composable RowScope.() -> Unit,
 ) {
     CenterAlignedTopAppBar(
         title = { Text(text = stringResource(id = R.string.quotelockx)) },
         actions = {
-            // TODO: WIP 
-//            IconButton(onClick = onFormat) {
-//                Icon(Icons.Rounded.TextFormat, contentDescription = "Format")
-//            }
+            IconButton(onClick = onStyle) {
+                Icon(painter = painterResource(id = R.drawable.ic_text_style_24dp),
+                    contentDescription = "Format")
+            }
             onMenuMore()
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -178,6 +179,7 @@ fun TopAppBarDropdownMenu(
 
 @Composable
 fun DetailAppBar(
+    onStyle: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
@@ -185,6 +187,12 @@ fun DetailAppBar(
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
                 Icon(Icons.Rounded.Close, contentDescription = "Back")
+            }
+        },
+        actions = {
+            IconButton(onClick = onStyle) {
+                Icon(painter = painterResource(id = R.drawable.ic_text_style_24dp),
+                    contentDescription = "Format")
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -301,7 +309,7 @@ private fun HistoryTopAppBarPreview() {
 private fun DetailTopAppBarPreview() {
     QuoteLockTheme {
         Surface {
-            DetailAppBar {}
+            DetailAppBar({}, {})
         }
     }
 }

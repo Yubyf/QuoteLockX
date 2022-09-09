@@ -10,10 +10,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.consumedWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
@@ -28,6 +25,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.detail.QuoteDetailPage
 import com.crossbowffs.quotelock.app.detail.QuoteDetailViewModel
 import com.crossbowffs.quotelock.app.detail.shareImage
+import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
+import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.ui.components.AlertDialog
 import com.crossbowffs.quotelock.ui.components.MainAppBar
@@ -43,16 +42,19 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = hiltViewModel(),
     detailViewModel: QuoteDetailViewModel = hiltViewModel(),
+    cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
     onSettingsItemClick: () -> Unit,
     onLockscreenStylesItemClick: () -> Unit,
     onCollectionItemClick: () -> Unit,
     onHistoryItemClick: () -> Unit,
+    onFontCustomize: () -> Unit,
 ) {
     val mainUiEvent by mainViewModel.uiEvent.collectAsState(initial = null)
     val mainUiState by mainViewModel.uiState
     val mainDialogUiState by mainViewModel.uiDialogState
     val detailUiState by detailViewModel.uiState
     val detailUiEvent by detailViewModel.uiEvent.collectAsState(initial = null)
+    val cardStyleUiState by cardStyleViewModel.uiState
     detailUiEvent?.shareFile?.let { file ->
         LocalContext.current.shareImage(file)
         detailViewModel.quoteShared()
@@ -85,8 +87,8 @@ fun MainScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            MainAppBar(onFormat = {
-                // TODO: Format window
+            MainAppBar(onStyle = {
+                cardStyleViewModel.showStylePopup()
             }) {
                 MainDropdownMenu(
                     onSettingsItemClick = onSettingsItemClick,
@@ -139,17 +141,33 @@ fun MainScreen(
                 }
             }
         }
-        QuoteDetailPage(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(padding)
-                .consumedWindowInsets(padding),
-            quote = mainUiState.quoteViewData.text,
-            source = mainUiState.quoteViewData.source,
-            quoteTypeface = detailUiState.quoteTypeface,
-            sourceTypeface = detailUiState.sourceTypeface,
-            snapshotStates = snapshotStates
-        )
+        Box(modifier = modifier
+            .fillMaxSize()
+            .padding(padding)
+            .consumedWindowInsets(padding)
+        ) {
+            QuoteDetailPage(
+                modifier = modifier
+                    .fillMaxSize(),
+                quote = mainUiState.quoteViewData.text,
+                source = mainUiState.quoteViewData.source,
+                cardStyle = detailUiState.cardStyle,
+                snapshotStates = snapshotStates
+            )
+            cardStyleUiState.takeIf { cardStyleUiState.show }?.let {
+                CardStylePopup(
+                    fonts = it.fonts,
+                    cardStyle = it.cardStyle,
+                    onFontSelected = cardStyleViewModel::selectFontFamily,
+                    onFontAdd = onFontCustomize,
+                    onQuoteSizeChange = cardStyleViewModel::setQuoteSize,
+                    onSourceSizeChange = cardStyleViewModel::setSourceSize,
+                    onLineSpacingChange = cardStyleViewModel::setLineSpacing,
+                    onCardPaddingChange = cardStyleViewModel::setCardPadding,
+                    onDismiss = cardStyleViewModel::dismissStylePopup
+                )
+            }
+        }
     }
     val context = LocalContext.current
     MainDialogs(

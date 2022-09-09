@@ -44,6 +44,30 @@ const val PREF_ABOUT_VERSION = "pref_about_version"
 const val PREF_BOOT_NOTIFY_FLAG = "boot_notify_flag"
 const val PREF_PREVIEW = "pref_preview"
 
+const val PREF_CARD_STYLE = "card_style"
+const val PREF_CARD_STYLE_FONT_SIZE_TEXT = "pref_card_style_font_size_text"
+const val PREF_CARD_STYLE_FONT_SIZE_TEXT_DEFAULT = 36
+const val PREF_CARD_STYLE_FONT_SIZE_TEXT_MIN = 24
+const val PREF_CARD_STYLE_FONT_SIZE_TEXT_MAX = 48
+const val PREF_CARD_STYLE_FONT_SIZE_TEXT_STEP = 4
+const val PREF_CARD_STYLE_FONT_SIZE_SOURCE = "pref_card_style_font_size_source"
+const val PREF_CARD_STYLE_FONT_SIZE_SOURCE_DEFAULT = 16
+const val PREF_CARD_STYLE_FONT_SIZE_SOURCE_MIN = 8
+const val PREF_CARD_STYLE_FONT_SIZE_SOURCE_MAX = 24
+const val PREF_CARD_STYLE_FONT_SIZE_SOURCE_STEP = 4
+const val PREF_CARD_STYLE_LINE_SPACING = "pref_card_style_line_spacing"
+const val PREF_CARD_STYLE_LINE_SPACING_DEFAULT = 24
+const val PREF_CARD_STYLE_LINE_SPACING_MIN = 16
+const val PREF_CARD_STYLE_LINE_SPACING_MAX = 32
+const val PREF_CARD_STYLE_LINE_SPACING_STEP = 4
+const val PREF_CARD_STYLE_CARD_PADDING = "pref_card_style_card_padding"
+const val PREF_CARD_STYLE_CARD_PADDING_DEFAULT = 24
+const val PREF_CARD_STYLE_CARD_PADDING_MIN = 16
+const val PREF_CARD_STYLE_CARD_PADDING_MAX = 32
+const val PREF_CARD_STYLE_CARD_PADDING_STEP = 4
+const val PREF_CARD_STYLE_FONT_FAMILY = "pref_card_style_font_family"
+const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT = "system"
+
 const val PREF_DEBUG_RESTART_SYSTEM_UI = "pref_restart_system_ui"
 
 const val PREF_QUOTE_SOURCE_PREFIX = "―"

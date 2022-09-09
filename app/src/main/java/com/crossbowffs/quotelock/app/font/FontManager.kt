@@ -123,7 +123,7 @@ object FontManager {
                 FontInfo(ttfFile.fullName.toMap(),
                     file.name,
                     file.absolutePath).apply {
-                    descriptionLocale = generateLocaleDescription(ttfFile.fullName)
+                    descriptionLocale = generateLocaleDescription(name)
                 }
             }
         }.onFailure {
@@ -195,7 +195,19 @@ data class FontInfo(
     val descriptionLatin: String = FONT_DESCRIPTION_LATIN,
     var descriptionLocale: String = FONT_DESCRIPTION_SIMPLIFIED_CHINESE,
 ) {
-    fun typeface() = FontManager.loadTypeface(path)
+    val cjk: Boolean
+        get() = when {
+            name.containsKey(Locale.SIMPLIFIED_CHINESE.toLanguageTag())
+                    || name.containsKey(Locale.TRADITIONAL_CHINESE.toLanguageTag())
+                    || name.containsKey(Locale.CHINESE.toLanguageTag())
+                    || name.containsKey(Locale.KOREAN.toLanguageTag())
+                    || name.containsKey(Locale.JAPANESE.toLanguageTag()) ->
+                true
+            else -> false
+        }
+
+    val typeface: Typeface
+        get() = FontManager.loadTypeface(path)
 
     val Configuration.localeName: String
         get() = getValueOrFallbackByLocale(name,

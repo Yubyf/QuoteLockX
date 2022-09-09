@@ -45,6 +45,7 @@ fun MainNavHost(
             onLockscreenStylesItemClick = navController::navigateToLockscreenStyles,
             onCollectionItemClicked = navController::navigateToCollection,
             onHistoryItemClicked = navController::navigateToHistory,
+            onFontCustomize = navController::navigateToFontManagement
         )
         settingsGraph(
             onModuleConfigItemClicked = navController::navigateToConfigScreen,
@@ -67,7 +68,8 @@ fun MainNavHost(
             onItemClick = { navController.navigateToDetail(it); },
             onBack = navController::popBackStack
         )
-        detailGraph(navController::popBackStack)
+        detailGraph(onFontCustomize = navController::navigateToFontManagement,
+            onBack = navController::popBackStack)
         configGraphs(navController::popBackStack)
         fontManagementGraph(navController::popBackStack)
     }

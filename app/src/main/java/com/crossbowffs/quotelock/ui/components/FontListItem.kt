@@ -147,14 +147,14 @@ fun FontListItem(
             ) {
                 val fontInfo = fontInfoWithState.fontInfo
                 Text(text = with(fontInfo) { LocalConfiguration.current.localeName },
-                    fontFamily = FontFamily(fontInfo.typeface()),
+                    fontFamily = FontFamily(fontInfo.typeface),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth())
                 Text(text = fontInfo.descriptionLatin,
-                    fontFamily = FontFamily(fontInfo.typeface()),
+                    fontFamily = FontFamily(fontInfo.typeface),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
@@ -164,7 +164,7 @@ fun FontListItem(
                         .padding(top = 12.dp))
                 if (fontInfo.descriptionLocale.isNotBlank()) {
                     Text(text = fontInfo.descriptionLocale,
-                        fontFamily = FontFamily(fontInfo.typeface()),
+                        fontFamily = FontFamily(fontInfo.typeface),
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Start,
                         maxLines = 1,

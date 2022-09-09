@@ -17,13 +17,15 @@ fun NavGraphBuilder.mainGraph(
     onLockscreenStylesItemClick: () -> Unit,
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
+    onFontCustomize: () -> Unit,
 ) {
     composable(route = MainDestination.route) {
         MainScreen(
             onSettingsItemClick = onSettingsItemClick,
             onLockscreenStylesItemClick = onLockscreenStylesItemClick,
             onCollectionItemClick = onCollectionItemClicked,
-            onHistoryItemClick = onHistoryItemClicked
+            onHistoryItemClick = onHistoryItemClicked,
+            onFontCustomize = onFontCustomize
         )
     }
 }

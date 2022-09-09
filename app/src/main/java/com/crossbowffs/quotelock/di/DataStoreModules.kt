@@ -4,6 +4,7 @@ import android.content.Context
 import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys
+import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE
 import com.crossbowffs.quotelock.consts.PREF_COMMON
 import com.crossbowffs.quotelock.consts.PREF_QUOTES
 import com.crossbowffs.quotelock.data.modules.jinrishici.JinrishiciQuoteModule
@@ -24,6 +25,10 @@ annotation class CommonDataStore
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class QuotesDataStore
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CardStyleDataStore
 
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
@@ -56,6 +61,12 @@ object DataStoreModules {
     @Provides
     fun provideQuotesDataStore(@ApplicationContext context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(PREF_QUOTES, migrate = true)
+
+    @Singleton
+    @CardStyleDataStore
+    @Provides
+    fun provideCardStyleDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+        context.getDataStoreDelegate(PREF_CARD_STYLE, migrate = true)
 
     @Singleton
     @BrainyDataStore

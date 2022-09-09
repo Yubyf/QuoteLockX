@@ -22,7 +22,7 @@ object DetailDestination : QuoteNavigationDestination {
     override val route: String = "$screen/{$QUOTE_ARG}?$SOURCE_ARG={$SOURCE_ARG}"
 }
 
-fun NavGraphBuilder.detailGraph(onBack: () -> Unit) {
+fun NavGraphBuilder.detailGraph(onFontCustomize: () -> Unit, onBack: () -> Unit) {
     standalonePageComposable(
         route = DetailDestination.route,
         arguments = listOf(
@@ -37,7 +37,10 @@ fun NavGraphBuilder.detailGraph(onBack: () -> Unit) {
             it.arguments?.getString(DetailDestination.QUOTE_ARG)?.decodeHex()?.utf8().orEmpty()
         val source =
             it.arguments?.getString(DetailDestination.SOURCE_ARG)?.decodeHex()?.utf8()
-        QuoteDetailRoute(quote = quote, source = source, onBack = onBack)
+        QuoteDetailRoute(quote = quote,
+            source = source,
+            onBack = onBack,
+            onFontCustomize = onFontCustomize)
     }
 }
 

@@ -4,19 +4,19 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.graphics.Typeface
 import android.text.TextPaint
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
-import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.data.CardStyleRepository
+import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.dp2px
@@ -43,8 +43,7 @@ data class QuoteDetailUiEvent(val shareFile: File?)
  * UI state for the quote detail screen.
  */
 data class QuoteDetailUiState(
-    val quoteTypeface: Typeface? = null,
-    val sourceTypeface: Typeface? = null,
+    val cardStyle: CardStyle,
 )
 
 /**
@@ -53,7 +52,7 @@ data class QuoteDetailUiState(
 @HiltViewModel
 class QuoteDetailViewModel @Inject constructor(
     @ApplicationContext context: Context,
-    private val configurationRepository: ConfigurationRepository,
+    private val cardStyleRepository: CardStyleRepository,
     private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
@@ -61,28 +60,57 @@ class QuoteDetailViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<QuoteDetailUiEvent?>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiState = mutableStateOf(QuoteDetailUiState())
+    private val _uiState = mutableStateOf(QuoteDetailUiState(CardStyle()))
     val uiState: State<QuoteDetailUiState> = _uiState
 
     private var shareDir = File(context.getExternalFilesDir(null), PREF_SHARE_IMAGE_CHILD_PATH)
 
     init {
-        val style = configurationRepository.quoteStyle
-        _uiState.value = _uiState.value.copy(quoteTypeface = style.quoteTypeface,
-            sourceTypeface = style.sourceTypeface)
+        val style = cardStyleRepository.cardStyle
+        _uiState.value = _uiState.value.copy(cardStyle = style)
         viewModelScope.launch {
-            configurationRepository.observeConfigurationDataStore { preferences, key ->
-                if (key?.name == PREF_COMMON_FONT_FAMILY) {
-                    val font =
-                        preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
-                            ?: PREF_COMMON_FONT_FAMILY_DEFAULT
-                    val typeface = if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-                        runCatching { FontManager.loadTypeface(font) }.getOrNull()
-                    } else {
-                        null
+            cardStyleRepository.observeCardStyleDataStore { preferences, key ->
+                when (key?.name) {
+                    PREF_CARD_STYLE_FONT_FAMILY -> {
+                        val font =
+                            preferences[stringPreferencesKey(PREF_CARD_STYLE_FONT_FAMILY)]
+                                ?: PREF_CARD_STYLE_FONT_FAMILY_DEFAULT
+                        _uiState.value = _uiState.value.run {
+                            copy(cardStyle = cardStyle.copy(fontFamily = font))
+                        }
                     }
-                    _uiState.value = _uiState.value.copy(quoteTypeface = typeface,
-                        sourceTypeface = typeface)
+                    PREF_CARD_STYLE_FONT_SIZE_TEXT -> {
+                        val quoteSize =
+                            preferences[intPreferencesKey(PREF_CARD_STYLE_FONT_SIZE_TEXT)]
+                                ?: PREF_CARD_STYLE_FONT_SIZE_TEXT_DEFAULT
+                        _uiState.value = _uiState.value.run {
+                            copy(cardStyle = cardStyle.copy(quoteSize = quoteSize))
+                        }
+                    }
+                    PREF_CARD_STYLE_FONT_SIZE_SOURCE -> {
+                        val sourceSize =
+                            preferences[intPreferencesKey(PREF_CARD_STYLE_FONT_SIZE_SOURCE)]
+                                ?: PREF_CARD_STYLE_FONT_SIZE_SOURCE_DEFAULT
+                        _uiState.value = _uiState.value.run {
+                            copy(cardStyle = cardStyle.copy(sourceSize = sourceSize))
+                        }
+                    }
+                    PREF_CARD_STYLE_LINE_SPACING -> {
+                        val lineSpacing =
+                            preferences[intPreferencesKey(PREF_CARD_STYLE_LINE_SPACING)]
+                                ?: PREF_CARD_STYLE_LINE_SPACING_DEFAULT
+                        _uiState.value = _uiState.value.run {
+                            copy(cardStyle = cardStyle.copy(lineSpacing = lineSpacing))
+                        }
+                    }
+                    PREF_CARD_STYLE_CARD_PADDING -> {
+                        val cardPadding =
+                            preferences[intPreferencesKey(PREF_CARD_STYLE_CARD_PADDING)]
+                                ?: PREF_CARD_STYLE_CARD_PADDING_DEFAULT
+                        _uiState.value = _uiState.value.run {
+                            copy(cardStyle = cardStyle.copy(cardPadding = cardPadding))
+                        }
+                    }
                 }
             }
         }

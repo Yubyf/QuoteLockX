@@ -212,4 +212,8 @@
 
     <string name="quote_image_share">Share</string>
     <string name="quote_image_share_title">Share Quote</string>
+
+    <string name="quote_card_style_text_title">Text</string>
+    <string name="quote_card_style_source_title">Source</string>
+    <string name="quote_card_style_popup_hint">To set the lockscreen style, please go to \"More > Lockscreen Styles\"</string>
 </resources>
