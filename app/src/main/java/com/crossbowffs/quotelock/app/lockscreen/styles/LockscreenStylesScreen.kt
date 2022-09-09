@@ -109,50 +109,54 @@ fun LockscreenStylesScreen(
         Column(modifier = modifier
             .fillMaxSize()
             .padding(padding)
-            .verticalScroll(state = scrollState)
         ) {
             PreferenceTitle(R.string.style)
-            PreferenceItem(
-                titleRes = R.string.pref_font_size_text_title,
-                summaryRes = R.string.pref_font_size_text_summary,
-                onClick = onQuoteSizeItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_font_size_source_title,
-                summaryRes = R.string.pref_font_size_source_summary,
-                onClick = onSourceSizeItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_font_style_text_title,
-                summaryRes = R.string.pref_font_style_text_summary,
-                onClick = onQuoteStylesItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_font_style_source_title,
-                summaryRes = R.string.pref_font_style_source_summary,
-                onClick = onSourceStylesItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_font_family_title,
-                summaryRes = R.string.pref_font_family_summary,
-                enabled = uiState.enableFontFamily,
-                onClick = onFontFamilyItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_layout_quote_spacing_title,
-                summaryRes = R.string.pref_layout_quote_spacing_summary,
-                onClick = onQuoteSpacingItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_layout_padding_top_title,
-                summaryRes = R.string.pref_layout_padding_top_summary,
-                onClick = onPaddingTopItemClicked
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_layout_padding_bottom_title,
-                summaryRes = R.string.pref_layout_padding_bottom_summary,
-                onClick = onPaddingBottomItemClicked
-            )
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state = scrollState)
+            ) {
+                PreferenceItem(
+                    titleRes = R.string.pref_font_size_text_title,
+                    summaryRes = R.string.pref_font_size_text_summary,
+                    onClick = onQuoteSizeItemClicked
+                )
+                PreferenceItem(
+                    titleRes = R.string.pref_font_size_source_title,
+                    summaryRes = R.string.pref_font_size_source_summary,
+                    onClick = onSourceSizeItemClicked
+                )
+                PreferenceItem(
+                    titleRes = R.string.pref_font_style_text_title,
+                    summaryRes = R.string.pref_font_style_text_summary,
+                    onClick = onQuoteStylesItemClicked
+                )
+                PreferenceItem(
+                    titleRes = R.string.pref_font_style_source_title,
+                    summaryRes = R.string.pref_font_style_source_summary,
+                    onClick = onSourceStylesItemClicked
+                )
+                PreferenceItem(
+                    titleRes = R.string.pref_font_family_title,
+                    summaryRes = R.string.pref_font_family_summary,
+                    enabled = uiState.enableFontFamily,
+                    onClick = onFontFamilyItemClicked
+                )
+                PreferenceItem(
+                    titleRes = R.string.pref_layout_quote_spacing_title,
+                    summaryRes = R.string.pref_layout_quote_spacing_summary,
+                    onClick = onQuoteSpacingItemClicked
+                )
+                PreferenceItem(
+                    titleRes = R.string.pref_layout_padding_top_title,
+                    summaryRes = R.string.pref_layout_padding_top_summary,
+                    onClick = onPaddingTopItemClicked
+                )
+                PreferenceItem(
+                    titleRes = R.string.pref_layout_padding_bottom_title,
+                    summaryRes = R.string.pref_layout_padding_bottom_summary,
+                    onClick = onPaddingBottomItemClicked
+                )
+            }
         }
     }
 }
