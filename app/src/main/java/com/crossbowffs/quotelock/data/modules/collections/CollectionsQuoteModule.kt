@@ -32,7 +32,7 @@ class CollectionsQuoteModule : QuoteModule {
         val repository = EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(
             context.applicationContext).collectionRepository()
         return repository.getRandomItem()?.let {
-            QuoteData(it.text, it.source)
+            QuoteData(it.text, it.source, it.author)
         } ?: QuoteData(
             context.getString(R.string.module_collections_setup_line1),
             context.getString(R.string.module_collections_setup_line2)
