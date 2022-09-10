@@ -125,11 +125,13 @@ fun MainScreen(
         mainUiEvent?.also { event ->
             when (event) {
                 is MainUiEvent.SnackBarMessage -> {
-                    event.message?.let {
-                        val messageText = it
+                    event.message?.let { message ->
                         scope.launch {
+                            snackbarHostState.currentSnackbarData?.takeIf {
+                                it.visuals.message == message
+                            }?.dismiss()
                             snackbarHostState.showSnackbar(
-                                message = messageText,
+                                message = message,
                                 duration = SnackbarDuration.Short,
                                 actionLabel = event.actionText
                             )
