@@ -58,9 +58,6 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         val matchCode = mUriMatcher.match(uri)
         require(matchCode >= 2) { "Invalid insert URI: $uri" }
         val result = collectQuote(values)
-        if (result != -1L) {
-            quoteRepository.setQuoteCollectionState(true)
-        }
         return ContentUris.withAppendedId(uri, result ?: -1)
     }
 
@@ -72,11 +69,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         if (key.isNullOrBlank() || key != QuoteCollectionContract.MD5 || value.isNullOrBlank()) {
             return -1
         }
-        val result = deleteCollectedQuote(value)
-        if (result >= 0) {
-            quoteRepository.setQuoteCollectionState(false)
-        }
-        return result
+        return deleteCollectedQuote(value)
     }
 
     override fun update(

@@ -22,8 +22,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.data.api.QuoteData
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteEntity
-import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteEntity
 import com.crossbowffs.quotelock.ui.components.CustomQuoteAppBar
 import com.crossbowffs.quotelock.ui.components.CustomQuoteEditDialog
@@ -35,7 +36,7 @@ import kotlinx.coroutines.launch
 fun CustomQuoteRoute(
     modifier: Modifier = Modifier,
     viewModel: CustomQuoteViewModel = hiltViewModel(),
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteDataWithCollectState) -> Unit,
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiListState
@@ -44,7 +45,7 @@ fun CustomQuoteRoute(
         modifier = modifier,
         uiState = uiState,
         uiEvent = uiEvent,
-        onItemClick = onItemClick,
+        onItemClick = { onItemClick(it.withCollectState()) },
         onBack = onBack,
         onPersistQuote = { id, text, source -> viewModel.persistQuote(id, text, source) },
     ) {
@@ -57,7 +58,7 @@ fun CustomQuoteScreen(
     modifier: Modifier = Modifier,
     uiState: CustomQuoteListUiState,
     uiEvent: CustomQuoteUiEvent?,
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteData) -> Unit,
     onBack: () -> Unit,
     onPersistQuote: (Long, String, String) -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
@@ -107,7 +108,7 @@ fun CustomQuoteScreen(
 private fun CustomQuoteItemList(
     modifier: Modifier = Modifier,
     entities: List<QuoteEntity>,
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteData) -> Unit,
     onEditMenuClicked: (Long, String, String) -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
 ) {
@@ -125,7 +126,7 @@ private fun CustomQuoteItemList(
                         .animateItemPlacement(animationSpec)
                         .fillMaxWidth(),
                     entity = entity,
-                    onClick = { quote -> onItemClick.invoke(quote) },
+                    onClick = onItemClick,
                     onEdit = {
                         entity.id?.let {
                             onEditMenuClicked.invoke(it.toLong(), entity.text, entity.source)

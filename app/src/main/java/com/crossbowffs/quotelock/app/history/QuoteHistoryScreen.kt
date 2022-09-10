@@ -21,8 +21,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.data.api.QuoteData
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteEntity
-import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.ui.components.DeletableQuoteListItem
 import com.crossbowffs.quotelock.ui.components.HistoryAppBar
@@ -33,7 +35,7 @@ import kotlinx.coroutines.launch
 fun QuoteHistoryRoute(
     modifier: Modifier = Modifier,
     viewModel: QuoteHistoryViewModel = hiltViewModel(),
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteDataWithCollectState) -> Unit,
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiListState
@@ -42,7 +44,7 @@ fun QuoteHistoryRoute(
         modifier = modifier,
         uiState = uiState,
         uiEvent = uiEvent,
-        onItemClick = onItemClick,
+        onItemClick = { onItemClick(it.withCollectState()) },
         onBack = onBack,
         onClear = viewModel::clear
     ) {
@@ -55,7 +57,7 @@ fun QuoteHistoryScreen(
     modifier: Modifier = Modifier,
     uiState: QuoteHistoryListUiState,
     uiEvent: QuoteHistoryUiEvent?,
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteData) -> Unit,
     onBack: () -> Unit,
     onClear: () -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
@@ -91,7 +93,7 @@ fun QuoteHistoryScreen(
 private fun HistoryItemList(
     modifier: Modifier = Modifier,
     entities: List<QuoteEntity>,
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteData) -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
 ) {
     Surface {
@@ -108,7 +110,7 @@ private fun HistoryItemList(
                         .animateItemPlacement(animationSpec)
                         .fillMaxWidth(),
                     entity = entity,
-                    onClick = { quote -> onItemClick.invoke(quote) }
+                    onClick = { quote -> onItemClick(quote) }
                 ) {
                     entity.id?.let {
                         onDeleteMenuClicked.invoke(it.toLong())

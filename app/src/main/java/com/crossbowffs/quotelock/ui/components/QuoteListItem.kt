@@ -29,9 +29,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteEntity
-import com.crossbowffs.quotelock.data.api.ReadableQuote
-import com.crossbowffs.quotelock.data.api.toReadableQuote
+import com.crossbowffs.quotelock.data.api.readableSource
+import com.crossbowffs.quotelock.data.api.toQuoteData
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
@@ -40,7 +41,7 @@ import kotlinx.coroutines.launch
 fun EditableQuoteListItem(
     modifier: Modifier = Modifier,
     entity: QuoteEntity,
-    onClick: (ReadableQuote) -> Unit = {},
+    onClick: (QuoteData) -> Unit = {},
     onEdit: (QuoteEntity) -> Unit = {},
     onDelete: (Int?) -> Unit = {},
 ) {
@@ -66,7 +67,7 @@ fun EditableQuoteListItem(
 fun DeletableQuoteListItem(
     modifier: Modifier = Modifier,
     entity: QuoteEntity,
-    onClick: (ReadableQuote) -> Unit = {},
+    onClick: (QuoteData) -> Unit = {},
     onDelete: (Int?) -> Unit = {},
 ) {
     QuoteListItem(entity = entity, modifier = modifier, onClick = onClick) { closeMenu ->
@@ -84,10 +85,9 @@ fun DeletableQuoteListItem(
 fun QuoteListItem(
     modifier: Modifier = Modifier,
     entity: QuoteEntity,
-    onClick: (ReadableQuote) -> Unit = { },
+    onClick: (QuoteData) -> Unit = { },
     content: @Composable ColumnScope.(() -> Unit) -> Unit,
 ) {
-    val readableQuote = entity.toReadableQuote()
     val height = 72.dp
     var contextMenuExpanded by remember {
         mutableStateOf(false)
@@ -134,24 +134,25 @@ fun QuoteListItem(
                                     interactionSource.emit(PressInteraction.Release(this))
                                 }
                         }
-                        onClick.invoke(readableQuote)
+                        onClick(entity.toQuoteData())
                     }
                 )
             }
     ) {
+        val readableSource = entity.readableSource
         Column(Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .wrapContentHeight()
         ) {
-            Text(text = readableQuote.text,
+            Text(text = entity.text,
                 fontSize = 20.sp,
                 textAlign = TextAlign.Start,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth())
-            if (!readableQuote.source.isNullOrBlank()) {
-                Text(text = readableQuote.source,
+            if (readableSource.isNotBlank()) {
+                Text(text = readableSource,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Start,
                     maxLines = 1,

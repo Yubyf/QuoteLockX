@@ -65,7 +65,7 @@ fun MainNavHost(
             onBack = navController::popBackStack
         )
         collectionGraph(
-            onItemClick = { navController.navigateToDetail(it); },
+            onItemClick = navController::navigateToDetail,
             onBack = navController::popBackStack
         )
         detailGraph(onFontCustomize = navController::navigateToFontManagement,

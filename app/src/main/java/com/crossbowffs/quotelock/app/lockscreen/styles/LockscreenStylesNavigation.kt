@@ -2,7 +2,7 @@ package com.crossbowffs.quotelock.app.lockscreen.styles
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
 import com.crossbowffs.quotelock.ui.navigation.standardPageComposable
 
@@ -12,7 +12,7 @@ object LockscreenStylesDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.lockscreenStylesGraph(
-    onPreviewClick: (ReadableQuote) -> Unit,
+    onPreviewClick: (QuoteDataWithCollectState) -> Unit,
     onFontCustomize: () -> Unit,
     onBack: () -> Unit,
 ) {

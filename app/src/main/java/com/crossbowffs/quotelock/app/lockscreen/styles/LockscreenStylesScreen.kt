@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.font.FontInfo
-import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 fun LockscreenStylesRoute(
     modifier: Modifier = Modifier,
     viewModel: LockscreenStylesViewModel = hiltViewModel(),
-    onPreviewClick: (ReadableQuote) -> Unit,
+    onPreviewClick: (QuoteDataWithCollectState) -> Unit,
     onFontCustomize: () -> Unit,
     onBack: () -> Unit,
 ) {

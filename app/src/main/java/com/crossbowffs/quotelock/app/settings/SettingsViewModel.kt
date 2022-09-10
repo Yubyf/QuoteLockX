@@ -5,7 +5,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.consts.*
@@ -25,6 +24,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -124,20 +125,13 @@ class SettingsViewModel @Inject constructor(
                     }
                 }
             }
-            launch {
-                quoteRepository.observeQuoteData { preferences, key ->
-                    if (key?.name != PREF_QUOTES_LAST_UPDATED) {
-                        return@observeQuoteData
-                    }
-                    preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)]?.let {
-                        _uiState.value = _uiState.value.copy(
-                            updateInfo = resourceProvider.getString(
-                                R.string.pref_refresh_info_summary,
-                                if (it > 0) DATE_FORMATTER.format(Date(it)) else "-")
-                        )
-                    }
-                }
-            }
+            quoteRepository.lastUpdateFlow.onEach {
+                _uiState.value = _uiState.value.copy(
+                    updateInfo = resourceProvider.getString(
+                        R.string.pref_refresh_info_summary,
+                        if (it > 0) DATE_FORMATTER.format(Date(it)) else "-")
+                )
+            }.launchIn(this)
 
             val updateTime = quoteRepository.getLastUpdateTime()
             _uiState.value = _uiState.value.copy(

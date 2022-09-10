@@ -11,4 +11,30 @@ data class QuoteData(
     val quoteText: String = "",
     val quoteSource: String = "",
     val quoteAuthor: String = "",
+) {
+    val readableSource: String
+        get() = buildReadableSource(quoteSource, quoteAuthor)
+}
+
+data class QuoteDataWithCollectState(
+    val quoteText: String = "",
+    val quoteSource: String = "",
+    val quoteAuthor: String = "",
+    val collectState: Boolean? = null,
+) {
+    val readableSource: String
+        get() = buildReadableSource(quoteSource, quoteAuthor)
+}
+
+fun QuoteData.withCollectState(state: Boolean? = null) = QuoteDataWithCollectState(
+    quoteText = quoteText,
+    quoteSource = quoteSource,
+    quoteAuthor = quoteAuthor,
+    collectState = state
+)
+
+fun QuoteDataWithCollectState.toQuoteData() = QuoteData(
+    quoteText = quoteText,
+    quoteSource = quoteSource,
+    quoteAuthor = quoteAuthor
 )

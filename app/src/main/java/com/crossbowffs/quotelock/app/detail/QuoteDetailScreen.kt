@@ -1,4 +1,5 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    ExperimentalAnimationGraphicsApi::class)
 
 package com.crossbowffs.quotelock.app.detail
 
@@ -9,6 +10,10 @@ import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Typeface
 import android.net.Uri
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -37,10 +42,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
 import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
-import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
 import com.crossbowffs.quotelock.data.api.CardStyle
+import com.crossbowffs.quotelock.data.api.QuoteData
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
+import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -52,21 +59,28 @@ fun QuoteDetailRoute(
     modifier: Modifier = Modifier,
     quote: String,
     source: String?,
+    author: String?,
+    initialCollectState: Boolean? = null,
     detailViewModel: QuoteDetailViewModel = hiltViewModel(),
     cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
     onFontCustomize: () -> Unit,
     onBack: () -> Unit,
 ) {
+    val quoteData = QuoteData(quote, source.orEmpty(), author.orEmpty())
+    detailViewModel.quoteData = quoteData
     val uiState by detailViewModel.uiState
     val uiEvent by detailViewModel.uiEvent.collectAsState(initial = null)
     val cardStyleUiState by cardStyleViewModel.uiState
     uiEvent?.shareFile?.let { file ->
         LocalContext.current.shareImage(file)
     }
+    if (initialCollectState == null && uiState.collectState == null) {
+        detailViewModel.queryQuoteCollectState()
+    }
     QuoteDetailScreen(modifier,
-        quote,
-        source,
-        uiState.cardStyle,
+        quoteData.withCollectState(uiState.collectState ?: initialCollectState),
+        uiState,
+        onCollectClick = detailViewModel::switchCollectionState,
         onStyle = cardStyleViewModel::showStylePopup,
         onShareQuote = detailViewModel::shareQuote,
         onBack = onBack
@@ -90,9 +104,9 @@ fun QuoteDetailRoute(
 @Composable
 fun QuoteDetailScreen(
     modifier: Modifier = Modifier,
-    quote: String,
-    source: String?,
-    cardStyle: CardStyle = CardStyle(),
+    quoteData: QuoteDataWithCollectState,
+    uiState: QuoteDetailUiState,
+    onCollectClick: (QuoteDataWithCollectState) -> Unit,
     onStyle: () -> Unit,
     onShareQuote: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
     onBack: () -> Unit,
@@ -127,10 +141,10 @@ fun QuoteDetailScreen(
             .consumedWindowInsets(internalPadding)
         ) {
             QuoteDetailPage(
-                quote = quote,
-                source = source,
-                cardStyle = cardStyle,
-                snapshotStates = snapshotStates
+                quoteData = quoteData,
+                cardStyle = uiState.cardStyle,
+                snapshotStates = snapshotStates,
+                onCollectClick = onCollectClick
             )
             popupContent()
         }
@@ -140,10 +154,10 @@ fun QuoteDetailScreen(
 @Composable
 fun QuoteDetailPage(
     modifier: Modifier = Modifier,
-    quote: String,
-    source: String?,
+    quoteData: QuoteDataWithCollectState,
     cardStyle: CardStyle = CardStyle(),
     snapshotStates: Snapshotables = Snapshotables(),
+    onCollectClick: (QuoteDataWithCollectState) -> Unit,
 ) {
     val extraPadding = 64.dp
     var containerHeight by remember {
@@ -169,8 +183,8 @@ fun QuoteDetailPage(
                 .padding(top = 16.dp,
                     bottom = 16.dp + if (includeExtraPadding) extraPadding else 0.dp)
                 .onSizeChanged { contentSize = it },
-            quote = quote,
-            source = source,
+            quote = quoteData.quoteText,
+            source = quoteData.readableSource,
             quoteSize = cardStyle.quoteSize.sp,
             sourceSize = cardStyle.sourceSize.sp,
             lineSpacing = cardStyle.lineSpacing.dp,
@@ -179,7 +193,11 @@ fun QuoteDetailPage(
             minHeight = if (!LocalInspectionMode.current) {
                 with(LocalDensity.current) { max(containerHeight.toDp(), 320.dp) * 0.6F }
             } else 320.dp,
-            snapshotStates = snapshotStates
+            snapshotStates = snapshotStates,
+            currentCollectState = quoteData.collectState ?: false,
+            onCollectClick = {
+                onCollectClick(quoteData)
+            }
         )
         if (LocalInspectionMode.current || !LocalInspectionMode.current && !includeExtraPadding) {
             Spacer(modifier = Modifier.height(extraPadding))
@@ -199,6 +217,8 @@ fun QuoteCard(
     typeface: Typeface? = Typeface.DEFAULT,
     minHeight: Dp = 0.dp,
     snapshotStates: Snapshotables = Snapshotables(),
+    currentCollectState: Boolean = false,
+    onCollectClick: () -> Unit = {},
 ) {
     val containerColor = QuoteLockTheme.quotelockColors.quoteCardSurface
     val contentColor = QuoteLockTheme.quotelockColors.quoteCardOnSurface
@@ -248,6 +268,12 @@ fun QuoteCard(
                 )
             }
         }
+        val animStar =
+            AnimatedImageVector.animatedVectorResource(id = R.drawable.avd_star_unselected_to_selected)
+        IconButton(onClick = onCollectClick, modifier = Modifier.align(Alignment.TopEnd)) {
+            Icon(painter = rememberAnimatedVectorPainter(animStar, currentCollectState),
+                contentDescription = "Collect")
+        }
     }
 }
 
@@ -266,10 +292,20 @@ internal fun Context.shareImage(file: File) {
     }
 }
 
-class QuotePreviewParameterProvider : PreviewParameterProvider<Pair<String, String>> {
-    override val values: Sequence<Pair<String, String>> = sequenceOf(
-        Pair("落霞与孤鹜齐飞，秋水共长天一色", "${PREF_QUOTE_SOURCE_PREFIX}王勃 《滕王阁序》"),
-        Pair("Knowledge is power.", "${PREF_QUOTE_SOURCE_PREFIX}Francis Bacon"),
+class QuotePreviewParameterProvider : PreviewParameterProvider<QuoteDataWithCollectState> {
+    override val values: Sequence<QuoteDataWithCollectState> = sequenceOf(
+        QuoteDataWithCollectState(
+            "落霞与孤鹜齐飞，秋水共长天一色",
+            "《滕王阁序》",
+            "王勃",
+            true
+        ),
+        QuoteDataWithCollectState(
+            "Knowledge is power.",
+            "Francis Bacon",
+            "",
+            false
+        ),
     )
 }
 
@@ -306,11 +342,17 @@ private fun QuoteCardPreview(
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun DetailScreenPreview(
-    @PreviewParameter(QuotePreviewParameterProvider::class) quote: Pair<String, String>,
+    @PreviewParameter(QuotePreviewParameterProvider::class) quote: QuoteDataWithCollectState,
 ) {
     QuoteLockTheme {
         Surface {
-            QuoteDetailScreen(quote = quote.first, source = quote.second, onStyle = {}, onBack = {})
+            QuoteDetailScreen(
+                quoteData = quote,
+                uiState = QuoteDetailUiState(CardStyle()),
+                onCollectClick = {},
+                onStyle = {},
+                onBack = {}
+            )
         }
     }
 }

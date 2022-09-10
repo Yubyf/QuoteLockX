@@ -38,9 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.crossbowffs.quotelock.app.collections.QuoteCollectionUiEvent.ProgressMessage
 import com.crossbowffs.quotelock.app.collections.QuoteCollectionUiEvent.SnackBarMessage
-import com.crossbowffs.quotelock.data.api.GoogleAccount
-import com.crossbowffs.quotelock.data.api.QuoteEntity
-import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.*
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
 import com.crossbowffs.quotelock.ui.components.CollectionAppBar
 import com.crossbowffs.quotelock.ui.components.DeletableQuoteListItem
@@ -54,7 +52,7 @@ import kotlinx.coroutines.launch
 fun QuoteCollectionRoute(
     modifier: Modifier = Modifier,
     viewModel: QuoteCollectionViewModel = hiltViewModel(),
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteDataWithCollectState) -> Unit,
     onBack: () -> Unit,
 ) {
     val listUiState by viewModel.uiListState
@@ -86,7 +84,7 @@ fun QuoteCollectionRoute(
         listUiState = listUiState,
         menuUiState = menuUiState,
         uiEvent = uiEvent,
-        onItemClick = onItemClick,
+        onItemClick = { onItemClick(it.withCollectState(true)) },
         onBack = onBack,
         onExportDatabase = {
             if (ensurePermissions(context,
@@ -126,7 +124,7 @@ fun QuoteCollectionScreen(
     listUiState: QuoteCollectionListUiState,
     menuUiState: QuoteCollectionMenuUiState,
     uiEvent: QuoteCollectionUiEvent?,
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteData) -> Unit,
     onBack: () -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
     onExportDatabase: () -> Unit = {},
@@ -389,7 +387,7 @@ fun CollectionSyncMenu(
 private fun CollectionItemList(
     modifier: Modifier = Modifier,
     entities: List<QuoteEntity>,
-    onItemClick: (ReadableQuote) -> Unit,
+    onItemClick: (QuoteData) -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
 ) {
     Surface {

@@ -7,8 +7,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
-import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
 import com.crossbowffs.quotelock.ui.navigation.standalonePageComposable
 import okio.ByteString.Companion.decodeHex
@@ -17,9 +16,12 @@ import okio.ByteString.Companion.encodeUtf8
 object DetailDestination : QuoteNavigationDestination {
     const val QUOTE_ARG = "quote"
     const val SOURCE_ARG = "source"
+    const val AUTHOR_ARG = "author"
+    const val COLLECT_STATE_ARG = "collect_state"
 
     override val screen: String = "detail"
-    override val route: String = "$screen/{$QUOTE_ARG}?$SOURCE_ARG={$SOURCE_ARG}"
+    override val route: String =
+        "$screen/{$QUOTE_ARG}?$SOURCE_ARG={$SOURCE_ARG}&$AUTHOR_ARG={$AUTHOR_ARG}&$COLLECT_STATE_ARG={$COLLECT_STATE_ARG}"
 }
 
 fun NavGraphBuilder.detailGraph(onFontCustomize: () -> Unit, onBack: () -> Unit) {
@@ -31,30 +33,51 @@ fun NavGraphBuilder.detailGraph(onFontCustomize: () -> Unit, onBack: () -> Unit)
                 type = NavType.StringType
                 nullable = true
             },
+            navArgument(DetailDestination.AUTHOR_ARG) {
+                type = NavType.StringType
+                nullable = true
+            },
+            navArgument(DetailDestination.COLLECT_STATE_ARG) {
+                type = NavType.StringType
+                nullable = true
+            }
         ),
     ) {
         val quote =
             it.arguments?.getString(DetailDestination.QUOTE_ARG)?.decodeHex()?.utf8().orEmpty()
         val source =
             it.arguments?.getString(DetailDestination.SOURCE_ARG)?.decodeHex()?.utf8()
+        val author =
+            it.arguments?.getString(DetailDestination.AUTHOR_ARG)?.decodeHex()?.utf8()
+        val collectState =
+            it.arguments?.getString(DetailDestination.COLLECT_STATE_ARG)
         QuoteDetailRoute(quote = quote,
             source = source,
+            author = author,
+            initialCollectState = collectState?.toBooleanStrictOrNull(),
             onBack = onBack,
             onFontCustomize = onFontCustomize)
     }
 }
 
-fun NavHostController.navigateToDetail(quote: ReadableQuote) {
-    val encodedText = quote.text.encodeUtf8().hex()
-    val encodedSource = quote.source?.let {
-        (if (it.startsWith(PREF_QUOTE_SOURCE_PREFIX)) it else PREF_QUOTE_SOURCE_PREFIX + it)
-            .encodeUtf8().hex()
-    }
+fun NavHostController.navigateToDetail(quote: QuoteDataWithCollectState) {
+    val encodedText = quote.quoteText.encodeUtf8().hex()
+    val encodedSource = quote.quoteSource.encodeUtf8().hex()
+    val encodedAuthor = quote.quoteAuthor.encodeUtf8().hex()
+    val optionArgs = encodedSource.takeIf { it.isNotBlank() }?.let {
+        "${DetailDestination.SOURCE_ARG}=$encodedSource"
+    }.let { source ->
+        encodedAuthor.takeIf { it.isNotBlank() }?.let {
+            (if (source.isNullOrBlank()) "" else "$source&") +
+                    "${DetailDestination.AUTHOR_ARG}=$it"
+        } ?: source
+    }.let { sourceAndAuthor ->
+        quote.collectState?.let {
+            (if (sourceAndAuthor.isNullOrBlank()) "" else "$sourceAndAuthor&") +
+                    "${DetailDestination.COLLECT_STATE_ARG}=$it"
+        } ?: sourceAndAuthor
+    }.takeIf { !it.isNullOrBlank() }?.let { "?$it" }
     navigate(
-        "${DetailDestination.screen}/$encodedText".let {
-            if (!encodedSource.isNullOrBlank()) {
-                "$it?${DetailDestination.SOURCE_ARG}=$encodedSource"
-            } else it
-        }
+        "${DetailDestination.screen}/$encodedText$optionArgs"
     )
 }

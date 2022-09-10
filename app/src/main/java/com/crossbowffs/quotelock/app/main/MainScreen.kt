@@ -87,9 +87,7 @@ fun MainScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            MainAppBar(onStyle = {
-                cardStyleViewModel.showStylePopup()
-            }) {
+            MainAppBar(onStyle = cardStyleViewModel::showStylePopup) {
                 MainDropdownMenu(
                     onSettingsItemClick = onSettingsItemClick,
                     onLockscreenStylesItemClick = onLockscreenStylesItemClick,
@@ -149,10 +147,10 @@ fun MainScreen(
             QuoteDetailPage(
                 modifier = modifier
                     .fillMaxSize(),
-                quote = mainUiState.quoteViewData.text,
-                source = mainUiState.quoteViewData.source,
+                quoteData = mainUiState.quoteData,
                 cardStyle = detailUiState.cardStyle,
-                snapshotStates = snapshotStates
+                snapshotStates = snapshotStates,
+                onCollectClick = detailViewModel::switchCollectionState
             )
             cardStyleUiState.takeIf { cardStyleUiState.show }?.let {
                 CardStylePopup(

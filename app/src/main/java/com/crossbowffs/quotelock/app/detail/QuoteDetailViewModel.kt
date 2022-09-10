@@ -16,7 +16,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.CardStyleRepository
-import com.crossbowffs.quotelock.data.api.CardStyle
+import com.crossbowffs.quotelock.data.api.*
+import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.dp2px
@@ -27,6 +28,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -44,6 +47,7 @@ data class QuoteDetailUiEvent(val shareFile: File?)
  */
 data class QuoteDetailUiState(
     val cardStyle: CardStyle,
+    val collectState: Boolean? = null,
 )
 
 /**
@@ -53,14 +57,25 @@ data class QuoteDetailUiState(
 class QuoteDetailViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val cardStyleRepository: CardStyleRepository,
+    private val collectionRepository: QuoteCollectionRepository,
     private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
+    var quoteData: QuoteData = QuoteData()
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            _uiState.value = _uiState.value.copy(collectState = null)
+        }
+
     private val _uiEvent = MutableSharedFlow<QuoteDetailUiEvent?>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiState = mutableStateOf(QuoteDetailUiState(CardStyle()))
+    private val _uiState =
+        mutableStateOf(QuoteDetailUiState(CardStyle()))
     val uiState: State<QuoteDetailUiState> = _uiState
 
     private var shareDir = File(context.getExternalFilesDir(null), PREF_SHARE_IMAGE_CHILD_PATH)
@@ -68,50 +83,79 @@ class QuoteDetailViewModel @Inject constructor(
     init {
         val style = cardStyleRepository.cardStyle
         _uiState.value = _uiState.value.copy(cardStyle = style)
-        viewModelScope.launch {
-            cardStyleRepository.observeCardStyleDataStore { preferences, key ->
-                when (key?.name) {
-                    PREF_CARD_STYLE_FONT_FAMILY -> {
-                        val font =
-                            preferences[stringPreferencesKey(PREF_CARD_STYLE_FONT_FAMILY)]
-                                ?: PREF_CARD_STYLE_FONT_FAMILY_DEFAULT
-                        _uiState.value = _uiState.value.run {
-                            copy(cardStyle = cardStyle.copy(fontFamily = font))
+        viewModelScope.apply {
+            launch {
+                cardStyleRepository.observeCardStyleDataStore { preferences, key ->
+                    when (key?.name) {
+                        PREF_CARD_STYLE_FONT_FAMILY -> {
+                            val font =
+                                preferences[stringPreferencesKey(PREF_CARD_STYLE_FONT_FAMILY)]
+                                    ?: PREF_CARD_STYLE_FONT_FAMILY_DEFAULT
+                            _uiState.value = _uiState.value.run {
+                                copy(cardStyle = cardStyle.copy(fontFamily = font))
+                            }
                         }
-                    }
-                    PREF_CARD_STYLE_FONT_SIZE_TEXT -> {
-                        val quoteSize =
-                            preferences[intPreferencesKey(PREF_CARD_STYLE_FONT_SIZE_TEXT)]
-                                ?: PREF_CARD_STYLE_FONT_SIZE_TEXT_DEFAULT
-                        _uiState.value = _uiState.value.run {
-                            copy(cardStyle = cardStyle.copy(quoteSize = quoteSize))
+                        PREF_CARD_STYLE_FONT_SIZE_TEXT -> {
+                            val quoteSize =
+                                preferences[intPreferencesKey(PREF_CARD_STYLE_FONT_SIZE_TEXT)]
+                                    ?: PREF_CARD_STYLE_FONT_SIZE_TEXT_DEFAULT
+                            _uiState.value = _uiState.value.run {
+                                copy(cardStyle = cardStyle.copy(quoteSize = quoteSize))
+                            }
                         }
-                    }
-                    PREF_CARD_STYLE_FONT_SIZE_SOURCE -> {
-                        val sourceSize =
-                            preferences[intPreferencesKey(PREF_CARD_STYLE_FONT_SIZE_SOURCE)]
-                                ?: PREF_CARD_STYLE_FONT_SIZE_SOURCE_DEFAULT
-                        _uiState.value = _uiState.value.run {
-                            copy(cardStyle = cardStyle.copy(sourceSize = sourceSize))
+                        PREF_CARD_STYLE_FONT_SIZE_SOURCE -> {
+                            val sourceSize =
+                                preferences[intPreferencesKey(PREF_CARD_STYLE_FONT_SIZE_SOURCE)]
+                                    ?: PREF_CARD_STYLE_FONT_SIZE_SOURCE_DEFAULT
+                            _uiState.value = _uiState.value.run {
+                                copy(cardStyle = cardStyle.copy(sourceSize = sourceSize))
+                            }
                         }
-                    }
-                    PREF_CARD_STYLE_LINE_SPACING -> {
-                        val lineSpacing =
-                            preferences[intPreferencesKey(PREF_CARD_STYLE_LINE_SPACING)]
-                                ?: PREF_CARD_STYLE_LINE_SPACING_DEFAULT
-                        _uiState.value = _uiState.value.run {
-                            copy(cardStyle = cardStyle.copy(lineSpacing = lineSpacing))
+                        PREF_CARD_STYLE_LINE_SPACING -> {
+                            val lineSpacing =
+                                preferences[intPreferencesKey(PREF_CARD_STYLE_LINE_SPACING)]
+                                    ?: PREF_CARD_STYLE_LINE_SPACING_DEFAULT
+                            _uiState.value = _uiState.value.run {
+                                copy(cardStyle = cardStyle.copy(lineSpacing = lineSpacing))
+                            }
                         }
-                    }
-                    PREF_CARD_STYLE_CARD_PADDING -> {
-                        val cardPadding =
-                            preferences[intPreferencesKey(PREF_CARD_STYLE_CARD_PADDING)]
-                                ?: PREF_CARD_STYLE_CARD_PADDING_DEFAULT
-                        _uiState.value = _uiState.value.run {
-                            copy(cardStyle = cardStyle.copy(cardPadding = cardPadding))
+                        PREF_CARD_STYLE_CARD_PADDING -> {
+                            val cardPadding =
+                                preferences[intPreferencesKey(PREF_CARD_STYLE_CARD_PADDING)]
+                                    ?: PREF_CARD_STYLE_CARD_PADDING_DEFAULT
+                            _uiState.value = _uiState.value.run {
+                                copy(cardStyle = cardStyle.copy(cardPadding = cardPadding))
+                            }
                         }
                     }
                 }
+            }
+            collectionRepository.getAllStream().onEach { collections ->
+                val quoteData = quoteData.copy()
+                val currentQuoteCollected = collections.find { quoteData.md5 == it.md5 } != null
+                _uiState.value = _uiState.value.copy(collectState = currentQuoteCollected)
+            }.launchIn(this)
+        }
+    }
+
+    fun queryQuoteCollectState() {
+        viewModelScope.launch {
+            val state = collectionRepository.getByQuote(quoteData.quoteText,
+                quoteData.quoteSource,
+                quoteData.quoteAuthor) != null
+            _uiState.value = _uiState.value.copy(collectState = state)
+        }
+    }
+
+    fun switchCollectionState(quoteData: QuoteDataWithCollectState) {
+        viewModelScope.launch {
+            val currentState = collectionRepository.getByQuote(quoteData.quoteText,
+                quoteData.quoteSource,
+                quoteData.quoteAuthor) != null
+            if (currentState) {
+                collectionRepository.delete(quoteData.md5)
+            } else {
+                collectionRepository.insert(quoteData.toQuoteData())
             }
         }
     }

@@ -7,24 +7,20 @@ import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteStyle
-import com.crossbowffs.quotelock.data.api.QuoteViewData
-import com.crossbowffs.quotelock.data.api.buildQuoteViewData
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.getComposeFontStyle
 import com.crossbowffs.quotelock.utils.getComposeFontWeight
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
  * UI state for the preview screen in the settings page.
  */
-data class PreviewUiState(val quoteViewData: QuoteViewData, val quoteStyle: QuoteStyle)
+data class PreviewUiState(val quoteData: QuoteDataWithCollectState, val quoteStyle: QuoteStyle)
 
 /**
  * @author Yubyf
@@ -33,37 +29,20 @@ data class PreviewUiState(val quoteViewData: QuoteViewData, val quoteStyle: Quot
 class PreviewViewModel @Inject constructor(
     private val configurationRepository: ConfigurationRepository,
     private val quoteRepository: QuoteRepository,
-    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<PreviewUiState> =
-        MutableStateFlow(PreviewUiState(getQuoteViewData(),
+        MutableStateFlow(PreviewUiState(quoteRepository.getCurrentQuote(),
             configurationRepository.quoteStyle))
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.apply {
             launch {
-                quoteRepository.observeQuoteData { preferences, key ->
-                    when (key?.name) {
-                        PREF_QUOTES_TEXT,
-                        PREF_QUOTES_AUTHOR,
-                        PREF_QUOTES_SOURCE,
-                        -> {
-                            val quote =
-                                preferences[stringPreferencesKey(PREF_QUOTES_TEXT)] ?: ""
-                            val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
-                            val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
-                            _uiState.update { currentState ->
-                                currentState.copy(
-                                    quoteViewData = resourceProvider.buildQuoteViewData(
-                                        quote,
-                                        source,
-                                        author)
-                                )
-                            }
-                        }
-                    }
+                viewModelScope.launch {
+                    quoteRepository.quoteDataFlow.onEach {
+                        _uiState.value = _uiState.value.copy(quoteData = it)
+                    }.launchIn(this)
                 }
             }
 
@@ -164,13 +143,5 @@ class PreviewViewModel @Inject constructor(
                 currentState.copy(quoteStyle = configurationRepository.quoteStyle)
             }
         }
-    }
-
-    private fun getQuoteViewData(): QuoteViewData {
-        val quoteData = quoteRepository.getCurrentQuote()
-        return resourceProvider.buildQuoteViewData(
-            quoteData.quoteText,
-            quoteData.quoteSource,
-            quoteData.quoteAuthor)
     }
 }

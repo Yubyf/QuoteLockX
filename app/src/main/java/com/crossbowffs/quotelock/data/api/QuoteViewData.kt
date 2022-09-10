@@ -1,12 +1,12 @@
 package com.crossbowffs.quotelock.data.api
 
+import android.content.res.Resources
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
 
 data class QuoteViewData(val text: String = "", val source: String = "")
 
-fun ResourceProvider.buildQuoteViewData(
+fun Resources.buildQuoteViewData(
     text: String,
     source: String?,
     author: String?,

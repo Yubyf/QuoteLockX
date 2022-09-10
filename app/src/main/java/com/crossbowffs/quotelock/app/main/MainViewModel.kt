@@ -6,15 +6,10 @@ import android.net.Uri
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.crossbowffs.quotelock.consts.PREF_QUOTES_AUTHOR
-import com.crossbowffs.quotelock.consts.PREF_QUOTES_SOURCE
-import com.crossbowffs.quotelock.consts.PREF_QUOTES_TEXT
 import com.crossbowffs.quotelock.consts.Urls
-import com.crossbowffs.quotelock.data.api.QuoteViewData
-import com.crossbowffs.quotelock.data.api.buildQuoteViewData
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.WorkUtils
@@ -26,6 +21,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,7 +37,7 @@ sealed class MainUiEvent {
     ) : MainUiEvent()
 }
 
-data class MainUiState(val quoteViewData: QuoteViewData, val refreshing: Boolean = false)
+data class MainUiState(val quoteData: QuoteDataWithCollectState, val refreshing: Boolean = false)
 
 sealed class MainDialogUiState {
     object EnableModuleDialog : MainDialogUiState()
@@ -63,7 +60,8 @@ class MainViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<MainUiEvent?>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiState = mutableStateOf(MainUiState(getQuoteViewData()))
+    private val _uiState =
+        mutableStateOf(MainUiState(quoteRepository.getCurrentQuote()))
     val uiState: State<MainUiState> = _uiState
 
     private val _uiDialogState = mutableStateOf<MainDialogUiState>(MainDialogUiState.None)
@@ -79,28 +77,10 @@ class MainViewModel @Inject constructor(
             _uiDialogState.value = MainDialogUiState.ModuleUpdatedDialog
         }
 
-        viewModelScope.apply {
-            launch {
-                quoteRepository.observeQuoteData { preferences, key ->
-                    when (key?.name) {
-                        PREF_QUOTES_TEXT,
-                        PREF_QUOTES_AUTHOR,
-                        PREF_QUOTES_SOURCE,
-                        -> {
-                            val quote =
-                                preferences[stringPreferencesKey(PREF_QUOTES_TEXT)] ?: ""
-                            val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
-                            val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
-                            _uiState.value = _uiState.value.copy(
-                                quoteViewData = resourceProvider.buildQuoteViewData(
-                                    quote,
-                                    source,
-                                    author)
-                            )
-                        }
-                    }
-                }
-            }
+        viewModelScope.launch {
+            quoteRepository.quoteDataFlow.onEach {
+                _uiState.value = _uiState.value.copy(quoteData = it)
+            }.launchIn(this)
         }
         refreshQuote()
     }
@@ -136,14 +116,6 @@ class MainViewModel @Inject constructor(
 
     fun Context.startBrowserActivity(url: String) =
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-
-    private fun getQuoteViewData(): QuoteViewData {
-        val quoteData = quoteRepository.getCurrentQuote()
-        return resourceProvider.buildQuoteViewData(
-            quoteData.quoteText,
-            quoteData.quoteSource,
-            quoteData.quoteAuthor)
-    }
 
     fun cancelDialog() {
         _uiDialogState.value = MainDialogUiState.None

@@ -2,7 +2,7 @@ package com.crossbowffs.quotelock.app.collections
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.ui.navigation.QuoteNavigationDestination
 import com.crossbowffs.quotelock.ui.navigation.standardPageComposable
 
@@ -11,7 +11,10 @@ object CollectionDestination : QuoteNavigationDestination {
     override val route: String = screen
 }
 
-fun NavGraphBuilder.collectionGraph(onItemClick: (ReadableQuote) -> Unit, onBack: () -> Unit) {
+fun NavGraphBuilder.collectionGraph(
+    onItemClick: (QuoteDataWithCollectState) -> Unit,
+    onBack: () -> Unit,
+) {
     standardPageComposable(route = CollectionDestination.route) {
         QuoteCollectionRoute(onItemClick = onItemClick, onBack = onBack)
     }

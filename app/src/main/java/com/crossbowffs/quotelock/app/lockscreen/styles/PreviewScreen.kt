@@ -23,8 +23,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteViewData
-import com.crossbowffs.quotelock.data.api.ReadableQuote
+import com.crossbowffs.quotelock.data.api.buildReadableSource
 import com.crossbowffs.quotelock.ui.components.PreferenceTitle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -34,7 +35,7 @@ import com.yubyf.quotelockx.R
 fun PreviewRoute(
     modifier: Modifier = Modifier,
     viewModel: PreviewViewModel = hiltViewModel(),
-    onPreviewClick: (ReadableQuote) -> Unit,
+    onPreviewClick: (QuoteDataWithCollectState) -> Unit,
 ) {
     val uiState: PreviewUiState by viewModel.uiState.collectAsState()
     PreviewScreen(modifier, uiState, onPreviewClick)
@@ -44,7 +45,7 @@ fun PreviewRoute(
 fun PreviewScreen(
     modifier: Modifier = Modifier,
     uiState: PreviewUiState,
-    onPreviewClick: (ReadableQuote) -> Unit = {},
+    onPreviewClick: (QuoteDataWithCollectState) -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -56,12 +57,13 @@ fun PreviewScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            quote = uiState.quoteViewData.text,
+            quote = uiState.quoteData.quoteText,
             quoteSize = uiState.quoteStyle.quoteSize.toFloat(),
             quoteTypeface = uiState.quoteStyle.quoteTypeface,
             quoteFontWeight = uiState.quoteStyle.quoteFontWeight,
             quoteFontStyle = uiState.quoteStyle.quoteFontStyle,
-            source = uiState.quoteViewData.source,
+            source = buildReadableSource(uiState.quoteData.quoteSource,
+                uiState.quoteData.quoteAuthor, true),
             sourceSize = uiState.quoteStyle.sourceSize.toFloat(),
             sourceTypeface = uiState.quoteStyle.sourceTypeface,
             sourceFontWeight = uiState.quoteStyle.sourceFontWeight,
@@ -70,8 +72,7 @@ fun PreviewScreen(
             paddingTop = uiState.quoteStyle.paddingTop.dp,
             paddingBottom = uiState.quoteStyle.paddingBottom.dp,
             onClick = {
-                onPreviewClick.invoke(ReadableQuote(uiState.quoteViewData.text,
-                    uiState.quoteViewData.source))
+                onPreviewClick(uiState.quoteData)
             }
         )
     }

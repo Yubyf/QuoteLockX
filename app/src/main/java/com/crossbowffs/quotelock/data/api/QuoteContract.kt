@@ -1,6 +1,8 @@
 package com.crossbowffs.quotelock.data.api
 
 import android.provider.BaseColumns
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
+import com.crossbowffs.quotelock.utils.md5
 
 /**
  * @author Yubyf
@@ -24,14 +26,24 @@ interface QuoteEntity {
     override fun equals(other: Any?): Boolean
 }
 
-fun QuoteEntity.toReadableQuote(): ReadableQuote = ReadableQuote(
-    text,
-    source.let {
-        if (!author.isNullOrBlank()) "${author}${if (it.isBlank()) "" else " $it"}" else it
-    }.takeIf(String::isNotBlank)
-)
+val QuoteEntity.readableSource: String
+    get() = buildReadableSource(source, author)
 
-data class ReadableQuote(
-    val text: String,
-    val source: String?,
-)
+fun buildReadableSource(source: String?, author: String?, withPrefix: Boolean = false): String =
+    source?.let {
+        (if (!author.isNullOrBlank()) "${author}${if (it.isBlank()) "" else " $it"}" else it)
+            .takeIf { formatted ->
+                formatted.isNotBlank()
+            }?.let { formatted ->
+                if (withPrefix) PREF_QUOTE_SOURCE_PREFIX + formatted
+                else formatted
+            }
+    }.orEmpty()
+
+fun QuoteEntity.toQuoteData(): QuoteData = QuoteData(text, source, author.orEmpty())
+
+val QuoteData.md5: String
+    get() = ("$quoteText$quoteSource$quoteAuthor").md5()
+
+val QuoteDataWithCollectState.md5: String
+    get() = ("$quoteText$quoteSource$quoteAuthor").md5()

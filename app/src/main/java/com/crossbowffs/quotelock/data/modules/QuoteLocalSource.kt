@@ -3,6 +3,7 @@ package com.crossbowffs.quotelock.data.modules
 import androidx.datastore.preferences.core.Preferences
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.api.QuoteData
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
@@ -66,10 +67,11 @@ class QuoteLocalSource @Inject constructor(
         runBlocking { quotesDataStore.getLongSuspend(PREF_QUOTES_LAST_UPDATED, -1) }
 
     fun getCurrentQuote() = runBlocking {
-        QuoteData(
+        QuoteDataWithCollectState(
             quotesDataStore.getStringSuspend(PREF_QUOTES_TEXT, "")!!,
             quotesDataStore.getStringSuspend(PREF_QUOTES_SOURCE, "")!!,
             quotesDataStore.getStringSuspend(PREF_QUOTES_AUTHOR, "")!!,
+            quotesDataStore.getBooleanSuspend(PREF_QUOTES_COLLECTION_STATE, false),
         )
     }
 

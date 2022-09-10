@@ -1,6 +1,8 @@
 package com.crossbowffs.quotelock.data.modules.collections
 
 import android.net.Uri
+import com.crossbowffs.quotelock.data.api.QuoteData
+import com.crossbowffs.quotelock.data.api.md5
 import com.crossbowffs.quotelock.data.modules.collections.backup.CollectionLocalBackupSource
 import com.crossbowffs.quotelock.data.modules.collections.backup.CollectionRemoteSyncSource
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
@@ -30,6 +32,14 @@ class QuoteCollectionRepository internal constructor(
     suspend fun getRandomItem(): QuoteCollectionEntity? = withContext(dispatcher) {
         collectionDao.getRandomItem()
     }
+
+    suspend fun insert(quoteData: QuoteData): Long? =
+        insert(QuoteCollectionEntity(
+            text = quoteData.quoteText,
+            source = quoteData.quoteSource,
+            author = quoteData.quoteAuthor,
+            md5 = quoteData.md5)
+        )
 
     suspend fun insert(quote: QuoteCollectionEntity): Long? = withContext(dispatcher) {
         collectionDao.insert(quote)
