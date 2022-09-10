@@ -1,5 +1,7 @@
 package com.crossbowffs.quotelock.data.api
 
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
+
 /**
  * Holds the data for a quote.
  *
@@ -14,6 +16,9 @@ data class QuoteData(
 ) {
     val readableSource: String
         get() = buildReadableSource(quoteSource, quoteAuthor)
+
+    val readableSourceWithPrefix: String
+        get() = PREF_QUOTE_SOURCE_PREFIX + readableSource
 }
 
 data class QuoteDataWithCollectState(
@@ -24,6 +29,9 @@ data class QuoteDataWithCollectState(
 ) {
     val readableSource: String
         get() = buildReadableSource(quoteSource, quoteAuthor)
+
+    val readableSourceWithPrefix: String
+        get() = PREF_QUOTE_SOURCE_PREFIX + readableSource
 }
 
 fun QuoteData.withCollectState(state: Boolean? = null) = QuoteDataWithCollectState(

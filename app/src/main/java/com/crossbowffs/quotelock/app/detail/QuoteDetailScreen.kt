@@ -184,7 +184,7 @@ fun QuoteDetailPage(
                     bottom = 16.dp + if (includeExtraPadding) extraPadding else 0.dp)
                 .onSizeChanged { contentSize = it },
             quote = quoteData.quoteText,
-            source = quoteData.readableSource,
+            source = quoteData.readableSourceWithPrefix,
             quoteSize = cardStyle.quoteSize.sp,
             sourceSize = cardStyle.sourceSize.sp,
             lineSpacing = cardStyle.lineSpacing.dp,
