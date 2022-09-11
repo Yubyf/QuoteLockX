@@ -76,7 +76,7 @@ fun NavHostController.navigateToDetail(quote: QuoteDataWithCollectState) {
             (if (sourceAndAuthor.isNullOrBlank()) "" else "$sourceAndAuthor&") +
                     "${DetailDestination.COLLECT_STATE_ARG}=$it"
         } ?: sourceAndAuthor
-    }.takeIf { !it.isNullOrBlank() }?.let { "?$it" }
+    }.takeIf { !it.isNullOrBlank() }?.let { "?$it" } ?: ""
     navigate(
         "${DetailDestination.screen}/$encodedText$optionArgs"
     )
