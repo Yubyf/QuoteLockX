@@ -66,22 +66,26 @@ fun MainScreen(
     val rotation by rotationAnimation.asState()
     if (mainUiState.refreshing && !rotationAnimation.isRunning) {
         LaunchedEffect(Unit) {
-            rotationAnimation.snapTo(0F)
-            rotationAnimation.animateTo(targetValue = 360F,
-                animationSpec = repeatable(
-                    animation = tween(500, easing = LinearEasing),
-                    iterations = AnimationConstants.DefaultDurationMillis,
-                    repeatMode = RepeatMode.Restart
-                ))
+            scope.launch {
+                rotationAnimation.snapTo(0F)
+                rotationAnimation.animateTo(targetValue = 360F,
+                    animationSpec = repeatable(
+                        animation = tween(500, easing = LinearEasing),
+                        iterations = AnimationConstants.DefaultDurationMillis,
+                        repeatMode = RepeatMode.Restart
+                    ))
+            }
         }
     } else if (!mainUiState.refreshing && rotationAnimation.isRunning) {
         LaunchedEffect(Unit) {
-            rotationAnimation.stop()
-            rotationAnimation.animateTo(targetValue = 360F,
-                animationSpec = TweenSpec(
-                    ((360F - rotationAnimation.value) / 360 * 500).roundToInt(),
-                    easing = LinearEasing
-                ))
+            scope.launch {
+                rotationAnimation.stop()
+                rotationAnimation.animateTo(targetValue = 360F,
+                    animationSpec = TweenSpec(
+                        ((360F - rotationAnimation.value) / 360 * 500).roundToInt(),
+                        easing = LinearEasing
+                    ))
+            }
         }
     }
     Scaffold(
