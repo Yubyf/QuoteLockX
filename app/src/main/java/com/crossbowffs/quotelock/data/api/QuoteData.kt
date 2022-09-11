@@ -18,7 +18,8 @@ data class QuoteData(
         get() = buildReadableSource(quoteSource, quoteAuthor)
 
     val readableSourceWithPrefix: String
-        get() = PREF_QUOTE_SOURCE_PREFIX + readableSource
+        get() = readableSource.takeIf { it.isNotBlank() }?.let { PREF_QUOTE_SOURCE_PREFIX + it }
+            .orEmpty()
 }
 
 data class QuoteDataWithCollectState(
@@ -31,7 +32,8 @@ data class QuoteDataWithCollectState(
         get() = buildReadableSource(quoteSource, quoteAuthor)
 
     val readableSourceWithPrefix: String
-        get() = PREF_QUOTE_SOURCE_PREFIX + readableSource
+        get() = readableSource.takeIf { it.isNotBlank() }?.let { PREF_QUOTE_SOURCE_PREFIX + it }
+            .orEmpty()
 }
 
 fun QuoteData.withCollectState(state: Boolean? = null) = QuoteDataWithCollectState(
