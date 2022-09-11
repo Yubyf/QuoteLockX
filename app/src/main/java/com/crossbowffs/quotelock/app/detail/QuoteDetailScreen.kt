@@ -165,12 +165,14 @@ fun QuoteDetailPage(
     }
     val includeExtraPadding =
         contentSize.height + with(LocalDensity.current) { extraPadding.toPx() } >= containerHeight
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .verticalFadingEdge(scrollState = scrollState, length = 72.dp)
+            .verticalScroll(scrollState)
             .onGloballyPositioned { containerHeight = it.size.height }
-            .verticalScroll(state = rememberScrollState()),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.Center
     ) {
         val quoteGeneratedByApp = LocalContext.current.isQuoteGeneratedByApp(quoteData.quoteText,
