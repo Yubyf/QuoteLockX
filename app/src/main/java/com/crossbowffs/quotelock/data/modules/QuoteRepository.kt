@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.crossbowffs.quotelock.consts.*
-import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.md5
@@ -28,7 +27,7 @@ class QuoteRepository @Inject internal constructor(
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
 
-    private val _quoteDataFlow = MutableStateFlow(QuoteDataWithCollectState())
+    private val _quoteDataFlow = MutableStateFlow(getCurrentQuote())
     val quoteDataFlow = _quoteDataFlow.asStateFlow()
 
     private val _lastUpdateFlow = MutableStateFlow(0L)
