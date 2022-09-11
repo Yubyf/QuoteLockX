@@ -1,8 +1,12 @@
 package com.crossbowffs.quotelock.data.api
 
+import android.content.Context
+import android.content.res.Configuration
 import android.provider.BaseColumns
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.utils.md5
+import com.yubyf.quotelockx.R
+import java.util.*
 
 /**
  * @author Yubyf
@@ -39,6 +43,20 @@ fun buildReadableSource(source: String?, author: String?, withPrefix: Boolean = 
                 else formatted
             }
     }.orEmpty()
+
+fun Context.isQuoteGeneratedByApp(text: String, source: String?, author: String?): Boolean {
+    if (source.isNullOrBlank() && author.isNullOrBlank()) return false
+    val configuration = Configuration(resources.configuration)
+    return sequenceOf(Locale.ENGLISH, Locale.SIMPLIFIED_CHINESE, Locale.TRADITIONAL_CHINESE).map {
+        configuration.setLocale(it)
+        createConfigurationContext(configuration).resources.let { resources ->
+            text == resources.getString(R.string.module_custom_setup_line1)
+                    && source == resources.getString(R.string.module_custom_setup_line2)
+                    || (text == resources.getString(R.string.module_collections_setup_line1)
+                    && source == resources.getString(R.string.module_collections_setup_line2))
+        }
+    }.reduce { acc, b -> acc || b }
+}
 
 fun QuoteEntity.toQuoteData(): QuoteData = QuoteData(text, source, author.orEmpty())
 

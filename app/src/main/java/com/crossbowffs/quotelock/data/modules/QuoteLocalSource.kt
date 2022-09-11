@@ -12,7 +12,6 @@ import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.md5
 import com.yubyf.datastore.DataStoreDelegate
-import com.yubyf.quotelockx.R
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,9 +44,7 @@ class QuoteLocalSource @Inject constructor(
         Xlog.d(TAG, "Text: $quoteText")
         Xlog.d(TAG, "Source: $quoteSource")
         Xlog.d(TAG, "Author: $quoteAuthor")
-        if (quoteSource != resourceProvider.getString(R.string.module_custom_setup_line2)
-            && quoteSource != resourceProvider.getString(R.string.module_collections_setup_line2)
-        ) {
+        if (!resourceProvider.isQuoteJustForDisplay(quoteText, quoteSource, quoteAuthor)) {
             insertQuoteHistory(quoteText, quoteSource, quoteAuthor)
         }
         val collectionState = queryQuoteCollectionState(quoteText, quoteSource, quoteAuthor)
@@ -88,6 +85,6 @@ class QuoteLocalSource @Inject constructor(
         quotesDataStore.collectSuspend(collector)
 
     companion object {
-        private const val TAG = "QuoteDownloader"
+        private const val TAG = "QuoteLocalSource"
     }
 }

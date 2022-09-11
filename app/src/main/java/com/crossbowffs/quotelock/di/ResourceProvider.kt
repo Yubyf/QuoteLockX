@@ -6,6 +6,7 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
+import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,4 +32,7 @@ class ResourceProvider @Inject constructor(@ApplicationContext private val conte
     fun getDrawable(@DrawableRes resId: Int): Drawable? {
         return AppCompatResources.getDrawable(context, resId)
     }
+
+    fun isQuoteJustForDisplay(text: String, source: String?, author: String?) =
+        context.isQuoteGeneratedByApp(text, source, author)
 }

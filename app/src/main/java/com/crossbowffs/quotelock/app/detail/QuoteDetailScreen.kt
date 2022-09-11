@@ -44,10 +44,7 @@ import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
 import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
-import com.crossbowffs.quotelock.data.api.CardStyle
-import com.crossbowffs.quotelock.data.api.QuoteData
-import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
-import com.crossbowffs.quotelock.data.api.withCollectState
+import com.crossbowffs.quotelock.data.api.*
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -176,6 +173,9 @@ fun QuoteDetailPage(
             .verticalScroll(state = rememberScrollState()),
         verticalArrangement = Arrangement.Center
     ) {
+        val quoteGeneratedByApp = LocalContext.current.isQuoteGeneratedByApp(quoteData.quoteText,
+            quoteData.quoteSource,
+            quoteData.quoteAuthor)
         QuoteCard(
             modifier = Modifier
                 .fillMaxWidth()
@@ -184,7 +184,8 @@ fun QuoteDetailPage(
                     bottom = 16.dp + if (includeExtraPadding) extraPadding else 0.dp)
                 .onSizeChanged { contentSize = it },
             quote = quoteData.quoteText,
-            source = quoteData.readableSourceWithPrefix,
+            source = if (quoteGeneratedByApp) quoteData.readableSource
+            else quoteData.readableSourceWithPrefix,
             quoteSize = cardStyle.quoteSize.sp,
             sourceSize = cardStyle.sourceSize.sp,
             lineSpacing = cardStyle.lineSpacing.dp,
@@ -195,9 +196,9 @@ fun QuoteDetailPage(
             } else 320.dp,
             snapshotStates = snapshotStates,
             currentCollectState = quoteData.collectState ?: false,
-            onCollectClick = {
-                onCollectClick(quoteData)
-            }
+            onCollectClick = if (!quoteGeneratedByApp) {
+                { onCollectClick(quoteData) }
+            } else null
         )
         if (LocalInspectionMode.current || !LocalInspectionMode.current && !includeExtraPadding) {
             Spacer(modifier = Modifier.height(extraPadding))
@@ -218,7 +219,7 @@ fun QuoteCard(
     minHeight: Dp = 0.dp,
     snapshotStates: Snapshotables = Snapshotables(),
     currentCollectState: Boolean = false,
-    onCollectClick: () -> Unit = {},
+    onCollectClick: (() -> Unit)? = null,
 ) {
     val containerColor = QuoteLockTheme.quotelockColors.quoteCardSurface
     val contentColor = QuoteLockTheme.quotelockColors.quoteCardOnSurface
@@ -270,9 +271,11 @@ fun QuoteCard(
         }
         val animStar =
             AnimatedImageVector.animatedVectorResource(id = R.drawable.avd_star_unselected_to_selected)
-        IconButton(onClick = onCollectClick, modifier = Modifier.align(Alignment.TopEnd)) {
-            Icon(painter = rememberAnimatedVectorPainter(animStar, currentCollectState),
-                contentDescription = "Collect")
+        onCollectClick?.let {
+            IconButton(onClick = it, modifier = Modifier.align(Alignment.TopEnd)) {
+                Icon(painter = rememberAnimatedVectorPainter(animStar, currentCollectState),
+                    contentDescription = "Collect")
+            }
         }
     }
 }
