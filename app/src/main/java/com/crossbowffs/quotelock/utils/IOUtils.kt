@@ -36,6 +36,8 @@ suspend fun String.downloadUrl(
     val ua = "QuoteLockX/${BuildConfig.VERSION_NAME} (+${Urls.GITHUB_QUOTELOCK})"
     val connection = URL(this@downloadUrl).openConnection() as HttpURLConnection
     try {
+        connection.connectTimeout = 3000
+        connection.readTimeout = 3000
         connection.setRequestProperty("User-Agent", ua)
         headers?.run {
             forEach { (key, value) -> connection.addRequestProperty(key, value) }
