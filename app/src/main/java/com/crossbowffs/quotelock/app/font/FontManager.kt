@@ -7,10 +7,12 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import com.crossbowffs.quotelock.app.App
+import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.toFile
+import com.yubyf.quotelockx.R
 import com.yubyf.truetypeparser.TTFFile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,23 +29,76 @@ import javax.inject.Singleton
  */
 object FontManager {
 
-    private val SYSTEM_CUSTOM_FONT_DIR = File("/system/fonts", "custom")
-    private val INTERNAL_CUSTOM_FONT_DIR = File(App.instance.getExternalFilesDir(null), "fonts")
-    private val INTERNAL_CUSTOM_FONT_PENDING_DIR = File(INTERNAL_CUSTOM_FONT_DIR, "pending")
-    internal val INTERNAL_CUSTOM_FONT_PENDING_IMPORT_DIR =
-        File(INTERNAL_CUSTOM_FONT_PENDING_DIR, "import")
-    private val INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR =
-        File(INTERNAL_CUSTOM_FONT_PENDING_DIR, "remove")
-    private val SYSTEM_CUSTOM_FONT_STUB = File(SYSTEM_CUSTOM_FONT_DIR, ".stub")
-
     private val FONT_INFO_CACHE = HashMap<String, FontInfo>()
     private val TYPEFACE_CACHE = HashMap<String, Typeface>()
 
     private val TAG = className<FontManager>()
 
+    private fun Array<File>.filterFontFiles() = filter { it.isFontFile() }
+
+    private fun File.isFontFile(): Boolean {
+        val name = name.lowercase(Locale.ROOT)
+        return name.endsWith(".ttf") || name.endsWith(".otf")
+    }
+
+    fun loadAllFontsList(): List<FontInfo> {
+        val pendingRemoveSystemFontFiles =
+            INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
+                ?.filterFontFiles()
+        val systemFontFiles = SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
+            it.isFontFile() && pendingRemoveSystemFontFiles
+                ?.find { pending -> pending.name == it.name } == null
+        } ?: emptyList()
+        val inAppFontFiles =
+            INTERNAL_CUSTOM_FONT_DIR.listFiles()?.filterFontFiles() ?: emptyList()
+        return (systemFontFiles + inAppFontFiles).sortedBy { it.lastModified() }.distinctBy {
+            it.name to it.length()
+        }.map {
+            FONT_INFO_CACHE[it.absolutePath] ?: FontInfo(fileName = it.nameWithoutExtension,
+                path = it.absolutePath)
+        }
+    }
+
+    //region In-app font
+
+    internal val INTERNAL_CUSTOM_FONT_DIR = File(App.instance.getExternalFilesDir(null), "fonts")
+
+    internal fun ensureInAppFontDir(): Boolean =
+        INTERNAL_CUSTOM_FONT_DIR.exists() || INTERNAL_CUSTOM_FONT_DIR.mkdirs()
+
+    suspend fun loadInAppFontsList(): List<FontInfo>? =
+        INTERNAL_CUSTOM_FONT_DIR.listFiles()?.filter { it.isFontFile() }
+            ?.sortedBy { it.lastModified() }?.mapNotNull {
+                loadFontInfo(it) ?: return null
+            }?.distinctBy { it.fileName }
+
+    fun deleteInAppFont(fileName: String): Boolean =
+        File(INTERNAL_CUSTOM_FONT_DIR, fileName).let {
+            if (it.exists()) it.delete() else true
+        }
+    //endregion
+
+    //region System font
+    private val SYSTEM_CUSTOM_FONT_DIR = File("/system/fonts", "custom")
+    private val INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_DIR = File(INTERNAL_CUSTOM_FONT_DIR, "pending")
+    internal val INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_IMPORT_DIR =
+        File(INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_DIR, "import")
+    private val INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_REMOVE_DIR =
+        File(INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_DIR, "remove")
+    private val SYSTEM_CUSTOM_FONT_STUB = File(SYSTEM_CUSTOM_FONT_DIR, ".stub")
+
     fun checkSystemCustomFontAvailable(): Boolean {
         return SYSTEM_CUSTOM_FONT_STUB.exists()
     }
+
+    internal fun ensureInternalFontDir(): Boolean =
+        ensureInAppFontDir()
+                && (INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_DIR.exists()
+                || INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_DIR.mkdirs())
+                && (INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_IMPORT_DIR.exists()
+                || INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_IMPORT_DIR.mkdirs())
+                && (INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_REMOVE_DIR.exists()
+                || INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_REMOVE_DIR.mkdirs())
 
     fun deleteActiveSystemFont(fileName: String): Boolean {
         if (!ensureInternalFontDir()) {
@@ -51,61 +106,51 @@ object FontManager {
         }
         val fontFile = File(SYSTEM_CUSTOM_FONT_DIR, fileName)
         if (fontFile.exists()) {
-            val pendingRemovedFile = File(INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR, fileName)
+            val pendingRemovedFile = File(INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_REMOVE_DIR, fileName)
             pendingRemovedFile.createNewFile()
         }
         return true
     }
 
-    fun deleteInactiveFont(fileName: String): Boolean {
+    fun deleteInactiveSystemFont(fileName: String): Boolean {
         if (!ensureInternalFontDir()) {
             return false
         }
-        val fontFile = File(INTERNAL_CUSTOM_FONT_PENDING_IMPORT_DIR, fileName)
+        val fontFile = File(INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_IMPORT_DIR, fileName)
         if (fontFile.exists()) {
             return fontFile.delete()
         }
         return true
     }
 
-    fun isFontActivated(fileName: String): Boolean {
-        val fontFile = File(SYSTEM_CUSTOM_FONT_DIR, fileName)
-        return fontFile.exists()
-    }
+    fun isSystemFontActivated(fileName: String): Boolean =
+        File(SYSTEM_CUSTOM_FONT_DIR, fileName).exists()
 
-    fun loadActiveFontsList(): List<FontInfo>? {
-        val pendingRemoveFonts = INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
-            ?.filter {
-                it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
-            }
-        val systemCustomFonts = SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
-            (it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true))
-                    && pendingRemoveFonts?.find { pending -> pending.name == it.name } == null
+    fun loadActiveSystemFontsList(): List<FontInfo>? {
+        val pendingRemoveFonts = INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
+            ?.filterFontFiles()
+        return SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
+            it.isFontFile() && pendingRemoveFonts?.find { pending -> pending.name == it.name } == null
         }?.sortedBy { it.lastModified() }?.map {
             FONT_INFO_CACHE[it.absolutePath] ?: FontInfo(fileName = it.nameWithoutExtension,
                 path = it.absolutePath)
         }
-        return systemCustomFonts
     }
 
-    suspend fun loadFontsList(): List<FontInfoWithState>? {
+    suspend fun loadSystemFontsList(): List<FontInfoWithState>? {
         val allFonts = mutableListOf<FontInfoWithState>()
-        val pendingRemoveFonts = INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
-            ?.filter {
-                it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
-            }
-        val systemCustomFonts = SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
-            it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
-        }?.sortedBy { it.lastModified() }?.map {
-            loadFontInfo(it)?.let { fontInfo ->
-                FontInfoWithState(fontInfo, systemFont = true,
-                    active = pendingRemoveFonts?.find { pending -> pending.name == it.name } == null)
-            } ?: return null
-        }
-        val pendingImportFonts = INTERNAL_CUSTOM_FONT_PENDING_IMPORT_DIR.listFiles()
-            ?.filter {
-                it.name.endsWith(".ttf", true) || it.name.endsWith(".otf", true)
-            }?.sortedBy { it.lastModified() }?.map {
+        val pendingRemoveFonts = INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_REMOVE_DIR.listFiles()
+            ?.filterFontFiles()
+        val systemCustomFonts =
+            SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filterFontFiles()?.sortedBy { it.lastModified() }
+                ?.map {
+                    loadFontInfo(it)?.let { fontInfo ->
+                        FontInfoWithState(fontInfo, systemFont = true,
+                            active = pendingRemoveFonts?.find { pending -> pending.name == it.name } == null)
+                    } ?: return null
+                }
+        val pendingImportFonts = INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_IMPORT_DIR.listFiles()
+            ?.filterFontFiles()?.sortedBy { it.lastModified() }?.map {
                 loadFontInfo(it)?.let { fontInfo ->
                     FontInfoWithState(fontInfo, systemFont = false, active = false)
                 } ?: return null
@@ -115,6 +160,7 @@ object FontManager {
             addAll(pendingImportFonts ?: emptyList())
         }.distinctBy { it.fontInfo.fileName }
     }
+    //endregion
 
     suspend fun loadFontInfo(file: File): FontInfo? = withContext(Dispatchers.IO) {
         runCatching {
@@ -146,16 +192,6 @@ object FontManager {
             else -> ""
         }
     }
-
-    internal fun ensureInternalFontDir(): Boolean {
-        return (INTERNAL_CUSTOM_FONT_DIR.exists() || INTERNAL_CUSTOM_FONT_DIR.mkdirs())
-                && (INTERNAL_CUSTOM_FONT_PENDING_DIR.exists()
-                || INTERNAL_CUSTOM_FONT_PENDING_DIR.mkdirs())
-                && (INTERNAL_CUSTOM_FONT_PENDING_IMPORT_DIR.exists()
-                || INTERNAL_CUSTOM_FONT_PENDING_IMPORT_DIR.mkdirs())
-                && (INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR.exists()
-                || INTERNAL_CUSTOM_FONT_PENDING_REMOVE_DIR.mkdirs())
-    }
 }
 
 @Singleton
@@ -163,24 +199,50 @@ class FontImporter @Inject constructor(
     @ApplicationContext private val context: Context,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
-    suspend fun importFont(fileUri: Uri): String? = withContext(dispatcher) {
+    private fun Context.getFontNameFromUri(fileUri: Uri) =
+        contentResolver.query(fileUri, null, null,
+            null, null)?.use { cursor ->
+            // Get the name of the font file
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            cursor.moveToFirst()
+            cursor.getString(nameIndex)
+        } ?: fileUri.lastPathSegment
+
+    suspend fun importFontInApp(fileUri: Uri): AsyncResult<String> = withContext(dispatcher) {
+        runCatching {
+            if (!FontManager.ensureInAppFontDir()) {
+                throw IOException("Failed to create font directory")
+            }
+            val name =
+                context.getFontNameFromUri(fileUri) ?: throw IOException("Failed to get font name")
+            val fontFile = File(FontManager.INTERNAL_CUSTOM_FONT_DIR, name)
+            if (fontFile.exists()) {
+                AsyncResult.Error(Exception(context.getString(
+                    R.string.quote_fonts_management_font_already_exists, name)))
+            } else {
+                context.contentResolver.openInputStream(fileUri)?.toFile(fontFile)
+                AsyncResult.Success(fontFile.absolutePath)
+            }
+        }.onFailure {
+            Xlog.e(TAG, "Failed to import font", it)
+        }.getOrDefault(AsyncResult.Error(Exception(context.getString(
+            R.string.quote_fonts_management_import_failed))))
+    }
+
+    suspend fun importFontToSystem(fileUri: Uri): AsyncResult<String> = withContext(dispatcher) {
         runCatching {
             if (!FontManager.ensureInternalFontDir()) {
                 throw IOException("Failed to create font directory")
             }
-            val name = context.contentResolver.query(fileUri, null, null,
-                null, null)?.use { cursor ->
-                // Get the name of the font file
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                cursor.moveToFirst()
-                cursor.getString(nameIndex)
-            } ?: fileUri.lastPathSegment ?: throw IOException("Failed to get font name")
-            val fontFile = File(FontManager.INTERNAL_CUSTOM_FONT_PENDING_IMPORT_DIR, name)
+            val name =
+                context.getFontNameFromUri(fileUri) ?: throw IOException("Failed to get font name")
+            val fontFile = File(FontManager.INTERNAL_SYSTEM_CUSTOM_FONT_PENDING_IMPORT_DIR, name)
             context.contentResolver.openInputStream(fileUri)?.toFile(fontFile)
-            fontFile.absolutePath
+            AsyncResult.Success(fontFile.absolutePath)
         }.onFailure {
             Xlog.e(TAG, "Failed to import font", it)
-        }.getOrNull()
+        }.getOrDefault(AsyncResult.Error(Exception(context.getString(
+            R.string.quote_fonts_management_import_failed))))
     }
 
     companion object {

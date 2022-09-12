@@ -6,6 +6,7 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
+import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -35,4 +36,7 @@ class ResourceProvider @Inject constructor(@ApplicationContext private val conte
 
     fun isQuoteJustForDisplay(text: String, source: String?, author: String?) =
         context.isQuoteGeneratedByApp(text, source, author)
+
+    fun getFontLocaleName(fontInfo: FontInfo) =
+        with(fontInfo) { context.resources.configuration.localeName }
 }

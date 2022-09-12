@@ -31,4 +31,9 @@
         <item>哲學</item>
         <item>抖機靈</item>
     </string-array>
+
+    <string-array name="font_tabs">
+        <item>應用內</item>
+        <item>系統</item>
+    </string-array>
 </resources>

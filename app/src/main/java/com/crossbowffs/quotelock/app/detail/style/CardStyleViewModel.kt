@@ -35,14 +35,14 @@ class CardStyleViewModel @Inject constructor(
     val uiState: State<CardStyleUiState> = _uiState
 
     fun showStylePopup() {
-        val activeFonts = (FontManager.loadActiveFontsList() ?: emptyList())
+        val fonts = FontManager.loadAllFontsList()
         _uiState.value = _uiState.value.copy(
             show = true,
-            fonts = activeFonts,
+            fonts = fonts,
             cardStyle = cardStyleRepository.cardStyle
         )
         viewModelScope.launch {
-            activeFonts.filter { it.name.isEmpty() }
+            fonts.filter { it.name.isEmpty() }
                 .forEach { (_, fileName, path) ->
                     val fontInfo = FontManager.loadFontInfo(File(path)) ?: return@forEach
                     _uiState.value.let {

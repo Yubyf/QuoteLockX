@@ -1,6 +1,5 @@
-@file:OptIn(ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class,
-    ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalLayoutApi::class, ExperimentalPagerApi::class)
 
 package com.crossbowffs.quotelock.app.font
 
@@ -17,20 +16,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.consts.Urls
-import com.crossbowffs.quotelock.ui.components.DeletableFontListItem
-import com.crossbowffs.quotelock.ui.components.FontManagementAppBar
-import com.crossbowffs.quotelock.ui.components.LoadingDialog
+import com.crossbowffs.quotelock.ui.components.*
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 
@@ -43,10 +50,15 @@ fun FontManagementRoute(
     val uiState by viewModel.uiListState
     val uiDialogState by viewModel.uiDialogState
     val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
-    var pickedFontFileUri by remember { mutableStateOf<Uri?>(null) }
-    val pickedFontFileLauncher =
+    var pickedFontFileForAppUri by remember { mutableStateOf<Uri?>(null) }
+    val pickedFontFileForAppLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            pickedFontFileUri = uri
+            pickedFontFileForAppUri = uri
+        }
+    var pickedFontFileForSystemUri by remember { mutableStateOf<Uri?>(null) }
+    val pickedFontFileForSystemLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            pickedFontFileForSystemUri = uri
         }
     FontManagementScreen(
         modifier = modifier,
@@ -54,18 +66,26 @@ fun FontManagementRoute(
         uiDialogState = uiDialogState,
         uiEvent = uiEvent,
         onBack = onBack,
-        onImportButtonClick = {
-            viewModel.listScrolled()
-            pickedFontFileLauncher.launch(arrayOf("font/ttf", "font/otf"))
+        onInAppImportButtonClick = {
+            viewModel.inAppFontListScrolled()
+            pickedFontFileForAppLauncher.launch(arrayOf("font/ttf", "font/otf"))
         },
-        onDeleteMenuClick = viewModel::delete,
-        onDialogDismiss = viewModel::cancelDialog,
-        listScrolled = viewModel::listScrolled,
+        onSystemImportButtonClick = {
+            viewModel.systemFontListScrolled()
+            pickedFontFileForSystemLauncher.launch(arrayOf("font/ttf", "font/otf"))
+        },
+        onSystemFontDeleteMenuClick = viewModel::deleteSystemFont,
+        onInAppFontDeleteMenuClick = viewModel::deleteInAppFont,
+        listScrolled = viewModel::systemFontListScrolled,
         snackbarShown = viewModel::snackbarShown
     )
-    pickedFontFileUri?.let { uri ->
-        viewModel.importFont(uri)
-        pickedFontFileUri = null
+    pickedFontFileForSystemUri?.let { uri ->
+        viewModel.importFontToSystem(uri)
+        pickedFontFileForSystemUri = null
+    }
+    pickedFontFileForAppUri?.let { uri ->
+        viewModel.importFontInApp(uri)
+        pickedFontFileForAppUri = null
     }
 }
 
@@ -76,30 +96,31 @@ fun FontManagementScreen(
     uiDialogState: FontManagementDialogUiState,
     uiEvent: FontManagementUiEvent?,
     onBack: () -> Unit,
-    onImportButtonClick: () -> Unit,
-    onDeleteMenuClick: (FontInfoWithState) -> Unit,
-    onDialogDismiss: () -> Unit,
+    onInAppImportButtonClick: () -> Unit,
+    onSystemImportButtonClick: () -> Unit,
+    onSystemFontDeleteMenuClick: (FontInfoWithState) -> Unit,
+    onInAppFontDeleteMenuClick: (FontInfo) -> Unit,
     snackbarShown: () -> Unit,
     listScrolled: () -> Unit,
 ) {
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
+    val pagerState = rememberPagerState()
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        topBar = {
-            FontManagementAppBar(onBack = onBack)
-        },
+        topBar = { FontManagementAppBar(onBack = onBack) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(text = stringResource(id = R.string.quote_fonts_management_import)) },
-                icon = {
-                    Icon(Icons.Rounded.Add,
-                        contentDescription = stringResource(id = R.string.quote_fonts_management_import))
-                },
-                onClick = onImportButtonClick
-            )
+            if (pagerState.currentPage != 1 || uiState.systemFontEnabled) {
+                ExtendedFloatingActionButton(
+                    text = { Text(text = stringResource(id = R.string.quote_fonts_management_import)) },
+                    icon = {
+                        Icon(Icons.Rounded.Add,
+                            contentDescription = stringResource(id = R.string.quote_fonts_management_import))
+                    },
+                    onClick = if (pagerState.currentPage == 0) onInAppImportButtonClick
+                    else onSystemImportButtonClick
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
@@ -119,88 +140,192 @@ fun FontManagementScreen(
             }
             null -> {}
         }
-        val fontActiveHint = stringResource(id = R.string.quote_fonts_management_activate_tips)
-        FontInfoItemList(
+        val tabTitles = stringArrayResource(id = R.array.font_tabs)
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
                 .consumedWindowInsets(padding),
-            listState = listState,
-            entities = uiState.items,
-            onDeleteMenuClicked = onDeleteMenuClick,
-            onFontActiveHintClick = {
-                scope.launch { snackbarHostState.showSnackbar(fontActiveHint) }
-            }
-        )
-        when (uiDialogState) {
-            FontManagementDialogUiState.EnableMagiskModuleDialog -> {
-                AlertDialog(
-                    onDismissRequest = onDialogDismiss,
-                    title = { Text(text = stringResource(id = R.string.quote_fonts_magisk_module_needed_title)) },
-                    text = { Text(text = stringResource(id = R.string.quote_fonts_magisk_module_needed_message)) },
-                    icon = { Icon(Icons.Rounded.Warning, contentDescription = null) },
-                    dismissButton = {
-                        TextButton(onClick = { onDialogDismiss(); onBack() }) {
-                            Text(text = stringResource(id = R.string.ignore))
+        ) {
+            TabRow(
+                selectedTabIndex = pagerState.currentPage,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier
+                            .pagerTabIndicatorOffset(pagerState, tabPositions)
+                            .clip(RoundedCornerShape(1.dp)),
+                        height = 2.dp,
+                    )
+                }
+            ) {
+                tabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        onClick = {
+                            scope.launch { pagerState.scrollToPage(index) }
+                        },
+                        text = {
+                            Text(text = title,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis)
                         }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            context.startActivity(Intent(Intent.ACTION_VIEW,
-                                Uri.parse(Urls.GITHUB_QUOTELOCK_CUSTOM_FONTS_RELEASE)))
-                        }) {
-                            Text(text = stringResource(id = R.string.download))
+                    )
+                }
+            }
+            HorizontalPager(count = tabTitles.size, state = pagerState) { page ->
+                if (page == 0) {
+                    val listState = rememberLazyListState()
+                    InAppFontInfoItemList(
+                        listState = listState,
+                        entities = uiState.inAppFontItems,
+                        onDeleteMenuClicked = onInAppFontDeleteMenuClick,
+                    )
+                    if (uiState.inAppTabScrollToBottom) {
+                        LaunchedEffect(uiState.inAppTabScrollToBottom) {
+                            listState.animateScrollToItem(uiState.inAppFontItems.lastIndex)
+                            listScrolled()
                         }
                     }
-                )
+                } else {
+                    if (uiState.systemFontEnabled) {
+                        val listState = rememberLazyListState()
+                        val fontActiveHint =
+                            stringResource(id = R.string.quote_fonts_management_activate_tips)
+                        SystemFontInfoItemList(
+                            listState = listState,
+                            entities = uiState.systemFontItems,
+                            onDeleteMenuClicked = onSystemFontDeleteMenuClick,
+                            onFontActiveHintClick = {
+                                scope.launch { snackbarHostState.showSnackbar(fontActiveHint) }
+                            }
+                        )
+                        if (uiState.systemTabScrollToBottom) {
+                            LaunchedEffect(uiState.systemTabScrollToBottom) {
+                                listState.animateScrollToItem(uiState.systemFontItems.lastIndex)
+                                listScrolled()
+                            }
+                        }
+                    } else {
+                        EnableMagiskModuleLayout()
+                    }
+                }
             }
+        }
+        when (uiDialogState) {
             is FontManagementDialogUiState.ProgressDialog -> {
                 LoadingDialog(message = uiDialogState.message) {}
             }
             FontManagementDialogUiState.None -> {}
         }
-        if (uiState.scrollToBottom) {
-            LaunchedEffect(uiState.scrollToBottom) {
-                listState.animateScrollToItem(uiState.items.lastIndex)
-                listScrolled()
+    }
+}
+
+@Composable
+private fun InAppFontInfoItemList(
+    modifier: Modifier = Modifier,
+    listState: LazyListState,
+    entities: List<FontInfo>,
+    onDeleteMenuClicked: (FontInfo) -> Unit,
+) {
+    LazyColumn(
+        modifier = modifier,
+        state = listState
+    ) {
+        val animationSpec: FiniteAnimationSpec<IntOffset> = tween(
+            durationMillis = 300,
+            easing = LinearOutSlowInEasing,
+        )
+        itemsIndexed(entities, key = { _, item -> item.fileName }) { index, entity ->
+            DeletableFontListItem(
+                modifier = Modifier
+                    .animateItemPlacement(animationSpec)
+                    .fillMaxWidth(),
+                fontInfoWithState = FontInfoWithState(fontInfo = entity,
+                    systemFont = false,
+                    active = true),
+                onFontActiveHintClick = {}
+            ) {
+                onDeleteMenuClicked.invoke(it.fontInfo)
+            }
+            if (index < entities.lastIndex) {
+                Divider(Modifier
+                    .animateItemPlacement(animationSpec)
+                    .fillMaxWidth())
+            } else if (index == entities.lastIndex) {
+                Spacer(modifier = Modifier.height(64.dp))
             }
         }
     }
 }
 
 @Composable
-private fun FontInfoItemList(
+private fun SystemFontInfoItemList(
     modifier: Modifier = Modifier,
     listState: LazyListState,
     entities: List<FontInfoWithState>,
     onDeleteMenuClicked: (FontInfoWithState) -> Unit,
     onFontActiveHintClick: () -> Unit,
 ) {
-    Surface {
-        LazyColumn(
-            modifier = modifier,
-            state = listState
-        ) {
-            val animationSpec: FiniteAnimationSpec<IntOffset> = tween(
-                durationMillis = 300,
-                easing = LinearOutSlowInEasing,
-            )
-            itemsIndexed(entities, key = { _, item -> item.fontInfo.fileName }) { index, entity ->
-                DeletableFontListItem(
-                    modifier = Modifier
-                        .animateItemPlacement(animationSpec)
-                        .fillMaxWidth(),
-                    fontInfoWithState = entity,
-                    onFontActiveHintClick = onFontActiveHintClick
-                ) {
-                    onDeleteMenuClicked.invoke(it)
-                }
-                if (index < entities.lastIndex) {
-                    Divider(Modifier
-                        .animateItemPlacement(animationSpec)
-                        .fillMaxWidth())
-                }
+    LazyColumn(
+        modifier = modifier,
+        state = listState
+    ) {
+        val animationSpec: FiniteAnimationSpec<IntOffset> = tween(
+            durationMillis = 300,
+            easing = LinearOutSlowInEasing,
+        )
+        itemsIndexed(entities, key = { _, item -> item.fontInfo.fileName }) { index, entity ->
+            DeletableFontListItem(
+                modifier = Modifier
+                    .animateItemPlacement(animationSpec)
+                    .fillMaxWidth(),
+                fontInfoWithState = entity,
+                onFontActiveHintClick = onFontActiveHintClick
+            ) {
+                onDeleteMenuClicked.invoke(it)
             }
+            if (index < entities.lastIndex) {
+                Divider(Modifier
+                    .animateItemPlacement(animationSpec)
+                    .fillMaxWidth())
+            } else if (index == entities.lastIndex) {
+                Spacer(modifier = Modifier.height(64.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun EnableMagiskModuleLayout() {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 48.dp)
+            .alpha(ContentAlpha.medium),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Rounded.Warning, contentDescription = "Warning")
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = stringResource(id = R.string.quote_fonts_magisk_module_needed_title),
+                style = MaterialTheme.typography.titleLarge)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = stringResource(id = R.string.quote_fonts_magisk_module_needed_message),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedButton(onClick = {
+            context.startActivity(Intent(Intent.ACTION_VIEW,
+                Uri.parse(Urls.GITHUB_QUOTELOCK_CUSTOM_FONTS_RELEASE)))
+        },
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text(text = stringResource(id = R.string.download))
         }
     }
 }

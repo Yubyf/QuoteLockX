@@ -176,6 +176,7 @@
     <string name="quote_fonts_management_delete_font_failed">删除字体 %s 失败</string>
     <string name="quote_fonts_management_delete_active_font_successfully">重启设备以使删除操作生效</string>
     <string name="quote_fonts_management_delete_inactive_font_successfully">字体 %s 已删除</string>
+    <string name="quote_fonts_management_delete_in_app_font_successfully">字体 %s 已删除</string>
     <string name="quote_fonts_magisk_module_needed_title">需安装 Magisk 模块</string>
     <string name="quote_fonts_magisk_module_needed_message">
         Android 不支持应用以常规方式将导入的字体共享到锁屏应用显示。\n\n要想使用 QuoteLockX 自定义字体功能，您必须下载并在 Magisk 中安装 QuoteLockX-CustomFonts 模块。

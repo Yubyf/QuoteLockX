@@ -166,6 +166,11 @@
         <item>zippy</item>
     </string-array>
 
+    <string-array name="font_tabs">
+        <item>In-app</item>
+        <item>System</item>
+    </string-array>
+
     <!--ModuleScope for LSPosed-->
     <string-array name="module_scope" translatable="false">
         <item>com.android.systemui</item>

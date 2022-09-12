@@ -185,9 +185,11 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.0")
 
     // Accompanist
-    val accompanistVersion = "0.26.2-beta"
+    val accompanistVersion = "0.26.3-beta"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-pager-indicators:$accompanistVersion")
 
     implementation("com.opencsv:opencsv:5.6") {
         exclude(group = "commons-logging", module = "commons-logging")

@@ -7,6 +7,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,8 +32,11 @@ sealed class FontManagementUiEvent {
  * UI state for the font management list screen.
  */
 data class FontManagementListUiState(
-    val items: List<FontInfoWithState>,
-    val scrollToBottom: Boolean,
+    val inAppFontItems: List<FontInfo>,
+    val systemFontItems: List<FontInfoWithState>,
+    val systemFontEnabled: Boolean = false,
+    val systemTabScrollToBottom: Boolean,
+    val inAppTabScrollToBottom: Boolean,
 )
 
 /**
@@ -40,8 +44,6 @@ data class FontManagementListUiState(
  */
 sealed class FontManagementDialogUiState {
     data class ProgressDialog(val message: String?) : FontManagementDialogUiState()
-
-    object EnableMagiskModuleDialog : FontManagementDialogUiState()
 
     object None : FontManagementDialogUiState()
 }
@@ -58,7 +60,10 @@ class FontManagementViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<FontManagementUiEvent?>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _uiListState = mutableStateOf(FontManagementListUiState(emptyList(), false))
+    private val _uiListState =
+        mutableStateOf(FontManagementListUiState(emptyList(), emptyList(),
+            systemTabScrollToBottom = false,
+            inAppTabScrollToBottom = false))
     val uiListState: State<FontManagementListUiState>
         get() = _uiListState
 
@@ -68,58 +73,112 @@ class FontManagementViewModel @Inject constructor(
         get() = _uiDialogState
 
     init {
-        if (FontManager.checkSystemCustomFontAvailable()) {
-            viewModelScope.launch { loadFontsList() }
-        } else {
-            _uiDialogState.value = FontManagementDialogUiState.EnableMagiskModuleDialog
+        viewModelScope.launch {
+            loadInAppFontsList()
+            val systemFontEnabled = FontManager.checkSystemCustomFontAvailable()
+            _uiListState.value = _uiListState.value.copy(systemFontEnabled = systemFontEnabled)
+            if (systemFontEnabled) {
+                loadSystemFontsList()
+            }
         }
     }
 
-    private suspend fun loadFontsList() {
+    private suspend fun loadInAppFontsList() {
         _uiListState.value =
-            _uiListState.value.copy(items = FontManager.loadFontsList() ?: emptyList())
+            _uiListState.value.copy(inAppFontItems = FontManager.loadInAppFontsList()
+                ?: emptyList())
     }
 
-    fun delete(it: FontInfoWithState) = viewModelScope.launch {
+    private suspend fun loadSystemFontsList() {
+        _uiListState.value =
+            _uiListState.value.copy(systemFontItems = FontManager.loadSystemFontsList()
+                ?: emptyList())
+    }
+
+    fun deleteInAppFont(it: FontInfo) = viewModelScope.launch {
+        val message = resourceProvider.getString(if (FontManager.deleteInAppFont(it.fileName)) {
+            R.string.quote_fonts_management_delete_in_app_font_successfully
+        } else {
+            R.string.quote_fonts_management_delete_font_failed
+        }, resourceProvider.getFontLocaleName(it))
+        _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(message))
+        loadInAppFontsList()
+    }
+
+    fun deleteSystemFont(it: FontInfoWithState) = viewModelScope.launch {
         val message = if (it.active) {
             if (FontManager.deleteActiveSystemFont(it.fontInfo.fileName)) {
                 resourceProvider.getString(R.string.quote_fonts_management_delete_active_font_successfully)
             } else {
                 resourceProvider.getString(R.string.quote_fonts_management_delete_font_failed,
-                    it.fontInfo.name)
+                    resourceProvider.getFontLocaleName(it.fontInfo))
             }
         } else {
-            resourceProvider.getString(if (FontManager.deleteInactiveFont(it.fontInfo.fileName)) {
+            resourceProvider.getString(if (FontManager.deleteInactiveSystemFont(it.fontInfo.fileName)) {
                 R.string.quote_fonts_management_delete_inactive_font_successfully
             } else {
                 R.string.quote_fonts_management_delete_font_failed
-            }, it.fontInfo.name)
+            }, resourceProvider.getFontLocaleName(it.fontInfo))
         }
         _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(message))
-        loadFontsList()
+        loadSystemFontsList()
     }
 
-    fun importFont(uri: Uri) = viewModelScope.launch {
+    fun importFontInApp(uri: Uri) = viewModelScope.launch {
         _uiDialogState.value = FontManagementDialogUiState.ProgressDialog(
             message = resourceProvider.getString(R.string.quote_fonts_management_importing))
-        fontImporter.importFont(uri).takeIf { !it.isNullOrEmpty() }?.let { path ->
-            FontManager.loadFontInfo(File(path))
-        }?.let {
-            if (FontManager.isFontActivated(it.fileName)) {
-                FontManager.deleteInactiveFont(it.fileName)
-                resourceProvider.getString(R.string.quote_fonts_management_font_already_exists,
-                    it.name)
-            } else {
-                loadFontsList()
-                _uiListState.value = _uiListState.value.copy(scrollToBottom = true)
-                resourceProvider.getString(R.string.quote_fonts_management_font_imported,
-                    it.name)
-            }.let { message ->
-                _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(message))
+        when (val result = fontImporter.importFontInApp(uri)) {
+            is AsyncResult.Success -> {
+                result.data.let { path ->
+                    FontManager.loadFontInfo(File(path))
+                }?.let {
+                    loadInAppFontsList()
+                    _uiListState.value = _uiListState.value.copy(inAppTabScrollToBottom = true)
+                    _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(
+                        resourceProvider.getString(R.string.quote_fonts_management_font_imported,
+                            resourceProvider.getFontLocaleName(it))))
+                } ?: run {
+                    _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(
+                        resourceProvider.getString(R.string.quote_fonts_management_import_failed)))
+                }
             }
-        } ?: run {
-            _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(
-                resourceProvider.getString(R.string.quote_fonts_management_import_failed)))
+            is AsyncResult.Error -> {
+                _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(result.exception.message))
+            }
+            else -> {}
+        }
+        _uiDialogState.value = FontManagementDialogUiState.None
+    }
+
+    fun importFontToSystem(uri: Uri) = viewModelScope.launch {
+        _uiDialogState.value = FontManagementDialogUiState.ProgressDialog(
+            message = resourceProvider.getString(R.string.quote_fonts_management_importing))
+        when (val result = fontImporter.importFontToSystem(uri)) {
+            is AsyncResult.Success -> {
+                result.data.let { path ->
+                    FontManager.loadFontInfo(File(path))
+                }?.let {
+                    if (FontManager.isSystemFontActivated(it.fileName)) {
+                        FontManager.deleteInactiveSystemFont(it.fileName)
+                        resourceProvider.getString(R.string.quote_fonts_management_font_already_exists,
+                            resourceProvider.getFontLocaleName(it))
+                    } else {
+                        loadSystemFontsList()
+                        _uiListState.value = _uiListState.value.copy(systemTabScrollToBottom = true)
+                        resourceProvider.getString(R.string.quote_fonts_management_font_imported,
+                            resourceProvider.getFontLocaleName(it))
+                    }.let { message ->
+                        _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(message))
+                    }
+                } ?: run {
+                    _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(
+                        resourceProvider.getString(R.string.quote_fonts_management_import_failed)))
+                }
+            }
+            is AsyncResult.Error -> {
+                _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(result.exception.message))
+            }
+            else -> {}
         }
         _uiDialogState.value = FontManagementDialogUiState.None
     }
@@ -128,11 +187,11 @@ class FontManagementViewModel @Inject constructor(
         _uiEvent.emit(null)
     }
 
-    fun listScrolled() {
-        _uiListState.value = _uiListState.value.copy(scrollToBottom = false)
+    fun inAppFontListScrolled() {
+        _uiListState.value = _uiListState.value.copy(inAppTabScrollToBottom = false)
     }
 
-    fun cancelDialog() {
-        _uiDialogState.value = FontManagementDialogUiState.None
+    fun systemFontListScrolled() {
+        _uiListState.value = _uiListState.value.copy(systemTabScrollToBottom = false)
     }
 }

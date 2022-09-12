@@ -165,7 +165,7 @@
     <!-- Fonts -->
     <string name="quote_fonts_magisk_module_needed_title">Magisk module needed</string>
     <string name="quote_fonts_magisk_module_needed_message">
-        Android does not normally allow apps to share imported fonts to the lockscreen.\n\nTo use the QuoteLockX custom fonts feature, you must download and install the QuoteLockX-CustomFonts module in magisk..
+        Android does not normally allow apps to share imported fonts to the lockscreen.\n\nTo use the QuoteLockX custom fonts feature, you must download and install the QuoteLockX-CustomFonts module in magisk.
     </string>
     <string name="quote_fonts_management_screen_label">Custom Fonts</string>
     <string name="quote_fonts_management_import">Import</string>
@@ -177,6 +177,7 @@
     <string name="quote_fonts_management_delete_font_failed">Delete font %s failed</string>
     <string name="quote_fonts_management_delete_active_font_successfully">Reboot device for deletion to take effect</string>
     <string name="quote_fonts_management_delete_inactive_font_successfully">Font %s deleted</string>
+    <string name="quote_fonts_management_delete_in_app_font_successfully">Font %s deleted</string>
     <string name="quote_fonts_management_activate_tips">Reboot the device to activate imported fonts</string>
 
     <!-- Data retention-->
