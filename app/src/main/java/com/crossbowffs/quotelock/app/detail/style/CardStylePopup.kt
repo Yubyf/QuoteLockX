@@ -1,6 +1,7 @@
 package com.crossbowffs.quotelock.app.detail.style
 
 import android.content.res.Configuration
+import android.graphics.Typeface
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -89,7 +90,7 @@ fun CardStylePopup(
                             performHapticFeedback()
                             onFontSelected(it)
                         }
-                        if (index == presetFonts.lastIndex) {
+                        if (index == presetFonts.lastIndex && fonts.isNotEmpty()) {
                             Spacer(modifier = Modifier.width(20.dp))
                             Divider(modifier = Modifier
                                 .height(56.dp)
@@ -161,10 +162,17 @@ private fun PopupFontIndicator(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val typeface = if (PREF_COMMON_FONT_FAMILY_DEFAULT == fontInfo.path) {
-            null
-        } else {
-            runCatching { FontManager.loadTypeface(fontInfo.path) }.getOrNull()
+        val typeface = when (fontInfo.path) {
+            PREF_CARD_STYLE_FONT_FAMILY_LEGACY_DEFAULT,
+            PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF,
+            -> {
+                Typeface.SANS_SERIF
+            }
+            PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SERIF,
+            -> {
+                Typeface.SERIF
+            }
+            else -> runCatching { FontManager.loadTypeface(fontInfo.path) }.getOrNull()
         }
         TextButton(
             onClick = { onClick(fontInfo.path) },

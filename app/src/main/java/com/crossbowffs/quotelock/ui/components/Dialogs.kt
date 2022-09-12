@@ -3,6 +3,7 @@
 package com.crossbowffs.quotelock.ui.components
 
 import android.content.res.Configuration
+import android.graphics.Typeface
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +30,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontManager
-import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_DEFAULT
+import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF
+import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF
+import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -291,9 +295,15 @@ fun FontListPreferenceDialog(
     onCustomize: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val names = stringArrayResource(id = R.array.default_font_family_entries)
+    val paths = stringArrayResource(id = R.array.default_font_family_values)
+    val presetFonts = names.zip(paths).map { (name, path) ->
+        FontInfo(fileName = name, path = path)
+    }
+    val allFonts = presetFonts + fonts
     var selectedItemIndex by remember {
-        mutableStateOf(fonts.indexOfFirst { it.path == selectedItem }
-            .coerceIn(minimumValue = 0, maximumValue = fonts.lastIndex))
+        mutableStateOf(allFonts.indexOfFirst { it.path == selectedItem }
+            .coerceIn(minimumValue = 0, maximumValue = allFonts.lastIndex))
     }
     var containerWidth by remember {
         mutableStateOf(0)
@@ -310,7 +320,7 @@ fun FontListPreferenceDialog(
         title = { Text(text = title) },
         text = {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                itemsIndexed(fonts) { index, fontInfo ->
+                itemsIndexed(allFonts) { index, fontInfo ->
                     Row(
                         modifier = Modifier
                             .height(LIST_DIALOG_ITEM_HEIGHT)
@@ -332,12 +342,13 @@ fun FontListPreferenceDialog(
                             onClick = null,
                         )
                         Spacer(modifier = Modifier.width(24.dp))
-                        val typeface = if (PREF_COMMON_FONT_FAMILY_DEFAULT == fontInfo.path) {
-                            null
-                        } else {
-                            runCatching {
-                                FontManager.loadTypeface(fontInfo.path)
-                            }.getOrNull()
+                        val typeface = when (fontInfo.path) {
+                            PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
+                            PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
+                            -> Typeface.SANS_SERIF
+                            PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
+                            -> Typeface.SERIF
+                            else -> runCatching { FontManager.loadTypeface(fontInfo.path) }.getOrNull()
                         }
                         val displayName = with(fontInfo) {
                             LocalConfiguration.current.localeName.takeIf { it.isNotBlank() }
@@ -348,6 +359,11 @@ fun FontListPreferenceDialog(
                             fontSize = QuoteLockTheme.typography.bodyLarge.fontSize,
                             fontFamily = typeface?.let { FontFamily(it) }
                         )
+                    }
+                    if (index == presetFonts.lastIndex && fonts.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Divider(thickness = Dp.Hairline)
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }

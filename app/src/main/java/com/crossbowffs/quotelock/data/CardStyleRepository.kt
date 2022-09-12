@@ -43,7 +43,7 @@ class CardStyleRepository @Inject internal constructor(
         PREF_CARD_STYLE_CARD_PADDING_DEFAULT)
 
     var fontFamily: String by DataStoreValue(PREF_CARD_STYLE_FONT_FAMILY,
-        PREF_CARD_STYLE_FONT_FAMILY_DEFAULT)
+        PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF)
 
     val cardStyle: CardStyle
         get() = CardStyle(

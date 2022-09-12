@@ -10,7 +10,8 @@
         <item>24 小時</item>
     </string-array>
     <string-array name="default_font_family_entries">
-        <item>系統</item>
+        <item>無襯線體</item>
+        <item>襯線體</item>
     </string-array>
     <string-array name="font_style_entries">
         <item>粗體</item>

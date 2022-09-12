@@ -16,7 +16,6 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
@@ -216,14 +215,9 @@ fun LockscreenStylesDialogs(
         )
     }
     is LockscreenStylesDialogUiState.FontFamilyDialog -> {
-        val names = stringArrayResource(id = R.array.default_font_family_entries)
-        val paths = stringArrayResource(id = R.array.default_font_family_values)
-        val presetFonts = names.zip(paths).map { (name, path) ->
-            FontInfo(fileName = name, path = path)
-        }
         FontListPreferenceDialog(
             title = stringResource(id = R.string.pref_font_style_source_title),
-            fonts = presetFonts + uiDialogState.fonts,
+            fonts = uiDialogState.fonts,
             selectedItem = uiDialogState.currentFont,
             onItemSelected = onFontFamilySelected,
             onCustomize = onFontCustomize,

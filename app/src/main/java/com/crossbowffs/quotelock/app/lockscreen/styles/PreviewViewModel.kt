@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.app.lockscreen.styles
 
+import android.graphics.Typeface
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.lifecycle.ViewModel
@@ -68,11 +69,14 @@ class PreviewViewModel @Inject constructor(
                         PREF_COMMON_FONT_FAMILY -> {
                             val font =
                                 preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
-                                    ?: PREF_COMMON_FONT_FAMILY_DEFAULT
-                            val typeface = if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-                                runCatching { FontManager.loadTypeface(font) }.getOrNull()
-                            } else {
-                                null
+                                    ?: PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF
+                            val typeface = when (font) {
+                                PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
+                                PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
+                                -> Typeface.SANS_SERIF
+                                PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
+                                -> Typeface.SERIF
+                                else -> runCatching { FontManager.loadTypeface(font) }.getOrNull()
                             }
                             _uiState.update { currentState ->
                                 currentState.copy(

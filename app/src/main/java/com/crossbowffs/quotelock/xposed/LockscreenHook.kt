@@ -19,6 +19,7 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.annotation.RequiresApi
+import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.provider.ActionProvider
@@ -143,17 +144,18 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val quoteStyle = getTypefaceStyle(quoteStyles)
         val sourceStyle = getTypefaceStyle(sourceStyles)
         val font = mCommonPrefs.getString(
-            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
-        if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-            val typeface = font?.let {
-                runCatching { loadTypeface(font) }.getOrNull()
-            }
-            mQuoteTextView.setTypeface(typeface, quoteStyle)
-            mSourceTextView.setTypeface(typeface, sourceStyle)
-        } else {
-            mQuoteTextView.setTypeface(null, quoteStyle)
-            mSourceTextView.setTypeface(null, sourceStyle)
+            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF)
+        val typeface = when (font) {
+            PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
+            PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
+            null,
+            -> Typeface.SANS_SERIF
+            PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
+            -> Typeface.SERIF
+            else -> runCatching { FontManager.loadTypeface(font) }.getOrNull()
         }
+        mQuoteTextView.setTypeface(typeface, quoteStyle)
+        mSourceTextView.setTypeface(typeface, sourceStyle)
     }
 
     private fun refreshAodQuote() {
@@ -234,17 +236,18 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val quoteStyle = getTypefaceStyle(quoteStyles)
         val sourceStyle = getTypefaceStyle(sourceStyles)
         val font = mCommonPrefs.getString(
-            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT)
-        if (PREF_COMMON_FONT_FAMILY_DEFAULT != font) {
-            val typeface = font?.let {
-                runCatching { loadTypeface(font) }.getOrNull()
-            }
-            mAodQuoteTextView.setTypeface(typeface, quoteStyle)
-            mAodSourceTextView.setTypeface(typeface, sourceStyle)
-        } else {
-            mAodQuoteTextView.setTypeface(null, quoteStyle)
-            mAodSourceTextView.setTypeface(null, sourceStyle)
+            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT)
+        val typeface = when (font) {
+            PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
+            PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
+            null,
+            -> Typeface.SANS_SERIF
+            PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
+            -> Typeface.SERIF
+            else -> runCatching { FontManager.loadTypeface(font) }.getOrNull()
         }
+        mAodQuoteTextView.setTypeface(typeface, quoteStyle)
+        mAodSourceTextView.setTypeface(typeface, sourceStyle)
     }
 
     private val isAodViewAvailable: Boolean

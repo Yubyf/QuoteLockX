@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.data
 
+import android.graphics.Typeface
 import androidx.datastore.preferences.core.Preferences
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
@@ -82,7 +83,7 @@ class ConfigurationRepository @Inject internal constructor(
     var sourceStyles: Set<String>? by DataStoreValue(PREF_COMMON_FONT_STYLE_SOURCE, emptySet())
 
     var fontFamily: String by DataStoreValue(PREF_COMMON_FONT_FAMILY,
-        PREF_COMMON_FONT_FAMILY_DEFAULT)
+        PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT)
 
     private var _quoteSpacing: String by DataStoreValue(PREF_COMMON_QUOTE_SPACING,
         PREF_COMMON_QUOTE_SPACING_DEFAULT)
@@ -129,13 +130,14 @@ class ConfigurationRepository @Inject internal constructor(
             val sourceFontStyle = getComposeFontStyle(sourceStyles)
             val quoteFontWeight = getComposeFontWeight(quoteStyles)
             val sourceFontWeight = getComposeFontWeight(sourceStyles)
-            fontFamily.takeIf { PREF_COMMON_FONT_FAMILY_DEFAULT != it }?.runCatching {
-                FontManager.loadTypeface(this)
-            }?.getOrNull()
-            val typeface =
-                fontFamily.takeIf { PREF_COMMON_FONT_FAMILY_DEFAULT != it }?.runCatching {
-                    FontManager.loadTypeface(this)
-                }?.getOrNull()
+            val typeface = when (fontFamily) {
+                PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
+                PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
+                -> Typeface.SANS_SERIF
+                PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
+                -> Typeface.SERIF
+                else -> runCatching { FontManager.loadTypeface(fontFamily) }.getOrNull()
+            }
 
             return QuoteStyle(
                 quoteSize = quoteSize,

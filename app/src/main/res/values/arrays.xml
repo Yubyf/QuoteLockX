@@ -35,9 +35,14 @@
         <item>24</item>
     </integer-array>
     <string-array name="default_font_family_entries">
-        <item>System</item>
+        <item>Sans-serif</item>
+        <item>Serif</item>
     </string-array>
     <string-array name="default_font_family_values" translatable="false">
+        <item>sans-serif</item>
+        <item>serif</item>
+    </string-array>
+    <string-array name="legacy_default_font_family_values" translatable="false">
         <item>system</item>
     </string-array>
     <string-array name="font_style_entries">

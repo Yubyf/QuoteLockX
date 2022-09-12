@@ -90,7 +90,7 @@ class QuoteDetailViewModel @Inject constructor(
                         PREF_CARD_STYLE_FONT_FAMILY -> {
                             val font =
                                 preferences[stringPreferencesKey(PREF_CARD_STYLE_FONT_FAMILY)]
-                                    ?: PREF_CARD_STYLE_FONT_FAMILY_DEFAULT
+                                    ?: PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF
                             _uiState.value = _uiState.value.run {
                                 copy(cardStyle = cardStyle.copy(fontFamily = font))
                             }
