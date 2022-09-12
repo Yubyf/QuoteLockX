@@ -28,6 +28,7 @@ import com.crossbowffs.quotelock.app.detail.shareImage
 import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
 import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.Urls
+import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import com.crossbowffs.quotelock.ui.components.AlertDialog
 import com.crossbowffs.quotelock.ui.components.MainAppBar
 import com.crossbowffs.quotelock.ui.components.Snapshotables
@@ -95,15 +96,19 @@ fun MainScreen(
                 MainDropdownMenu(
                     onSettingsItemClick = onSettingsItemClick,
                     onLockscreenStylesItemClick = onLockscreenStylesItemClick,
-                    onShareItemClick = {
-                        snapshotStates.bounds?.let {
-                            detailViewModel.shareQuote(it) { canvas ->
-                                snapshotStates.forEach { snapshot ->
-                                    snapshot.snapshot(canvas)
+                    onShareItemClick = if (!LocalContext.current.isQuoteGeneratedByApp(
+                            mainUiState.quoteData.quoteText,
+                            mainUiState.quoteData.quoteSource,
+                            mainUiState.quoteData.quoteAuthor)
+                    ) {
+                        {
+                            snapshotStates.bounds?.let {
+                                detailViewModel.shareQuote(it) { canvas ->
+                                    snapshotStates.forEach { snapshot -> snapshot.snapshot(canvas) }
                                 }
                             }
                         }
-                    },
+                    } else null,
                     onCollectionItemClick = onCollectionItemClick,
                     onHistoryItemClick = onHistoryItemClick
                 )
@@ -186,7 +191,7 @@ fun MainScreen(
 fun MainDropdownMenu(
     onSettingsItemClick: () -> Unit,
     onLockscreenStylesItemClick: () -> Unit,
-    onShareItemClick: () -> Unit,
+    onShareItemClick: (() -> Unit)? = null,
     onCollectionItemClick: () -> Unit,
     onHistoryItemClick: () -> Unit,
 ) {
@@ -224,9 +229,10 @@ fun MainDropdownMenu(
                         contentDescription = stringResource(id = R.string.quote_image_share))
                 },
                 text = { Text(text = stringResource(id = R.string.quote_image_share)) },
+                enabled = onShareItemClick != null,
                 onClick = {
                     closeMenu()
-                    onShareItemClick()
+                    onShareItemClick?.invoke()
                 }
             )
             DropdownMenuItem(

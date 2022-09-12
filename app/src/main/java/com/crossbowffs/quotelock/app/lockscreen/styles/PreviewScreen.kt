@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +26,7 @@ import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteViewData
-import com.crossbowffs.quotelock.data.api.buildReadableSource
+import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import com.crossbowffs.quotelock.ui.components.PreferenceTitle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -52,6 +53,10 @@ fun PreviewScreen(
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
+        val quoteGeneratedByApp =
+            LocalContext.current.isQuoteGeneratedByApp(uiState.quoteData.quoteText,
+                uiState.quoteData.quoteSource,
+                uiState.quoteData.quoteAuthor)
         PreferenceTitle(titleRes = R.string.preview)
         QuoteLayout(
             modifier = Modifier
@@ -62,8 +67,8 @@ fun PreviewScreen(
             quoteTypeface = uiState.quoteStyle.quoteTypeface,
             quoteFontWeight = uiState.quoteStyle.quoteFontWeight,
             quoteFontStyle = uiState.quoteStyle.quoteFontStyle,
-            source = buildReadableSource(uiState.quoteData.quoteSource,
-                uiState.quoteData.quoteAuthor, true),
+            source = if (quoteGeneratedByApp) uiState.quoteData.readableSource
+            else uiState.quoteData.readableSourceWithPrefix,
             sourceSize = uiState.quoteStyle.sourceSize.toFloat(),
             sourceTypeface = uiState.quoteStyle.sourceTypeface,
             sourceFontWeight = uiState.quoteStyle.sourceFontWeight,
@@ -71,9 +76,8 @@ fun PreviewScreen(
             quoteSpacing = uiState.quoteStyle.quoteSpacing.dp,
             paddingTop = uiState.quoteStyle.paddingTop.dp,
             paddingBottom = uiState.quoteStyle.paddingBottom.dp,
-            onClick = {
-                onPreviewClick(uiState.quoteData)
-            }
+            enabled = !quoteGeneratedByApp,
+            onClick = { onPreviewClick(uiState.quoteData) }
         )
     }
 }
@@ -94,6 +98,7 @@ fun QuoteLayout(
     quoteSpacing: Dp = 0.dp,
     paddingTop: Dp = 0.dp,
     paddingBottom: Dp = 0.dp,
+    enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
     ElevatedCard(
@@ -101,6 +106,7 @@ fun QuoteLayout(
         shape = ShapeDefaults.ExtraSmall,
         colors = CardDefaults.cardColors(),
         elevation = CardDefaults.cardElevation(),
+        enabled = enabled,
         onClick = onClick
     ) {
         Column(modifier = Modifier.padding(start = 8.dp,
