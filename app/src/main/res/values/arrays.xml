@@ -170,37 +170,4 @@
     <string-array name="module_scope" translatable="false">
         <item>com.android.systemui</item>
     </string-array>
-
-    <string-array name="layout_quote_spacing_values1" translatable="false">
-        <item>0</item>
-        <item>4</item>
-        <item>8</item>
-        <item>12</item>
-        <item>16</item>
-    </string-array>
-    <string-array name="refresh_interval_values1" translatable="false">
-        <item>60</item>
-        <item>300</item>
-        <item>900</item>
-        <item>1800</item>
-        <item>3600</item>
-        <item>21600</item>
-        <item>86400</item>
-    </string-array>
-
-    <string-array name="font_size_values1" translatable="false">
-        <item>14</item>
-        <item>16</item>
-        <item>18</item>
-        <item>20</item>
-        <item>22</item>
-        <item>24</item>
-    </string-array>
-    <string-array name="layout_padding_values1" translatable="false">
-        <item>0</item>
-        <item>8</item>
-        <item>16</item>
-        <item>24</item>
-        <item>32</item>
-    </string-array>
 </resources>
