@@ -19,7 +19,6 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.annotation.RequiresApi
-import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.provider.ActionProvider
@@ -152,7 +151,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             -> Typeface.SANS_SERIF
             PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
             -> Typeface.SERIF
-            else -> runCatching { FontManager.loadTypeface(font) }.getOrNull()
+            else -> runCatching { loadTypeface(font) }.getOrNull()
         }
         mQuoteTextView.setTypeface(typeface, quoteStyle)
         mSourceTextView.setTypeface(typeface, sourceStyle)
@@ -244,7 +243,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             -> Typeface.SANS_SERIF
             PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
             -> Typeface.SERIF
-            else -> runCatching { FontManager.loadTypeface(font) }.getOrNull()
+            else -> runCatching { loadTypeface(font) }.getOrNull()
         }
         mAodQuoteTextView.setTypeface(typeface, quoteStyle)
         mAodSourceTextView.setTypeface(typeface, sourceStyle)
