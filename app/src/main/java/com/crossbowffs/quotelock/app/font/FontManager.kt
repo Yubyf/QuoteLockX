@@ -14,6 +14,7 @@ import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.toFile
 import com.yubyf.quotelockx.R
 import com.yubyf.truetypeparser.TTFFile
+import com.yubyf.truetypeparser.get
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -166,10 +167,10 @@ object FontManager {
         runCatching {
             FONT_INFO_CACHE.getOrPut(file.absolutePath) {
                 val ttfFile = TTFFile.open(file)
-                FontInfo(ttfFile.fullName.toMap(),
+                FontInfo(ttfFile.fullNames,
                     file.name,
                     file.absolutePath).apply {
-                    descriptionLocale = generateLocaleDescription(name)
+                    descriptionLocale = generateLocaleDescription(names)
                 }
             }
         }.onFailure {
@@ -251,7 +252,7 @@ class FontImporter @Inject constructor(
 }
 
 data class FontInfo(
-    val name: Map<String, String> = emptyMap(),
+    val names: Map<String, String> = emptyMap(),
     val fileName: String = "",
     val path: String = "",
     val descriptionLatin: String = FONT_DESCRIPTION_LATIN,
@@ -259,11 +260,11 @@ data class FontInfo(
 ) {
     val cjk: Boolean
         get() = when {
-            name.containsKey(Locale.SIMPLIFIED_CHINESE.toLanguageTag())
-                    || name.containsKey(Locale.TRADITIONAL_CHINESE.toLanguageTag())
-                    || name.containsKey(Locale.CHINESE.toLanguageTag())
-                    || name.containsKey(Locale.KOREAN.toLanguageTag())
-                    || name.containsKey(Locale.JAPANESE.toLanguageTag()) ->
+            names.containsKey(Locale.SIMPLIFIED_CHINESE.toLanguageTag())
+                    || names.containsKey(Locale.TRADITIONAL_CHINESE.toLanguageTag())
+                    || names.containsKey(Locale.CHINESE.toLanguageTag())
+                    || names.containsKey(Locale.KOREAN.toLanguageTag())
+                    || names.containsKey(Locale.JAPANESE.toLanguageTag()) ->
                 true
             else -> false
         }
@@ -272,27 +273,8 @@ data class FontInfo(
         get() = FontManager.loadTypeface(path)
 
     val Configuration.localeName: String
-        get() = getValueOrFallbackByLocale(name,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) locales[0] else locale)
+        get() = names[if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) locales[0] else locale]
 }
-
-/**
- * Copy from [TTFFile] lib.
- * TODO: To delete
- */
-private fun getValueOrFallbackByLocale(map: Map<String, String>, locale: Locale): String =
-    if (map.isEmpty()) ""
-    else map[locale.toLanguageTag()]
-        ?: map.entries.firstOrNull { entry ->
-            Locale.forLanguageTag(entry.key).language == locale.language
-        }?.value
-        ?: map[Locale.US.toLanguageTag()]
-        ?: map.entries.firstOrNull { entry ->
-            Locale.forLanguageTag(entry.key).language == Locale.ENGLISH.language
-        }?.value
-        ?: map[Locale.ROOT.toLanguageTag()]
-        ?: map.values.firstOrNull()
-        ?: ""
 
 data class FontInfoWithState(
     val fontInfo: FontInfo,

@@ -42,7 +42,7 @@ class CardStyleViewModel @Inject constructor(
             cardStyle = cardStyleRepository.cardStyle
         )
         viewModelScope.launch {
-            fonts.filter { it.name.isEmpty() }
+            fonts.filter { it.names.isEmpty() }
                 .forEach { (_, fileName, path) ->
                     val fontInfo = FontManager.loadFontInfo(File(path)) ?: return@forEach
                     _uiState.value.let {

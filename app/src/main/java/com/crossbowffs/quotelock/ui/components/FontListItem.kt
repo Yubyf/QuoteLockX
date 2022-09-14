@@ -193,11 +193,11 @@ fun FontListItem(
 
 class FontListItemPreviewParameterProvider : PreviewParameterProvider<FontInfoWithState> {
     override val values: Sequence<FontInfoWithState> = sequenceOf(
-        FontInfoWithState(FontInfo(name = mapOf("en-US" to "Roboto Regular"),
+        FontInfoWithState(FontInfo(names = mapOf("en-US" to "Roboto Regular"),
             descriptionLatin = "Lorem ipsum dolor sit amet",
             descriptionLocale = " Lorem"
         ), systemFont = false, active = false),
-        FontInfoWithState(FontInfo(name = mapOf("en-US" to "方正新书宋"),
+        FontInfoWithState(FontInfo(names = mapOf("en-US" to "方正新书宋"),
             descriptionLatin = "Lorem ipsum dolor sit amet",
             descriptionLocale = "落霞与孤鹜齐飞，秋水共长天一色"
         ), systemFont = true, active = true)

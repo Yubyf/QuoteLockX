@@ -137,7 +137,7 @@ class LockscreenStylesViewModel @Inject constructor(
         _uiDialogState.value = LockscreenStylesDialogUiState.FontFamilyDialog(fonts = activeFonts,
             currentFont = configurationRepository.fontFamily)
         viewModelScope.launch {
-            activeFonts.filter { it.name.isEmpty() }
+            activeFonts.filter { it.names.isEmpty() }
                 .forEach { (_, fileName, path) ->
                     val fontInfo = FontManager.loadFontInfo(File(path)) ?: return@forEach
                     (_uiDialogState.value as? LockscreenStylesDialogUiState.FontFamilyDialog)?.let {
