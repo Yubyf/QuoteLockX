@@ -137,7 +137,7 @@ android {
 dependencies {
     implementation("com.crossbowffs.remotepreferences:remotepreferences:0.9")
     implementation("org.jsoup:jsoup:1.13.1")
-    implementation("io.github.yubyf.datastorepreferences:datastorepreferences:1.2.1")
+    implementation("io.github.yubyf.datastorepreferences:datastorepreferences:1.2.2")
     implementation("io.github.yubyf:truetypeparser-light:2.1.1")
     implementation("com.google.android.material:material:1.6.1")
     compileOnly("de.robv.android.xposed:api:82")

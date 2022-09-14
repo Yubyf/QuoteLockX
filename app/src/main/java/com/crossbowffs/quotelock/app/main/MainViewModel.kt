@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.consts.Urls
+import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.di.ResourceProvider
@@ -54,6 +55,7 @@ sealed class MainDialogUiState {
 class MainViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val quoteRepository: QuoteRepository,
+    configurationRepository: ConfigurationRepository,
     private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
@@ -70,7 +72,11 @@ class MainViewModel @Inject constructor(
     init {
         // In case the user opens the app for the first time *after* rebooting,
         // we want to make sure the background work has been created.
-        WorkUtils.createQuoteDownloadWork(context, false)
+        WorkUtils.createQuoteDownloadWork(context,
+            configurationRepository.refreshInterval,
+            configurationRepository.isRequireInternet,
+            configurationRepository.isUnmeteredNetworkOnly,
+            false)
         if (!XposedUtils.isModuleEnabled) {
             _uiDialogState.value = MainDialogUiState.EnableModuleDialog
         } else if (XposedUtils.isModuleUpdated) {

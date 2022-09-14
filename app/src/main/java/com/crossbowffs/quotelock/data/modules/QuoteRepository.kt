@@ -34,37 +34,35 @@ class QuoteRepository @Inject internal constructor(
     val lastUpdateFlow = _lastUpdateFlow.asStateFlow()
 
     init {
-        CoroutineScope(dispatcher).apply {
-            launch {
-                quoteLocalSource.observeQuoteDataStore { preferences, key ->
-                    when (key?.name) {
-                        PREF_QUOTES_TEXT -> _quoteDataFlow.update { currentValue ->
-                            currentValue.copy(
-                                quoteText = preferences[stringPreferencesKey(PREF_QUOTES_TEXT)]
-                                    .orEmpty()
-                            )
-                        }
-                        PREF_QUOTES_AUTHOR,
-                        PREF_QUOTES_SOURCE,
-                        -> {
-                            val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
-                            val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
-                            _quoteDataFlow.update { currentValue ->
-                                currentValue.copy(
-                                    quoteSource = source.orEmpty(),
-                                    quoteAuthor = author.orEmpty()
-                                )
-                            }
-                        }
-                        PREF_QUOTES_COLLECTION_STATE -> _quoteDataFlow.update { currentValue ->
-                            currentValue.copy(
-                                collectState = preferences[booleanPreferencesKey(
-                                    PREF_QUOTES_COLLECTION_STATE)] ?: false
-                            )
-                        }
-                        PREF_QUOTES_LAST_UPDATED -> _lastUpdateFlow.value =
-                            preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)] ?: 0L
+        CoroutineScope(dispatcher).launch {
+            quoteLocalSource.observeQuoteDataStore(this) { preferences, key ->
+                when (key?.name) {
+                    PREF_QUOTES_TEXT -> _quoteDataFlow.update { currentValue ->
+                        currentValue.copy(
+                            quoteText = preferences[stringPreferencesKey(PREF_QUOTES_TEXT)]
+                                .orEmpty()
+                        )
                     }
+                    PREF_QUOTES_AUTHOR,
+                    PREF_QUOTES_SOURCE,
+                    -> {
+                        val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
+                        val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
+                        _quoteDataFlow.update { currentValue ->
+                            currentValue.copy(
+                                quoteSource = source.orEmpty(),
+                                quoteAuthor = author.orEmpty()
+                            )
+                        }
+                    }
+                    PREF_QUOTES_COLLECTION_STATE -> _quoteDataFlow.update { currentValue ->
+                        currentValue.copy(
+                            collectState = preferences[booleanPreferencesKey(
+                                PREF_QUOTES_COLLECTION_STATE)] ?: false
+                        )
+                    }
+                    PREF_QUOTES_LAST_UPDATED -> _lastUpdateFlow.value =
+                        preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)] ?: 0L
                 }
             }
             collectionRepository.getAllStream().onEach { collections ->

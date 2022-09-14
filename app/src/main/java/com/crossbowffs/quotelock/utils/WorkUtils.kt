@@ -5,8 +5,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.work.*
-import com.crossbowffs.quotelock.data.ConfigurationRepository
-import com.crossbowffs.quotelock.di.ConfigurationEntryPoint
 import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
 import com.crossbowffs.quotelock.worker.QuoteWorker
 import dagger.hilt.android.EntryPointAccessors
@@ -48,13 +46,14 @@ object WorkUtils {
         return result
     }
 
-    fun shouldRefreshQuote(context: Context): Boolean {
-        val configurationRepository =
-            EntryPointAccessors.fromApplication(context.applicationContext,
-                ConfigurationEntryPoint::class.java).configurationRepository()
+    fun shouldRefreshQuote(
+        context: Context,
+        isRequireInternet: Boolean,
+        isUnmeteredNetworkOnly: Boolean,
+    ): Boolean {
         // If our provider doesn't require internet access, we should always be
         // refreshing the quote.
-        if (!configurationRepository.isRequireInternet) {
+        if (!isRequireInternet) {
             Xlog.d(TAG, "WorkUtils#shouldRefreshQuote: YES (provider doesn't require internet)")
             return true
         }
@@ -68,7 +67,7 @@ object WorkUtils {
 
         // Check if we're on a metered connection and act according to the
         // user's preference.
-        if (configurationRepository.isUnmeteredNetworkOnly && manager?.isActiveNetworkMetered == true) {
+        if (isUnmeteredNetworkOnly && manager?.isActiveNetworkMetered == true) {
             Xlog.d(TAG,
                 "WorkUtils#shouldRefreshQuote: NO (can only update on unmetered connections)")
             return false
@@ -77,7 +76,13 @@ object WorkUtils {
         return true
     }
 
-    fun createQuoteDownloadWork(context: Context, recreate: Boolean) {
+    fun createQuoteDownloadWork(
+        context: Context,
+        refreshInterval: Int,
+        isRequireInternet: Boolean,
+        isUnmeteredNetworkOnly: Boolean,
+        recreate: Boolean,
+    ) {
         Xlog.d(TAG, "WorkUtils#createQuoteDownloadWork called, recreate == %s", recreate)
 
         // Instead of canceling the work whenever we disconnect from the
@@ -85,7 +90,7 @@ object WorkUtils {
         // the condition -- if network connectivity has been restored, we just
         // proceed as normal, otherwise, we do not reschedule the task until
         // we receive a network connectivity event.
-        if (!shouldRefreshQuote(context)) {
+        if (!shouldRefreshQuote(context, isRequireInternet, isUnmeteredNetworkOnly)) {
             Xlog.d(TAG, "Should not create work under current conditions, ignoring")
             return
         }
@@ -96,13 +101,9 @@ object WorkUtils {
         val existingWorkPolicy =
             if (recreate) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP
         Xlog.d(TAG, "ExistingWorkPolicy - $existingWorkPolicy")
-        val configurationRepository =
-            EntryPointAccessors.fromApplication(context.applicationContext,
-                ConfigurationEntryPoint::class.java).configurationRepository()
-        val delay = getUpdateDelay(context, getRefreshInterval(configurationRepository))
-        val networkType = getNetworkType(configurationRepository)
+        val delay = getUpdateDelay(context, refreshInterval)
         val constraints = Constraints.Builder()
-            .setRequiredNetworkType(networkType)
+            .setRequiredNetworkType(getNetworkType(isRequireInternet, isUnmeteredNetworkOnly))
             .build()
         val oneTimeWorkRequest = OneTimeWorkRequestBuilder<QuoteWorker>()
             .setInitialDelay(delay.toLong(), TimeUnit.SECONDS)
@@ -145,19 +146,20 @@ object WorkUtils {
         return delay
     }
 
-    private fun getRefreshInterval(configurationRepository: ConfigurationRepository): Int {
-        var refreshInterval = configurationRepository.refreshInterval
-        if (refreshInterval < 60) {
+    private fun getRefreshInterval(refreshInterval: Int): Int {
+        return if (refreshInterval < 60) {
             Xlog.w(TAG, "Refresh period too short, clamping to 60 seconds")
-            refreshInterval = 60
-        }
-        return refreshInterval
+            60
+        } else refreshInterval
     }
 
-    private fun getNetworkType(configurationRepository: ConfigurationRepository): NetworkType {
+    private fun getNetworkType(
+        isRequireInternet: Boolean,
+        isUnmeteredNetworkOnly: Boolean,
+    ): NetworkType {
         return when {
-            !configurationRepository.isRequireInternet -> NetworkType.NOT_REQUIRED
-            configurationRepository.isUnmeteredNetworkOnly -> NetworkType.UNMETERED
+            !isRequireInternet -> NetworkType.NOT_REQUIRED
+            isUnmeteredNetworkOnly -> NetworkType.UNMETERED
             else -> NetworkType.CONNECTED
         }
     }

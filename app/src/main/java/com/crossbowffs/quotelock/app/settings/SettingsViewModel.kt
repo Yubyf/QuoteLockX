@@ -4,10 +4,9 @@ import android.content.Context
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_MODULE_DEFAULT
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
@@ -101,30 +100,23 @@ class SettingsViewModel @Inject constructor(
     val uiDialogState: State<SettingsDialogUiState> = _uiDialogState
 
     init {
-        viewModelScope.run {
-            launch {
-                configurationRepository.observeConfigurationDataStore { preferences, key ->
-                    when (key?.name) {
-                        PREF_COMMON_QUOTE_MODULE -> onSelectedModuleChanged()
-                        PREF_COMMON_REFRESH_RATE, PREF_COMMON_REFRESH_RATE_OVERRIDE ->
-                            WorkUtils.createQuoteDownloadWork(context, true)
-                        PREF_COMMON_DISPLAY_ON_AOD -> {
-                            _uiState.value = _uiState.value.copy(
-                                displayOnAod = preferences[booleanPreferencesKey(
-                                    PREF_COMMON_DISPLAY_ON_AOD)] ?: false
-                            )
-                        }
-                        PREF_COMMON_UNMETERED_ONLY -> {
-                            _uiState.value = _uiState.value.copy(
-                                unmeteredOnly = preferences[booleanPreferencesKey(
-                                    PREF_COMMON_UNMETERED_ONLY)]
-                                    ?: PREF_COMMON_UNMETERED_ONLY_DEFAULT
-                            )
-                        }
-                        else -> {}
-                    }
-                }
-            }
+        viewModelScope.launch {
+            configurationRepository.quoteConfigsFlow.onEach {
+                _uiState.value = _uiState.value.copy(
+                    displayOnAod = it.displayOnAod,
+                    unmeteredOnly = it.unmeteredOnly,
+                )
+            }.launchIn(this)
+            configurationRepository.quoteModuleNotifyFlow.onEach {
+                onSelectedModuleChanged()
+            }.launchIn(this)
+            configurationRepository.quoteRefreshRateNotifyFlow.onEach {
+                WorkUtils.createQuoteDownloadWork(context,
+                    configurationRepository.refreshInterval,
+                    configurationRepository.isRequireInternet,
+                    configurationRepository.isUnmeteredNetworkOnly,
+                    true)
+            }.launchIn(this)
             quoteRepository.lastUpdateFlow.onEach {
                 _uiState.value = _uiState.value.copy(
                     updateInfo = resourceProvider.getString(
@@ -132,16 +124,13 @@ class SettingsViewModel @Inject constructor(
                         if (it > 0) DATE_FORMATTER.format(Date(it)) else "-")
                 )
             }.launchIn(this)
-
             val updateTime = quoteRepository.getLastUpdateTime()
             _uiState.value = _uiState.value.copy(
                 updateInfo = resourceProvider.getString(
                     R.string.pref_refresh_info_summary,
                     if (updateTime > 0) DATE_FORMATTER.format(Date(updateTime)) else "-")
             )
-            launch {
-                updateCurrentModule()
-            }
+            updateCurrentModule()
         }
     }
 

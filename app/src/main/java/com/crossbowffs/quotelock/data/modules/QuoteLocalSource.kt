@@ -12,6 +12,7 @@ import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.md5
 import com.yubyf.datastore.DataStoreDelegate
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -81,8 +82,10 @@ class QuoteLocalSource @Inject constructor(
         }
     }
 
-    suspend fun observeQuoteDataStore(collector: suspend (Preferences, Preferences.Key<*>?) -> Unit) =
-        quotesDataStore.collectSuspend(collector)
+    fun observeQuoteDataStore(
+        scope: CoroutineScope,
+        collector: suspend (Preferences, Preferences.Key<*>?) -> Unit,
+    ) = quotesDataStore.collectIn(scope, collector)
 
     companion object {
         private const val TAG = "QuoteLocalSource"

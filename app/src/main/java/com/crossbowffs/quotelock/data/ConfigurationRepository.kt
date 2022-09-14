@@ -1,16 +1,24 @@
 package com.crossbowffs.quotelock.data
 
 import android.graphics.Typeface
-import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.data.api.QuoteConfigs
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.QuoteStyle
 import com.crossbowffs.quotelock.di.CommonDataStore
+import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.utils.getComposeFontStyle
 import com.crossbowffs.quotelock.utils.getComposeFontWeight
 import com.crossbowffs.quotelock.utils.getValueByDefault
 import com.yubyf.datastore.DataStoreDelegate
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,6 +28,7 @@ import kotlin.reflect.KProperty
 @Singleton
 class ConfigurationRepository @Inject internal constructor(
     @CommonDataStore private val commonDataStore: DataStoreDelegate,
+    @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
 
     class DataStoreValue<T>(private val key: String, private val default: T) :
@@ -112,18 +121,7 @@ class ConfigurationRepository @Inject internal constructor(
             _paddingBottom = value.toString()
         }
 
-    fun updateConfiguration(moduleData: QuoteModuleData) {
-        if (moduleData.minimumRefreshInterval != 0) {
-            commonDataStore.put(PREF_COMMON_REFRESH_RATE_OVERRIDE,
-                moduleData.minimumRefreshInterval)
-        } else {
-            commonDataStore.remove(PREF_COMMON_REFRESH_RATE_OVERRIDE)
-        }
-
-        isRequireInternet = moduleData.requiresInternetConnectivity
-    }
-
-    val quoteStyle: QuoteStyle
+    private val quoteStyle: QuoteStyle
         get() {
             // Font properties
             val quoteFontStyle = getComposeFontStyle(quoteStyles)
@@ -154,6 +152,139 @@ class ConfigurationRepository @Inject internal constructor(
             )
         }
 
-    suspend fun observeConfigurationDataStore(collector: suspend (Preferences, Preferences.Key<*>?) -> Unit) =
-        commonDataStore.collectSuspend(collector)
+    private val _quoteStyleFlow = MutableStateFlow(quoteStyle)
+    val quoteStyleFlow = _quoteStyleFlow.asStateFlow()
+
+    private val _quoteConfigsFlow = MutableStateFlow(QuoteConfigs())
+    val quoteConfigsFlow = _quoteConfigsFlow.asStateFlow()
+
+    private val _quoteModuleNotifyFlow = MutableSharedFlow<Unit>()
+    val quoteModuleNotifyFlow = _quoteModuleNotifyFlow.asSharedFlow()
+
+    private val _quoteRefreshRateNotifyFlow = MutableSharedFlow<Unit>()
+    val quoteRefreshRateNotifyFlow = _quoteRefreshRateNotifyFlow.asSharedFlow()
+
+    init {
+        commonDataStore.collectIn(CoroutineScope(dispatcher)) { preferences, key ->
+            when (key?.name) {
+                PREF_COMMON_FONT_SIZE_TEXT -> _quoteStyleFlow.update { currentState ->
+                    currentState.copy(
+                        quoteSize = (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_TEXT)]
+                            ?: PREF_COMMON_FONT_SIZE_TEXT_DEFAULT).toInt()
+                    )
+                }
+                PREF_COMMON_FONT_SIZE_SOURCE -> _quoteStyleFlow.update { currentState ->
+                    currentState.copy(
+                        sourceSize = (preferences[stringPreferencesKey(PREF_COMMON_FONT_SIZE_SOURCE)]
+                            ?: PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT).toInt()
+                    )
+                }
+                PREF_COMMON_FONT_FAMILY -> {
+                    val font =
+                        preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
+                            ?: PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF
+                    val typeface = when (font) {
+                        PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
+                        PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
+                        -> Typeface.SANS_SERIF
+                        PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
+                        -> Typeface.SERIF
+                        else -> runCatching { FontManager.loadTypeface(font) }.getOrNull()
+                    }
+                    _quoteStyleFlow.update { currentState ->
+                        currentState.copy(quoteTypeface = typeface, sourceTypeface = typeface)
+                    }
+                }
+                PREF_COMMON_FONT_STYLE_TEXT -> {
+                    val quoteStyles =
+                        preferences[stringSetPreferencesKey(PREF_COMMON_FONT_STYLE_TEXT)]
+                    _quoteStyleFlow.update { currentState ->
+                        currentState.copy(
+                            quoteFontWeight = getComposeFontWeight(quoteStyles),
+                            quoteFontStyle = getComposeFontStyle(quoteStyles)
+                        )
+                    }
+                }
+                PREF_COMMON_FONT_STYLE_SOURCE -> {
+                    val sourceStyles =
+                        preferences[stringSetPreferencesKey(
+                            PREF_COMMON_FONT_STYLE_SOURCE)]
+                    _quoteStyleFlow.update { currentState ->
+                        currentState.copy(
+                            sourceFontWeight = getComposeFontWeight(sourceStyles),
+                            sourceFontStyle = getComposeFontStyle(sourceStyles)
+                        )
+                    }
+                }
+                PREF_COMMON_QUOTE_SPACING -> _quoteStyleFlow.update { currentState ->
+                    currentState.copy(
+                        quoteSpacing = (preferences[stringPreferencesKey(PREF_COMMON_QUOTE_SPACING)]
+                            ?: PREF_COMMON_QUOTE_SPACING_DEFAULT).toInt()
+                    )
+                }
+                PREF_COMMON_PADDING_TOP -> _quoteStyleFlow.update { currentState ->
+                    currentState.copy(
+                        paddingTop = (preferences[stringPreferencesKey(PREF_COMMON_PADDING_TOP)]
+                            ?: PREF_COMMON_PADDING_TOP_DEFAULT).toInt()
+                    )
+                }
+                PREF_COMMON_PADDING_BOTTOM -> _quoteStyleFlow.update { currentState ->
+                    currentState.copy(
+                        paddingBottom = (preferences[stringPreferencesKey(PREF_COMMON_PADDING_BOTTOM)]
+                            ?: PREF_COMMON_PADDING_BOTTOM_DEFAULT).toInt()
+                    )
+                }
+                PREF_COMMON_QUOTE_MODULE -> {
+                    _quoteConfigsFlow.update { currentState ->
+                        currentState.copy(
+                            module = preferences[stringPreferencesKey(PREF_COMMON_QUOTE_MODULE)]
+                                ?: PREF_COMMON_QUOTE_MODULE_DEFAULT
+                        )
+                    }
+                    _quoteModuleNotifyFlow.emit(Unit)
+                }
+                PREF_COMMON_REFRESH_RATE -> {
+                    _quoteConfigsFlow.update { currentState ->
+                        currentState.copy(
+                            refreshRate = (preferences[stringPreferencesKey(PREF_COMMON_REFRESH_RATE)]
+                                ?: PREF_COMMON_REFRESH_RATE_DEFAULT).toInt()
+                        )
+                    }
+                    _quoteRefreshRateNotifyFlow.emit(Unit)
+                }
+                PREF_COMMON_REFRESH_RATE_OVERRIDE -> {
+                    _quoteConfigsFlow.update { currentState ->
+                        currentState.copy(
+                            refreshRateOverride = preferences[intPreferencesKey(
+                                PREF_COMMON_REFRESH_RATE_OVERRIDE)]
+                        )
+                    }
+                    _quoteRefreshRateNotifyFlow.emit(Unit)
+                }
+                PREF_COMMON_DISPLAY_ON_AOD -> _quoteConfigsFlow.update { currentState ->
+                    currentState.copy(displayOnAod = preferences[booleanPreferencesKey(
+                        PREF_COMMON_DISPLAY_ON_AOD)] ?: false
+                    )
+                }
+                PREF_COMMON_UNMETERED_ONLY -> _quoteConfigsFlow.update { currentState ->
+                    currentState.copy(
+                        unmeteredOnly = preferences[booleanPreferencesKey(PREF_COMMON_UNMETERED_ONLY)]
+                            ?: PREF_COMMON_UNMETERED_ONLY_DEFAULT
+                    )
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun updateConfiguration(moduleData: QuoteModuleData) {
+        if (moduleData.minimumRefreshInterval != 0) {
+            commonDataStore.put(PREF_COMMON_REFRESH_RATE_OVERRIDE,
+                moduleData.minimumRefreshInterval)
+        } else {
+            commonDataStore.remove(PREF_COMMON_REFRESH_RATE_OVERRIDE)
+        }
+
+        isRequireInternet = moduleData.requiresInternetConnectivity
+    }
 }

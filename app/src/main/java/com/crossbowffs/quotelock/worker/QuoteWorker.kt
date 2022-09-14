@@ -5,6 +5,7 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
+import com.crossbowffs.quotelock.di.ConfigurationEntryPoint
 import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.Xlog
@@ -21,12 +22,18 @@ class QuoteWorker(context: Context, workerParams: WorkerParameters) :
 
     private val quoteRepository = EntryPointAccessors.fromApplication(context.applicationContext,
         QuoteProviderEntryPoint::class.java).quoteRepository()
+    private val configurationRepository =
+        EntryPointAccessors.fromApplication(context.applicationContext,
+            ConfigurationEntryPoint::class.java).configurationRepository()
 
     private var mUpdaterJob: Job? = null
     override fun startWork(): ListenableFuture<Result> {
         return CallbackToFutureAdapter.getFuture { completer: Completer<Result> ->
             Xlog.d(TAG, "Quote downloader work started")
-            if (!WorkUtils.shouldRefreshQuote(applicationContext)) {
+            if (!WorkUtils.shouldRefreshQuote(applicationContext,
+                    configurationRepository.isRequireInternet,
+                    configurationRepository.isUnmeteredNetworkOnly)
+            ) {
                 Xlog.d(TAG, "Should not refresh quote now, ignoring")
                 completer.setCancelled()
                 return@getFuture TAG
@@ -44,7 +51,11 @@ class QuoteWorker(context: Context, workerParams: WorkerParameters) :
                 // will schedule the next update immediately after this one.
                 completer.set(if (quote == null) Result.retry() else Result.success())
                 if (quote != null) {
-                    WorkUtils.createQuoteDownloadWork(applicationContext, true)
+                    WorkUtils.createQuoteDownloadWork(applicationContext,
+                        configurationRepository.refreshInterval,
+                        configurationRepository.isRequireInternet,
+                        configurationRepository.isUnmeteredNetworkOnly,
+                        true)
                 }
                 mUpdaterJob = null
             }
