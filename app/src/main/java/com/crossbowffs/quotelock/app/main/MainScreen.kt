@@ -173,6 +173,7 @@ fun MainScreen(
                     onSourceSizeChange = cardStyleViewModel::setSourceSize,
                     onLineSpacingChange = cardStyleViewModel::setLineSpacing,
                     onCardPaddingChange = cardStyleViewModel::setCardPadding,
+                    onShareWatermarkChange = cardStyleViewModel::setShareWatermark,
                     onDismiss = cardStyleViewModel::dismissStylePopup
                 )
             }

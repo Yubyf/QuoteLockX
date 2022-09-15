@@ -76,6 +76,10 @@ class CardStyleViewModel @Inject constructor(
         cardStyleRepository.cardPadding = padding
     }
 
+    fun setShareWatermark(watermark: Boolean) {
+        cardStyleRepository.shareWatermark = watermark
+    }
+
     fun dismissStylePopup() {
         _uiState.value = _uiState.value.copy(show = false)
     }

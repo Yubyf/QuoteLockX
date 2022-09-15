@@ -54,7 +54,7 @@ data class QuoteDetailUiState(
 @HiltViewModel
 class QuoteDetailViewModel @Inject constructor(
     @ApplicationContext context: Context,
-    cardStyleRepository: CardStyleRepository,
+    private val cardStyleRepository: CardStyleRepository,
     private val collectionRepository: QuoteCollectionRepository,
     private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
@@ -113,6 +113,7 @@ class QuoteDetailViewModel @Inject constructor(
 
     @Suppress("BlockingMethodInNonBlockingContext")
     fun shareQuote(size: Size, block: ((Canvas) -> Unit)) {
+        val shareWatermark = cardStyleRepository.shareWatermark
         viewModelScope.launch {
             val bitmap = withContext(dispatcher) {
                 // Added padding around image
@@ -120,7 +121,8 @@ class QuoteDetailViewModel @Inject constructor(
                     size.height + PREF_SHARE_IMAGE_FRAME_WIDTH * 2)
                 val watermarkPadding = PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX * 2F
                 Bitmap.createBitmap(imageSize.width.roundToInt(),
-                    (imageSize.height + watermarkPadding).roundToInt(), Bitmap.Config.ARGB_8888)
+                    (imageSize.height + if (shareWatermark) watermarkPadding else 0F).roundToInt(),
+                    Bitmap.Config.ARGB_8888)
                     .also { bitmap ->
                         val canvas = Canvas(bitmap)
                         canvas.drawColor(Color.White.toArgb())
@@ -128,6 +130,9 @@ class QuoteDetailViewModel @Inject constructor(
                         canvas.translate(PREF_SHARE_IMAGE_FRAME_WIDTH, PREF_SHARE_IMAGE_FRAME_WIDTH)
                         block.invoke(canvas)
                         canvas.restore()
+                        if (!shareWatermark) {
+                            return@also
+                        }
 
                         // Watermark
                         val watermarkAlpha = 0.3F

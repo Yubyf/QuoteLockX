@@ -71,6 +71,8 @@ const val PREF_CARD_STYLE_FONT_FAMILY = "pref_card_style_font_family"
 const val PREF_CARD_STYLE_FONT_FAMILY_LEGACY_DEFAULT = "system"
 const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
 const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SERIF = "serif"
+const val PREF_CARD_STYLE_SHARE_WATERMARK = "pref_card_style_share_watermark"
+const val PREF_CARD_STYLE_SHARE_WATERMARK_DEFAULT = true
 
 const val PREF_DEBUG_RESTART_SYSTEM_UI = "pref_restart_system_ui"
 

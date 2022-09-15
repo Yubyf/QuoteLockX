@@ -10,6 +10,7 @@ data class CardStyle(
     val fontFamily: String = PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF,
     val lineSpacing: Int = PREF_CARD_STYLE_LINE_SPACING_DEFAULT,
     val cardPadding: Int = PREF_CARD_STYLE_CARD_PADDING_DEFAULT,
+    val shareWatermark: Boolean = PREF_CARD_STYLE_SHARE_WATERMARK_DEFAULT,
 ) {
 
     val typeface: Typeface?

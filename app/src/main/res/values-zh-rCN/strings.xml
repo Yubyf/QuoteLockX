@@ -190,5 +190,6 @@
 
     <string name="quote_card_style_text_title">文本</string>
     <string name="quote_card_style_source_title">来源</string>
+    <string name="quote_card_style_share_watermark">分享卡片水印</string>
     <string name="quote_card_style_popup_hint">如需设置锁屏样式，请前往「更多>锁屏样式」</string>
 </resources>

@@ -49,6 +49,7 @@ fun CardStylePopup(
     onSourceSizeChange: (Int) -> Unit,
     onLineSpacingChange: (Int) -> Unit,
     onCardPaddingChange: (Int) -> Unit,
+    onShareWatermarkChange: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val names = stringArrayResource(id = R.array.default_font_family_entries)
@@ -115,35 +116,53 @@ fun CardStylePopup(
                         }
                     }
                 }
-                PopupLayoutRow(
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp),
-                    lineSpacing = cardStyle.lineSpacing,
-                    cardPadding = cardStyle.cardPadding,
-                    onLineSpacingChange = { performHapticFeedback(); onLineSpacingChange(it) },
-                    onCardPaddingChange = { performHapticFeedback(); onCardPaddingChange(it) },
-                )
-                PopupFontSizeRow(
-                    modifier = Modifier.padding(start = 16.dp,
-                        top = 16.dp,
-                        end = 16.dp),
-                    quoteSize = cardStyle.quoteSize,
-                    sourceSize = cardStyle.sourceSize,
-                    onQuoteSizeChange = { performHapticFeedback(); onQuoteSizeChange(it) },
-                    onSourceSizeChange = { performHapticFeedback(); onSourceSizeChange(it) },
-                )
-                Row(modifier = Modifier
-                    .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-                    .alpha(ContentAlpha.disabled),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Rounded.ErrorOutline,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(R.string.quote_card_style_popup_hint),
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                        lineHeight = 1.em,
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)) {
+                    PopupLayoutRow(
+                        lineSpacing = cardStyle.lineSpacing,
+                        cardPadding = cardStyle.cardPadding,
+                        onLineSpacingChange = { performHapticFeedback(); onLineSpacingChange(it) },
+                        onCardPaddingChange = { performHapticFeedback(); onCardPaddingChange(it) },
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    PopupFontSizeRow(
+                        quoteSize = cardStyle.quoteSize,
+                        sourceSize = cardStyle.sourceSize,
+                        onQuoteSizeChange = { performHapticFeedback(); onQuoteSizeChange(it) },
+                        onSourceSizeChange = { performHapticFeedback(); onSourceSizeChange(it) },
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(id = R.string.quote_card_style_share_watermark),
+                            fontSize = MaterialTheme.typography.labelLarge.fontSize,
+                            modifier = Modifier
+                                .weight(1f)
+                                .alpha(ContentAlpha.medium),
+                        )
+                        var shareWatermark by remember {
+                            mutableStateOf(cardStyle.shareWatermark)
+                        }
+                        Switch(checked = shareWatermark,
+                            onCheckedChange = {
+                                shareWatermark = it; onShareWatermarkChange(it)
+                            })
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(modifier = Modifier
+                        .alpha(ContentAlpha.disabled),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Rounded.ErrorOutline,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.quote_card_style_popup_hint),
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                            lineHeight = 1.em,
+                        )
+                    }
                 }
             }
         }
@@ -420,6 +439,7 @@ private fun CardStylePopupPreview() {
                 onSourceSizeChange = {},
                 onLineSpacingChange = {},
                 onCardPaddingChange = {},
+                onShareWatermarkChange = {},
                 onDismiss = {}
             )
         }
