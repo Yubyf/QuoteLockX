@@ -1,19 +1,18 @@
-@file:OptIn(ExperimentalUnitApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalUnitApi::class, ExperimentalMaterial3Api::class, ExperimentalTextApi::class)
 
 package com.crossbowffs.quotelock.app.lockscreen.styles
 
 import android.content.res.Configuration
-import android.graphics.Typeface
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,13 +63,13 @@ fun PreviewScreen(
                 .wrapContentHeight(),
             quote = uiState.quoteData.quoteText,
             quoteSize = uiState.quoteStyle.quoteSize.toFloat(),
-            quoteTypeface = uiState.quoteStyle.quoteTypeface,
+            quoteFamily = uiState.quoteStyle.quoteFontFamily,
             quoteFontWeight = uiState.quoteStyle.quoteFontWeight,
             quoteFontStyle = uiState.quoteStyle.quoteFontStyle,
             source = if (quoteGeneratedByApp) uiState.quoteData.readableSource
             else uiState.quoteData.readableSourceWithPrefix,
             sourceSize = uiState.quoteStyle.sourceSize.toFloat(),
-            sourceTypeface = uiState.quoteStyle.sourceTypeface,
+            sourceFamily = uiState.quoteStyle.sourceFamily,
             sourceFontWeight = uiState.quoteStyle.sourceFontWeight,
             sourceFontStyle = uiState.quoteStyle.sourceFontStyle,
             quoteSpacing = uiState.quoteStyle.quoteSpacing.dp,
@@ -87,12 +86,12 @@ fun QuoteLayout(
     modifier: Modifier = Modifier,
     quote: String?,
     quoteSize: Float = PREF_COMMON_FONT_SIZE_TEXT_DEFAULT.toFloat(),
-    quoteTypeface: Typeface? = null,
+    quoteFamily: FontFamily = FontFamily.Default,
     quoteFontWeight: FontWeight = FontWeight.Normal,
     quoteFontStyle: FontStyle = FontStyle.Normal,
     source: String? = null,
     sourceSize: Float = PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT.toFloat(),
-    sourceTypeface: Typeface? = null,
+    sourceFamily: FontFamily = FontFamily.Default,
     sourceFontWeight: FontWeight = FontWeight.Normal,
     sourceFontStyle: FontStyle = FontStyle.Normal,
     quoteSpacing: Dp = 0.dp,
@@ -115,27 +114,33 @@ fun QuoteLayout(
             bottom = paddingBottom),
             horizontalAlignment = Alignment.End
         ) {
-            Text(
-                text = quote ?: "",
-                modifier = Modifier.fillMaxWidth(),
-                fontSize = TextUnit(quoteSize, TextUnitType.Sp),
-                fontFamily = quoteTypeface?.let { FontFamily(it) },
-                fontWeight = quoteFontWeight,
-                fontStyle = quoteFontStyle,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (!source.isNullOrBlank()) {
+            val localTextStyle = LocalTextStyle.current
+            val previewTextStyle by remember {
+                derivedStateOf { localTextStyle.copy(fontSynthesis = FontSynthesis.All) }
+            }
+            CompositionLocalProvider(LocalTextStyle provides previewTextStyle) {
                 Text(
-                    text = source,
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(top = quoteSpacing),
-                    fontSize = TextUnit(sourceSize, TextUnitType.Sp),
-                    fontFamily = sourceTypeface?.let { FontFamily(it) },
-                    fontWeight = sourceFontWeight,
-                    fontStyle = sourceFontStyle
+                    text = quote ?: "",
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = TextUnit(quoteSize, TextUnitType.Sp),
+                    fontFamily = quoteFamily,
+                    fontWeight = quoteFontWeight,
+                    fontStyle = quoteFontStyle,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
+                if (!source.isNullOrBlank()) {
+                    Text(
+                        text = source,
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .padding(top = quoteSpacing),
+                        fontSize = TextUnit(sourceSize, TextUnitType.Sp),
+                        fontFamily = sourceFamily,
+                        fontWeight = sourceFontWeight,
+                        fontStyle = sourceFontStyle
+                    )
+                }
             }
         }
     }

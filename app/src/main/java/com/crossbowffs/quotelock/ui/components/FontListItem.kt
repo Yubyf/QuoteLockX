@@ -21,7 +21,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -147,14 +146,14 @@ fun FontListItem(
             ) {
                 val fontInfo = fontInfoWithState.fontInfo
                 Text(text = with(fontInfo) { LocalConfiguration.current.localeName },
-                    fontFamily = FontFamily(fontInfo.typeface),
+                    fontFamily = fontInfo.composeFontInStyle(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth())
                 Text(text = fontInfo.descriptionLatin,
-                    fontFamily = FontFamily(fontInfo.typeface),
+                    fontFamily = fontInfo.composeFontInStyle(),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
@@ -164,7 +163,7 @@ fun FontListItem(
                         .padding(top = 12.dp))
                 if (fontInfo.descriptionLocale.isNotBlank()) {
                     Text(text = fontInfo.descriptionLocale,
-                        fontFamily = FontFamily(fontInfo.typeface),
+                        fontFamily = fontInfo.composeFontInStyle(),
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Start,
                         maxLines = 1,

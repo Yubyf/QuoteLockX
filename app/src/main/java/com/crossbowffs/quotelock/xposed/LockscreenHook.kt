@@ -31,6 +31,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit.StartupParam
 import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import org.xmlpull.v1.XmlPullParser
+import java.io.File
 
 class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     IXposedHookLoadPackage, OnSharedPreferenceChangeListener {
@@ -52,10 +53,29 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
     private val typefaceCache = HashMap<String, Typeface>()
 
-    private fun loadTypeface(fontPath: String): Typeface {
-        return typefaceCache.getOrPut(fontPath) {
-            Typeface.createFromFile(fontPath)
-        }
+    private fun loadTypeface(
+        font: String?,
+        style: Int = Typeface.NORMAL,
+    ): Typeface = when (font) {
+        PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
+        PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
+        null,
+        -> Typeface.SANS_SERIF
+        PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
+        -> Typeface.SERIF
+        else -> runCatching {
+            typefaceCache.getOrElse("$font&$style") {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Typeface.Builder(File(font))
+                        .setFontVariationSettings(getFontVariationSettings())
+                        .build()
+                } else {
+                    Typeface.createFromFile(font)
+                }
+            }
+        }.onFailure {
+            Xlog.e(TAG, "Failed to load typeface: $font", it)
+        }.getOrDefault(Typeface.DEFAULT)
     }
 
     private fun refreshLockscreenQuote() {
@@ -144,17 +164,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val sourceStyle = getTypefaceStyle(sourceStyles)
         val font = mCommonPrefs.getString(
             PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF)
-        val typeface = when (font) {
-            PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
-            PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
-            null,
-            -> Typeface.SANS_SERIF
-            PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
-            -> Typeface.SERIF
-            else -> runCatching { loadTypeface(font) }.getOrNull()
-        }
-        mQuoteTextView.setTypeface(typeface, quoteStyle)
-        mSourceTextView.setTypeface(typeface, sourceStyle)
+        val quoteTypeface = loadTypeface(font, quoteStyle)
+        val sourceTypeface = loadTypeface(font, sourceStyle)
+        mQuoteTextView.setTypeface(quoteTypeface, quoteStyle)
+        mSourceTextView.setTypeface(sourceTypeface, sourceStyle)
     }
 
     private fun refreshAodQuote() {
@@ -236,17 +249,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val sourceStyle = getTypefaceStyle(sourceStyles)
         val font = mCommonPrefs.getString(
             PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT)
-        val typeface = when (font) {
-            PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
-            PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
-            null,
-            -> Typeface.SANS_SERIF
-            PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
-            -> Typeface.SERIF
-            else -> runCatching { loadTypeface(font) }.getOrNull()
-        }
-        mAodQuoteTextView.setTypeface(typeface, quoteStyle)
-        mAodSourceTextView.setTypeface(typeface, sourceStyle)
+        val quoteTypeface = loadTypeface(font, quoteStyle)
+        val sourceTypeface = loadTypeface(font, sourceStyle)
+        mAodQuoteTextView.setTypeface(quoteTypeface, quoteStyle)
+        mAodSourceTextView.setTypeface(sourceTypeface, sourceStyle)
     }
 
     private val isAodViewAvailable: Boolean

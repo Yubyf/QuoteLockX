@@ -1,11 +1,9 @@
 package com.crossbowffs.quotelock.data
 
-import android.graphics.Typeface
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.api.QuoteConfigs
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
@@ -15,6 +13,7 @@ import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.utils.getComposeFontStyle
 import com.crossbowffs.quotelock.utils.getComposeFontWeight
 import com.crossbowffs.quotelock.utils.getValueByDefault
+import com.crossbowffs.quotelock.utils.loadComposeFontWithSystem
 import com.yubyf.datastore.DataStoreDelegate
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -123,27 +122,23 @@ class ConfigurationRepository @Inject internal constructor(
 
     private val quoteStyle: QuoteStyle
         get() {
+            val quoteStyles = quoteStyles
+            val sourceStyles = sourceStyles
+            val fontFamily = fontFamily
             // Font properties
             val quoteFontStyle = getComposeFontStyle(quoteStyles)
             val sourceFontStyle = getComposeFontStyle(sourceStyles)
             val quoteFontWeight = getComposeFontWeight(quoteStyles)
             val sourceFontWeight = getComposeFontWeight(sourceStyles)
-            val typeface = when (fontFamily) {
-                PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
-                PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
-                -> Typeface.SANS_SERIF
-                PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
-                -> Typeface.SERIF
-                else -> runCatching { FontManager.loadTypeface(fontFamily) }.getOrNull()
-            }
+            val composeFontFamily = loadComposeFontWithSystem(fontFamily)
 
             return QuoteStyle(
                 quoteSize = quoteSize,
                 sourceSize = sourceSize,
-                quoteTypeface = typeface,
+                quoteFontFamily = composeFontFamily,
                 quoteFontWeight = quoteFontWeight,
                 quoteFontStyle = quoteFontStyle,
-                sourceTypeface = typeface,
+                sourceFamily = composeFontFamily,
                 sourceFontWeight = sourceFontWeight,
                 sourceFontStyle = sourceFontStyle,
                 quoteSpacing = quoteSpacing,
@@ -183,16 +178,10 @@ class ConfigurationRepository @Inject internal constructor(
                     val font =
                         preferences[stringPreferencesKey(PREF_COMMON_FONT_FAMILY)]
                             ?: PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF
-                    val typeface = when (font) {
-                        PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
-                        PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
-                        -> Typeface.SANS_SERIF
-                        PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
-                        -> Typeface.SERIF
-                        else -> runCatching { FontManager.loadTypeface(font) }.getOrNull()
-                    }
+                    val composeFontFamily = loadComposeFontWithSystem(font)
                     _quoteStyleFlow.update { currentState ->
-                        currentState.copy(quoteTypeface = typeface, sourceTypeface = typeface)
+                        currentState.copy(quoteFontFamily = composeFontFamily,
+                            sourceFamily = composeFontFamily)
                     }
                 }
                 PREF_COMMON_FONT_STYLE_TEXT -> {

@@ -24,7 +24,7 @@ const val PREF_COMMON_FONT_STYLE_SOURCE = "pref_common_font_style_source"
 const val PREF_COMMON_UPDATE_INFO = "pref_common_update_info"
 const val PREF_COMMON_FONT_FAMILY = "pref_common_font_family"
 const val PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT = "system"
-const val PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans_serif"
+const val PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
 const val PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF = "serif"
 const val PREF_COMMON_QUOTE_SPACING = "pref_common_quote_spacing"
 const val PREF_COMMON_QUOTE_SPACING_DEFAULT = "0"
@@ -69,7 +69,7 @@ const val PREF_CARD_STYLE_CARD_PADDING_MAX = 32
 const val PREF_CARD_STYLE_CARD_PADDING_STEP = 4
 const val PREF_CARD_STYLE_FONT_FAMILY = "pref_card_style_font_family"
 const val PREF_CARD_STYLE_FONT_FAMILY_LEGACY_DEFAULT = "system"
-const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans_serif"
+const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
 const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SERIF = "serif"
 
 const val PREF_DEBUG_RESTART_SYSTEM_UI = "pref_restart_system_ui"

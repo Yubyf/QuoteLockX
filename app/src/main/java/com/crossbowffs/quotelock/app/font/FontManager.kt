@@ -6,12 +6,12 @@ import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.di.IoDispatcher
-import com.crossbowffs.quotelock.utils.Xlog
-import com.crossbowffs.quotelock.utils.className
-import com.crossbowffs.quotelock.utils.toFile
+import com.crossbowffs.quotelock.utils.*
 import com.yubyf.quotelockx.R
 import com.yubyf.truetypeparser.TTFFile
 import com.yubyf.truetypeparser.get
@@ -178,11 +178,22 @@ object FontManager {
         }.getOrNull()
     }
 
-    fun loadTypeface(fontPath: String): Typeface {
-        return TYPEFACE_CACHE.getOrPut(fontPath) {
-            Typeface.createFromFile(fontPath)
+    fun loadTypeface(
+        fontPath: String,
+        style: Int = Typeface.NORMAL,
+    ): Typeface = runCatching {
+        TYPEFACE_CACHE.getOrElse("$fontPath&$style") {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Typeface.Builder(File(fontPath))
+                    .setFontVariationSettings(getFontVariationSettings(style))
+                    .build()
+            } else {
+                Typeface.createFromFile(fontPath)
+            }
         }
-    }
+    }.onFailure {
+        Xlog.e(TAG, "Failed to load typeface: $fontPath", it)
+    }.getOrDefault(Typeface.DEFAULT)
 
     private fun generateLocaleDescription(names: Map<String, String>): String {
         return when {
@@ -269,9 +280,12 @@ data class FontInfo(
             else -> false
         }
 
-    val typeface: Typeface
-        get() = FontManager.loadTypeface(path)
+    fun composeFontInStyle(
+        weight: FontWeight = FontWeight.Normal,
+        style: FontStyle = FontStyle.Normal,
+    ) = loadComposeFont(path, weight, style)
 
+    @Suppress("DEPRECATION")
     val Configuration.localeName: String
         get() = names[if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) locales[0] else locale]
 }

@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.app.detail.style
 
 import android.content.res.Configuration
-import android.graphics.Typeface
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -22,7 +21,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,11 +31,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.crossbowffs.quotelock.app.font.FontInfo
-import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.ui.components.ContentAlpha
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
+import com.crossbowffs.quotelock.utils.loadComposeFontWithSystem
 import com.yubyf.quotelockx.R
 
 
@@ -162,18 +160,7 @@ private fun PopupFontIndicator(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val typeface = when (fontInfo.path) {
-            PREF_CARD_STYLE_FONT_FAMILY_LEGACY_DEFAULT,
-            PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF,
-            -> {
-                Typeface.SANS_SERIF
-            }
-            PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SERIF,
-            -> {
-                Typeface.SERIF
-            }
-            else -> runCatching { FontManager.loadTypeface(fontInfo.path) }.getOrNull()
-        }
+        val composeFontFamily = loadComposeFontWithSystem(fontInfo.path)
         TextButton(
             onClick = { onClick(fontInfo.path) },
             colors = if (selected) {
@@ -192,7 +179,7 @@ private fun PopupFontIndicator(
                 fontSize = if (fontInfo.cjk) 28.sp else 32.sp,
                 letterSpacing = 0.sp,
                 lineHeight = 0.em,
-                fontFamily = typeface?.let { FontFamily(it) })
+                fontFamily = composeFontFamily)
         }
         Text(
             text = with(fontInfo) {

@@ -3,7 +3,6 @@
 package com.crossbowffs.quotelock.ui.components
 
 import android.content.res.Configuration
-import android.graphics.Typeface
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,19 +21,15 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.crossbowffs.quotelock.app.font.FontInfo
-import com.crossbowffs.quotelock.app.font.FontManager
-import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF
-import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF
-import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
+import com.crossbowffs.quotelock.utils.loadComposeFontWithSystem
 import com.yubyf.quotelockx.R
 
 private val LIST_DIALOG_ITEM_HEIGHT = 48.dp
@@ -342,14 +337,7 @@ fun FontListPreferenceDialog(
                             onClick = null,
                         )
                         Spacer(modifier = Modifier.width(24.dp))
-                        val typeface = when (fontInfo.path) {
-                            PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
-                            PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
-                            -> Typeface.SANS_SERIF
-                            PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
-                            -> Typeface.SERIF
-                            else -> runCatching { FontManager.loadTypeface(fontInfo.path) }.getOrNull()
-                        }
+                        val composeFontFamily = loadComposeFontWithSystem(fontInfo.path)
                         val displayName = with(fontInfo) {
                             LocalConfiguration.current.localeName.takeIf { it.isNotBlank() }
                                 ?: fileName
@@ -357,7 +345,7 @@ fun FontListPreferenceDialog(
                         Text(text = displayName,
                             color = AlertDialogDefaults.textContentColor,
                             fontSize = QuoteLockTheme.typography.bodyLarge.fontSize,
-                            fontFamily = typeface?.let { FontFamily(it) }
+                            fontFamily = composeFontFamily
                         )
                     }
                     if (index == presetFonts.lastIndex && fonts.isNotEmpty()) {
