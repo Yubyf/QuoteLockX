@@ -67,7 +67,7 @@ fun CardStylePopup(
     fun performHapticFeedback() = haptic.performHapticFeedback(HapticFeedbackType.LongPress)
     Popup(alignment = Alignment.TopCenter,
         onDismissRequest = onDismiss,
-        properties = PopupProperties()
+        properties = PopupProperties(focusable = true)
     ) {
         Surface(
             modifier = Modifier.padding(horizontal = 24.dp),
