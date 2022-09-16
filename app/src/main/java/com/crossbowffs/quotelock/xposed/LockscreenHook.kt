@@ -20,6 +20,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.annotation.RequiresApi
 import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.data.api.buildReadableSource
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.provider.ActionProvider
 import com.crossbowffs.quotelock.provider.PreferenceProvider
@@ -32,9 +33,12 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResou
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
+import java.util.*
 
 class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     IXposedHookLoadPackage, OnSharedPreferenceChangeListener {
+
+    private lateinit var quotesGeneratedByApp: Set<String>
 
     private var mLayoutTranslation = -(16f + 32f + 16f + 32f + 16f)
     private lateinit var mQuoteContainer: LinearLayout
@@ -52,6 +56,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     private var mAodHandler: Handler? = null
 
     private val typefaceCache = HashMap<String, Typeface>()
+
+    private fun isQuoteGeneratedByApp(text: String?, source: String?, author: String?): Boolean =
+        text.isNullOrBlank() || quotesGeneratedByApp.contains(text)
+                || quotesGeneratedByApp.contains(source) || quotesGeneratedByApp.contains(author)
 
     private fun loadTypeface(
         font: String?,
@@ -86,14 +94,13 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         var source = mQuotePrefs.getString(PREF_QUOTES_SOURCE, null)
         val originalSource = source
         val author = mQuotePrefs.getString(PREF_QUOTES_AUTHOR, null)
-        source = if (!author.isNullOrBlank()) {
-            "$PREF_QUOTE_SOURCE_PREFIX$author${if (source.isNullOrBlank()) "" else " $source"}"
+        val isQuoteGeneratedByApp = isQuoteGeneratedByApp(text, source, author)
+        if (isQuoteGeneratedByApp) {
+            mCollectImageView.visibility = View.GONE
+            mLayoutTranslation = -(16f + 32f + 16f + 1f)
         } else {
-            if (source.isNullOrBlank() || runCatching {
-                    source == sModuleRes.getString(RES_STRING_CUSTOM_SETUP_2)
-                            || source == sModuleRes.getString(RES_STRING_COLLECTIONS_SETUP_2)
-                }.getOrDefault(false)) source
-            else "$PREF_QUOTE_SOURCE_PREFIX$source"
+            mCollectImageView.visibility = View.VISIBLE
+            mLayoutTranslation = -(16f + 32f + 16f + 32f + 16f + 1f)
         }
         val collectionState = mQuotePrefs.getBoolean(PREF_QUOTES_COLLECTION_STATE, false)
         if (text.isNullOrBlank()) {
@@ -105,11 +112,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                 text = null
                 source = null
             }
-            mCollectImageView.visibility = View.GONE
-            mLayoutTranslation = -(16f + 32f + 16f + 1f)
         } else {
-            mCollectImageView.visibility = View.VISIBLE
-            mLayoutTranslation = -(16f + 32f + 16f + 32f + 16f + 1f)
+            source = buildReadableSource(source, author, !isQuoteGeneratedByApp)
         }
         val params = mActionContainer.layoutParams as RelativeLayout.LayoutParams
         params.rightMargin = (mLayoutTranslation + 16f).dp2px().toInt()
@@ -189,15 +193,6 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         var text = mQuotePrefs.getString(PREF_QUOTES_TEXT, null)
         var source = mQuotePrefs.getString(PREF_QUOTES_SOURCE, null)
         val author = mQuotePrefs.getString(PREF_QUOTES_AUTHOR, null)
-        source = if (!author.isNullOrBlank()) {
-            "$PREF_QUOTE_SOURCE_PREFIX$author${if (source.isNullOrBlank()) "" else " $source"}"
-        } else {
-            if (source.isNullOrBlank() || runCatching {
-                    source == sModuleRes.getString(RES_STRING_CUSTOM_SETUP_2)
-                            || source == sModuleRes.getString(RES_STRING_COLLECTIONS_SETUP_2)
-                }.getOrDefault(false)) source
-            else "$PREF_QUOTE_SOURCE_PREFIX$source"
-        }
         if (text.isNullOrBlank()) {
             try {
                 text = sModuleRes.getString(RES_STRING_OPEN_APP_1)
@@ -207,6 +202,9 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                 text = null
                 source = null
             }
+        } else {
+            source =
+                buildReadableSource(source, author, !isQuoteGeneratedByApp(text, source, author))
         }
         mAodQuoteTextView.text = text
         mAodSourceTextView.text = source
@@ -566,6 +564,33 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     @Throws(Throwable::class)
     override fun handleInitPackageResources(resparam: InitPackageResourcesParam) {
         sModuleRes = createInstance(sModulePath, resparam.res)
+        if (PACKAGE_SYSTEM_UI == resparam.packageName && !::quotesGeneratedByApp.isInitialized) {
+            // Load predefined quotes from app in all locales
+            val locale = resparam.res.configuration.locale
+            val locales = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                resparam.res.configuration.locales
+            } else null
+            quotesGeneratedByApp = arrayOf(Locale.ENGLISH,
+                Locale.SIMPLIFIED_CHINESE,
+                Locale.TRADITIONAL_CHINESE).flatMap {
+                resparam.res.configuration.setLocale(it)
+                createInstance(sModulePath, resparam.res).run {
+                    listOf(
+                        getString(RES_STRING_OPEN_APP_1),
+                        getString(RES_STRING_OPEN_APP_2),
+                        getString(RES_STRING_CUSTOM_SETUP_1),
+                        getString(RES_STRING_CUSTOM_SETUP_2),
+                        getString(RES_STRING_COLLECTIONS_SETUP_1),
+                        getString(RES_STRING_COLLECTIONS_SETUP_2)
+                    )
+                }
+            }.toSet()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                resparam.res.configuration.setLocales(locales)
+            } else {
+                resparam.res.configuration.setLocale(locale)
+            }
+        }
     }
 
     @Throws(Throwable::class)
