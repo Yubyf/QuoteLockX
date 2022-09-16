@@ -21,11 +21,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.NavigateNext
-import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,10 +40,7 @@ import com.crossbowffs.quotelock.app.collections.QuoteCollectionUiEvent.Progress
 import com.crossbowffs.quotelock.app.collections.QuoteCollectionUiEvent.SnackBarMessage
 import com.crossbowffs.quotelock.data.api.*
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
-import com.crossbowffs.quotelock.ui.components.CollectionAppBar
-import com.crossbowffs.quotelock.ui.components.DeletableQuoteListItem
-import com.crossbowffs.quotelock.ui.components.LoadingDialog
-import com.crossbowffs.quotelock.ui.components.TopAppBarDropdownMenu
+import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
@@ -146,6 +143,7 @@ fun QuoteCollectionScreen(
                     menuUiState.exportEnabled,
                     menuUiState.syncEnabled,
                     menuUiState.googleAccount,
+                    menuUiState.syncTime,
                     onExportDatabase,
                     onExportCsv,
                     onImportDatabase,
@@ -195,6 +193,7 @@ fun CollectionDataRetentionMenu(
     enableExport: Boolean = false,
     enableSync: Boolean = false,
     account: GoogleAccount? = null,
+    lastSyncTime: String? = null,
     onExportDatabase: () -> Unit = {},
     onExportCsv: () -> Unit = {},
     onImportDatabase: () -> Unit = {},
@@ -210,6 +209,9 @@ fun CollectionDataRetentionMenu(
         Icon(Icons.Rounded.Restore, contentDescription = "Backup&Restore")
     }, content = { _, closeMenu ->
         DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Rounded.ImportExport, contentDescription = null)
+            },
             text = {
                 Text(text = stringResource(id = R.string.import_export))
             },
@@ -222,6 +224,9 @@ fun CollectionDataRetentionMenu(
             }
         )
         DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Rounded.CloudSync, contentDescription = null)
+            },
             text = { Text(text = stringResource(id = R.string.sync)) },
             enabled = enableSync,
             trailingIcon = {
@@ -247,6 +252,7 @@ fun CollectionDataRetentionMenu(
             CollectionSyncMenu(
                 modifier,
                 account,
+                lastSyncTime,
                 onSignIn,
                 onSignOut,
                 onGdriveBackup,
@@ -271,15 +277,10 @@ fun CollectionBackupMenu(
         expanded = true,
         onDismissRequest = onDismiss,
     ) {
-        Text(
-            text = stringResource(id = R.string.import_export),
-            modifier = Modifier
-                .padding(MenuDefaults.DropdownMenuItemContentPadding)
-                .padding(vertical = 8.dp),
-            color = QuoteLockTheme.materialColors.onSurfaceVariant,
-            fontSize = QuoteLockTheme.typography.labelSmall.fontSize,
-        )
         DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Rounded.FileUpload, contentDescription = null)
+            },
             text = { Text(text = stringResource(id = R.string.export_database)) },
             enabled = enableExport,
             onClick = {
@@ -288,6 +289,9 @@ fun CollectionBackupMenu(
             }
         )
         DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Rounded.FileUpload, contentDescription = null)
+            },
             text = { Text(text = stringResource(id = R.string.export_csv)) },
             enabled = enableExport,
             onClick = {
@@ -297,6 +301,9 @@ fun CollectionBackupMenu(
         )
         Divider()
         DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Rounded.FileDownload, contentDescription = null)
+            },
             text = { Text(text = stringResource(id = R.string.import_database)) },
             onClick = {
                 onDismiss.invoke()
@@ -304,6 +311,9 @@ fun CollectionBackupMenu(
             }
         )
         DropdownMenuItem(
+            leadingIcon = {
+                Icon(Icons.Rounded.FileDownload, contentDescription = null)
+            },
             text = { Text(text = stringResource(id = R.string.import_csv)) },
             onClick = {
                 onDismiss.invoke()
@@ -317,6 +327,7 @@ fun CollectionBackupMenu(
 fun CollectionSyncMenu(
     modifier: Modifier = Modifier,
     account: GoogleAccount? = null,
+    lastSyncTime: String? = null,
     onSignIn: () -> Unit = {},
     onSignOut: () -> Unit = {},
     onGdriveBackup: () -> Unit = {},
@@ -328,16 +339,11 @@ fun CollectionSyncMenu(
         expanded = true,
         onDismissRequest = onDismiss,
     ) {
-        Text(
-            text = stringResource(id = R.string.sync),
-            modifier = Modifier
-                .padding(MenuDefaults.DropdownMenuItemContentPadding)
-                .padding(vertical = 8.dp),
-            color = QuoteLockTheme.materialColors.onSurfaceVariant,
-            fontSize = QuoteLockTheme.typography.labelSmall.fontSize,
-        )
         if (account == null) {
             DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Rounded.Link, contentDescription = null)
+                },
                 text = { Text(text = stringResource(id = R.string.connect_account)) },
                 onClick = {
                     onDismiss.invoke()
@@ -357,29 +363,46 @@ fun CollectionSyncMenu(
                 onClick = {}
             )
             DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Rounded.LinkOff, contentDescription = null)
+                },
                 text = { Text(text = stringResource(id = R.string.disconnect_account)) },
                 onClick = {
                     onDismiss.invoke()
                     onSignOut.invoke()
                 }
             )
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(Icons.Rounded.CloudUpload, contentDescription = null)
+                },
+                text = { Text(text = stringResource(id = R.string.backup)) },
+                onClick = {
+                    onDismiss.invoke()
+                    onGdriveBackup.invoke()
+                }
+            )
+            if (!lastSyncTime.isNullOrBlank()) {
+                DropdownMenuItem(
+                    leadingIcon = {
+                        Icon(Icons.Rounded.CloudDownload, contentDescription = null)
+                    },
+                    text = {
+                        Column {
+                            Text(text = stringResource(id = R.string.restore))
+                            Text(text = lastSyncTime,
+                                fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                                modifier = Modifier.alpha(ContentAlpha.disabled)
+                            )
+                        }
+                    },
+                    onClick = {
+                        onDismiss.invoke()
+                        onGdriveRestore.invoke()
+                    }
+                )
+            }
         }
-        DropdownMenuItem(
-            text = { Text(text = stringResource(id = R.string.backup)) },
-            enabled = account != null,
-            onClick = {
-                onDismiss.invoke()
-                onGdriveBackup.invoke()
-            }
-        )
-        DropdownMenuItem(
-            text = { Text(text = stringResource(id = R.string.restore)) },
-            enabled = account != null,
-            onClick = {
-                onDismiss.invoke()
-                onGdriveRestore.invoke()
-            }
-        )
     }
 }
 

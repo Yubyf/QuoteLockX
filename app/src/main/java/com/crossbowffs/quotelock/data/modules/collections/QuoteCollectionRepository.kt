@@ -87,6 +87,11 @@ class QuoteCollectionRepository internal constructor(
 
     fun ensureDriveService(): Boolean = remoteSyncSource.ensureDriveService()
 
+    suspend fun getGDriveFileTimestamp(): Flow<Long> {
+        remoteSyncSource.queryDriveFileTimestamp(QuoteCollectionContract.DATABASE_NAME)
+        return remoteSyncSource.cloudFileTimestampFlow
+    }
+
     suspend fun gDriveBackup() =
         remoteSyncSource.performDriveBackup(QuoteCollectionContract.DATABASE_NAME)
 

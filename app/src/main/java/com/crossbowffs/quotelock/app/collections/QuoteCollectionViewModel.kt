@@ -17,11 +17,10 @@ import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollecti
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 @Retention(AnnotationRetention.SOURCE)
@@ -57,6 +56,7 @@ data class QuoteCollectionMenuUiState(
     val exportEnabled: Boolean = false,
     val syncEnabled: Boolean = false,
     val googleAccount: GoogleAccount? = null,
+    val syncTime: String? = null,
 )
 
 /**
@@ -92,18 +92,23 @@ class QuoteCollectionViewModel @Inject constructor(
         get() = _uiListState
 
     init {
-        viewModelScope.run {
-            launch {
-                collectionRepository.getAllStream().stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = emptyList()
-                ).collect {
-                    _uiListState.value = _uiListState.value.copy(items = it)
+        viewModelScope.launch {
+            collectionRepository.getAllStream().stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            ).onEach {
+                _uiListState.value = _uiListState.value.copy(items = it)
+                _uiMenuState.value = _uiMenuState.value.copy(
+                    exportEnabled = it.isNotEmpty()
+                )
+            }.launchIn(this)
+            if (googleAccountManager.isGoogleAccountSignedIn()) {
+                collectionRepository.getGDriveFileTimestamp().onEach {
                     _uiMenuState.value = _uiMenuState.value.copy(
-                        exportEnabled = it.isNotEmpty()
+                        syncTime = if (it > 0) DATE_FORMATTER.format(Date(it)) else null
                     )
-                }
+                }.launchIn(this)
             }
         }
     }
@@ -283,5 +288,9 @@ class QuoteCollectionViewModel @Inject constructor(
                 resourceProvider.getString(R.string.module_custom_deleted_quote))
             )
         }
+    }
+
+    companion object {
+        private val DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
     }
 }

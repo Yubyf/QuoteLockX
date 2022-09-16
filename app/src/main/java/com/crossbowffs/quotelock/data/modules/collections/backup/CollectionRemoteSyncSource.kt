@@ -36,6 +36,7 @@ import com.yubyf.quotelockx.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -57,6 +58,8 @@ class CollectionRemoteSyncSource @Inject internal constructor(
     private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
+    val cloudFileTimestampFlow = MutableStateFlow(0L)
+
     private lateinit var drive: Drive
 
     fun updateDriveService() {
@@ -95,6 +98,7 @@ class CollectionRemoteSyncSource @Inject internal constructor(
                 ?: throw IOException("Null result when requesting file creation.")
         } catch (e: Exception) {
             Xlog.e(TAG, "Couldn't create file.", e)
+            cloudFileTimestampFlow.value = 0
             null
         }
     }
@@ -181,16 +185,29 @@ class CollectionRemoteSyncSource @Inject internal constructor(
             // Update the metadata and contents.
             val remoteFile = files().update(fileId, metadata, contentStream)
                 .setFields(NEEDED_FILE_FIELDS).execute()
+            cloudFileTimestampFlow.value = remoteFile.modifiedTime?.value ?: 0
             return Result().apply {
                 success = true
                 md5 = remoteFile.md5Checksum
-                timestamp =
-                    if (remoteFile.modifiedTime == null) -1 else remoteFile.modifiedTime.value
+                timestamp = remoteFile.modifiedTime?.value ?: -1
             }
         } catch (e: Exception) {
             Xlog.e(TAG, "Unable to save file via REST.", e)
             return Result()
         }
+    }
+
+    suspend fun queryDriveFileTimestamp(databaseName: String) {
+        if (!ensureDriveService()) {
+            return
+        }
+        cloudFileTimestampFlow.value = withContext(dispatcher) {
+            drive.queryFilesSync()?.files?.find {
+                it.name == databaseName
+            }?.let {
+                drive.files()[it.id].setFields(NEEDED_FILE_FIELDS).execute()
+            }
+        }?.modifiedTime?.value ?: 0
     }
 
     suspend fun performDriveBackup(
@@ -219,11 +236,16 @@ class CollectionRemoteSyncSource @Inject internal constructor(
             }
             emit(AsyncResult.Loading(
                 resourceProvider.getString(R.string.google_drive_creating_file)))
-            if (withContext(dispatcher) { createFileSync(databaseName) }.isNullOrBlank()) {
+            if (!withContext(dispatcher) { createFileSync(databaseName) }.isNullOrBlank()) {
+                emit(AsyncResult.Error(
+                    Exception(resourceProvider.getString(R.string.google_drive_create_failed))))
+                return@flow
+            }
+            if (withContext(dispatcher) { saveFileSync(null, databaseName) }.success) {
                 emit(AsyncResult.Success(""))
             } else {
                 emit(AsyncResult.Error(
-                    Exception(resourceProvider.getString(R.string.google_drive_create_failed))))
+                    Exception(resourceProvider.getString(R.string.google_drive_save_failed))))
             }
         }
     }
@@ -274,7 +296,7 @@ class CollectionRemoteSyncSource @Inject internal constructor(
                         Exception(resourceProvider.getString(R.string.google_drive_read_failed))))
                 }
                 return@flow
-            }
+            } ?: run { cloudFileTimestampFlow.value = 0 }
             Xlog.e(TAG, "There is no $databaseName on drive")
             emit(AsyncResult.Error(
                 Exception(resourceProvider.getString(R.string.google_drive_no_existing_file))))
@@ -288,11 +310,9 @@ class CollectionRemoteSyncSource @Inject internal constructor(
         }
         try {
             val fileList = drive.queryFilesSync() ?: return result
-            for (file in fileList.files) {
-                if (file.name == databaseName) {
-                    return runBlocking { drive.importDbFileSync(file.id, databaseName) }
-                }
-            }
+            fileList.files.find { it.name == databaseName }?.let {
+                return runBlocking { drive.importDbFileSync(it.id, databaseName) }
+            } ?: run { cloudFileTimestampFlow.value = 0 }
         } catch (e: IOException) {
             Xlog.e(TAG, "Unable to restore files.", e)
         } catch (e: NoSuchAlgorithmException) {
