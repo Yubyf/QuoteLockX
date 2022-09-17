@@ -25,11 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -275,7 +277,13 @@ fun QuoteCard(
         val animStar =
             AnimatedImageVector.animatedVectorResource(id = R.drawable.avd_star_unselected_to_selected)
         onCollectClick?.let {
-            IconButton(onClick = it, modifier = Modifier.align(Alignment.TopEnd)) {
+            val haptic = LocalHapticFeedback.current
+            IconButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    it()
+                },
+                modifier = Modifier.align(Alignment.TopEnd)) {
                 Icon(painter = rememberAnimatedVectorPainter(animStar, currentCollectState),
                     contentDescription = "Collect")
             }
