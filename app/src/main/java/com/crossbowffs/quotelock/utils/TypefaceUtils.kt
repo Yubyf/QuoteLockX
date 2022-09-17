@@ -75,6 +75,7 @@ fun loadComposeFont(
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
 ): FontFamily = runCatching {
+    if (!File(fontPath).exists()) throw Exception("Font file not found")
     FontFamily(Font(File(fontPath), weight, style))
 }.onFailure {
     Xlog.e("FontLoader", "Failed to load compose font: $fontPath", it)

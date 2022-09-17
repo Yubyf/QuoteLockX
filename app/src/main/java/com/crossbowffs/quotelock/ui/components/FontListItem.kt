@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontInfoWithState
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
+import com.crossbowffs.quotelock.utils.loadComposeFont
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 
@@ -145,15 +146,18 @@ fun FontListItem(
                 .alpha(if (fontInfoWithState.active) 1F else ContentAlpha.disabled)
             ) {
                 val fontInfo = fontInfoWithState.fontInfo
+                val font by remember {
+                    mutableStateOf(loadComposeFont(fontInfo.path))
+                }
                 Text(text = with(fontInfo) { LocalConfiguration.current.localeName },
-                    fontFamily = fontInfo.composeFontInStyle(),
+                    fontFamily = font,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth())
                 Text(text = fontInfo.descriptionLatin,
-                    fontFamily = fontInfo.composeFontInStyle(),
+                    fontFamily = font,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
@@ -163,7 +167,7 @@ fun FontListItem(
                         .padding(top = 12.dp))
                 if (fontInfo.descriptionLocale.isNotBlank()) {
                     Text(text = fontInfo.descriptionLocale,
-                        fontFamily = fontInfo.composeFontInStyle(),
+                        fontFamily = font,
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
