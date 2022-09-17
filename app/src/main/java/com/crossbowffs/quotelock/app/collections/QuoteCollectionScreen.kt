@@ -20,12 +20,16 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.RenderVectorGroup
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -351,13 +355,30 @@ fun CollectionSyncMenu(
                 }
             )
         } else {
+            val placeholder = Icons.Rounded.AccountCircle.let {
+                rememberVectorPainter(
+                    defaultWidth = it.defaultWidth,
+                    defaultHeight = it.defaultHeight,
+                    viewportWidth = it.viewportWidth,
+                    viewportHeight = it.viewportHeight,
+                    name = it.name,
+                    tintColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tintBlendMode = it.tintBlendMode,
+                    autoMirror = it.autoMirror,
+                    content = { _, _ -> RenderVectorGroup(group = it.root) }
+                )
+            }
             DropdownMenuItem(
                 text = { Text(text = account.email) },
                 leadingIcon = {
                     AsyncImage(
                         model = account.avatar,
-                        modifier = Modifier.size(24.dp),
-                        contentDescription = null
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape),
+                        contentDescription = null,
+                        placeholder = placeholder,
+                        error = placeholder,
                     )
                 },
                 onClick = {}
