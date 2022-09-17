@@ -172,16 +172,23 @@ fun FontManagementScreen(
                     )
                 }
             }
-            HorizontalPager(count = tabTitles.size, state = pagerState) { page ->
+            HorizontalPager(
+                modifier = modifier
+                    .fillMaxSize(),
+                count = tabTitles.size,
+                state = pagerState
+            ) { page ->
                 if (page == 0) {
                     val listState = rememberLazyListState()
                     InAppFontInfoItemList(
+                        modifier = modifier
+                            .fillMaxSize(),
                         listState = listState,
                         entities = uiState.inAppFontItems,
                         onDeleteMenuClicked = onInAppFontDeleteMenuClick,
                     )
                     if (uiState.inAppTabScrollToBottom) {
-                        LaunchedEffect(uiState.inAppTabScrollToBottom) {
+                        LaunchedEffect(Unit) {
                             listState.animateScrollToItem(uiState.inAppFontItems.lastIndex)
                             listScrolled()
                         }
@@ -192,6 +199,8 @@ fun FontManagementScreen(
                         val fontActiveHint =
                             stringResource(id = R.string.quote_fonts_management_activate_tips)
                         SystemFontInfoItemList(
+                            modifier = modifier
+                                .fillMaxSize(),
                             listState = listState,
                             entities = uiState.systemFontItems,
                             onDeleteMenuClicked = onSystemFontDeleteMenuClick,
@@ -200,7 +209,7 @@ fun FontManagementScreen(
                             }
                         )
                         if (uiState.systemTabScrollToBottom) {
-                            LaunchedEffect(uiState.systemTabScrollToBottom) {
+                            LaunchedEffect(Unit) {
                                 listState.animateScrollToItem(uiState.systemFontItems.lastIndex)
                                 listScrolled()
                             }
