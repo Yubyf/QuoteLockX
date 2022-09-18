@@ -70,6 +70,8 @@ fun FontListItem(
     content: @Composable ColumnScope.(() -> Unit) -> Unit,
 ) {
     val minHeight = 112.dp
+    val density = LocalDensity.current
+    var height by remember { mutableStateOf(with(density) { minHeight.roundToPx() }) }
     var contextMenuExpanded by remember {
         mutableStateOf(false)
     }
@@ -88,6 +90,7 @@ fun FontListItem(
         modifier = modifier
             .heightIn(min = minHeight)
             .fillMaxWidth()
+            .onSizeChanged { height = it.height }
             .indication(interactionSource = interactionSource, LocalIndication.current)
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -185,7 +188,7 @@ fun FontListItem(
         DropdownMenu(
             expanded = contextMenuExpanded,
             offset = DpOffset(with(LocalDensity.current) { contextMenuOffset.x.toDp() },
-                with(LocalDensity.current) { contextMenuOffset.y.toDp() } - minHeight),
+                with(LocalDensity.current) { (contextMenuOffset.y - height).toDp() }),
             onDismissRequest = { contextMenuExpanded = false },
         ) {
             content { contextMenuExpanded = false }
