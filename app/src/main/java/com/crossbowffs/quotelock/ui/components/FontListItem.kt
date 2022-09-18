@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontInfoWithState
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
-import com.crossbowffs.quotelock.utils.loadComposeFont
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 
@@ -147,7 +146,7 @@ fun FontListItem(
             ) {
                 val fontInfo = fontInfoWithState.fontInfo
                 val font by remember {
-                    mutableStateOf(loadComposeFont(fontInfo.path))
+                    mutableStateOf(fontInfo.composeFontInStyle())
                 }
                 Text(text = with(fontInfo) { LocalConfiguration.current.localeName },
                     fontFamily = font,
