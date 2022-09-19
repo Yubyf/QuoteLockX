@@ -196,17 +196,12 @@ fun FontManagementScreen(
                 } else {
                     if (uiState.systemFontEnabled) {
                         val listState = rememberLazyListState()
-                        val fontActiveHint =
-                            stringResource(id = R.string.quote_fonts_management_activate_tips)
                         SystemFontInfoItemList(
                             modifier = modifier
                                 .fillMaxSize(),
                             listState = listState,
                             entities = uiState.systemFontItems,
                             onDeleteMenuClicked = onSystemFontDeleteMenuClick,
-                            onFontActiveHintClick = {
-                                scope.launch { snackbarHostState.showSnackbar(fontActiveHint) }
-                            }
                         )
                         if (uiState.systemTabScrollToBottom) {
                             LaunchedEffect(Unit) {
@@ -252,7 +247,6 @@ private fun InAppFontInfoItemList(
                 fontInfoWithState = FontInfoWithState(fontInfo = entity,
                     systemFont = false,
                     active = true),
-                onFontActiveHintClick = {}
             ) {
                 onDeleteMenuClicked.invoke(it.fontInfo)
             }
@@ -273,7 +267,6 @@ private fun SystemFontInfoItemList(
     listState: LazyListState,
     entities: List<FontInfoWithState>,
     onDeleteMenuClicked: (FontInfoWithState) -> Unit,
-    onFontActiveHintClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -289,7 +282,6 @@ private fun SystemFontInfoItemList(
                     .animateItemPlacement(animationSpec)
                     .fillMaxWidth(),
                 fontInfoWithState = entity,
-                onFontActiveHintClick = onFontActiveHintClick
             ) {
                 onDeleteMenuClicked.invoke(it)
             }

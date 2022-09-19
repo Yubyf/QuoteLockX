@@ -17,6 +17,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -42,14 +46,12 @@ fun DeletableFontListItem(
     modifier: Modifier = Modifier,
     fontInfoWithState: FontInfoWithState,
     onClick: (FontInfoWithState) -> Unit = {},
-    onFontActiveHintClick: () -> Unit = {},
     onDelete: (FontInfoWithState) -> Unit = {},
 ) {
     FontListItem(
         fontInfoWithState = fontInfoWithState,
         modifier = modifier,
         onClick = onClick,
-        onFontActiveHintClick = onFontActiveHintClick
     ) { closeMenu ->
         DropdownMenuItem(
             text = { Text(text = stringResource(id = R.string.delete)) },
@@ -66,7 +68,6 @@ fun FontListItem(
     modifier: Modifier = Modifier,
     fontInfoWithState: FontInfoWithState,
     onClick: (FontInfoWithState) -> Unit = {},
-    onFontActiveHintClick: () -> Unit = {},
     content: @Composable ColumnScope.(() -> Unit) -> Unit,
 ) {
     val minHeight = 112.dp
@@ -180,9 +181,43 @@ fun FontListItem(
                 }
             }
             if (!fontInfoWithState.active && !fontInfoWithState.systemFont) {
-                IconButton(onClick = onFontActiveHintClick) {
+                var hintMenuExpanded by remember {
+                    mutableStateOf(false)
+                }
+                var hintMenuOffset by remember {
+                    mutableStateOf(Offset(0F, 0F))
+                }
+                IconButton(onClick = { hintMenuExpanded = true },
+                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                        hintMenuOffset = Offset(coordinates.positionInParent().x,
+                            coordinates.boundsInParent().center.y)
+                    }) {
                     Icon(Icons.Rounded.Info, contentDescription = "Font active hint")
                 }
+                AnchorPopup(
+                    expanded = hintMenuExpanded,
+                    onDismissRequest = { hintMenuExpanded = false },
+                    anchor = DpOffset(with(LocalDensity.current) { hintMenuOffset.x.toDp() },
+                        with(LocalDensity.current) { (hintMenuOffset.y).toDp() }),
+                    alignment = Alignment.CenterStart,
+                    content = {
+                        Surface(
+                            modifier = Modifier
+                                .width(IntrinsicSize.Max)
+                                .wrapContentHeight(),
+                            shape = MaterialTheme.shapes.extraSmall,
+                            color = MaterialTheme.colorScheme.inverseSurface,
+                            tonalElevation = 4.dp,
+                            shadowElevation = 4.dp
+                        ) {
+                            Text(text = stringResource(id = R.string.quote_fonts_management_activate_tips),
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .alpha(ContentAlpha.high),
+                                fontSize = MaterialTheme.typography.labelMedium.fontSize)
+                        }
+                    }
+                )
             }
         }
         DropdownMenu(
