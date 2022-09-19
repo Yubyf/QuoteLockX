@@ -204,17 +204,18 @@ fun FontListItem(
                         Surface(
                             modifier = Modifier
                                 .width(IntrinsicSize.Max)
+                                .widthIn(max = 300.dp)
                                 .wrapContentHeight(),
-                            shape = MaterialTheme.shapes.extraSmall,
+                            shape = BubbleShape(cornerSize = 4.dp, arrowSize = 6.dp),
                             color = MaterialTheme.colorScheme.inverseSurface,
                             tonalElevation = 4.dp,
                             shadowElevation = 4.dp
                         ) {
                             Text(text = stringResource(id = R.string.quote_fonts_management_activate_tips),
                                 modifier = Modifier
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .padding(start = 8.dp, top = 8.dp, end = 14.dp, bottom = 8.dp)
                                     .alpha(ContentAlpha.high),
-                                fontSize = MaterialTheme.typography.labelMedium.fontSize)
+                                fontSize = MaterialTheme.typography.labelLarge.fontSize)
                         }
                     }
                 )
