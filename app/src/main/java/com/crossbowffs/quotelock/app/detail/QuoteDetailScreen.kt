@@ -72,6 +72,7 @@ fun QuoteDetailRoute(
     val cardStyleUiState by cardStyleViewModel.uiState
     uiEvent?.shareFile?.let { file ->
         LocalContext.current.shareImage(file)
+        detailViewModel.quoteShared()
     }
     if (initialCollectState == null && uiState.collectState == null) {
         detailViewModel.queryQuoteCollectState()
