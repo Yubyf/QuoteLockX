@@ -68,10 +68,6 @@ val DarkMaterialColors = darkColorScheme(
     primary = md_theme_dark_primary,
 )
 
-private val LocalMaterialColors = compositionLocalOf {
-    LightMaterialColors
-}
-
 class QuoteLockColorScheme(
     quoteCardSurface: Color,
     quoteCardOnSurface: Color,
@@ -119,7 +115,6 @@ fun QuoteLockTheme(
     }
 
     CompositionLocalProvider(
-        LocalMaterialColors provides materialColors,
         LocalQuoteLockColors provides quoteLockColors,
     ) {
         MaterialTheme(
@@ -130,18 +125,8 @@ fun QuoteLockTheme(
 }
 
 object QuoteLockTheme {
-    val materialColors: ColorScheme
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalMaterialColors.current
-
     val quotelockColors: QuoteLockColorScheme
         @Composable
         @ReadOnlyComposable
         get() = LocalQuoteLockColors.current
-
-    val typography: Typography
-        @Composable
-        @ReadOnlyComposable
-        get() = MaterialTheme.typography
 }

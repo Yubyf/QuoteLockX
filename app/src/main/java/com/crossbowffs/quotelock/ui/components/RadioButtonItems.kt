@@ -4,10 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,7 +13,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 
 
 @Composable
@@ -80,7 +76,7 @@ fun <T> RadioButtonItemList(
                     Spacer(modifier = Modifier.width(24.dp))
                     Text(text = entry,
                         color = AlertDialogDefaults.textContentColor,
-                        fontSize = QuoteLockTheme.typography.bodyLarge.fontSize)
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize)
                 }
             }
             if (index != entries.lastIndex) {

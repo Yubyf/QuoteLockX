@@ -75,8 +75,8 @@ fun LoadingLayout(modifier: Modifier = Modifier, message: String? = null) {
                         .padding(start = 24.dp)
                         .fillMaxWidth(),
                     color = AlertDialogDefaults.textContentColor,
-                    fontSize = QuoteLockTheme.typography.bodyMedium.fontSize,
-                    fontStyle = QuoteLockTheme.typography.bodyMedium.fontStyle,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                    fontStyle = MaterialTheme.typography.bodyMedium.fontStyle,
                 )
             }
         }
@@ -187,7 +187,7 @@ fun <T> ListPreferenceDialog(
                         Spacer(modifier = Modifier.width(24.dp))
                         Text(text = entry,
                             color = AlertDialogDefaults.textContentColor,
-                            fontSize = QuoteLockTheme.typography.bodyLarge.fontSize)
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize)
                     }
                 }
             }
@@ -263,7 +263,7 @@ fun <T> MultiSelectListPreferenceDialog(
                         Spacer(modifier = Modifier.width(24.dp))
                         Text(text = entry,
                             color = AlertDialogDefaults.textContentColor,
-                            fontSize = QuoteLockTheme.typography.bodyLarge.fontSize)
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize)
                     }
                 }
             }
@@ -344,7 +344,7 @@ fun FontListPreferenceDialog(
                         }
                         Text(text = displayName,
                             color = AlertDialogDefaults.textContentColor,
-                            fontSize = QuoteLockTheme.typography.bodyLarge.fontSize,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                             fontFamily = composeFontFamily
                         )
                     }

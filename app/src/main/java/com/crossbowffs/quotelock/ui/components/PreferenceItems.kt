@@ -6,10 +6,7 @@ import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,9 +39,9 @@ fun PreferenceTitle(title: String) {
         Text(
             text = title,
             modifier = Modifier.align(Alignment.BottomStart),
-            style = QuoteLockTheme.typography.bodyMedium,
-            fontSize = QuoteLockTheme.typography.bodyMedium.fontSize,
-            color = QuoteLockTheme.materialColors.primary,
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -112,7 +109,7 @@ fun BasePreferenceItem(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(text = title,
-                    style = QuoteLockTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
@@ -120,7 +117,7 @@ fun BasePreferenceItem(
                 )
                 if (!summary.isNullOrBlank()) {
                     Text(text = summary,
-                        style = QuoteLockTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Normal,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
