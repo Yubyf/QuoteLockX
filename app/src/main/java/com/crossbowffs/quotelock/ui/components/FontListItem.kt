@@ -204,7 +204,7 @@ fun FontListItem(
                         Surface(
                             modifier = Modifier
                                 .width(IntrinsicSize.Max)
-                                .widthIn(max = 300.dp)
+                                .widthIn(max = 324.dp)
                                 .wrapContentHeight(),
                             shape = BubbleShape(cornerSize = 4.dp, arrowSize = 6.dp),
                             color = MaterialTheme.colorScheme.inverseSurface,
