@@ -193,7 +193,7 @@ object FontManager {
         }
     }.onFailure {
         Xlog.e(TAG, "Failed to load typeface: $fontPath", it)
-    }.getOrDefault(Typeface.DEFAULT)
+    }.getOrNull() ?: Typeface.DEFAULT
 
     private fun generateLocaleDescription(names: Map<String, String>): String {
         return when {

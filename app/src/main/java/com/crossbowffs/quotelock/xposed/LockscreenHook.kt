@@ -83,7 +83,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             }
         }.onFailure {
             Xlog.e(TAG, "Failed to load typeface: $font", it)
-        }.getOrDefault(Typeface.DEFAULT)
+        }.getOrNull() ?: Typeface.DEFAULT
     }
 
     private fun refreshLockscreenQuote() {
