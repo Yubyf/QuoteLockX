@@ -179,6 +179,7 @@
     <string name="quote_fonts_management_delete_inactive_font_successfully">Font %s deleted</string>
     <string name="quote_fonts_management_delete_in_app_font_successfully">Font %s deleted</string>
     <string name="quote_fonts_management_activate_tips">Reboot the device to activate imported fonts</string>
+    <string name="quote_fonts_management_variable_font_tips">Variable font</string>
 
     <!-- Data retention-->
     <string name="database_exported">Database exported to</string>

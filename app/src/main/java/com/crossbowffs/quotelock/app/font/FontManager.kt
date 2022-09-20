@@ -167,9 +167,11 @@ object FontManager {
         runCatching {
             FONT_INFO_CACHE.getOrPut(file.absolutePath) {
                 val ttfFile = TTFFile.open(file)
-                FontInfo(ttfFile.fullNames,
-                    file.name,
-                    file.absolutePath).apply {
+                FontInfo(names = ttfFile.fullNames,
+                    fileName = file.name,
+                    path = file.absolutePath,
+                    variable = ttfFile.variable
+                ).apply {
                     descriptionLocale = generateLocaleDescription(names)
                 }
             }
@@ -266,6 +268,7 @@ data class FontInfo(
     val names: Map<String, String> = emptyMap(),
     val fileName: String = "",
     val path: String = "",
+    val variable: Boolean = false,
     val descriptionLatin: String = FONT_DESCRIPTION_LATIN,
     var descriptionLocale: String = FONT_DESCRIPTION_SIMPLIFIED_CHINESE,
 ) {

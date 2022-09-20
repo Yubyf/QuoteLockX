@@ -8,7 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -180,46 +181,91 @@ fun FontListItem(
                             .padding(top = 8.dp))
                 }
             }
-            if (!fontInfoWithState.active && !fontInfoWithState.systemFont) {
-                var hintMenuExpanded by remember {
-                    mutableStateOf(false)
-                }
-                var hintMenuOffset by remember {
-                    mutableStateOf(Offset(0F, 0F))
-                }
-                IconButton(onClick = { hintMenuExpanded = true },
-                    modifier = Modifier.onGloballyPositioned { coordinates ->
-                        hintMenuOffset = Offset(coordinates.positionInParent().x,
-                            coordinates.boundsInParent().center.y)
+            var hintPopupExpanded by remember { mutableStateOf(false) }
+            var hintContainerPopupOffset by remember { mutableStateOf(Offset(0F, 0F)) }
+            var hintRelativePopupOffsetY by remember { mutableStateOf(0F) }
+            var hintText by remember {
+                mutableStateOf("")
+            }
+            val showActiveHint = !fontInfoWithState.active && !fontInfoWithState.systemFont
+            val showVariableFontHint = fontInfoWithState.fontInfo.variable
+            if (showActiveHint || showVariableFontHint) {
+                Column(modifier = Modifier
+                    .onGloballyPositioned { coordinates ->
+                        hintContainerPopupOffset = Offset(coordinates.positionInParent().x,
+                            coordinates.positionInParent().y)
                     }) {
-                    Icon(Icons.Rounded.Info, contentDescription = "Font active hint")
-                }
-                AnchorPopup(
-                    expanded = hintMenuExpanded,
-                    onDismissRequest = { hintMenuExpanded = false },
-                    anchor = DpOffset(with(LocalDensity.current) { hintMenuOffset.x.toDp() },
-                        with(LocalDensity.current) { (hintMenuOffset.y).toDp() }),
-                    alignment = Alignment.CenterStart,
-                    content = {
-                        Surface(
+                    if (showVariableFontHint) {
+                        var variableHintRelativeOffsetY by remember { mutableStateOf(0F) }
+                        val variableFontHintText =
+                            stringResource(id = R.string.quote_fonts_management_variable_font_tips)
+                        IconButton(
+                            onClick = {
+                                hintText = variableFontHintText
+                                hintRelativePopupOffsetY = variableHintRelativeOffsetY
+                                hintPopupExpanded = true
+                            },
                             modifier = Modifier
-                                .width(IntrinsicSize.Max)
-                                .widthIn(max = 324.dp)
-                                .wrapContentHeight(),
-                            shape = BubbleShape(cornerSize = 4.dp, arrowSize = 6.dp),
-                            color = MaterialTheme.colorScheme.inverseSurface,
-                            tonalElevation = 4.dp,
-                            shadowElevation = 4.dp
+                                .onGloballyPositioned { coordinates ->
+                                    variableHintRelativeOffsetY =
+                                        coordinates.boundsInParent().center.y
+                                }
                         ) {
-                            Text(text = stringResource(id = R.string.quote_fonts_management_activate_tips),
-                                modifier = Modifier
-                                    .padding(start = 8.dp, top = 8.dp, end = 14.dp, bottom = 8.dp)
-                                    .alpha(ContentAlpha.high),
-                                fontSize = MaterialTheme.typography.labelLarge.fontSize)
+                            Icon(painter = painterResource(id = R.drawable.ic_variable_font_24dp),
+                                contentDescription = "Variable font hint",
+                                modifier = Modifier.alpha(ContentAlpha.medium))
                         }
                     }
-                )
+                    if (showActiveHint) {
+                        var activeHintRelativeOffsetY by remember { mutableStateOf(0F) }
+                        val activeHintText =
+                            stringResource(id = R.string.quote_fonts_management_activate_tips)
+                        IconButton(
+                            onClick = {
+                                hintText = activeHintText
+                                hintRelativePopupOffsetY = activeHintRelativeOffsetY
+                                hintPopupExpanded = true
+                            },
+                            modifier = Modifier
+                                .onGloballyPositioned { coordinates ->
+                                    activeHintRelativeOffsetY =
+                                        coordinates.boundsInParent().center.y
+                                }
+                        ) {
+                            Icon(Icons.Rounded.ErrorOutline,
+                                contentDescription = "Font active hint",
+                                modifier = Modifier.alpha(ContentAlpha.medium))
+                        }
+                    }
+                }
             }
+            AnchorPopup(
+                expanded = hintPopupExpanded,
+                onDismissRequest = { hintPopupExpanded = false },
+                anchor = with(LocalDensity.current) {
+                    DpOffset(hintContainerPopupOffset.x.toDp(),
+                        (hintContainerPopupOffset.y + hintRelativePopupOffsetY).toDp())
+                },
+                alignment = Alignment.CenterStart,
+                content = {
+                    Surface(
+                        modifier = Modifier
+                            .width(IntrinsicSize.Max)
+                            .widthIn(max = 324.dp)
+                            .wrapContentHeight(),
+                        shape = BubbleShape(cornerSize = 4.dp, arrowSize = 6.dp),
+                        color = MaterialTheme.colorScheme.inverseSurface,
+                        tonalElevation = 4.dp,
+                        shadowElevation = 4.dp
+                    ) {
+                        Text(text = hintText,
+                            modifier = Modifier
+                                .padding(start = 8.dp, top = 8.dp, end = 14.dp, bottom = 8.dp)
+                                .alpha(ContentAlpha.high),
+                            fontSize = MaterialTheme.typography.labelLarge.fontSize)
+                    }
+                }
+            )
         }
         DropdownMenu(
             expanded = contextMenuExpanded,
