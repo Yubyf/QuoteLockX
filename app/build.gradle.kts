@@ -149,7 +149,7 @@ dependencies {
     // Fix the conflict between concurrent-futures and guava libs.
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
 
-    implementation("com.google.android.gms:play-services-auth:20.1.0")
+    implementation("com.google.android.gms:play-services-auth:20.3.0")
     implementation("com.google.api-client:google-api-client-android:1.33.2") {
         exclude(group = "org.apache.httpcomponents")
     }
