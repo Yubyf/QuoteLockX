@@ -135,6 +135,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.activity:activity:1.6.0-rc02")
     implementation("com.crossbowffs.remotepreferences:remotepreferences:0.9")
     implementation("org.jsoup:jsoup:1.13.1")
     implementation("io.github.yubyf.datastorepreferences:datastorepreferences:1.2.2")
