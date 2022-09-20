@@ -103,12 +103,15 @@ class QuoteCollectionViewModel @Inject constructor(
                     exportEnabled = it.isNotEmpty()
                 )
             }.launchIn(this)
-            if (googleAccountManager.isGoogleAccountSignedIn()) {
+            if (googleAccountManager.checkGooglePlayService()) {
                 collectionRepository.getGDriveFileTimestamp().onEach {
                     _uiMenuState.value = _uiMenuState.value.copy(
                         syncTime = if (it > 0) DATE_FORMATTER.format(Date(it)) else null
                     )
                 }.launchIn(this)
+                if (googleAccountManager.isGoogleAccountSignedIn()) {
+                    collectionRepository.queryDriveFileTimestamp()
+                }
             }
         }
     }
@@ -189,6 +192,7 @@ class QuoteCollectionViewModel @Inject constructor(
         _uiMenuState.value = _uiMenuState.value.copy(googleAccount = account)
         if (account != null) {
             collectionRepository.updateDriveService()
+            collectionRepository.queryDriveFileTimestamp()
             _uiEvent.emit(QuoteCollectionUiEvent.SnackBarMessage(
                 message = resourceProvider.getString(R.string.google_account_connected))
             )
