@@ -62,6 +62,24 @@ fun SettingsAppBar(
 }
 
 @Composable
+fun AboutAppBar(
+    onBack: () -> Unit,
+) {
+    CenterAlignedTopAppBar(
+        title = { },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
 fun LockscreenStylesAppBar(
     onBack: () -> Unit,
 ) {
@@ -250,6 +268,36 @@ private fun MainTopAppBarPreview() {
     QuoteLockTheme {
         Surface {
             MainAppBar {}
+        }
+    }
+}
+
+@Preview(name = "Settings Bar Light",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Settings Bar Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun SettingsTopAppBarPreview() {
+    QuoteLockTheme {
+        Surface {
+            SettingsAppBar {}
+        }
+    }
+}
+
+@Preview(name = "About Bar Light",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "About Bar Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun AboutTopAppBarPreview() {
+    QuoteLockTheme {
+        Surface {
+            AboutAppBar {}
         }
     }
 }

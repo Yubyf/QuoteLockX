@@ -2,33 +2,25 @@
 
 package com.crossbowffs.quotelock.app.settings
 
-import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
-import android.text.method.LinkMovementMethod
-import android.widget.TextView
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.DialogProperties
-import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.crossbowffs.quotelock.consts.Urls
-import com.crossbowffs.quotelock.ui.components.*
+import com.crossbowffs.quotelock.ui.components.ListPreferenceDialog
+import com.crossbowffs.quotelock.ui.components.PreferenceItem
+import com.crossbowffs.quotelock.ui.components.SettingsAppBar
+import com.crossbowffs.quotelock.ui.components.SwitchablePreferenceItem
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
-import com.yubyf.quotelockx.BuildConfig
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 
@@ -37,6 +29,7 @@ fun SettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
     onModuleConfigItemClicked: (String) -> Unit,
+    onAboutItemClicked: () -> Unit,
     onBack: () -> Unit,
 ) {
     val uiPreferenceState by viewModel.uiState
@@ -52,8 +45,8 @@ fun SettingsRoute(
         onModuleConfigItemClicked = onModuleConfigItemClicked,
         onRefreshIntervalItemClicked = viewModel::loadRefreshInterval,
         onUnmeteredOnlyChanged = viewModel::switchUnmeteredOnly,
-        onCreditsItemClicked = viewModel::showCreditsDialog,
         onRestartSystemUiItemClicked = viewModel::restartSystemUi,
+        onAboutItemClicked = onAboutItemClicked,
         onBack = onBack
     )
     SettingsDialogs(
@@ -74,8 +67,8 @@ fun SettingsScreen(
     onModuleConfigItemClicked: (String) -> Unit = {},
     onRefreshIntervalItemClicked: () -> Unit = {},
     onUnmeteredOnlyChanged: (Boolean) -> Unit = {},
-    onCreditsItemClicked: () -> Unit = {},
     onRestartSystemUiItemClicked: () -> Unit = {},
+    onAboutItemClicked: () -> Unit = {},
     onBack: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -99,14 +92,12 @@ fun SettingsScreen(
             }
             null -> {}
         }
-        var versionTapCount by remember { mutableStateOf(0) }
         val scrollState = rememberScrollState()
         Column(modifier = modifier
             .fillMaxSize()
             .padding(padding)
             .verticalScroll(state = scrollState)
         ) {
-            val context = LocalContext.current
             if (uiState.enableAod) {
                 SwitchablePreferenceItem(
                     titleRes = R.string.pref_display_on_aod_title,
@@ -150,41 +141,14 @@ fun SettingsScreen(
                 checked = uiState.unmeteredOnly,
                 onSwitchChange = onUnmeteredOnlyChanged
             )
-            PreferenceTitle(R.string.about)
             PreferenceItem(
-                titleRes = R.string.pref_about_credits_title,
-                summaryRes = R.string.pref_about_credits_summary,
-                onClick = onCreditsItemClicked
-            )
-            PreferenceItem(
-                title = stringResource(id = R.string.pref_about_github),
-                summary = "github.com/Yubyf/QuoteLockX",
-                onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW,
-                        Uri.parse(Urls.GITHUB_QUOTELOCK)))
-                }
-            )
-            PreferenceItem(
-                titleRes = R.string.pref_about_restart_system_ui_title,
+                titleRes = R.string.pref_restart_system_ui_title,
                 summaryRes = R.string.pref_debug_restart_system_ui_summary,
                 onClick = onRestartSystemUiItemClicked
             )
-            val easterMessage = stringResource(id = R.string.easter_egg)
             PreferenceItem(
-                title = stringResource(id = R.string.pref_about_version),
-                summary = "${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})",
-                onClick = {
-                    versionTapCount++
-                    if (versionTapCount == 7) {
-                        versionTapCount = 0
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = easterMessage,
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }
-                }
+                titleRes = R.string.about,
+                onClick = onAboutItemClicked
             )
         }
     }
@@ -217,33 +181,6 @@ fun SettingsDialogs(
             selectedItem = uiDialogState.currentInterval,
             onItemSelected = onRefreshIntervalSelected,
             onDismiss = onDialogDismiss
-        )
-    }
-    SettingsDialogUiState.CreditsDialog -> {
-        AlertDialog(
-            onDismissRequest = onDialogDismiss,
-            confirmButton = {
-                TextButton(onClick = onDialogDismiss) {
-                    Text(text = stringResource(id = R.string.close))
-                }
-            },
-            properties = DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true
-            ),
-            title = { Text(text = stringResource(id = R.string.credits_title)) },
-            text = {
-                // TODO: Replace TextView with Text() with AnnotatedString.
-                AndroidView(
-                    modifier = Modifier.fillMaxWidth(),
-                    factory = { context ->
-                        TextView(context).apply {
-                            text = HtmlCompat.fromHtml(context.getString(R.string.credits_message),
-                                HtmlCompat.FROM_HTML_MODE_COMPACT)
-                            movementMethod = LinkMovementMethod.getInstance()
-                        }
-                    })
-            }
         )
     }
     is SettingsDialogUiState.None -> {}

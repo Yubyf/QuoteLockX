@@ -7,6 +7,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.*
+import com.crossbowffs.quotelock.app.about.aboutGraph
+import com.crossbowffs.quotelock.app.about.navigateToAbout
 import com.crossbowffs.quotelock.app.collections.collectionGraph
 import com.crossbowffs.quotelock.app.collections.navigateToCollection
 import com.crossbowffs.quotelock.app.configs.configGraphs
@@ -23,6 +25,7 @@ import com.crossbowffs.quotelock.app.lockscreen.styles.lockscreenStylesGraph
 import com.crossbowffs.quotelock.app.lockscreen.styles.navigateToLockscreenStyles
 import com.crossbowffs.quotelock.app.main.MainDestination
 import com.crossbowffs.quotelock.app.main.mainGraph
+import com.crossbowffs.quotelock.app.settings.SettingsDestination
 import com.crossbowffs.quotelock.app.settings.navigateToSettings
 import com.crossbowffs.quotelock.app.settings.settingsGraph
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -49,6 +52,7 @@ fun MainNavHost(
         )
         settingsGraph(
             onModuleConfigItemClicked = navController::navigateToConfigScreen,
+            onAboutItemClicked = navController::navigateToAbout,
             onBack = navController::popBackStack
         )
         lockscreenStylesGraph(
@@ -72,6 +76,7 @@ fun MainNavHost(
             onBack = navController::popBackStack)
         configGraphs(navController::popBackStack)
         fontManagementGraph(navController::popBackStack)
+        aboutGraph(navController::popBackStack)
     }
 }
 
@@ -86,12 +91,18 @@ fun NavGraphBuilder.standardPageComposable(
         slideIntoContainer(AnimatedContentScope.SlideDirection.Left,
             animationSpec = tween(animationDuration))
     }
-    val exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) =
-        { SCALE_FADE_OUT_TRANSITION }
+    val exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) = {
+        when (initialState.destination.route) {
+            SettingsDestination.route -> slideOutOfContainer(AnimatedContentScope.SlideDirection.Left,
+                animationSpec = tween(animationDuration))
+            else -> SCALE_FADE_OUT_TRANSITION
+        }
+    }
     val popEnterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?) = {
         when (initialState.destination.route) {
             DetailDestination.route -> SCALE_FADE_IN_TRANSITION
-            else -> EnterTransition.None
+            else -> slideIntoContainer(AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(animationDuration))
         }
     }
     val popExitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) = {

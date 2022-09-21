@@ -75,12 +75,8 @@
     <string name="pref_collection_title">收藏</string>
     <string name="pref_history_title">歷史</string>
     <string name="pref_detail_title">詳情</string>
-    <string name="pref_about_credits_title">致謝</string>
-    <string name="pref_about_credits_summary">貢獻名單</string>
-    <string name="pref_about_github">Github 地址</string>
-    <string name="pref_about_restart_system_ui_title">重啟 System UI</string>
+    <string name="pref_restart_system_ui_title">重啟 System UI</string>
     <string name="pref_debug_restart_system_ui_summary">重新掛鉤鎖屏介面</string>
-    <string name="pref_about_version">版本</string>
     <string name="refresh_quote">刷新</string>
     <string name="downloading_quote">下載格言中…</string>
     <string name="quote_download_failed">格言下載失敗</string>
@@ -88,35 +84,15 @@
     <string name="open_quotelock_app_line1">歡迎使用 QuoteLockX！</string>
     <string name="open_quotelock_app_line2">請開啟配置應用</string>
     <string name="selected_module_not_found">未找到所選取的模組</string>
-    <string name="credits_title">致謝</string>
-    <string name="credits_message">
-        <![CDATA[
-            <b>App development</b><br>
-            - <a href="https://twitter.com/crossbowffs">crossbowffs</a><b>(原作者)</b><br>
-            - <a href="https://github.com/Hual">Hual</a><br>
 
-            <br><b>Quote providers</b><br>
-            - <a href="https://hitokoto.cn/">Hitokoto</a><br>
-            - <a href="https://www.wikiquote.org/">Wikiquote QotD</a><br>
-            - <a href="https://www.jinrishici.com/">Jinrishici 今日詩詞</a><br>
-            - <a href="https://freakuotes.com/">Freakuotes</a><br>
-            - <a href="https://natune.net/zitate/">Natune.net</a><br>
-            - <a href="https://www.brainyquote.com/">BrainyQuote</a><br>
-            - <a href="https://libquotes.com/">Lib Quotes</a><br>
-            - <a href="https://github.com/shlomif/fortune-mod/">Fortune-mod</a><br>
-
-            <br><b>Libraries used</b><br>
-            - <a href="https://jsoup.org/">Jsoup</a><br>
-            - <a href="https://github.com/apsun/RemotePreferences">RemotePreferences</a><br>
-            - <a href="https://github.com/Yubyf/DataStorePreferences">DataStorePreferences</a><br>
-            - <a href="https://coil-kt.github.io/coil">Coil</a><br>
-            - <a href="http://opencsv.sourceforge.net/">Opencsv</a><br>
-            - <a href="https://github.com/Yubyf/TrueTypeParser-Light/">TrueTypeParser-Light</a><br>
-
-            <br><b>Translators</b><br>
-            - <a href="https://github.com/cracky5322">Jia-Bin</a>(繁體中文)<br>
-        ]]>
-    </string>
+    <!-- About-->
+    <string name="pref_about_version">版本</string>
+    <string name="about_developers">開發者</string>
+    <string name="about_maintainer">維護者</string>
+    <string name="about_original_developer">原作者</string>
+    <string name="about_translators">翻譯者</string>
+    <string name="about_quote_providers">格言提供服務</string>
+    <string name="pref_about_libraries">第三方庫</string>
 
     <!-- Provider-specific strings -->
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>

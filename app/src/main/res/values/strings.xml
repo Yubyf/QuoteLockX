@@ -78,12 +78,8 @@
     <string name="pref_collection_title">Collections</string>
     <string name="pref_history_title">Histories</string>
     <string name="pref_detail_title">Detail</string>
-    <string name="pref_about_credits_title">Credits</string>
-    <string name="pref_about_credits_summary">Who did what now?</string>
-    <string name="pref_about_github">View project on GitHub</string>
-    <string name="pref_about_restart_system_ui_title">Restart System UI</string>
+    <string name="pref_restart_system_ui_title">Restart System UI</string>
     <string name="pref_debug_restart_system_ui_summary">Re-hook lockscreen</string>
-    <string name="pref_about_version">Version</string>
     <string name="refresh_quote">Refresh</string>
     <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>
@@ -91,35 +87,17 @@
     <string name="open_quotelock_app_line1">Welcome to QuoteLockX!</string>
     <string name="open_quotelock_app_line2">Please open the configuration app</string>
     <string name="selected_module_not_found">Selected module could not be found</string>
-    <string name="credits_title">Credits</string>
-    <string name="credits_message">
-        <![CDATA[
-            <b>App development</b><br>
-            - <a href="https://twitter.com/crossbowffs">crossbowffs</a><b>(Original Developer)</b><br>
-            - <a href="https://github.com/Hual">Hual</a><br>
 
-            <br><b>Quote providers</b><br>
-            - <a href="https://hitokoto.cn/">Hitokoto</a><br>
-            - <a href="https://www.wikiquote.org/">Wikiquote QotD</a><br>
-            - <a href="https://www.jinrishici.com/">Jinrishici 今日诗词</a><br>
-            - <a href="https://freakuotes.com/">Freakuotes</a><br>
-            - <a href="https://natune.net/zitate/">Natune.net</a><br>
-            - <a href="https://www.brainyquote.com/">BrainyQuote</a><br>
-            - <a href="https://libquotes.com/">Lib Quotes</a><br>
-            - <a href="https://github.com/shlomif/fortune-mod/">Fortune-mod</a><br>
-
-            <br><b>Libraries used</b><br>
-            - <a href="https://jsoup.org/">Jsoup</a><br>
-            - <a href="https://github.com/apsun/RemotePreferences">RemotePreferences</a><br>
-            - <a href="https://github.com/Yubyf/DataStorePreferences">DataStorePreferences</a><br>
-            - <a href="https://coil-kt.github.io/coil">Coil</a><br>
-            - <a href="http://opencsv.sourceforge.net/">Opencsv</a><br>
-            - <a href="https://github.com/Yubyf/TrueTypeParser-Light/">TrueTypeParser-Light</a><br>
-
-            <br><b>Translators</b><br>
-            - <a href="https://github.com/cracky5322">Jia-Bin</a>(Traditional Chinese)<br>
-        ]]>
-    </string>
+    <!-- About-->
+    <string name="pref_about_version">Version</string>
+    <string name="about_developers">Developers</string>
+    <string name="about_maintainer">Maintainer</string>
+    <string name="about_original_developer">Original Developer</string>
+    <string name="about_translators">Translators</string>
+    <string name="about_traditional_chinese" translatable="false">繁體中文</string>
+    <string name="about_quote_providers">Quote providers</string>
+    <string name="pref_about_github" translatable="false">GitHub</string>
+    <string name="pref_about_libraries">Libraries</string>
 
     <!-- Provider-specific strings -->
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>

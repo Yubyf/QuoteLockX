@@ -65,8 +65,6 @@ sealed class SettingsDialogUiState {
         val currentInterval: Int,
     ) : SettingsDialogUiState()
 
-    object CreditsDialog : SettingsDialogUiState()
-
     object None : SettingsDialogUiState()
 }
 
@@ -170,10 +168,6 @@ class SettingsViewModel @Inject constructor(
 
     fun selectRefreshInterval(interval: Int) {
         configurationRepository.refreshInterval = interval
-    }
-
-    fun showCreditsDialog() {
-        _uiDialogState.value = SettingsDialogUiState.CreditsDialog
     }
 
     fun restartSystemUi() {
