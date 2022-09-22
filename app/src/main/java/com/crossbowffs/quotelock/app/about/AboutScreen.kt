@@ -41,11 +41,11 @@ fun AboutRoute(
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState
-    SettingsScreen(modifier = modifier, uiState = uiState, onBack = onBack)
+    AboutScreen(modifier = modifier, uiState = uiState, onBack = onBack)
 }
 
 @Composable
-fun SettingsScreen(
+fun AboutScreen(
     modifier: Modifier = Modifier,
     uiState: AboutUiState,
     onBack: () -> Unit = {},
