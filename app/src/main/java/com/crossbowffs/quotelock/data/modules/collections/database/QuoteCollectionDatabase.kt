@@ -42,7 +42,7 @@ data class QuoteCollectionEntity @JvmOverloads constructor(
     @CsvBindByName(column = QuoteCollectionContract.TEXT, required = true)
     @ColumnInfo(name = QuoteCollectionContract.TEXT)
     override var text: String,
-    @CsvBindByName(column = QuoteCollectionContract.SOURCE, required = true)
+    @CsvBindByName(column = QuoteCollectionContract.SOURCE, required = false)
     @ColumnInfo(name = QuoteCollectionContract.SOURCE)
     override var source: String,
     @CsvBindByName(column = QuoteCollectionContract.AUTHOR, required = false)
