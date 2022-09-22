@@ -300,14 +300,16 @@ fun Libraries(libraries: List<Library>) {
             title = { Text(text = stringResource(id = R.string.pref_about_libraries)) },
             text = {
                 val context = LocalContext.current
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    libraries.forEachIndexed { index, provider ->
+                Column(modifier = Modifier
+                    // Make the item fill the max width in the Dialog
+                    // to ensure the ripple effect can be fully rendered
+                    .requiredWidth(with(LocalDensity.current) { containerWidth.toDp() })) {
+                    Divider(modifier = Modifier.fillMaxWidth(), thickness = Dp.Hairline)
+                    libraries.forEach { provider ->
                         Row(
                             modifier = Modifier
+                                .fillMaxWidth()
                                 .height(48.dp)
-                                // Make the item fill the max width in the Dialog
-                                // to ensure the ripple effect can be fully rendered
-                                .requiredWidth(with(LocalDensity.current) { containerWidth.toDp() })
                                 .clickable(enabled = provider.link != null) {
                                     context.startActivity(Intent(Intent.ACTION_VIEW, provider.link))
                                 },
@@ -321,10 +323,9 @@ fun Libraries(libraries: List<Library>) {
                                 fontSize = MaterialTheme.typography.bodyMedium.fontSize
                             )
                         }
-                        if (index != libraries.lastIndex) {
-                            Divider(modifier = Modifier.fillMaxWidth(), thickness = Dp.Hairline)
-                        }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Divider(modifier = Modifier.fillMaxWidth(), thickness = Dp.Hairline)
                 }
             }
         )
