@@ -59,14 +59,14 @@ object Dependencies {
     object Compose {
         const val compiler = "androidx.compose.compiler:compiler:$composeVersion"
         const val activity = "androidx.activity:activity-compose:1.6.0"
-        const val material3 = "androidx.compose.material3:material3:1.0.0-beta02"
+        const val material3 = "androidx.compose.material3:material3:1.0.0-beta03"
         const val animation = "androidx.compose.animation:animation:1.2.1"
         const val uiTooling = "androidx.compose.ui:ui-tooling:1.2.1"
         const val uiToolingPreview = "androidx.compose.ui:ui-tooling-preview:1.2.1"
         const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
         const val navigation = "androidx.navigation:navigation-compose:$navVersion"
         const val animationGraphics =
-            "androidx.compose.animation:animation-graphics:1.3.0-beta02"
+            "androidx.compose.animation:animation-graphics:1.3.0-beta03"
 
         // Material design icons
         const val materialIconCore =
