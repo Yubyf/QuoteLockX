@@ -111,18 +111,27 @@ fun SettingsScreen(
                 summaryRes = R.string.pref_quote_module_summary,
                 onClick = onModuleProviderItemClicked
             )
+            val providerConfigSupported = uiState.moduleData?.configRoute != null
+            val providerSummary = if (providerConfigSupported)
+                R.string.pref_module_preferences_summary
+            else R.string.pref_module_preferences_summary_alt
             PreferenceItem(
                 titleRes = R.string.pref_module_preferences_title,
-                summaryRes = R.string.pref_module_preferences_summary,
-                enabled = uiState.moduleData?.configRoute != null
+                summaryRes = providerSummary,
+                enabled = providerConfigSupported
             ) {
                 uiState.moduleData?.configRoute?.let(onModuleConfigItemClicked::invoke)
             }
             // Set refresh interval override and disable preference if necessary.
             // This is kind of a lazy solution, but it's better than nothing.
+            val refreshIntervalSupported = uiState.moduleData?.minimumRefreshInterval == 0
+            val refreshIntervalSummary = if (refreshIntervalSupported)
+                R.string.pref_refresh_interval_summary
+            else R.string.pref_refresh_interval_summary_alt
             PreferenceItem(
                 titleRes = R.string.pref_refresh_interval_title,
-                summaryRes = R.string.pref_refresh_interval_summary,
+                summaryRes = refreshIntervalSummary,
+                enabled = refreshIntervalSupported,
                 onClick = onRefreshIntervalItemClicked
             )
             PreferenceItem(
