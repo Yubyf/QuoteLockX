@@ -143,7 +143,9 @@ class QuoteCollectionViewModel @Inject constructor(
             when (result) {
                 is AsyncResult.Success -> {
                     _uiEvent.emit(QuoteCollectionUiEvent.SnackBarMessage(
-                        message = resourceProvider.getString(R.string.database_exported)
+                        message = resourceProvider.getString(
+                            if (type == LocalBackupType.CSV) R.string.csv_exported
+                            else R.string.database_exported)
                             .plus(" ")
                             .plus(result.data),
                         duration = SnackbarDuration.Long,
@@ -174,7 +176,9 @@ class QuoteCollectionViewModel @Inject constructor(
             when (result) {
                 is AsyncResult.Success -> {
                     _uiEvent.emit(QuoteCollectionUiEvent.SnackBarMessage(
-                        message = resourceProvider.getString(R.string.database_imported)
+                        message = resourceProvider.getString(
+                            if (type == LocalBackupType.CSV) R.string.csv_imported
+                            else R.string.database_imported)
                     ))
                 }
                 is AsyncResult.Error -> {
