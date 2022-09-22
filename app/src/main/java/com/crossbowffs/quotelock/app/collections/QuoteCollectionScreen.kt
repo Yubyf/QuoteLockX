@@ -210,7 +210,8 @@ fun CollectionDataRetentionMenu(
     var backupMenuExpanded by remember { mutableStateOf(false) }
     var syncMenuExpanded by remember { mutableStateOf(false) }
     TopAppBarDropdownMenu(iconContent = {
-        Icon(Icons.Rounded.Restore, contentDescription = "Backup&Restore")
+        Icon(Icons.Rounded.Restore,
+            contentDescription = stringResource(id = R.string.data_retention))
     }, content = { _, closeMenu ->
         DropdownMenuItem(
             leadingIcon = {

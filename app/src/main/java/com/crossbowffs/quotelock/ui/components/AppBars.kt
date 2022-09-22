@@ -32,7 +32,7 @@ fun MainAppBar(
         actions = {
             IconButton(onClick = onStyle) {
                 Icon(painter = painterResource(id = R.drawable.ic_text_style_24dp),
-                    contentDescription = "Format")
+                    contentDescription = "Text style")
             }
             onMenuMore()
         },
@@ -112,7 +112,8 @@ fun CustomQuoteAppBar(
         actions = {
             onAdd?.let {
                 IconButton(onClick = it) {
-                    Icon(Icons.Rounded.Edit, contentDescription = "Add custom quote")
+                    Icon(Icons.Rounded.Edit,
+                        contentDescription = stringResource(id = R.string.module_custom_create_quote))
                 }
             }
         },
@@ -138,7 +139,8 @@ fun HistoryAppBar(
         actions = {
             onClear?.let {
                 IconButton(onClick = it) {
-                    Icon(Icons.Rounded.Delete, contentDescription = "Clear History")
+                    Icon(Icons.Rounded.Delete,
+                        contentDescription = stringResource(id = R.string.clear))
                 }
             }
         },
@@ -210,7 +212,7 @@ fun DetailAppBar(
         actions = {
             IconButton(onClick = onStyle) {
                 Icon(painter = painterResource(id = R.drawable.ic_text_style_24dp),
-                    contentDescription = "Format")
+                    contentDescription = "Text style")
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

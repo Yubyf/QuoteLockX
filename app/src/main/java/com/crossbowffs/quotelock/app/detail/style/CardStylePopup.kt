@@ -244,12 +244,12 @@ private fun PopupLayoutRow(
                 step = PREF_CARD_STYLE_LINE_SPACING_STEP,
                 decreaseIcon = {
                     Icon(painter = painterResource(id = R.drawable.ic_format_decrease_line_spacing_24_dp),
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp))
                 },
                 increaseIcon = {
                     Icon(painter = painterResource(id = R.drawable.ic_format_increase_line_spacing_24_dp),
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp))
                 }
             )
@@ -268,12 +268,12 @@ private fun PopupLayoutRow(
                 step = PREF_CARD_STYLE_CARD_PADDING_STEP,
                 decreaseIcon = {
                     Icon(painter = painterResource(id = R.drawable.ic_format_page_padding_24_dp),
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp))
                 },
                 increaseIcon = {
                     Icon(painter = painterResource(id = R.drawable.ic_format_page_large_padding_24_dp),
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp))
                 }
             )
@@ -311,12 +311,12 @@ private fun PopupFontSizeRow(
                 step = PREF_CARD_STYLE_FONT_SIZE_TEXT_STEP,
                 decreaseIcon = {
                     Icon(Icons.Rounded.Title,
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(16.dp))
                 },
                 increaseIcon = {
                     Icon(Icons.Rounded.Title,
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp))
                 }
             )
@@ -345,12 +345,12 @@ private fun PopupFontSizeRow(
                 step = PREF_CARD_STYLE_FONT_SIZE_SOURCE_STEP,
                 decreaseIcon = {
                     Icon(Icons.Rounded.Title,
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(16.dp))
                 },
                 increaseIcon = {
                     Icon(Icons.Rounded.Title,
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp))
                 }
             )

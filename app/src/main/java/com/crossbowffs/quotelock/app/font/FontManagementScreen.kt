@@ -308,7 +308,7 @@ private fun EnableMagiskModuleLayout() {
         horizontalAlignment = Alignment.Start
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Rounded.Warning, contentDescription = "Warning")
+            Icon(Icons.Rounded.Warning, contentDescription = null)
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = stringResource(id = R.string.quote_fonts_magisk_module_needed_title),

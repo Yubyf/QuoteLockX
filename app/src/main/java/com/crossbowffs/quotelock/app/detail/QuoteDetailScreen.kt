@@ -121,7 +121,7 @@ fun QuoteDetailScreen(
                 text = { Text(text = stringResource(id = R.string.quote_image_share)) },
                 icon = {
                     Icon(Icons.Rounded.Share,
-                        contentDescription = stringResource(id = R.string.quote_image_share))
+                        contentDescription = stringResource(id = R.string.quote_image_share_description))
                 },
                 onClick = {
                     snapshotStates.bounds?.let {

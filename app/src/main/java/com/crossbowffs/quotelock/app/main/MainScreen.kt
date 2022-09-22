@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -227,7 +226,7 @@ fun MainDropdownMenu(
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Rounded.Share,
-                        contentDescription = stringResource(id = R.string.quote_image_share))
+                        contentDescription = stringResource(id = R.string.quote_image_share_description))
                 },
                 text = { Text(text = stringResource(id = R.string.quote_image_share)) },
                 enabled = onShareItemClick != null,
@@ -239,9 +238,9 @@ fun MainDropdownMenu(
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Rounded.Star,
-                        contentDescription = stringResource(id = R.string.pref_collection_title))
+                        contentDescription = stringResource(id = R.string.quote_collections_screen_label))
                 },
-                text = { Text(text = stringResource(id = R.string.pref_collection_title)) },
+                text = { Text(text = stringResource(id = R.string.quote_collections_screen_label)) },
                 onClick = {
                     closeMenu()
                     onCollectionItemClick()
@@ -250,9 +249,9 @@ fun MainDropdownMenu(
             DropdownMenuItem(
                 leadingIcon = {
                     Icon(Icons.Rounded.ManageSearch,
-                        contentDescription = stringResource(id = R.string.pref_history_title))
+                        contentDescription = stringResource(id = R.string.quote_histories_screen_label))
                 },
-                text = { Text(text = stringResource(id = R.string.pref_history_title)) },
+                text = { Text(text = stringResource(id = R.string.quote_histories_screen_label)) },
                 onClick = {
                     closeMenu()
                     onHistoryItemClick()
@@ -277,8 +276,7 @@ fun MainDialogs(
                 title = { Text(text = stringResource(id = R.string.enable_xposed_module_title)) },
                 text = { Text(text = stringResource(id = R.string.enable_xposed_module_message)) },
                 icon = {
-                    Icon(painter = painterResource(id = R.drawable.ic_round_warning_24dp),
-                        contentDescription = null)
+                    Icon(Icons.Rounded.Warning, contentDescription = null)
                 },
                 confirmButton = {
                     TextButton(onClick = {
@@ -309,8 +307,7 @@ fun MainDialogs(
                 title = { Text(text = stringResource(id = R.string.module_outdated_title)) },
                 text = { Text(text = stringResource(id = R.string.module_outdated_message)) },
                 icon = {
-                    Icon(painter = painterResource(id = R.drawable.ic_round_warning_24dp),
-                        contentDescription = null)
+                    Icon(Icons.Rounded.Warning, contentDescription = null)
                 },
                 confirmButton = {
                     TextButton(onClick = {
