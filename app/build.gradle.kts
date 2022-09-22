@@ -1,3 +1,10 @@
+import Dependencies.Accompanist
+import Dependencies.AndroidX
+import Dependencies.Compose
+import Dependencies.Google
+import Dependencies.Hilt
+import Dependencies.Room
+import Dependencies.Xposed
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
@@ -31,7 +38,7 @@ keystoreFilepath = gradleLocalProperties(rootDir).let { properties ->
 //endregion
 
 android {
-    compileSdk = 33
+    compileSdk = Versions.compileSdk
 
     keystoreFilepath?.let { keystore ->
         signingConfigs {
@@ -48,9 +55,9 @@ android {
         applicationId = "com.yubyf.quotelockx"
         versionCode = 22
         versionName = "2.2.1"
-        minSdk = 21
+        minSdk = Versions.minSdk
 
-        targetSdk = 33
+        targetSdk = Versions.targetSdk
 
         buildConfigField("int", "MODULE_VERSION", "3")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "4")
@@ -110,8 +117,8 @@ android {
         abortOnError = false
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     packagingOptions {
@@ -127,72 +134,71 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = Versions.jvmTarget
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.1"
+        kotlinCompilerExtensionVersion = Versions.composeVersion
     }
 }
 
 dependencies {
-    implementation("androidx.activity:activity:1.6.0-rc02")
-    implementation("com.crossbowffs.remotepreferences:remotepreferences:0.9")
-    implementation("org.jsoup:jsoup:1.13.1")
-    implementation("io.github.yubyf.datastorepreferences:datastorepreferences:1.2.2")
-    implementation("io.github.yubyf:truetypeparser-light:2.1.3")
-    implementation("com.google.android.material:material:1.6.1")
-    compileOnly("de.robv.android.xposed:api:82")
-    compileOnly("de.robv.android.xposed:api:82:sources")
+    // Xposed
+    compileOnly(Xposed.api)
+    compileOnly(Xposed.apiSource)
 
-    implementation("androidx.work:work-runtime-ktx:2.7.1")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    // AndroidX
+    implementation(AndroidX.activity)
+    implementation(AndroidX.workRuntimeKtx)
+    implementation(AndroidX.concurrentFutures)
     // Fix the conflict between concurrent-futures and guava libs.
-    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    implementation(AndroidX.listenableFuture)
 
-    implementation("com.google.android.gms:play-services-auth:20.3.0")
-    implementation("com.google.api-client:google-api-client-android:1.33.2") {
+    // Google
+    implementation(Google.material)
+    implementation(Google.playServicesAuth)
+    implementation(Google.apiClient) {
         exclude(group = "org.apache.httpcomponents")
     }
-    implementation("com.google.apis:google-api-services-drive:v3-rev20220214-1.32.1") {
+    implementation(Google.apiServicesDrive) {
         exclude(group = "org.apache.httpcomponents")
     }
 
     // Room
-    val roomVersion = "2.4.2"
-    implementation("androidx.room:room-runtime:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
+    implementation(Room.runtime)
+    kapt(Room.compiler)
+    implementation(Room.ktx)
 
     // Hilt
-    val hiltVersion = "2.42"
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
-    kapt("com.google.dagger:hilt-compiler:$hiltVersion")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation(Hilt.android)
+    kapt(Hilt.compiler)
+    implementation(Hilt.navigationCompose)
 
     // Jetpack Compose
-    val navVersion = "2.5.1"
-    implementation("androidx.activity:activity-compose:1.5.1")
-    implementation("androidx.compose.material3:material3:1.0.0-beta02")
-    implementation("androidx.compose.animation:animation:1.2.1")
-    debugImplementation("androidx.compose.ui:ui-tooling:1.2.1")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.2.1")
-    implementation("androidx.compose.compiler:compiler:1.3.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
-    implementation("androidx.navigation:navigation-compose:$navVersion")
-    implementation("androidx.compose.animation:animation-graphics:1.3.0-beta02")
+    implementation(Compose.compiler)
+    implementation(Compose.activity)
+    implementation(Compose.material3)
+    debugImplementation(Compose.uiTooling)
+    implementation(Compose.uiToolingPreview)
+    implementation(Compose.lifecycleViewModel)
+    implementation(Compose.navigation)
+    implementation(Compose.animation)
+    implementation(Compose.animationGraphics)
     // Material design icons
-    implementation("androidx.compose.material:material-icons-core:1.2.1")
-    implementation("androidx.compose.material:material-icons-extended:1.2.1")
-    implementation("io.coil-kt:coil-compose:2.2.0")
+    implementation(Compose.materialIconCore)
+    implementation(Compose.materialIconExtended)
+    implementation(Compose.coil)
 
     // Accompanist
-    val accompanistVersion = "0.26.3-beta"
-    implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
-    implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
-    implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")
-    implementation("com.google.accompanist:accompanist-pager-indicators:$accompanistVersion")
+    implementation(Accompanist.navigation)
+    implementation(Accompanist.systemUiController)
+    implementation(Accompanist.pager)
+    implementation(Accompanist.pagerIndicators)
 
-    implementation("com.opencsv:opencsv:5.6") {
+    implementation(Dependencies.remotePreferences)
+    implementation(Dependencies.jsoup)
+    implementation(Dependencies.datastorePreferences)
+    implementation(Dependencies.trueTypeParserLight)
+    implementation(Dependencies.openCsv) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
 }
