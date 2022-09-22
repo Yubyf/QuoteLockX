@@ -81,7 +81,6 @@
     <string name="pref_restart_system_ui_title">Restart System UI</string>
     <string name="pref_debug_restart_system_ui_summary">Re-hook lockscreen</string>
     <string name="refresh_quote">Refresh</string>
-    <string name="downloading_quote">Downloading quote…</string>
     <string name="quote_download_failed">Failed to download quote</string>
     <string name="quote_download_success">Quote downloaded successfully</string>
     <string name="open_quotelock_app_line1">Welcome to QuoteLockX!</string>

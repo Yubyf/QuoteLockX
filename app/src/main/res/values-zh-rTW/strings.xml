@@ -78,7 +78,6 @@
     <string name="pref_restart_system_ui_title">重啟 System UI</string>
     <string name="pref_debug_restart_system_ui_summary">重新掛鉤鎖屏介面</string>
     <string name="refresh_quote">刷新</string>
-    <string name="downloading_quote">下載格言中…</string>
     <string name="quote_download_failed">格言下載失敗</string>
     <string name="quote_download_success">格言下載成功</string>
     <string name="open_quotelock_app_line1">歡迎使用 QuoteLockX！</string>

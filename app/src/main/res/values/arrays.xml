@@ -42,9 +42,6 @@
         <item>sans-serif</item>
         <item>serif</item>
     </string-array>
-    <string-array name="legacy_default_font_family_values" translatable="false">
-        <item>system</item>
-    </string-array>
     <string-array name="font_style_entries">
         <item>Bold</item>
         <item>Italic</item>
