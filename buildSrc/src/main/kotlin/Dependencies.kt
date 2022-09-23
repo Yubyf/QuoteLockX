@@ -97,5 +97,5 @@ object Dependencies {
     const val datastorePreferences =
         "io.github.yubyf.datastorepreferences:datastorepreferences:1.2.2"
     const val trueTypeParserLight = "io.github.yubyf:truetypeparser-light:2.1.3"
-    const val openCsv = "com.opencsv:opencsv:5.6"
+    const val openCsv = "com.opencsv:opencsv:5.7.0"
 }
