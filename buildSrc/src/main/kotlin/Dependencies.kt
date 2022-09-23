@@ -51,9 +51,9 @@ object Dependencies {
     object Google {
         const val material = "com.google.android.material:material:1.6.1"
         const val playServicesAuth = "com.google.android.gms:play-services-auth:20.3.0"
-        const val apiClient = "com.google.api-client:google-api-client-android:1.33.2"
+        const val apiClient = "com.google.api-client:google-api-client-android:2.0.0"
         const val apiServicesDrive =
-            "com.google.apis:google-api-services-drive:v3-rev20220214-1.32.1"
+            "com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0"
     }
 
     object Compose {
