@@ -38,7 +38,7 @@ keystoreFilepath = gradleLocalProperties(rootDir).let { properties ->
 //endregion
 
 android {
-    compileSdk = Versions.compileSdk
+    compileSdk = Configs.compileSdk
 
     keystoreFilepath?.let { keystore ->
         signingConfigs {
@@ -55,9 +55,9 @@ android {
         applicationId = "com.yubyf.quotelockx"
         versionCode = 22
         versionName = "2.2.1"
-        minSdk = Versions.minSdk
+        minSdk = Configs.minSdk
 
-        targetSdk = Versions.targetSdk
+        targetSdk = Configs.targetSdk
 
         buildConfigField("int", "MODULE_VERSION", "3")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "4")
@@ -117,8 +117,8 @@ android {
         abortOnError = false
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = Configs.sourceCompatibility
+        targetCompatibility = Configs.targetCompatibility
     }
 
     packagingOptions {
@@ -134,7 +134,7 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = Versions.jvmTarget
+        jvmTarget = Configs.jvmTarget
     }
     composeOptions {
         kotlinCompilerExtensionVersion = Versions.composeVersion

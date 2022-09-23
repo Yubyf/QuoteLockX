@@ -11,11 +11,6 @@ object Versions {
     const val hiltVersion = "2.44"
     const val gradleVersionsPluginVersion = "0.42.0"
 
-    const val compileSdk = 33
-    const val minSdk = 21
-    const val targetSdk = 33
-    const val jvmTarget = "11"
-
     internal const val roomVersion = "2.4.2"
     const val composeVersion = "1.3.1"
     internal const val accompanistVersion = "0.26.4-beta"
