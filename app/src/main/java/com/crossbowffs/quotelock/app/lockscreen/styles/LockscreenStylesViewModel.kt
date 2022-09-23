@@ -1,7 +1,6 @@
 package com.crossbowffs.quotelock.app.lockscreen.styles
 
 import android.os.Build
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -10,22 +9,9 @@ import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-
-/**
- * UI event for the lockscreen styles screen.
- */
-sealed class LockscreenStylesUiEvent {
-    data class SnackBarMessage(
-        val message: String? = null,
-        val duration: SnackbarDuration = SnackbarDuration.Short,
-        val actionText: String? = null,
-    ) : LockscreenStylesUiEvent()
-}
 
 /**
  * UI state for the lockscreen styles screen.
@@ -81,9 +67,6 @@ sealed class LockscreenStylesDialogUiState {
 class LockscreenStylesViewModel @Inject constructor(
     private val configurationRepository: ConfigurationRepository,
 ) : ViewModel() {
-
-    private val _uiEvent = MutableSharedFlow<LockscreenStylesUiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
 
     private val _uiState = mutableStateOf(
         LockscreenStylesUiState(

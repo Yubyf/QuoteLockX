@@ -3,11 +3,12 @@ package com.crossbowffs.quotelock.app.main
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
@@ -26,17 +27,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-/**
- * UI event for the settings screen.
- */
-sealed class MainUiEvent {
-    data class SnackBarMessage(
-        val message: String? = null,
-        val duration: SnackbarDuration = SnackbarDuration.Short,
-        val actionText: String? = null,
-    ) : MainUiEvent()
-}
 
 data class MainUiState(val quoteData: QuoteDataWithCollectState, val refreshing: Boolean = false)
 
@@ -59,7 +49,7 @@ class MainViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
-    private val _uiEvent = MutableSharedFlow<MainUiEvent?>()
+    private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     private val _uiState =
@@ -99,20 +89,20 @@ class MainViewModel @Inject constructor(
             null
         }
         _uiState.value = _uiState.value.copy(refreshing = false)
-        _uiEvent.emit(MainUiEvent.SnackBarMessage(
+        _uiEvent.emit(SnackBarEvent(
             message = resourceProvider.getString(
                 if (quote == null) R.string.quote_download_failed else R.string.quote_download_success)
         ))
     }
 
-    fun snackbarShown() = viewModelScope.launch {
-        _uiEvent.emit(null)
+    fun snackBarShown() = viewModelScope.launch {
+        _uiEvent.emit(emptySnackBarEvent)
     }
 
     fun Context.startXposedPage(section: String) {
         if (!startXposedActivity(section)) {
             viewModelScope.launch {
-                _uiEvent.emit(MainUiEvent.SnackBarMessage(
+                _uiEvent.emit(SnackBarEvent(
                     message = resourceProvider.getString(R.string.xposed_not_installed)
                 ))
             }

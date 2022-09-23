@@ -4,8 +4,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
+import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,11 +17,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-/**
- * UI event for the quote history list screen.
- */
-data class QuoteHistoryUiEvent(val message: Int?)
 
 /**
  * UI state for the quote history list screen.
@@ -31,9 +29,10 @@ data class QuoteHistoryListUiState(val items: List<QuoteHistoryEntity>, val show
 @HiltViewModel
 class QuoteHistoryViewModel @Inject constructor(
     private val historyRepository: QuoteHistoryRepository,
+    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
-    private val _uiEvent = MutableSharedFlow<QuoteHistoryUiEvent>()
+    private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     private val _uiListState = mutableStateOf(QuoteHistoryListUiState(emptyList(), false))
@@ -55,18 +54,23 @@ class QuoteHistoryViewModel @Inject constructor(
         }
     }
 
-
     fun clear() {
         viewModelScope.launch {
             historyRepository.deleteAll()
-            _uiEvent.emit(QuoteHistoryUiEvent(R.string.quote_histories_cleared_quote))
+            _uiEvent.emit(SnackBarEvent(
+                resourceProvider.getString(R.string.quote_histories_cleared_quote)))
         }
     }
 
     fun delete(id: Long) {
         viewModelScope.launch {
             historyRepository.delete(id)
-            _uiEvent.emit(QuoteHistoryUiEvent(R.string.module_custom_deleted_quote))
+            _uiEvent.emit(SnackBarEvent(
+                resourceProvider.getString(R.string.module_custom_deleted_quote)))
         }
+    }
+
+    fun snackBarShown() = viewModelScope.launch {
+        _uiEvent.emit(emptySnackBarEvent)
     }
 }

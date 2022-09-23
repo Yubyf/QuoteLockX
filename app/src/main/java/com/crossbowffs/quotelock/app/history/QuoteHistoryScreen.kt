@@ -15,12 +15,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteEntity
@@ -39,28 +40,29 @@ fun QuoteHistoryRoute(
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiListState
-    val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
+    val uiEvent by viewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
     QuoteHistoryScreen(
         modifier = modifier,
         uiState = uiState,
         uiEvent = uiEvent,
         onItemClick = { onItemClick(it.withCollectState()) },
         onBack = onBack,
-        onClear = viewModel::clear
-    ) {
-        viewModel.delete(it)
-    }
+        onClear = viewModel::clear,
+        onDeleteMenuClicked = viewModel::delete,
+        snackBarShown = viewModel::snackBarShown
+    )
 }
 
 @Composable
 fun QuoteHistoryScreen(
     modifier: Modifier = Modifier,
     uiState: QuoteHistoryListUiState,
-    uiEvent: QuoteHistoryUiEvent?,
+    uiEvent: SnackBarEvent,
     onItemClick: (QuoteData) -> Unit,
     onBack: () -> Unit,
     onClear: () -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
+    snackBarShown: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -71,11 +73,12 @@ fun QuoteHistoryScreen(
                 if (uiState.showClearMenu) onClear else null)
         }
     ) { padding ->
-        uiEvent?.message?.let {
-            val messageText = stringResource(id = it)
+        uiEvent.message?.let {
+            val messageText = it
             scope.launch {
                 snackbarHostState.showSnackbar(messageText)
             }
+            snackBarShown()
         }
         HistoryItemList(
             modifier = modifier
@@ -146,11 +149,12 @@ private fun HistoryScreenPreview(
         Surface {
             QuoteHistoryScreen(
                 uiState = QuoteHistoryListUiState(entities, true),
-                uiEvent = null,
+                uiEvent = emptySnackBarEvent,
                 onItemClick = {},
                 onBack = {},
                 onClear = {},
                 onDeleteMenuClicked = {},
+                snackBarShown = {}
             )
         }
     }

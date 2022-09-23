@@ -16,6 +16,8 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.ui.components.ListPreferenceDialog
 import com.crossbowffs.quotelock.ui.components.PreferenceItem
 import com.crossbowffs.quotelock.ui.components.SettingsAppBar
@@ -34,7 +36,7 @@ fun SettingsRoute(
 ) {
     val uiPreferenceState by viewModel.uiState
     val uiDialogState by viewModel.uiDialogState
-    val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
+    val uiEvent by viewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
 
     SettingsScreen(
         modifier = modifier,
@@ -47,6 +49,7 @@ fun SettingsRoute(
         onUnmeteredOnlyChanged = viewModel::switchUnmeteredOnly,
         onRestartSystemUiItemClicked = viewModel::restartSystemUi,
         onAboutItemClicked = onAboutItemClicked,
+        snackBarShown = viewModel::snackBarShown,
         onBack = onBack
     )
     SettingsDialogs(
@@ -61,7 +64,7 @@ fun SettingsRoute(
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     uiState: SettingsUiState,
-    uiEvent: SettingsUiEvent?,
+    uiEvent: SnackBarEvent,
     onDisplayOnAodChanged: (Boolean) -> Unit = {},
     onModuleProviderItemClicked: () -> Unit = {},
     onModuleConfigItemClicked: (String) -> Unit = {},
@@ -69,6 +72,7 @@ fun SettingsScreen(
     onUnmeteredOnlyChanged: (Boolean) -> Unit = {},
     onRestartSystemUiItemClicked: () -> Unit = {},
     onAboutItemClicked: () -> Unit = {},
+    snackBarShown: () -> Unit,
     onBack: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -77,20 +81,16 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = { SettingsAppBar(onBack = onBack) }
     ) { padding ->
-        when (uiEvent) {
-            is SettingsUiEvent.SnackBarMessage -> {
-                uiEvent.message?.let {
-                    val messageText = it
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = messageText,
-                            duration = uiEvent.duration,
-                            actionLabel = uiEvent.actionText
-                        )
-                    }
-                }
+        uiEvent.message?.let {
+            val messageText = it
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = messageText,
+                    duration = uiEvent.duration,
+                    actionLabel = uiEvent.actionText
+                )
             }
-            null -> {}
+            snackBarShown()
         }
         val scrollState = rememberScrollState()
         Column(modifier = modifier
@@ -211,7 +211,8 @@ private fun SettingsScreenPreview() {
                     unmeteredOnly = true,
                     moduleData = null,
                     updateInfo = ""),
-                uiEvent = null,
+                uiEvent = emptySnackBarEvent,
+                snackBarShown = {},
             )
         }
     }

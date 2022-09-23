@@ -15,12 +15,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteEntity
@@ -40,28 +41,29 @@ fun CustomQuoteRoute(
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiListState
-    val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
+    val uiEvent by viewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
     CustomQuoteScreen(
         modifier = modifier,
         uiState = uiState,
         uiEvent = uiEvent,
         onItemClick = { onItemClick(it.withCollectState()) },
         onBack = onBack,
-        onPersistQuote = { id, text, source -> viewModel.persistQuote(id, text, source) },
-    ) {
-        viewModel.delete(it)
-    }
+        onPersistQuote = viewModel::persistQuote,
+        onDeleteMenuClicked = viewModel::delete,
+        snackBarShown = viewModel::snackBarShown
+    )
 }
 
 @Composable
 fun CustomQuoteScreen(
     modifier: Modifier = Modifier,
     uiState: CustomQuoteListUiState,
-    uiEvent: CustomQuoteUiEvent?,
+    uiEvent: SnackBarEvent,
     onItemClick: (QuoteData) -> Unit,
     onBack: () -> Unit,
     onPersistQuote: (Long, String, String) -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
+    snackBarShown: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -74,11 +76,12 @@ fun CustomQuoteScreen(
             })
         }
     ) { padding ->
-        uiEvent?.message?.let {
-            val messageText = stringResource(id = it)
+        uiEvent.message?.let {
+            val messageText = it
             scope.launch {
                 snackbarHostState.showSnackbar(messageText)
             }
+            snackBarShown()
         }
         CustomQuoteItemList(
             modifier = modifier
@@ -167,11 +170,12 @@ private fun CustomQuoteScreenPreview(
         Surface {
             CustomQuoteScreen(
                 uiState = CustomQuoteListUiState(entities),
-                uiEvent = null,
+                uiEvent = emptySnackBarEvent,
                 onItemClick = {},
                 onBack = {},
                 onPersistQuote = { _, _, _ -> },
                 onDeleteMenuClicked = {},
+                snackBarShown = {}
             )
         }
     }

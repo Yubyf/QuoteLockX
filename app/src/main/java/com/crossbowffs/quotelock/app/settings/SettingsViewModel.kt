@@ -1,11 +1,12 @@
 package com.crossbowffs.quotelock.app.settings
 
 import android.content.Context
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_MODULE_DEFAULT
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteModule
@@ -29,17 +30,6 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-
-/**
- * UI event for the settings screen.
- */
-sealed class SettingsUiEvent {
-    data class SnackBarMessage(
-        val message: String? = null,
-        val duration: SnackbarDuration = SnackbarDuration.Short,
-        val actionText: String? = null,
-    ) : SettingsUiEvent()
-}
 
 /**
  * UI state for the settings screen.
@@ -79,7 +69,7 @@ class SettingsViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
-    private val _uiEvent = MutableSharedFlow<SettingsUiEvent>()
+    private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     private val _uiState = mutableStateOf(
@@ -178,6 +168,10 @@ class SettingsViewModel @Inject constructor(
         _uiDialogState.value = SettingsDialogUiState.None
     }
 
+    fun snackBarShown() = viewModelScope.launch {
+        _uiEvent.emit(emptySnackBarEvent)
+    }
+
     private suspend fun onSelectedModuleChanged() {
         if (updateCurrentModule()) {
             // Update quotes.
@@ -209,8 +203,7 @@ class SettingsViewModel @Inject constructor(
             // selected one was not found. Change through the
             // ListPreference so that it updates its value.
             selectModule(PREF_COMMON_QUOTE_MODULE_DEFAULT)
-            _uiEvent.emit(SettingsUiEvent.SnackBarMessage(
-                message = resourceProvider.getString(R.string.selected_module_not_found)))
+            _uiEvent.emit(SnackBarEvent(message = resourceProvider.getString(R.string.selected_module_not_found)))
             loadSelectedModule()
         }
     }

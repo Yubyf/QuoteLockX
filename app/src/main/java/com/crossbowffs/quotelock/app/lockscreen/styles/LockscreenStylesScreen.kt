@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
@@ -20,7 +22,6 @@ import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
-import kotlinx.coroutines.launch
 
 @Composable
 fun LockscreenStylesRoute(
@@ -32,7 +33,6 @@ fun LockscreenStylesRoute(
 ) {
     val uiPreferenceState by viewModel.uiState
     val uiDialogState by viewModel.uiDialogState
-    val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
 
     Scaffold(topBar = { LockscreenStylesAppBar(onBack) }) { padding ->
         Column(modifier = modifier
@@ -43,7 +43,6 @@ fun LockscreenStylesRoute(
             LockscreenStylesScreen(
                 modifier = modifier,
                 uiState = uiPreferenceState,
-                uiEvent = uiEvent,
                 onQuoteSizeItemClicked = viewModel::loadQuoteSize,
                 onSourceSizeItemClicked = viewModel::loadSourceSize,
                 onQuoteStylesItemClicked = viewModel::loadQuoteStyles,
@@ -74,7 +73,6 @@ fun LockscreenStylesRoute(
 fun LockscreenStylesScreen(
     modifier: Modifier = Modifier,
     uiState: LockscreenStylesUiState,
-    uiEvent: LockscreenStylesUiEvent?,
     onQuoteSizeItemClicked: () -> Unit = {},
     onSourceSizeItemClicked: () -> Unit = {},
     onQuoteStylesItemClicked: () -> Unit = {},
@@ -85,25 +83,9 @@ fun LockscreenStylesScreen(
     onPaddingBottomItemClicked: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { padding ->
-        when (uiEvent) {
-            is LockscreenStylesUiEvent.SnackBarMessage -> {
-                uiEvent.message?.let {
-                    val messageText = it
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = messageText,
-                            duration = uiEvent.duration,
-                            actionLabel = uiEvent.actionText
-                        )
-                    }
-                }
-            }
-            null -> {}
-        }
         val scrollState = rememberScrollState()
         Column(modifier = modifier
             .fillMaxSize()
@@ -267,10 +249,7 @@ fun LockscreenStylesDialogs(
 private fun LockscreenStylesScreenPreview() {
     QuoteLockTheme {
         Surface {
-            LockscreenStylesScreen(
-                uiState = LockscreenStylesUiState(enableFontFamily = true),
-                uiEvent = null,
-            )
+            LockscreenStylesScreen(uiState = LockscreenStylesUiState(enableFontFamily = true))
         }
     }
 }

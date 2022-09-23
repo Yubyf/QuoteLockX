@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.crossbowffs.quotelock.app.collections.QuoteCollectionUiEvent.ProgressMessage
-import com.crossbowffs.quotelock.app.collections.QuoteCollectionUiEvent.SnackBarMessage
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.*
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
 import com.crossbowffs.quotelock.ui.components.*
@@ -59,7 +59,8 @@ fun QuoteCollectionRoute(
     val listUiState by viewModel.uiListState
     val context = LocalContext.current
     val menuUiState by viewModel.uiMenuState
-    val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
+    val uiDialogState by viewModel.uiDialogState
+    val uiEvent by viewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
             if (!result) {
@@ -84,6 +85,7 @@ fun QuoteCollectionRoute(
         modifier = modifier,
         listUiState = listUiState,
         menuUiState = menuUiState,
+        uiDialogState = uiDialogState,
         uiEvent = uiEvent,
         onItemClick = { onItemClick(it.withCollectState(true)) },
         onBack = onBack,
@@ -104,10 +106,11 @@ fun QuoteCollectionRoute(
         onImportDatabase = { pickedDbFileLauncher.launch(arrayOf("*/*")) },
         onImportCsv = { pickedCsvFileLauncher.launch(arrayOf("*/*")) },
         onSignIn = { googleSignInLauncher.launch(viewModel.getGoogleAccountSignInIntent()) },
-        onSignOut = { viewModel.signOut() },
-        onGdriveBackup = { viewModel.gDriveBackup() },
-        onGdriveRestore = { viewModel.gDriveRestore() },
-        onDeleteMenuClicked = { viewModel.delete(it) },
+        onSignOut = viewModel::signOut,
+        onGdriveBackup = viewModel::gDriveBackup,
+        onGdriveRestore = viewModel::gDriveRestore,
+        onDeleteMenuClicked = viewModel::delete,
+        snackBarShown = viewModel::snackBarShown
     )
     pickedDbFileUri?.let { uri ->
         viewModel.import(LocalBackupType.DB, uri)
@@ -124,7 +127,8 @@ fun QuoteCollectionScreen(
     modifier: Modifier = Modifier,
     listUiState: QuoteCollectionListUiState,
     menuUiState: QuoteCollectionMenuUiState,
-    uiEvent: QuoteCollectionUiEvent?,
+    uiDialogState: QuoteCollectionDialogUiState,
+    uiEvent: SnackBarEvent,
     onItemClick: (QuoteData) -> Unit,
     onBack: () -> Unit,
     onDeleteMenuClicked: (Long) -> Unit,
@@ -136,6 +140,7 @@ fun QuoteCollectionScreen(
     onSignOut: () -> Unit = {},
     onGdriveBackup: () -> Unit = {},
     onGdriveRestore: () -> Unit = {},
+    snackBarShown: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -160,25 +165,21 @@ fun QuoteCollectionScreen(
             }
         }
     ) { padding ->
-        when (uiEvent) {
-            is ProgressMessage -> {
-                if (uiEvent.show) {
-                    LoadingDialog(message = uiEvent.message) {}
-                }
+        when (uiDialogState) {
+            is QuoteCollectionDialogUiState.ProgressDialog ->
+                LoadingDialog(message = uiDialogState.message) {}
+            QuoteCollectionDialogUiState.None -> {}
+        }
+        uiEvent.message?.let {
+            val messageText = it
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = messageText,
+                    duration = uiEvent.duration,
+                    actionLabel = uiEvent.actionText
+                )
             }
-            is SnackBarMessage -> {
-                uiEvent.message?.let {
-                    val messageText = it
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = messageText,
-                            duration = uiEvent.duration,
-                            actionLabel = uiEvent.actionText
-                        )
-                    }
-                }
-            }
-            null -> {}
+            snackBarShown()
         }
         CollectionItemList(
             modifier = modifier
@@ -514,10 +515,12 @@ private fun CollectionScreenPreview(
             QuoteCollectionScreen(
                 listUiState = QuoteCollectionListUiState(entities),
                 menuUiState = QuoteCollectionMenuUiState(exportEnabled = true),
-                uiEvent = null,
+                uiDialogState = QuoteCollectionDialogUiState.None,
+                uiEvent = emptySnackBarEvent,
                 onItemClick = {},
                 onBack = {},
                 onDeleteMenuClicked = {},
+                snackBarShown = {}
             )
         }
     }

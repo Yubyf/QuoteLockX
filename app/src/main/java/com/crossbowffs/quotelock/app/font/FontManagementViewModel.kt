@@ -1,12 +1,13 @@
 package com.crossbowffs.quotelock.app.font
 
 import android.net.Uri
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
@@ -16,17 +17,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-
-/**
- * UI event for the font management list screen.
- */
-sealed class FontManagementUiEvent {
-    data class SnackBarMessage(
-        val message: String? = null,
-        val duration: SnackbarDuration = SnackbarDuration.Short,
-        val actionText: String? = null,
-    ) : FontManagementUiEvent()
-}
 
 /**
  * UI state for the font management list screen.
@@ -57,7 +47,7 @@ class FontManagementViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
-    private val _uiEvent = MutableSharedFlow<FontManagementUiEvent?>()
+    private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     private val _uiListState =
@@ -101,7 +91,7 @@ class FontManagementViewModel @Inject constructor(
         } else {
             R.string.quote_fonts_management_delete_font_failed
         }, resourceProvider.getFontLocaleName(it))
-        _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(message))
+        _uiEvent.emit(SnackBarEvent(message))
         loadInAppFontsList()
     }
 
@@ -120,7 +110,7 @@ class FontManagementViewModel @Inject constructor(
                 R.string.quote_fonts_management_delete_font_failed
             }, resourceProvider.getFontLocaleName(it.fontInfo))
         }
-        _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(message))
+        _uiEvent.emit(SnackBarEvent(message))
         loadSystemFontsList()
     }
 
@@ -134,16 +124,16 @@ class FontManagementViewModel @Inject constructor(
                 }?.let {
                     loadInAppFontsList()
                     _uiListState.value = _uiListState.value.copy(inAppTabScrollToBottom = true)
-                    _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(
+                    _uiEvent.emit(SnackBarEvent(
                         resourceProvider.getString(R.string.quote_fonts_management_font_imported,
                             resourceProvider.getFontLocaleName(it))))
                 } ?: run {
-                    _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(
+                    _uiEvent.emit(SnackBarEvent(
                         resourceProvider.getString(R.string.quote_fonts_management_import_failed)))
                 }
             }
             is AsyncResult.Error -> {
-                _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(result.exception.message))
+                _uiEvent.emit(SnackBarEvent(result.exception.message))
             }
             else -> {}
         }
@@ -168,23 +158,23 @@ class FontManagementViewModel @Inject constructor(
                         resourceProvider.getString(R.string.quote_fonts_management_font_imported,
                             resourceProvider.getFontLocaleName(it))
                     }.let { message ->
-                        _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(message))
+                        _uiEvent.emit(SnackBarEvent(message))
                     }
                 } ?: run {
-                    _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(
+                    _uiEvent.emit(SnackBarEvent(
                         resourceProvider.getString(R.string.quote_fonts_management_import_failed)))
                 }
             }
             is AsyncResult.Error -> {
-                _uiEvent.emit(FontManagementUiEvent.SnackBarMessage(result.exception.message))
+                _uiEvent.emit(SnackBarEvent(result.exception.message))
             }
             else -> {}
         }
         _uiDialogState.value = FontManagementDialogUiState.None
     }
 
-    fun snackbarShown() = viewModelScope.launch {
-        _uiEvent.emit(null)
+    fun snackBarShown() = viewModelScope.launch {
+        _uiEvent.emit(emptySnackBarEvent)
     }
 
     fun inAppFontListScrolled() {

@@ -26,6 +26,7 @@ import com.crossbowffs.quotelock.app.detail.QuoteDetailViewModel
 import com.crossbowffs.quotelock.app.detail.shareImage
 import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
 import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import com.crossbowffs.quotelock.ui.components.AlertDialog
@@ -49,7 +50,7 @@ fun MainScreen(
     onHistoryItemClick: () -> Unit,
     onFontCustomize: () -> Unit,
 ) {
-    val mainUiEvent by mainViewModel.uiEvent.collectAsState(initial = null)
+    val mainUiEvent by mainViewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
     val mainUiState by mainViewModel.uiState
     val mainDialogUiState by mainViewModel.uiDialogState
     val detailUiState by detailViewModel.uiState
@@ -130,23 +131,19 @@ fun MainScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
-        mainUiEvent?.also { event ->
-            when (event) {
-                is MainUiEvent.SnackBarMessage -> {
-                    event.message?.let { message ->
-                        scope.launch {
-                            snackbarHostState.currentSnackbarData?.takeIf {
-                                it.visuals.message == message
-                            }?.dismiss()
-                            snackbarHostState.showSnackbar(
-                                message = message,
-                                duration = SnackbarDuration.Short,
-                                actionLabel = event.actionText
-                            )
-                        }
-                        mainViewModel.snackbarShown()
-                    }
+        mainUiEvent.let { event ->
+            event.message?.let { message ->
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.takeIf {
+                        it.visuals.message == message
+                    }?.dismiss()
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short,
+                        actionLabel = event.actionText
+                    )
                 }
+                mainViewModel.snackBarShown()
             }
         }
         Box(modifier = modifier

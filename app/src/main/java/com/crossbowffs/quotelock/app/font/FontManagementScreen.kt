@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.app.SnackBarEvent
+import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.ui.components.*
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -49,7 +51,7 @@ fun FontManagementRoute(
 ) {
     val uiState by viewModel.uiListState
     val uiDialogState by viewModel.uiDialogState
-    val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
+    val uiEvent by viewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
     var pickedFontFileForAppUri by remember { mutableStateOf<Uri?>(null) }
     val pickedFontFileForAppLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -77,7 +79,7 @@ fun FontManagementRoute(
         onSystemFontDeleteMenuClick = viewModel::deleteSystemFont,
         onInAppFontDeleteMenuClick = viewModel::deleteInAppFont,
         listScrolled = viewModel::systemFontListScrolled,
-        snackbarShown = viewModel::snackbarShown
+        snackBarShown = viewModel::snackBarShown
     )
     pickedFontFileForSystemUri?.let { uri ->
         viewModel.importFontToSystem(uri)
@@ -94,13 +96,13 @@ fun FontManagementScreen(
     modifier: Modifier = Modifier,
     uiState: FontManagementListUiState,
     uiDialogState: FontManagementDialogUiState,
-    uiEvent: FontManagementUiEvent?,
+    uiEvent: SnackBarEvent,
     onBack: () -> Unit,
     onInAppImportButtonClick: () -> Unit,
     onSystemImportButtonClick: () -> Unit,
     onSystemFontDeleteMenuClick: (FontInfoWithState) -> Unit,
     onInAppFontDeleteMenuClick: (FontInfo) -> Unit,
-    snackbarShown: () -> Unit,
+    snackBarShown: () -> Unit,
     listScrolled: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -124,21 +126,16 @@ fun FontManagementScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
-        when (uiEvent) {
-            is FontManagementUiEvent.SnackBarMessage -> {
-                uiEvent.message?.let {
-                    val messageText = it
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = messageText,
-                            duration = uiEvent.duration,
-                            actionLabel = uiEvent.actionText
-                        )
-                    }
-                    snackbarShown()
-                }
+        uiEvent.message?.let {
+            val messageText = it
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = messageText,
+                    duration = uiEvent.duration,
+                    actionLabel = uiEvent.actionText
+                )
             }
-            null -> {}
+            snackBarShown()
         }
         val tabTitles = stringArrayResource(id = R.array.font_tabs)
         Column(
