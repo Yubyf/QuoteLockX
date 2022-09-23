@@ -36,11 +36,11 @@ class LibquotesQuoteModule : QuoteModule {
     override suspend fun getQuote(context: Context): QuoteData? {
         val html = "https://feeds.feedburner.com/libquotes/QuoteOfTheDay".downloadUrl()
         val document = Jsoup.parse(html)
-        val qotdItem = document.select("item")?.first()
+        val qotdItem = document.select("item").first()
         return qotdItem?.let {
             Xlog.d(TAG, "Downloaded qotd: ${it.text()}")
-            val quoteText = it.select("description")?.text() ?: ""
-            val quoteAuthor = it.select("title")?.text() ?: ""
+            val quoteText = it.select("description").text()
+            val quoteAuthor = it.select("title").text()
             QuoteData(
                 quoteText = quoteText, quoteSource = "", quoteAuthor = quoteAuthor
             )

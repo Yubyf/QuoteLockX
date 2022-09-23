@@ -35,20 +35,20 @@ class FreakuotesQuoteModule : QuoteModule {
         val html = "https://freakuotes.com/frase/aleatoria".downloadUrl()
         val document = Jsoup.parse(html)
         val quoteContainer = document.select(".quote-container > blockquote").first()
-        val quoteText = quoteContainer.getElementsByTag("p").text()
-        if (quoteText.isNullOrEmpty()) {
+        val quoteText = quoteContainer?.getElementsByTag("p")?.text().orEmpty()
+        if (quoteText.isEmpty()) {
             Xlog.e(TAG, "Failed to find quote text")
             return null
         }
-        val sourceLeft = quoteContainer.select("footer > span").text()
-        val sourceRight = quoteContainer.select("footer > cite").attr("title")
+        val sourceLeft = quoteContainer?.select("footer > span")?.text().orEmpty()
+        val sourceRight = quoteContainer?.select("footer > cite")?.attr("title").orEmpty()
         val quoteSource: String = when {
-            sourceLeft.isNullOrEmpty() && sourceRight.isNullOrEmpty() -> {
+            sourceLeft.isEmpty() && sourceRight.isEmpty() -> {
                 Xlog.w(TAG, "Quote source not found")
                 ""
             }
-            sourceLeft.isNullOrEmpty() -> sourceRight
-            sourceRight.isNullOrEmpty() -> sourceLeft
+            sourceLeft.isEmpty() -> sourceRight
+            sourceRight.isEmpty() -> sourceLeft
             else -> "$sourceLeft, $sourceRight"
         }
         return QuoteData(quoteText, quoteSource)

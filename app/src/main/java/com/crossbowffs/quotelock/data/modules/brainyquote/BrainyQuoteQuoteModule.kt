@@ -38,8 +38,8 @@ class BrainyQuoteQuoteModule : QuoteModule {
         val url = "https://feeds.feedburner.com/brainyquote/QUOTE$type"
         val rssXml = url.downloadUrl()
         val document = Jsoup.parse(rssXml)
-        val quoteText = document.select("item > description").first().text()
-        val quoteAuthor = document.select("item > title").first().text()
+        val quoteText = document.select("item > description").first()?.text().orEmpty()
+        val quoteAuthor = document.select("item > title").first()?.text().orEmpty()
         return QuoteData(quoteText = quoteText.substring(1, quoteText.length - 1), quoteSource = "",
             quoteAuthor = quoteAuthor)
     }

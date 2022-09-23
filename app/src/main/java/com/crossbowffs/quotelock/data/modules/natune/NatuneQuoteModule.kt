@@ -29,8 +29,8 @@ class NatuneQuoteModule : QuoteModule {
         val html = "https://natune.net/zitate/Zufalls5".downloadUrl()
         val document = Jsoup.parse(html)
         val quoteLi = document.select(".quotes > li").first()
-        val quoteText = quoteLi.getElementsByClass("quote_text").first().text()
-        val quoteAuthor = quoteLi.getElementsByClass("quote_author").first().text()
+        val quoteText = quoteLi?.getElementsByClass("quote_text")?.first()?.text().orEmpty()
+        val quoteAuthor = quoteLi?.getElementsByClass("quote_author")?.first()?.text().orEmpty()
         return QuoteData(quoteText = quoteText, quoteSource = "", quoteAuthor = quoteAuthor)
     }
 

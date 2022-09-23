@@ -45,8 +45,8 @@ class WikiquoteQuoteModule : QuoteModule {
             Xlog.e(TAG, "Failed to parse quote")
             return null
         }
-        val quoteText = quoteMatcher.group(1) ?: ""
-        val quoteAuthor = quoteMatcher.group(2) ?: ""
+        val quoteText = quoteMatcher.group(1).orEmpty()
+        val quoteAuthor = quoteMatcher.group(2).orEmpty()
         return QuoteData(quoteText = quoteText, quoteSource = "", quoteAuthor = quoteAuthor)
     }
 

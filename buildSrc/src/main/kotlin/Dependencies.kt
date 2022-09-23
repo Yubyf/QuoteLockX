@@ -93,7 +93,7 @@ object Dependencies {
     }
 
     const val remotePreferences = "com.crossbowffs.remotepreferences:remotepreferences:0.9"
-    const val jsoup = "org.jsoup:jsoup:1.13.1"
+    const val jsoup = "org.jsoup:jsoup:1.15.3"
     const val datastorePreferences =
         "io.github.yubyf.datastorepreferences:datastorepreferences:1.2.2"
     const val trueTypeParserLight = "io.github.yubyf:truetypeparser-light:2.1.3"
