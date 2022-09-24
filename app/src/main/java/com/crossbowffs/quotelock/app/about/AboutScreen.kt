@@ -16,9 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +55,29 @@ fun AboutScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                snackbar = { snackbarData: SnackbarData ->
+                    Card(
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .wrapContentSize(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.inverseSurface,
+                            contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                        ),
+                        shape = MaterialTheme.shapes.extraSmall
+                    ) {
+                        Text(text = snackbarData.visuals.message,
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .alpha(ContentAlpha.high),
+                            fontSize = MaterialTheme.typography.labelLarge.fontSize)
+                    }
+                }
+            )
+        },
         topBar = { AboutAppBar(onBack = onBack) }
     ) { padding ->
         val scrollState = rememberScrollState()
@@ -95,20 +119,25 @@ fun AboutScreen(
 @Composable
 fun Logo(modifier: Modifier = Modifier, onEasterEgg: () -> Unit = {}) {
     var logoTapCount by remember { mutableStateOf(0) }
-    Column(modifier = modifier,
+    var logoTapTimestamp by remember { mutableStateOf(0L) }
+    val haptic = LocalHapticFeedback.current
+    Column(modifier = modifier
+        .clickable(interactionSource = remember { MutableInteractionSource() },
+            indication = null) {
+            if (System.currentTimeMillis() - logoTapTimestamp < 500) logoTapCount++
+            else logoTapCount = 1
+            logoTapTimestamp = System.currentTimeMillis()
+            if (logoTapCount == 7) {
+                logoTapCount = 0
+                logoTapTimestamp = 0L
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onEasterEgg()
+            }
+        },
         horizontalAlignment = Alignment.CenterHorizontally) {
         AsyncImage(model = R.drawable.ic_quotelockx,
             contentDescription = "Logo",
-            modifier = Modifier
-                .size(64.dp)
-                .clickable(interactionSource = remember { MutableInteractionSource() },
-                    indication = null) {
-                    logoTapCount++
-                    if (logoTapCount == 7) {
-                        logoTapCount = 0
-                        onEasterEgg()
-                    }
-                })
+            modifier = Modifier.size(64.dp))
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = stringResource(id = R.string.quotelockx),
