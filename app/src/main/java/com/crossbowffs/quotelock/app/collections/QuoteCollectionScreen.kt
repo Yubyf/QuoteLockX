@@ -149,18 +149,18 @@ fun QuoteCollectionScreen(
         topBar = {
             CollectionAppBar(onBack = onBack) {
                 CollectionDataRetentionMenu(
-                    menuUiState.exportEnabled,
-                    menuUiState.syncEnabled,
-                    menuUiState.googleAccount,
-                    menuUiState.syncTime,
-                    onExportDatabase,
-                    onExportCsv,
-                    onImportDatabase,
-                    onImportCsv,
-                    onSignIn,
-                    onSignOut,
-                    onGdriveBackup,
-                    onGdriveRestore,
+                    enableExport = menuUiState.exportEnabled,
+                    enableSync = menuUiState.syncEnabled,
+                    account = menuUiState.googleAccount,
+                    lastSyncTime = menuUiState.syncTime,
+                    onExportDatabase = onExportDatabase,
+                    onExportCsv = onExportCsv,
+                    onImportDatabase = onImportDatabase,
+                    onImportCsv = onImportCsv,
+                    onSignIn = onSignIn,
+                    onSignOut = onSignOut,
+                    onGdriveBackup = onGdriveBackup,
+                    onGdriveRestore = onGdriveRestore,
                 )
             }
         }

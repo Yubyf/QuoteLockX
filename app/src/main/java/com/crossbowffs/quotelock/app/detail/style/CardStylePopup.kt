@@ -242,12 +242,12 @@ private fun PopupLayoutRow(
                 valueRange = PREF_CARD_STYLE_LINE_SPACING_MIN..PREF_CARD_STYLE_LINE_SPACING_MAX,
                 step = PREF_CARD_STYLE_LINE_SPACING_STEP,
                 decreaseIcon = {
-                    Icon(painter = painterResource(id = R.drawable.ic_format_decrease_line_spacing_24_dp),
+                    Icon(painter = painterResource(id = R.drawable.ic_format_decrease_segment_spacing_24_dp),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp))
                 },
                 increaseIcon = {
-                    Icon(painter = painterResource(id = R.drawable.ic_format_increase_line_spacing_24_dp),
+                    Icon(painter = painterResource(id = R.drawable.ic_format_increase_segment_spacing_24_dp),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp))
                 }
