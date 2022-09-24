@@ -96,19 +96,6 @@ fun MainScreen(
                 MainDropdownMenu(
                     onSettingsItemClick = onSettingsItemClick,
                     onLockscreenStylesItemClick = onLockscreenStylesItemClick,
-                    onShareItemClick = if (!LocalContext.current.isQuoteGeneratedByApp(
-                            mainUiState.quoteData.quoteText,
-                            mainUiState.quoteData.quoteSource,
-                            mainUiState.quoteData.quoteAuthor)
-                    ) {
-                        {
-                            snapshotStates.bounds?.let {
-                                detailViewModel.shareQuote(it) { canvas ->
-                                    snapshotStates.forEach { snapshot -> snapshot.snapshot(canvas) }
-                                }
-                            }
-                        }
-                    } else null,
                     onCollectionItemClick = onCollectionItemClick,
                     onHistoryItemClick = onHistoryItemClick
                 )
@@ -157,7 +144,12 @@ fun MainScreen(
                 quoteData = mainUiState.quoteData,
                 cardStyle = detailUiState.cardStyle,
                 snapshotStates = snapshotStates,
-                onCollectClick = detailViewModel::switchCollectionState
+                onCollectClick = detailViewModel::switchCollectionState,
+                onShareCard = if (!LocalContext.current.isQuoteGeneratedByApp(
+                        mainUiState.quoteData.quoteText,
+                        mainUiState.quoteData.quoteSource,
+                        mainUiState.quoteData.quoteAuthor)
+                ) detailViewModel::shareQuote else null
             )
             cardStyleUiState.takeIf { cardStyleUiState.show }?.let {
                 CardStylePopup(
@@ -188,7 +180,6 @@ fun MainScreen(
 fun MainDropdownMenu(
     onSettingsItemClick: () -> Unit,
     onLockscreenStylesItemClick: () -> Unit,
-    onShareItemClick: (() -> Unit)? = null,
     onCollectionItemClick: () -> Unit,
     onHistoryItemClick: () -> Unit,
 ) {
@@ -218,18 +209,6 @@ fun MainDropdownMenu(
                 onClick = {
                     closeMenu()
                     onLockscreenStylesItemClick()
-                }
-            )
-            DropdownMenuItem(
-                leadingIcon = {
-                    Icon(Icons.Rounded.Share,
-                        contentDescription = stringResource(id = R.string.quote_image_share_description))
-                },
-                text = { Text(text = stringResource(id = R.string.quote_image_share)) },
-                enabled = onShareItemClick != null,
-                onClick = {
-                    closeMenu()
-                    onShareItemClick?.invoke()
                 }
             )
             DropdownMenuItem(

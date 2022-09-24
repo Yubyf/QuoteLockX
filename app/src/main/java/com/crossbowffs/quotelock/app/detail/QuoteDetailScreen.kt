@@ -82,7 +82,7 @@ fun QuoteDetailRoute(
         uiState,
         onCollectClick = detailViewModel::switchCollectionState,
         onStyle = cardStyleViewModel::showStylePopup,
-        onShareQuote = detailViewModel::shareQuote,
+        onShareCard = detailViewModel::shareQuote,
         onBack = onBack
     ) {
         cardStyleUiState.takeIf { cardStyleUiState.show }?.let {
@@ -109,7 +109,7 @@ fun QuoteDetailScreen(
     uiState: QuoteDetailUiState,
     onCollectClick: (QuoteDataWithCollectState) -> Unit,
     onStyle: () -> Unit,
-    onShareQuote: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
+    onShareCard: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
     onBack: () -> Unit,
     popupContent: @Composable () -> Unit = {},
 ) {
@@ -125,7 +125,7 @@ fun QuoteDetailScreen(
                 },
                 onClick = {
                     snapshotStates.bounds?.let {
-                        onShareQuote.invoke(it) { canvas ->
+                        onShareCard(it) { canvas ->
                             snapshotStates.forEach { snapshot ->
                                 snapshot.snapshot(canvas)
                             }
@@ -145,7 +145,7 @@ fun QuoteDetailScreen(
                 quoteData = quoteData,
                 cardStyle = uiState.cardStyle,
                 snapshotStates = snapshotStates,
-                onCollectClick = onCollectClick
+                onCollectClick = onCollectClick,
             )
             popupContent()
         }
@@ -159,6 +159,7 @@ fun QuoteDetailPage(
     cardStyle: CardStyle = CardStyle(),
     snapshotStates: Snapshotables = Snapshotables(),
     onCollectClick: (QuoteDataWithCollectState) -> Unit,
+    onShareCard: ((size: Size, block: ((Canvas) -> Unit)) -> Unit)? = null,
 ) {
     val extraPadding = 64.dp
     var containerHeight by remember {
@@ -179,9 +180,11 @@ fun QuoteDetailPage(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        val quoteGeneratedByApp = LocalContext.current.isQuoteGeneratedByApp(quoteData.quoteText,
-            quoteData.quoteSource,
-            quoteData.quoteAuthor)
+        val quoteGeneratedByApp =
+            if (LocalInspectionMode.current) false else LocalContext.current.isQuoteGeneratedByApp(
+                quoteData.quoteText,
+                quoteData.quoteSource,
+                quoteData.quoteAuthor)
         QuoteCard(
             modifier = Modifier
                 .fillMaxWidth()
@@ -204,7 +207,8 @@ fun QuoteDetailPage(
             currentCollectState = quoteData.collectState ?: false,
             onCollectClick = if (!quoteGeneratedByApp) {
                 { onCollectClick(quoteData) }
-            } else null
+            } else null,
+            onShareCard = onShareCard
         )
         if (LocalInspectionMode.current || !LocalInspectionMode.current && !includeExtraPadding) {
             Spacer(modifier = Modifier.height(extraPadding))
@@ -226,6 +230,7 @@ fun QuoteCard(
     snapshotStates: Snapshotables = Snapshotables(),
     currentCollectState: Boolean = false,
     onCollectClick: (() -> Unit)? = null,
+    onShareCard: ((size: Size, block: ((Canvas) -> Unit)) -> Unit)? = null,
 ) {
     val containerColor = QuoteLockTheme.quotelockColors.quoteCardSurface
     val contentColor = QuoteLockTheme.quotelockColors.quoteCardOnSurface
@@ -248,7 +253,7 @@ fun QuoteCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(cardPadding)
+                .padding(horizontal = cardPadding, vertical = cardPadding + 24.dp)
                 .align(alignment = Alignment.Center)
                 .onGloballyPositioned { columnBounds = it.boundsInParent() },
             horizontalAlignment = Alignment.End,
@@ -275,18 +280,37 @@ fun QuoteCard(
                 )
             }
         }
-        val animStar =
-            AnimatedImageVector.animatedVectorResource(id = R.drawable.avd_star_unselected_to_selected)
-        onCollectClick?.let {
-            val haptic = LocalHapticFeedback.current
-            IconButton(
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    it()
-                },
-                modifier = Modifier.align(Alignment.TopEnd)) {
-                Icon(painter = rememberAnimatedVectorPainter(animStar, currentCollectState),
-                    contentDescription = "Collect")
+        Row(modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = 8.dp, end = 8.dp)) {
+            val animStar =
+                AnimatedImageVector.animatedVectorResource(id = R.drawable.avd_star_unselected_to_selected)
+            onCollectClick?.let {
+                val haptic = LocalHapticFeedback.current
+                IconButton(
+                    modifier = Modifier.size(36.dp),
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        it()
+                    }) {
+                    Icon(painter = rememberAnimatedVectorPainter(animStar, currentCollectState),
+                        contentDescription = "Collect")
+                }
+            }
+            onShareCard?.let {
+                IconButton(modifier = Modifier.size(36.dp), onClick = {
+                    snapshotStates.bounds?.let {
+                        onShareCard(it) { canvas ->
+                            snapshotStates.forEach { snapshot ->
+                                snapshot.snapshot(canvas)
+                            }
+                        }
+                    }
+                }) {
+                    Icon(Icons.Rounded.Share,
+                        contentDescription = stringResource(id = R.string.quote_image_share_description),
+                        modifier = Modifier.size(20.dp))
+                }
             }
         }
     }
@@ -332,18 +356,41 @@ class QuotePreviewParameterProvider : PreviewParameterProvider<QuoteDataWithColl
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun QuoteCardPreview(
-    @PreviewParameter(QuotePreviewParameterProvider::class) quote: Pair<String, String>,
+    @PreviewParameter(QuotePreviewParameterProvider::class) quote: QuoteDataWithCollectState,
 ) {
     QuoteLockTheme {
         Surface {
             QuoteCard(
-                quote = quote.first,
-                source = quote.second,
+                quote = quote.quoteText,
+                source = quote.readableSourceWithPrefix,
                 quoteSize = 36.sp,
                 sourceSize = 36.sp,
                 lineSpacing = 36.dp,
                 cardPadding = 36.dp,
-                minHeight = 240.dp
+                minHeight = 240.dp,
+                onCollectClick = {},
+                onShareCard = { _, _ -> }
+            )
+        }
+    }
+}
+
+@Preview(name = "Quote Page Light",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+private fun QuotePagePreview() {
+    QuoteLockTheme {
+        Surface {
+            QuoteDetailPage(
+                quoteData = QuoteDataWithCollectState(
+                    "落霞与孤鹜齐飞，秋水共长天一色",
+                    "《滕王阁序》",
+                    "王勃",
+                    true
+                ),
+                onCollectClick = {},
+                onShareCard = { _, _ -> }
             )
         }
     }
@@ -356,13 +403,16 @@ private fun QuoteCardPreview(
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun DetailScreenPreview(
-    @PreviewParameter(QuotePreviewParameterProvider::class) quote: QuoteDataWithCollectState,
-) {
+private fun DetailScreenPreview() {
     QuoteLockTheme {
         Surface {
             QuoteDetailScreen(
-                quoteData = quote,
+                quoteData = QuoteDataWithCollectState(
+                    "落霞与孤鹜齐飞，秋水共长天一色",
+                    "《滕王阁序》",
+                    "王勃",
+                    true
+                ),
                 uiState = QuoteDetailUiState(CardStyle()),
                 onCollectClick = {},
                 onStyle = {},
