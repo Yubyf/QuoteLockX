@@ -525,20 +525,3 @@ private fun CollectionScreenPreview(
         }
     }
 }
-
-@Preview(name = "Collection App Bar Light",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Collection App Bar Dark",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun CollectionDataRetentionMenuPreview() {
-    QuoteLockTheme {
-        Surface {
-            CollectionBackupMenu(
-                enableExport = true,
-            ) {}
-        }
-    }
-}
