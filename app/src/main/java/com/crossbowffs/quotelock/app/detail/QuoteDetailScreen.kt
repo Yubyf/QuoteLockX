@@ -85,20 +85,19 @@ fun QuoteDetailRoute(
         onShareCard = detailViewModel::shareQuote,
         onBack = onBack
     ) {
-        cardStyleUiState.takeIf { cardStyleUiState.show }?.let {
-            CardStylePopup(
-                fonts = it.fonts,
-                cardStyle = it.cardStyle,
-                onFontSelected = cardStyleViewModel::selectFontFamily,
-                onFontAdd = onFontCustomize,
-                onQuoteSizeChange = cardStyleViewModel::setQuoteSize,
-                onSourceSizeChange = cardStyleViewModel::setSourceSize,
-                onLineSpacingChange = cardStyleViewModel::setLineSpacing,
-                onCardPaddingChange = cardStyleViewModel::setCardPadding,
-                onShareWatermarkChange = cardStyleViewModel::setShareWatermark,
-                onDismiss = cardStyleViewModel::dismissStylePopup
-            )
-        }
+        CardStylePopup(
+            expanded = cardStyleUiState.show,
+            fonts = cardStyleUiState.fonts,
+            cardStyle = cardStyleUiState.cardStyle,
+            onFontSelected = cardStyleViewModel::selectFontFamily,
+            onFontAdd = onFontCustomize,
+            onQuoteSizeChange = cardStyleViewModel::setQuoteSize,
+            onSourceSizeChange = cardStyleViewModel::setSourceSize,
+            onLineSpacingChange = cardStyleViewModel::setLineSpacing,
+            onCardPaddingChange = cardStyleViewModel::setCardPadding,
+            onShareWatermarkChange = cardStyleViewModel::setShareWatermark,
+            onDismiss = cardStyleViewModel::dismissStylePopup
+        )
     }
 }
 

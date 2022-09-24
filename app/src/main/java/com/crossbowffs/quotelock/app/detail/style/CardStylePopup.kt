@@ -24,15 +24,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.unit.*
 import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.api.CardStyle
+import com.crossbowffs.quotelock.ui.components.AnchorPopup
 import com.crossbowffs.quotelock.ui.components.ContentAlpha
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.crossbowffs.quotelock.utils.loadComposeFontWithSystem
@@ -41,6 +37,7 @@ import com.yubyf.quotelockx.R
 
 @Composable
 fun CardStylePopup(
+    expanded: Boolean,
     fonts: List<FontInfo>,
     cardStyle: CardStyle,
     onFontSelected: (String) -> Unit,
@@ -52,23 +49,25 @@ fun CardStylePopup(
     onShareWatermarkChange: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val names = stringArrayResource(id = R.array.default_font_family_entries)
-    val paths = stringArrayResource(id = R.array.default_font_family_values)
-    val presetFonts = names.zip(paths).map { (name, path) ->
-        FontInfo(fileName = name, path = path)
-    }
-    val allFonts = presetFonts + fonts
-    var selectedItemIndex by remember {
-        mutableStateOf(allFonts.indexOfFirst { it.path == cardStyle.fontFamily }
-            .coerceIn(minimumValue = 0, maximumValue = allFonts.lastIndex))
-    }
-    val fontIndicatorWidth = 64.dp
-    val haptic = LocalHapticFeedback.current
-    fun performHapticFeedback() = haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-    Popup(alignment = Alignment.TopCenter,
+    AnchorPopup(
+        expanded = expanded,
         onDismissRequest = onDismiss,
-        properties = PopupProperties(focusable = true)
+        anchor = DpOffset(0.dp, 0.dp),
+        alignment = Alignment.BottomCenter,
     ) {
+        val names = stringArrayResource(id = R.array.default_font_family_entries)
+        val paths = stringArrayResource(id = R.array.default_font_family_values)
+        val presetFonts = names.zip(paths).map { (name, path) ->
+            FontInfo(fileName = name, path = path)
+        }
+        val allFonts = presetFonts + fonts
+        var selectedItemIndex by remember {
+            mutableStateOf(allFonts.indexOfFirst { it.path == cardStyle.fontFamily }
+                .coerceIn(minimumValue = 0, maximumValue = allFonts.lastIndex))
+        }
+        val fontIndicatorWidth = 64.dp
+        val haptic = LocalHapticFeedback.current
+        fun performHapticFeedback() = haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         Surface(
             modifier = Modifier.padding(horizontal = 24.dp),
             shape = MaterialTheme.shapes.small,
@@ -431,6 +430,7 @@ private fun CardStylePopupPreview() {
     QuoteLockTheme {
         Surface {
             CardStylePopup(
+                true,
                 fonts = emptyList(),
                 cardStyle = CardStyle(),
                 onFontSelected = {},
