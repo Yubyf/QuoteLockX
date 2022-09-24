@@ -240,7 +240,7 @@ fun FontListItem(
                 }
             }
             AnchorPopup(
-                expanded = hintPopupExpanded,
+                popped = hintPopupExpanded,
                 onDismissRequest = { hintPopupExpanded = false },
                 anchor = with(LocalDensity.current) {
                     DpOffset(hintContainerPopupOffset.x.toDp(),

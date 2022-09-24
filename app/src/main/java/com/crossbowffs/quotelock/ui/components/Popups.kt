@@ -23,16 +23,16 @@ import kotlin.math.min
 
 @Composable
 fun AnchorPopup(
-    expanded: Boolean,
+    popped: Boolean,
     onDismissRequest: () -> Unit,
     anchor: DpOffset = DpOffset(0.dp, 0.dp),
     alignment: Alignment = Alignment.TopStart,
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val expandedStates = remember { MutableTransitionState(false) }
-    expandedStates.targetState = expanded
-    if (expandedStates.currentState || expandedStates.targetState) {
+    val poppedStates = remember { MutableTransitionState(false) }
+    poppedStates.targetState = popped
+    if (poppedStates.currentState || poppedStates.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
         val popupPositionProvider = AnchorPopupPositionProvider(
@@ -48,7 +48,7 @@ fun AnchorPopup(
             properties = properties
         ) {
             AnchorPopupContent(
-                expandedStates = expandedStates,
+                poppedStates = poppedStates,
                 transformOriginState = transformOriginState,
                 content = content
             )
@@ -58,23 +58,23 @@ fun AnchorPopup(
 
 @Composable
 private fun AnchorPopupContent(
-    expandedStates: MutableTransitionState<Boolean>,
+    poppedStates: MutableTransitionState<Boolean>,
     transformOriginState: MutableState<TransformOrigin>,
     content: @Composable BoxScope.() -> Unit,
 ) {
     // Popup open/close animation.
-    val transition = updateTransition(expandedStates, "DropDownPopup")
+    val transition = updateTransition(poppedStates, "DropDownPopup")
 
     val scale by transition.animateFloat(
         transitionSpec = {
             if (false isTransitioningTo true) {
-                // Dismissed to expanded
+                // Dismissed to popped
                 tween(
                     durationMillis = InTransitionDuration,
                     easing = LinearOutSlowInEasing
                 )
             } else {
-                // Expanded to dismissed.
+                // Popped to dismissed.
                 tween(
                     durationMillis = 1,
                     delayMillis = OutTransitionDuration - 1
@@ -83,7 +83,7 @@ private fun AnchorPopupContent(
         }, label = "ScaleAnimation"
     ) {
         if (it) {
-            // Popup is expanded.
+            // Popup is popped.
             1f
         } else {
             // Popup is dismissed.
@@ -94,16 +94,16 @@ private fun AnchorPopupContent(
     val alpha by transition.animateFloat(
         transitionSpec = {
             if (false isTransitioningTo true) {
-                // Dismissed to expanded
+                // Dismissed to popped
                 tween(durationMillis = 30)
             } else {
-                // Expanded to dismissed.
+                // Popped to dismissed.
                 tween(durationMillis = OutTransitionDuration)
             }
         }, label = "AlphaAnimation"
     ) {
         if (it) {
-            // Popup is expanded.
+            // Popup is popped.
             1f
         } else {
             // Popup is dismissed.

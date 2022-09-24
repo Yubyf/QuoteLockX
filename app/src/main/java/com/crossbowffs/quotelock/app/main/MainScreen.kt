@@ -152,7 +152,7 @@ fun MainScreen(
                 ) detailViewModel::shareQuote else null
             )
             CardStylePopup(
-                expanded = cardStyleUiState.show,
+                popped = cardStyleUiState.show,
                 fonts = cardStyleUiState.fonts,
                 cardStyle = cardStyleUiState.cardStyle,
                 onFontSelected = cardStyleViewModel::selectFontFamily,

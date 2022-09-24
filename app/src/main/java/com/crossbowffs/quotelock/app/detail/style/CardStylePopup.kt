@@ -37,7 +37,7 @@ import com.yubyf.quotelockx.R
 
 @Composable
 fun CardStylePopup(
-    expanded: Boolean,
+    popped: Boolean,
     fonts: List<FontInfo>,
     cardStyle: CardStyle,
     onFontSelected: (String) -> Unit,
@@ -50,7 +50,7 @@ fun CardStylePopup(
     onDismiss: () -> Unit,
 ) {
     AnchorPopup(
-        expanded = expanded,
+        popped = popped,
         onDismissRequest = onDismiss,
         anchor = DpOffset(0.dp, 0.dp),
         alignment = Alignment.BottomCenter,
