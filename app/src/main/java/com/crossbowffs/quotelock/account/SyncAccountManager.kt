@@ -5,7 +5,9 @@ import android.accounts.AccountManager
 import android.content.ContentResolver
 import android.os.Build
 import android.os.Bundle
-import com.crossbowffs.quotelock.account.syncadapter.SyncAdapter
+import com.crossbowffs.quotelock.account.syncadapter.getServerSyncMarker
+import com.crossbowffs.quotelock.account.syncadapter.getSyncTimestamp
+import com.crossbowffs.quotelock.account.syncadapter.setServerSyncMarker
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.di.IoDispatcher
@@ -43,11 +45,12 @@ class SyncAccountManager @Inject constructor(
         }
     }
 
-    fun addOrUpdateAccount(name: String) {
+    fun addOrUpdateAccount(name: String, clearUserDataIfExist: Boolean = false) {
         var account = currentSyncAccount
         if (account != null) {
             if (name == account.name) {
                 Xlog.d(TAG, "The current signed-in account is already added.")
+                if (clearUserDataIfExist) clearAccountUserData(account)
             } else {
                 accountManager.renameAccount(account, name, null, null)
                 Xlog.d(TAG, "Updated account with name $name")
@@ -77,10 +80,23 @@ class SyncAccountManager @Inject constructor(
         }
     }
 
+    fun needFirstSync(): Boolean {
+        return currentSyncAccount?.let {
+            accountManager.getServerSyncMarker(it).isNullOrEmpty()
+                    || accountManager.getSyncTimestamp(it) < 0
+        } ?: false
+    }
+
+    suspend fun performFirstSync(merge: Boolean = false) {
+        currentSyncAccount?.let {
+            val result = collectionRepository.gDriveRestoreSync(merge)
+            accountManager.setServerSyncMarker(it, result.md5, result.timestamp)
+        }
+    }
+
     private fun clearAccountUserData(account: Account) {
         Xlog.d(TAG, "Clear user data of " + account.name + ".")
-        accountManager.setUserData(account, SyncAdapter.SYNC_MARKER_KEY, null)
-        accountManager.setUserData(account, SyncAdapter.SYNC_TIMESTAMP_KEY, "-1")
+        accountManager.setServerSyncMarker(account, null, -1)
     }
 
     private fun enableAccountSync(account: Account) {
@@ -93,7 +109,7 @@ class SyncAccountManager @Inject constructor(
         ContentResolver.setSyncAutomatically(account, QuoteCollectionContract.AUTHORITY, true)
     }
 
-    val currentSyncAccount: Account?
+    private val currentSyncAccount: Account?
         get() = accountManager.getAccountsByType(ACCOUNT_TYPE)
             .run { if (isNotEmpty()) this[0] else null }
 

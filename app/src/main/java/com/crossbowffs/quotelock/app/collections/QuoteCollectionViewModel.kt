@@ -57,6 +57,7 @@ data class QuoteCollectionMenuUiState(
  */
 data class QuoteCollectionListUiState(
     val items: List<QuoteCollectionEntity> = emptyList(),
+    val gDriveFirstSyncConflict: Boolean = false,
 )
 
 /**
@@ -94,9 +95,7 @@ class QuoteCollectionViewModel @Inject constructor(
                 initialValue = emptyList()
             ).onEach {
                 _uiListState.value = _uiListState.value.copy(items = it)
-                _uiMenuState.value = _uiMenuState.value.copy(
-                    exportEnabled = it.isNotEmpty()
-                )
+                _uiMenuState.value = _uiMenuState.value.copy(exportEnabled = it.isNotEmpty())
             }.launchIn(this)
             if (googleAccountManager.checkGooglePlayService()) {
                 collectionRepository.getGDriveFileTimestamp().onEach {
@@ -105,7 +104,17 @@ class QuoteCollectionViewModel @Inject constructor(
                     )
                 }.launchIn(this)
                 if (googleAccountManager.isGoogleAccountSignedIn()) {
-                    collectionRepository.queryDriveFileTimestamp()
+                    val syncTime = collectionRepository.queryDriveFileTimestamp()
+                    if (syncTime > 0) {
+                        if (syncAccountManager.needFirstSync()) {
+                            if (collectionRepository.count() > 0) {
+                                _uiListState.value =
+                                    _uiListState.value.copy(gDriveFirstSyncConflict = true)
+                            } else {
+                                syncAccountManager.performFirstSync(false)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -154,7 +163,7 @@ class QuoteCollectionViewModel @Inject constructor(
         }
     }
 
-    fun import(@LocalBackupType type: Int, uri: Uri) {
+    fun import(@LocalBackupType type: Int, uri: Uri, merge: Boolean = false) {
         viewModelScope.launch {
             _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
                 message = resourceProvider.getString(
@@ -163,8 +172,8 @@ class QuoteCollectionViewModel @Inject constructor(
                 )
             )
             val result =
-                if (type == LocalBackupType.CSV) collectionRepository.importCsv(uri)
-                else collectionRepository.importDatabase(uri)
+                if (type == LocalBackupType.CSV) collectionRepository.importCsv(uri, merge)
+                else collectionRepository.importDatabase(uri, merge)
             _uiDialogState.value = QuoteCollectionDialogUiState.None
             when (result) {
                 is AsyncResult.Success -> {
@@ -189,18 +198,29 @@ class QuoteCollectionViewModel @Inject constructor(
         _uiMenuState.value = _uiMenuState.value.copy(googleAccount = account)
         if (account != null) {
             collectionRepository.updateDriveService()
-            collectionRepository.queryDriveFileTimestamp()
+            val syncTime = collectionRepository.queryDriveFileTimestamp()
             _uiEvent.emit(SnackBarEvent(
                 message = resourceProvider.getString(R.string.google_account_connected))
             )
             if (account.email.isNotEmpty()) {
-                syncAccountManager.addOrUpdateAccount(account.email)
+                syncAccountManager.addOrUpdateAccount(account.email, true)
+                if (syncTime > 0) {
+                    if (uiListState.value.items.isNotEmpty()) {
+                        _uiListState.value = _uiListState.value.copy(gDriveFirstSyncConflict = true)
+                    } else {
+                        syncAccountManager.performFirstSync(false)
+                    }
+                }
             }
         } else {
             _uiEvent.emit(SnackBarEvent(
                 message = resourceProvider.getString(R.string.google_account_sign_in_failed))
             )
         }
+    }
+
+    fun gDriveFirstSync(merge: Boolean = false) = viewModelScope.launch {
+        syncAccountManager.performFirstSync(merge)
     }
 
     fun signOut() = viewModelScope.launch {
@@ -246,13 +266,13 @@ class QuoteCollectionViewModel @Inject constructor(
         }
     }
 
-    fun gDriveRestore() {
+    fun gDriveRestore(merge: Boolean = false) {
         ensureDriveService()
         viewModelScope.launch {
             _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
                 message = resourceProvider.getString(R.string.start_google_drive_restore)
             )
-            collectionRepository.gDriveRestore().collect {
+            collectionRepository.gDriveRestore(merge).collect {
                 when (it) {
                     is AsyncResult.Success -> {
                         _uiDialogState.value = QuoteCollectionDialogUiState.None

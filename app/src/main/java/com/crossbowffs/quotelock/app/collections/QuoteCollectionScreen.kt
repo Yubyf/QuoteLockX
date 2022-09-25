@@ -8,7 +8,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,11 +19,14 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -67,16 +69,22 @@ fun QuoteCollectionRoute(
                 viewModel.onPermissionDenied()
             }
         }
-    var pickedDbFileUri by remember { mutableStateOf<Uri?>(null) }
-    val pickedDbFileLauncher =
+    val pickedDbFileWithMergeActionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            pickedDbFileUri = uri
+            uri?.let { viewModel.import(LocalBackupType.DB, it, true) }
         }
-    var pickedCsvFileUri by remember { mutableStateOf<Uri?>(null) }
-    val pickedCsvFileLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.OpenDocument()
-        ) { uri -> pickedCsvFileUri = uri }
+    val pickedDbFileWithoutMergeActionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri?.let { viewModel.import(LocalBackupType.DB, it, false) }
+        }
+    val pickedCsvFileWithMergeActionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri?.let { viewModel.import(LocalBackupType.CSV, it, true) }
+        }
+    val pickedCsvFileWithoutMergeActionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri?.let { viewModel.import(LocalBackupType.CSV, it, false) }
+        }
     val googleSignInLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             viewModel.handleSignInResult(result.data)
@@ -89,6 +97,7 @@ fun QuoteCollectionRoute(
         uiEvent = uiEvent,
         onItemClick = { onItemClick(it.withCollectState(true)) },
         onBack = onBack,
+        onDeleteMenuClicked = viewModel::delete,
         onExportDatabase = {
             if (ensurePermissions(context,
                     requestPermissionLauncher) { viewModel.onPermissionDenied() }
@@ -103,27 +112,25 @@ fun QuoteCollectionRoute(
                 viewModel.export(LocalBackupType.CSV)
             }
         },
-        onImportDatabase = { pickedDbFileLauncher.launch(arrayOf("*/*")) },
-        onImportCsv = { pickedCsvFileLauncher.launch(arrayOf("*/*")) },
+        onImportDatabase = { merge ->
+            (if (merge) pickedDbFileWithMergeActionLauncher
+            else pickedDbFileWithoutMergeActionLauncher).launch(arrayOf("*/*"))
+        },
+        onImportCsv = { merge ->
+            (if (merge) pickedCsvFileWithMergeActionLauncher
+            else pickedCsvFileWithoutMergeActionLauncher).launch(arrayOf("*/*"))
+        },
         onSignIn = { googleSignInLauncher.launch(viewModel.getGoogleAccountSignInIntent()) },
         onSignOut = viewModel::signOut,
         onGdriveBackup = viewModel::gDriveBackup,
         onGdriveRestore = viewModel::gDriveRestore,
-        onDeleteMenuClicked = viewModel::delete,
+        onGdriveFirstSync = viewModel::gDriveFirstSync,
         snackBarShown = viewModel::snackBarShown
     )
-    pickedDbFileUri?.let { uri ->
-        viewModel.import(LocalBackupType.DB, uri)
-        pickedDbFileUri = null
-    }
-    pickedCsvFileUri?.let { uri ->
-        viewModel.import(LocalBackupType.CSV, uri)
-        pickedCsvFileUri = null
-    }
 }
 
 @Composable
-fun QuoteCollectionScreen(
+private fun QuoteCollectionScreen(
     modifier: Modifier = Modifier,
     listUiState: QuoteCollectionListUiState,
     menuUiState: QuoteCollectionMenuUiState,
@@ -134,16 +141,22 @@ fun QuoteCollectionScreen(
     onDeleteMenuClicked: (Long) -> Unit,
     onExportDatabase: () -> Unit = {},
     onExportCsv: () -> Unit = {},
-    onImportDatabase: () -> Unit = {},
-    onImportCsv: () -> Unit = {},
+    onImportDatabase: (Boolean) -> Unit = {},
+    onImportCsv: (Boolean) -> Unit = {},
     onSignIn: () -> Unit = {},
     onSignOut: () -> Unit = {},
     onGdriveBackup: () -> Unit = {},
-    onGdriveRestore: () -> Unit = {},
+    onGdriveRestore: (Boolean) -> Unit = {},
+    onGdriveFirstSync: (Boolean) -> Unit = {},
     snackBarShown: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var conflictType by remember(listUiState.gDriveFirstSyncConflict) {
+        mutableStateOf(
+            if (listUiState.gDriveFirstSyncConflict) ConflictType.GOOGLE_DRIVE_FIRST_SYNC else null
+        )
+    }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
@@ -155,12 +168,27 @@ fun QuoteCollectionScreen(
                     lastSyncTime = menuUiState.syncTime,
                     onExportDatabase = onExportDatabase,
                     onExportCsv = onExportCsv,
-                    onImportDatabase = onImportDatabase,
-                    onImportCsv = onImportCsv,
+                    onImportDatabase = {
+                        if (listUiState.items.isEmpty()) onImportDatabase(false)
+                        else {
+                            conflictType = ConflictType.LOCAL_DB_IMPORT
+                        }
+                    },
+                    onImportCsv = {
+                        if (listUiState.items.isEmpty()) onImportDatabase(false)
+                        else {
+                            conflictType = ConflictType.LOCAL_CSV_IMPORT
+                        }
+                    },
                     onSignIn = onSignIn,
                     onSignOut = onSignOut,
                     onGdriveBackup = onGdriveBackup,
-                    onGdriveRestore = onGdriveRestore,
+                    onGdriveRestore = {
+                        if (listUiState.items.isEmpty()) onGdriveRestore(false)
+                        else {
+                            conflictType = ConflictType.GOOGLE_DRIVE_RESTORE
+                        }
+                    }
                 )
             }
         }
@@ -190,6 +218,28 @@ fun QuoteCollectionScreen(
             onItemClick = onItemClick,
             onDeleteMenuClicked = onDeleteMenuClicked,
         )
+        CollectionConflictPopup(popped = conflictType != null,
+            conflictType = conflictType,
+            onMerge = { type ->
+                when (type) {
+                    ConflictType.LOCAL_DB_IMPORT -> onImportDatabase(true)
+                    ConflictType.LOCAL_CSV_IMPORT -> onImportCsv(true)
+                    ConflictType.GOOGLE_DRIVE_RESTORE -> onGdriveRestore(true)
+                    ConflictType.GOOGLE_DRIVE_FIRST_SYNC -> onGdriveFirstSync(true)
+                    null -> {}
+                }
+                conflictType = null
+            },
+            onReplace = { type ->
+                when (type) {
+                    ConflictType.LOCAL_DB_IMPORT -> onImportDatabase(false)
+                    ConflictType.LOCAL_CSV_IMPORT -> onImportCsv(false)
+                    ConflictType.GOOGLE_DRIVE_RESTORE -> onGdriveRestore(false)
+                    ConflictType.GOOGLE_DRIVE_FIRST_SYNC -> onGdriveFirstSync(false)
+                    null -> {}
+                }
+                conflictType = null
+            }) { conflictType = null }
     }
 }
 
@@ -464,6 +514,110 @@ private fun CollectionItemList(
             }
         }
     }
+}
+
+@Composable
+private fun CollectionConflictPopup(
+    popped: Boolean,
+    conflictType: ConflictType?,
+    onMerge: (ConflictType?) -> Unit,
+    onReplace: (ConflictType?) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AnchorPopup(
+        popped = popped,
+        onDismissRequest = onDismiss,
+        anchor = null,
+        alignment = Alignment.Center,
+    ) {
+        Surface(
+            modifier = Modifier.padding(horizontal = 32.dp),
+            shape = AlertDialogDefaults.shape,
+            color = AlertDialogDefaults.containerColor,
+            tonalElevation = AlertDialogDefaults.TonalElevation,
+            shadowElevation = AlertDialogDefaults.TonalElevation
+        ) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState())
+            ) {
+                Icon(
+                    Icons.Rounded.Warning,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterHorizontally),
+                    tint = AlertDialogDefaults.iconContentColor
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = stringResource(id = when (conflictType) {
+                    ConflictType.LOCAL_DB_IMPORT, ConflictType.LOCAL_CSV_IMPORT ->
+                        R.string.import_conflict_detected
+                    ConflictType.GOOGLE_DRIVE_RESTORE, ConflictType.GOOGLE_DRIVE_FIRST_SYNC ->
+                        R.string.sync_conflict_detected
+                    null -> R.string.import_conflict_detected
+                }),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    color = AlertDialogDefaults.titleContentColor
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = stringResource(id = R.string.data_conflict_solution_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AlertDialogDefaults.textContentColor,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(156.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    OutlinedButton(
+                        onClick = { onMerge(conflictType) },
+                        modifier = Modifier
+                            .weight(1F)
+                            .fillMaxHeight(),
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Rounded.Merge,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(text = stringResource(id = R.string.merge).uppercase())
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(24.dp))
+                    OutlinedButton(
+                        onClick = { onReplace(conflictType) },
+                        modifier = Modifier
+                            .weight(1F)
+                            .fillMaxHeight(),
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Rounded.Loop, contentDescription = null,
+                                modifier = Modifier.size(48.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(text = stringResource(id = R.string.replace).uppercase())
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+private enum class ConflictType {
+    LOCAL_DB_IMPORT,
+    LOCAL_CSV_IMPORT,
+    GOOGLE_DRIVE_RESTORE,
+    GOOGLE_DRIVE_FIRST_SYNC,
 }
 
 private fun ensurePermissions(

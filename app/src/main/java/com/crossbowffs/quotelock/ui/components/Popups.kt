@@ -25,7 +25,7 @@ import kotlin.math.min
 fun AnchorPopup(
     popped: Boolean,
     onDismissRequest: () -> Unit,
-    anchor: DpOffset = DpOffset(0.dp, 0.dp),
+    anchor: DpOffset? = DpOffset(0.dp, 0.dp),
     alignment: Alignment = Alignment.TopStart,
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable BoxScope.() -> Unit,
@@ -119,7 +119,7 @@ private fun AnchorPopupContent(
 }
 
 private data class AnchorPopupPositionProvider(
-    val anchorPosition: DpOffset,
+    val anchorPosition: DpOffset?,
     val alignment: Alignment,
     val density: Density,
     val onPositionCalculated: (IntRect, IntRect) -> Unit = { _, _ -> },
@@ -131,15 +131,42 @@ private data class AnchorPopupPositionProvider(
         popupContentSize: IntSize,
     ): IntOffset {
         // The anchor position offset specified using the anchor position offset parameter.
-        val contentOffsetX = with(density) { anchorPosition.x.roundToPx() } + when (alignment) {
-            Alignment.TopStart, Alignment.CenterStart, Alignment.BottomStart -> -popupContentSize.width
-            Alignment.TopEnd, Alignment.CenterEnd, Alignment.BottomEnd -> 0
-            else -> -popupContentSize.width / 2
-        }
-        val contentOffsetY = with(density) { anchorPosition.y.roundToPx() } + when (alignment) {
-            Alignment.TopStart, Alignment.TopCenter, Alignment.TopEnd -> -popupContentSize.height
-            Alignment.BottomStart, Alignment.BottomCenter, Alignment.BottomEnd -> 0
-            else -> -popupContentSize.height / 2
+        val contentOffsetX: Int
+        val contentOffsetY: Int
+        if (anchorPosition != null) {
+            contentOffsetX = with(density) { anchorPosition.x.roundToPx() } + when (alignment) {
+                Alignment.TopStart, Alignment.CenterStart, Alignment.BottomStart -> -popupContentSize.width
+                Alignment.TopEnd, Alignment.CenterEnd, Alignment.BottomEnd -> 0
+                else -> -popupContentSize.width / 2
+            }
+            contentOffsetY = with(density) { anchorPosition.y.roundToPx() } + when (alignment) {
+                Alignment.TopStart, Alignment.TopCenter, Alignment.TopEnd -> -popupContentSize.height
+                Alignment.BottomStart, Alignment.BottomCenter, Alignment.BottomEnd -> 0
+                else -> -popupContentSize.height / 2
+            }
+        } else {
+            // If no anchor position offset is specified, then the popup is positioned with the alignment in the parent.
+            var popupPosition = IntOffset(0, 0)
+
+            // Get the aligned point inside the parent
+            val parentAlignmentPoint = alignment.align(
+                IntSize.Zero,
+                IntSize(anchorBounds.width, anchorBounds.height),
+                layoutDirection
+            )
+            // Get the aligned point inside the child
+            val relativePopupPos = alignment.align(
+                IntSize.Zero,
+                IntSize(popupContentSize.width, popupContentSize.height),
+                layoutDirection
+            )
+            // Add the distance between the parent's top left corner and the alignment point
+            popupPosition += parentAlignmentPoint
+
+            // Subtract the distance between the children's top left corner and the alignment point
+            popupPosition -= IntOffset(relativePopupPos.x, relativePopupPos.y)
+            contentOffsetX = popupPosition.x
+            contentOffsetY = popupPosition.y
         }
 
         // Compute horizontal position.

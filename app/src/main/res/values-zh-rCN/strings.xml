@@ -142,6 +142,12 @@
     <string name="google_drive_create_failed">无法在谷歌云端硬盘上创建文件</string>
     <string name="google_drive_importing_file">正在通过谷歌云端硬盘导入已有备份文件…</string>
     <string name="google_drive_read_failed">无法读取谷歌云端硬盘的文件</string>
+    <string name="import_conflict_detected">数据导入冲突</string>
+    <string name="sync_conflict_detected">数据同步冲突</string>
+    <string name="data_conflict_solution_hint">请选择解决方案：</string>
+    <string name="merge">合并</string>
+    <string name="replace">替换</string>
+
     <string name="pref_font_family_custom">自定义</string>
     <string name="quote_fonts_management_screen_label">自定义字体</string>
     <string name="quote_fonts_management_import">导入</string>

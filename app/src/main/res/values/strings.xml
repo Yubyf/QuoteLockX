@@ -188,6 +188,11 @@
     <string name="google_drive_create_failed">Couldn\'t create file on Google Drive</string>
     <string name="google_drive_importing_file">Importing the existing backup file via Google Drive…</string>
     <string name="google_drive_read_failed">Unable to read file via Google Drive</string>
+    <string name="import_conflict_detected">Data import conflict</string>
+    <string name="sync_conflict_detected">Data sync conflict</string>
+    <string name="data_conflict_solution_hint">Please select a solution:</string>
+    <string name="merge">Merge</string>
+    <string name="replace">Replace</string>
 
     <string name="quote_image_share">Share</string>
     <string name="quote_image_share_description">Share Quote</string>

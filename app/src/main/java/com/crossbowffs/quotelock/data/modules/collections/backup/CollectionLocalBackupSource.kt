@@ -78,13 +78,17 @@ class CollectionLocalBackupSource internal constructor(
     }.getOrDefault(AsyncResult.Error(Exception(context.getString(R.string.unable_to_export_csv))))
 
     /** Ask the user which file to import from. */
+    @SuppressLint("Recycle")
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun importDb(databaseName: String, fileUri: Uri): AsyncResult<Unit> = runCatching {
+    suspend fun importDb(
+        databaseName: String, fileUri: Uri,
+        merge: Boolean = false,
+    ): AsyncResult<Unit> = runCatching {
         val temporaryDatabaseFile = File(_cacheDir, databaseName)
         context.contentResolver.openInputStream(fileUri)
             ?.toFile(temporaryDatabaseFile)
             ?: throw Exception()
-        if (importCollectionDatabaseFrom(context, temporaryDatabaseFile)) {
+        if (importCollectionDatabaseFrom(temporaryDatabaseFile, merge)) {
             AsyncResult.Success(Unit)
         } else {
             throw Exception("Open database failed")
@@ -96,14 +100,19 @@ class CollectionLocalBackupSource internal constructor(
 
     /** Ask the user which file to import from. */
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun importCsv(fileUri: Uri): AsyncResult<Unit> = runCatching {
+    suspend fun importCsv(
+        fileUri: Uri,
+        merge: Boolean = false,
+    ): AsyncResult<Unit> = runCatching {
         val collections =
-            context.contentResolver.openInputStream(fileUri)?.let {
+            context.contentResolver.openInputStream(fileUri)?.use {
                 CsvToBeanBuilder<QuoteCollectionEntity>(InputStreamReader(it))
                     .withType(QuoteCollectionEntity::class.java).build().parse()
             } ?: throw Exception()
         if (collections.isNotEmpty()) {
-            collectionDao.clear()
+            if (!merge) {
+                collectionDao.clear()
+            }
             collectionDao.insert(collections)
             AsyncResult.Success(Unit)
         } else {
@@ -117,15 +126,20 @@ class CollectionLocalBackupSource internal constructor(
      * Import collection database from .db file by replacing data contents.
      */
     @Throws(NoSuchElementException::class)
-    suspend fun importCollectionDatabaseFrom(context: Context, file: File): Boolean {
+    suspend fun importCollectionDatabaseFrom(
+        file: File,
+        merge: Boolean,
+    ): Boolean {
         return withContext(Dispatchers.IO) {
             val temporaryCollectionDatabase =
                 QuoteCollectionDatabase.openTemporaryDatabaseFrom(context,
                     "${QuoteCollectionContract.DATABASE_NAME}_${System.currentTimeMillis()}", file)
             val collections = temporaryCollectionDatabase.dao().getAll()
             if (collections.isNotEmpty()) {
-                collectionDao.clear()
-                collectionDao.insert(collections)
+                if (!merge) {
+                    collectionDao.clear()
+                }
+                collectionDao.insert(collections.map { it.copy(id = null) })
             }
             temporaryCollectionDatabase.close()
             collections.isNotEmpty()

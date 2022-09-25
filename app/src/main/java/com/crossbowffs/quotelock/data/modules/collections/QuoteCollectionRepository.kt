@@ -49,7 +49,7 @@ class QuoteCollectionRepository internal constructor(
         collectionDao.insert(quotes)
     }
 
-    fun count(): Flow<Int> = collectionDao.countStream()
+    suspend fun count(): Int = collectionDao.count()
 
     suspend fun delete(id: Long): Int = withContext(dispatcher) {
         collectionDao.delete(id)
@@ -69,16 +69,16 @@ class QuoteCollectionRepository internal constructor(
         localBackupSource.exportDb(QuoteCollectionContract.DATABASE_NAME)
     }
 
-    suspend fun importDatabase(fileUri: Uri) = withContext(dispatcher) {
-        localBackupSource.importDb(QuoteCollectionContract.DATABASE_NAME, fileUri)
+    suspend fun importDatabase(fileUri: Uri, merge: Boolean = false) = withContext(dispatcher) {
+        localBackupSource.importDb(QuoteCollectionContract.DATABASE_NAME, fileUri, merge)
     }
 
     suspend fun exportCsv() = withContext(dispatcher) {
         localBackupSource.exportCsv(QuoteCollectionContract.DATABASE_NAME)
     }
 
-    suspend fun importCsv(fileUri: Uri) = withContext(dispatcher) {
-        localBackupSource.importCsv(fileUri)
+    suspend fun importCsv(fileUri: Uri, merge: Boolean = false) = withContext(dispatcher) {
+        localBackupSource.importCsv(fileUri, merge)
     }
     //endregion
 
@@ -95,13 +95,13 @@ class QuoteCollectionRepository internal constructor(
     suspend fun gDriveBackup() =
         remoteSyncSource.performDriveBackup(QuoteCollectionContract.DATABASE_NAME)
 
-    suspend fun gDriveRestore() =
-        remoteSyncSource.performDriveRestore(QuoteCollectionContract.DATABASE_NAME)
+    suspend fun gDriveRestore(merge: Boolean = false) =
+        remoteSyncSource.performDriveRestore(QuoteCollectionContract.DATABASE_NAME, merge)
 
-    fun gDriveBackupSync() =
+    suspend fun gDriveBackupSync() =
         remoteSyncSource.performSafeDriveBackupSync(QuoteCollectionContract.DATABASE_NAME)
 
-    fun gDriveRestoreSync() =
-        remoteSyncSource.performSafeDriveRestoreSync(QuoteCollectionContract.DATABASE_NAME)
+    suspend fun gDriveRestoreSync(merge: Boolean = false) =
+        remoteSyncSource.performSafeDriveRestoreSync(QuoteCollectionContract.DATABASE_NAME, merge)
     //endregion
 }

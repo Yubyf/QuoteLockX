@@ -146,6 +146,7 @@ class CollectionRemoteSyncSource @Inject internal constructor(
     private suspend fun Drive.importDbFileSync(
         fileId: String?,
         databaseName: String,
+        merge: Boolean = false,
     ): Result {
         return try {
             val temporaryDatabaseFile = File(context.cacheDir, databaseName)
@@ -156,7 +157,7 @@ class CollectionRemoteSyncSource @Inject internal constructor(
                     DigestInputStream(this, digest).use { it.toFile(temporaryDatabaseFile) }
                 } ?: throw IOException()
             }
-            if (!localBackupSource.importCollectionDatabaseFrom(context, temporaryDatabaseFile)) {
+            if (!localBackupSource.importCollectionDatabaseFrom(temporaryDatabaseFile, merge)) {
                 throw Exception("Open database failed")
             }
             readFileResult.first
@@ -197,9 +198,9 @@ class CollectionRemoteSyncSource @Inject internal constructor(
         }
     }
 
-    suspend fun queryDriveFileTimestamp(databaseName: String) {
+    suspend fun queryDriveFileTimestamp(databaseName: String): Long {
         if (!ensureDriveService()) {
-            return
+            return 0
         }
         cloudFileTimestampFlow.value = withContext(dispatcher) {
             drive.queryFilesSync()?.files?.find {
@@ -208,6 +209,7 @@ class CollectionRemoteSyncSource @Inject internal constructor(
                 drive.files()[it.id].setFields(NEEDED_FILE_FIELDS).execute()
             }
         }?.modifiedTime?.value ?: 0
+        return cloudFileTimestampFlow.value
     }
 
     suspend fun performDriveBackup(
@@ -250,12 +252,12 @@ class CollectionRemoteSyncSource @Inject internal constructor(
         }
     }
 
-    fun performSafeDriveBackupSync(databaseName: String): Result {
+    suspend fun performSafeDriveBackupSync(databaseName: String): Result = withContext(dispatcher) {
         val result = Result()
-        return if (!ensureDriveService()) {
+        return@withContext if (!ensureDriveService()) {
             result
         } else try {
-            val fileList = drive.queryFilesSync() ?: return result
+            val fileList = drive.queryFilesSync() ?: return@withContext result
             var fileId: String? = null
             for (file in fileList.files) {
                 if (file.name == databaseName) {
@@ -266,7 +268,7 @@ class CollectionRemoteSyncSource @Inject internal constructor(
             if (fileId == null) {
                 fileId = drive.createFileSync(databaseName)
             }
-            return drive.saveFileSync(fileId, databaseName)
+            return@withContext drive.saveFileSync(fileId, databaseName)
         } catch (e: Exception) {
             Xlog.e(TAG, "Unable to backup files.", e)
             result
@@ -275,6 +277,7 @@ class CollectionRemoteSyncSource @Inject internal constructor(
 
     suspend fun performDriveRestore(
         databaseName: String,
+        merge: Boolean = false,
     ): Flow<AsyncResult<String>> = flow {
         drive.run {
             emit(AsyncResult.Loading(
@@ -289,7 +292,7 @@ class CollectionRemoteSyncSource @Inject internal constructor(
             databaseFile?.run {
                 emit(AsyncResult.Loading(
                     resourceProvider.getString(R.string.google_drive_importing_file)))
-                if (withContext(dispatcher) { importDbFileSync(id, databaseName) }.success) {
+                if (withContext(dispatcher) { importDbFileSync(id, databaseName, merge) }.success) {
                     emit(AsyncResult.Success(""))
                 } else {
                     emit(AsyncResult.Error(
@@ -303,23 +306,26 @@ class CollectionRemoteSyncSource @Inject internal constructor(
         }
     }
 
-    fun performSafeDriveRestoreSync(databaseName: String): Result {
-        val result = Result()
-        if (!ensureDriveService()) {
-            return result
+    suspend fun performSafeDriveRestoreSync(databaseName: String, merge: Boolean = false): Result =
+        withContext(dispatcher) {
+            val result = Result()
+            if (!ensureDriveService()) return@withContext result
+            try {
+                val fileList = drive.queryFilesSync() ?: return@withContext result
+                fileList.files.find { it.name == databaseName }?.let {
+                    return@withContext runBlocking {
+                        drive.importDbFileSync(it.id,
+                            databaseName,
+                            merge)
+                    }
+                } ?: run { cloudFileTimestampFlow.value = 0 }
+            } catch (e: IOException) {
+                Xlog.e(TAG, "Unable to restore files.", e)
+            } catch (e: NoSuchAlgorithmException) {
+                Xlog.e(TAG, "Unable to restore files.", e)
+            }
+            return@withContext result
         }
-        try {
-            val fileList = drive.queryFilesSync() ?: return result
-            fileList.files.find { it.name == databaseName }?.let {
-                return runBlocking { drive.importDbFileSync(it.id, databaseName) }
-            } ?: run { cloudFileTimestampFlow.value = 0 }
-        } catch (e: IOException) {
-            Xlog.e(TAG, "Unable to restore files.", e)
-        } catch (e: NoSuchAlgorithmException) {
-            Xlog.e(TAG, "Unable to restore files.", e)
-        }
-        return result
-    }
 
     /**
      * @author Yubyf

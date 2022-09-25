@@ -19,6 +19,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 
 /**
  * @author Yubyf
@@ -43,22 +44,29 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
             mContext.applicationContext, SyncAdapterEntryPoint::class.java).collectionRepository()
         val action = checkBackupOrRestore(account)
         val result = when {
+            action == null -> {
+                Xlog.d(TAG, "No backup or restore action found. Retry 5 minutes later.")
+                syncResult.delayUntil = (System.currentTimeMillis() / 1000) + 5 * 60
+                return
+            }
             action == 0 -> {
+                Xlog.d(TAG, "Database not changed, no need to sync")
                 return
             }
             action < 0 -> {
                 Xlog.d(TAG, "Performing remote restore...")
-                repository.gDriveRestoreSync()
+                runBlocking { repository.gDriveRestoreSync() }
             }
             else -> {
                 Xlog.d(TAG, "Performing remote backup...")
-                repository.gDriveBackupSync()
+                runBlocking { repository.gDriveBackupSync() }
             }
         }
         if (result.success) {
             Xlog.d(TAG, "Account sync success")
             syncResult.stats.numInserts++
-            setServerSyncMarker(account, result.md5, result.timestamp)
+            syncResult.fullSyncRequested
+            mAccountManager.setServerSyncMarker(account, result.md5, result.timestamp)
         } else {
             Xlog.d(TAG, "Account sync failed")
             syncResult.stats.numIoExceptions++
@@ -72,48 +80,22 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
      * a value less than `0` if should be restore; and
      * a value greater than `0` if should be backup
      */
-    private fun checkBackupOrRestore(account: Account): Int {
-        val serverMarker = getServerSyncMarker(account)
-        val syncTimestamp = getSyncTimestamp(account)
+    private fun checkBackupOrRestore(account: Account): Int? {
+        val serverMarker = mAccountManager.getServerSyncMarker(account)
+        val syncTimestamp = mAccountManager.getSyncTimestamp(account)
         val databaseInfo = mContext.getDatabaseInfo(QuoteCollectionContract.DATABASE_NAME)
         return if (serverMarker.isNullOrEmpty() || syncTimestamp < 0 || databaseInfo.first.isNullOrEmpty()
         ) {
             Xlog.d(TAG,
                 "First sync or local database is not created, need to perform remote restore")
-            -1
+            null
         } else {
-            if (databaseInfo.first == serverMarker) {
-                Xlog.d(TAG, "Database not changed, no need to sync")
-                0
-            } else if (databaseInfo.second != null && databaseInfo.second!! > syncTimestamp) {
-                1
-            } else {
-                -1
+            when {
+                databaseInfo.first == serverMarker -> 0
+                databaseInfo.second != null && databaseInfo.second!! > syncTimestamp -> 1
+                else -> -1
             }
         }
-    }
-
-    /**
-     * This helper function fetches the last known marker
-     * we received from the server - or null if we've never synced.
-     */
-    private fun getServerSyncMarker(account: Account): String? {
-        return mAccountManager.getUserData(account, SYNC_MARKER_KEY)
-    }
-
-    private fun getSyncTimestamp(account: Account): Long {
-        val timestampString = mAccountManager.getUserData(account, SYNC_TIMESTAMP_KEY)
-        return if (!TextUtils.isEmpty(timestampString)) {
-            timestampString.toLong()
-        } else -1
-    }
-
-    /**
-     * Save off the last sync marker and timestamp from the server.
-     */
-    private fun setServerSyncMarker(account: Account, marker: String?, timestamp: Long) {
-        mAccountManager.setUserData(account, SYNC_MARKER_KEY, marker)
-        mAccountManager.setUserData(account, SYNC_TIMESTAMP_KEY, timestamp.toString())
     }
 
     companion object {
@@ -127,4 +109,27 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
     interface SyncAdapterEntryPoint {
         fun collectionRepository(): QuoteCollectionRepository
     }
+}
+
+/**
+ * This helper function fetches the last known marker
+ * we received from the server - or null if we've never synced.
+ */
+fun AccountManager.getServerSyncMarker(account: Account): String? {
+    return getUserData(account, SyncAdapter.SYNC_MARKER_KEY)
+}
+
+fun AccountManager.getSyncTimestamp(account: Account): Long {
+    val timestampString = getUserData(account, SyncAdapter.SYNC_TIMESTAMP_KEY)
+    return if (!TextUtils.isEmpty(timestampString)) {
+        timestampString.toLong()
+    } else -1
+}
+
+/**
+ * Save off the last sync marker and timestamp from the server.
+ */
+fun AccountManager.setServerSyncMarker(account: Account, marker: String?, timestamp: Long) {
+    setUserData(account, SyncAdapter.SYNC_MARKER_KEY, marker)
+    setUserData(account, SyncAdapter.SYNC_TIMESTAMP_KEY, timestamp.toString())
 }

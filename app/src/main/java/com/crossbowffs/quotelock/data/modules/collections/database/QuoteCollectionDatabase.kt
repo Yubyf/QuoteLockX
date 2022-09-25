@@ -50,6 +50,7 @@ data class QuoteCollectionEntity @JvmOverloads constructor(
     override var author: String = "",
 ) : QuoteEntity {
     // Empty constructor for OpenCSV
+    @Suppress("unused")
     constructor() : this(
         id = null,
         text = "",
@@ -84,6 +85,9 @@ interface QuoteCollectionDao {
 
     @Query("SELECT COUNT(*) FROM ${QuoteCollectionContract.TABLE}")
     fun countStream(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM ${QuoteCollectionContract.TABLE}")
+    suspend fun count(): Int
 
     @Query("DELETE FROM ${QuoteCollectionContract.TABLE} WHERE ${QuoteCollectionContract.ID} = :id")
     suspend fun delete(id: Long): Int
