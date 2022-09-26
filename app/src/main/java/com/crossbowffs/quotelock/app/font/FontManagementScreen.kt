@@ -119,6 +119,7 @@ fun FontManagementScreen(
                         Icon(Icons.Rounded.Add,
                             contentDescription = stringResource(id = R.string.quote_fonts_management_import))
                     },
+                    shape = FloatingActionButtonDefaults.largeShape,
                     onClick = if (pagerState.currentPage == 0) onInAppImportButtonClick
                     else onSystemImportButtonClick
                 )

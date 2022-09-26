@@ -122,6 +122,7 @@ fun QuoteDetailScreen(
                     Icon(Icons.Rounded.Share,
                         contentDescription = stringResource(id = R.string.quote_image_share_description))
                 },
+                shape = FloatingActionButtonDefaults.largeShape,
                 onClick = {
                     snapshotStates.bounds?.let {
                         onShareCard(it) { canvas ->

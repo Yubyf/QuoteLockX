@@ -109,6 +109,7 @@ fun MainScreen(
                         contentDescription = stringResource(id = R.string.refresh_quote),
                         modifier = Modifier.rotate(rotation))
                 },
+                shape = FloatingActionButtonDefaults.largeShape,
                 onClick = {
                     if (!mainUiState.refreshing) {
                         mainViewModel.refreshQuote()
