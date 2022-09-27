@@ -61,7 +61,7 @@ private val PREF_QUOTE = QuoteDataWithCollectState(
     "Francis Bacon",
     false
 )
-private val PREF_CARD_STYLE = CardStyle(quoteSize = 24, sourceSize = 14)
+private val PREF_CARD_STYLE = CardStyle(quoteSize = 23, sourceSize = 14)
 
 @TestOnly
 @Composable
@@ -317,11 +317,11 @@ fun DynamicDarkScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
                     fontWeight = FontWeight.ExtraBold)
             }
             Box(modifier = Modifier
-                .width(411.dp)
+                .width(SCREENSHOT_WIDTH)
                 .weight(1F)) {
                 QuoteLockTheme(useDarkTheme = true) {
                     Surface(modifier = Modifier
-                        .width(411.dp)
+                        .width(SCREENSHOT_WIDTH)
                         .padding(24.dp)
                         .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
                         MainScreen(
@@ -332,11 +332,11 @@ fun DynamicDarkScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
                         )
                     }
                 }
-                Surface(modifier = Modifier.offset(x = (205.5).dp)) {
+                Surface(modifier = Modifier.offset(x = SCREENSHOT_WIDTH / 2)) {
                     QuoteLockTheme(useDarkTheme = false) {
                         Surface(modifier = Modifier
-                            .width(411.dp)
-                            .offset(x = (-205.5).dp)
+                            .width(SCREENSHOT_WIDTH)
+                            .offset(x = -SCREENSHOT_WIDTH / 2)
                             .padding(24.dp)
                             .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
                             MainScreen(

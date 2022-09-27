@@ -190,7 +190,7 @@ class ScreenshotTest {
                 BitmapFactory.decodeFile(File(cachePath,
                     name).also { assert(it.exists()) }.absolutePath)
             }
-            val screenshotSpacing = bitmaps.maxOf { it.width } / 4
+            val screenshotSpacing = bitmaps.maxOf { it.width } / 5
             val imageWidth = bitmaps.sumOf { it.width } + screenshotSpacing * (bitmaps.size - 1)
             val imageHeight = bitmaps.maxOf { it.height }
             val image = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888)
