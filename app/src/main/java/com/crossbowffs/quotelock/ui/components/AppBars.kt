@@ -243,13 +243,15 @@ fun ConfigsAppBar(
 
 @Composable
 fun FontManagementAppBar(
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
 ) {
     CenterAlignedTopAppBar(
         title = { Text(text = stringResource(id = R.string.quote_fonts_management_screen_label)) },
         navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(Icons.Rounded.Close, contentDescription = "Close")
+            onBack?.let {
+                IconButton(onClick = it) {
+                    Icon(Icons.Rounded.Close, contentDescription = "Close")
+                }
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

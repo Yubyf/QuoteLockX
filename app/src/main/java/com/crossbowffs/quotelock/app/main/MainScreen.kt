@@ -5,6 +5,7 @@ package com.crossbowffs.quotelock.app.main
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Canvas
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
@@ -17,17 +18,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.detail.QuoteDetailPage
+import com.crossbowffs.quotelock.app.detail.QuoteDetailUiState
 import com.crossbowffs.quotelock.app.detail.QuoteDetailViewModel
 import com.crossbowffs.quotelock.app.detail.shareImage
 import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
+import com.crossbowffs.quotelock.app.detail.style.CardStyleUiState
 import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import com.crossbowffs.quotelock.ui.components.AlertDialog
 import com.crossbowffs.quotelock.ui.components.MainAppBar
@@ -39,7 +45,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun MainScreen(
+fun MainRoute(
     modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = hiltViewModel(),
     detailViewModel: QuoteDetailViewModel = hiltViewModel(),
@@ -61,6 +67,78 @@ fun MainScreen(
         detailViewModel.quoteShared()
     }
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    mainUiEvent.let { event ->
+        event.message?.let { message ->
+            scope.launch {
+                snackbarHostState.currentSnackbarData?.takeIf {
+                    it.visuals.message == message
+                }?.dismiss()
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short,
+                    actionLabel = event.actionText
+                )
+            }
+            mainViewModel.snackBarShown()
+        }
+    }
+    MainScreen(
+        modifier = modifier,
+        snackbarHostState = snackbarHostState,
+        mainUiState = mainUiState,
+        detailUiState = detailUiState,
+        cardStyleUiState = cardStyleUiState,
+        showStylePopup = cardStyleViewModel::showStylePopup,
+        refreshQuote = mainViewModel::refreshQuote,
+        switchCollectionState = detailViewModel::switchCollectionState,
+        shareQuote = detailViewModel::shareQuote,
+        onSettingsItemClick = onSettingsItemClick,
+        onLockscreenStylesItemClick = onLockscreenStylesItemClick,
+        onCollectionItemClick = onCollectionItemClick,
+        onHistoryItemClick = onHistoryItemClick,
+        selectFontFamily = cardStyleViewModel::selectFontFamily,
+        onFontCustomize = onFontCustomize,
+        onQuoteSizeChange = cardStyleViewModel::setQuoteSize,
+        onSourceSizeChange = cardStyleViewModel::setSourceSize,
+        onLineSpacingChange = cardStyleViewModel::setLineSpacing,
+        onCardPaddingChange = cardStyleViewModel::setCardPadding,
+        onShareWatermarkChange = cardStyleViewModel::setShareWatermark,
+        dismissStylePopup = cardStyleViewModel::dismissStylePopup
+    )
+    val context = LocalContext.current
+    MainDialogs(
+        uiDialogState = mainDialogUiState,
+        onStartXposedPage = { with(mainViewModel) { context.startXposedPage(it) } },
+        onStartBrowserActivity = { with(mainViewModel) { context.startBrowserActivity(it) } },
+        onDialogDismiss = mainViewModel::cancelDialog
+    )
+}
+
+@Composable
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    mainUiState: MainUiState,
+    detailUiState: QuoteDetailUiState,
+    cardStyleUiState: CardStyleUiState,
+    showStylePopup: () -> Unit = {},
+    refreshQuote: () -> Unit = {},
+    switchCollectionState: (QuoteDataWithCollectState) -> Unit = {},
+    shareQuote: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
+    onSettingsItemClick: () -> Unit = {},
+    onLockscreenStylesItemClick: () -> Unit = {},
+    onCollectionItemClick: () -> Unit = {},
+    onHistoryItemClick: () -> Unit = {},
+    selectFontFamily: (String) -> Unit = {},
+    onFontCustomize: () -> Unit = {},
+    onQuoteSizeChange: (Int) -> Unit = {},
+    onSourceSizeChange: (Int) -> Unit = {},
+    onLineSpacingChange: (Int) -> Unit = {},
+    onCardPaddingChange: (Int) -> Unit = {},
+    onShareWatermarkChange: (Boolean) -> Unit = {},
+    dismissStylePopup: () -> Unit = {},
+) {
     val scope = rememberCoroutineScope()
     val snapshotStates = Snapshotables()
     val rotationAnimation = remember { Animatable(0f) }
@@ -92,7 +170,7 @@ fun MainScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            MainAppBar(onStyle = cardStyleViewModel::showStylePopup) {
+            MainAppBar(onStyle = showStylePopup) {
                 MainDropdownMenu(
                     onSettingsItemClick = onSettingsItemClick,
                     onLockscreenStylesItemClick = onLockscreenStylesItemClick,
@@ -112,68 +190,47 @@ fun MainScreen(
                 shape = FloatingActionButtonDefaults.largeShape,
                 onClick = {
                     if (!mainUiState.refreshing) {
-                        mainViewModel.refreshQuote()
+                        refreshQuote()
                     }
                 }
             )
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
-        mainUiEvent.let { event ->
-            event.message?.let { message ->
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.takeIf {
-                        it.visuals.message == message
-                    }?.dismiss()
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        duration = SnackbarDuration.Short,
-                        actionLabel = event.actionText
-                    )
-                }
-                mainViewModel.snackBarShown()
-            }
-        }
         Box(modifier = modifier
             .fillMaxSize()
             .padding(padding)
             .consumedWindowInsets(padding)
         ) {
             QuoteDetailPage(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxSize(),
                 quoteData = mainUiState.quoteData,
                 cardStyle = detailUiState.cardStyle,
                 snapshotStates = snapshotStates,
-                onCollectClick = detailViewModel::switchCollectionState,
-                onShareCard = if (!LocalContext.current.isQuoteGeneratedByApp(
+                onCollectClick = switchCollectionState,
+                onShareCard = if (!LocalInspectionMode.current
+                    && !LocalContext.current.isQuoteGeneratedByApp(
                         mainUiState.quoteData.quoteText,
                         mainUiState.quoteData.quoteSource,
                         mainUiState.quoteData.quoteAuthor)
-                ) detailViewModel::shareQuote else null
+                ) shareQuote else null
             )
             CardStylePopup(
                 popped = cardStyleUiState.show,
                 fonts = cardStyleUiState.fonts,
                 cardStyle = cardStyleUiState.cardStyle,
-                onFontSelected = cardStyleViewModel::selectFontFamily,
+                onFontSelected = selectFontFamily,
                 onFontAdd = onFontCustomize,
-                onQuoteSizeChange = cardStyleViewModel::setQuoteSize,
-                onSourceSizeChange = cardStyleViewModel::setSourceSize,
-                onLineSpacingChange = cardStyleViewModel::setLineSpacing,
-                onCardPaddingChange = cardStyleViewModel::setCardPadding,
-                onShareWatermarkChange = cardStyleViewModel::setShareWatermark,
-                onDismiss = cardStyleViewModel::dismissStylePopup
+                onQuoteSizeChange = onQuoteSizeChange,
+                onSourceSizeChange = onSourceSizeChange,
+                onLineSpacingChange = onLineSpacingChange,
+                onCardPaddingChange = onCardPaddingChange,
+                onShareWatermarkChange = onShareWatermarkChange,
+                onDismiss = dismissStylePopup
             )
         }
     }
-    val context = LocalContext.current
-    MainDialogs(
-        uiDialogState = mainDialogUiState,
-        onStartXposedPage = { with(mainViewModel) { context.startXposedPage(it) } },
-        onStartBrowserActivity = { with(mainViewModel) { context.startBrowserActivity(it) } },
-        onDialogDismiss = mainViewModel::cancelDialog
-    )
 }
 
 @Composable

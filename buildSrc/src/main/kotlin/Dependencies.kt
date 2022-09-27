@@ -1,9 +1,12 @@
 import Versions.accompanistVersion
+import Versions.composeUiVersion
 import Versions.composeVersion
 import Versions.hiltVersion
 import Versions.materialIconsVersion
 import Versions.navVersion
 import Versions.roomVersion
+import Versions.testCoreVersion
+import Versions.testRulesVersion
 
 object Versions {
     const val androidGradlePluginVersion = "7.2.2"
@@ -13,10 +16,16 @@ object Versions {
 
     internal const val roomVersion = "2.4.2"
     const val composeVersion = "1.3.1"
+    const val composeUiVersion = "1.3.0-beta03"
     internal const val accompanistVersion = "0.26.4-beta"
 
     internal const val navVersion = "2.5.1"
     internal const val materialIconsVersion = "1.2.1"
+
+    // Use 1.5.0-alpha02 to resolve ActivityNotFound exception above Android 13.
+    // See https://github.com/android/android-test/issues/1412
+    internal const val testCoreVersion = "1.5.0-alpha02"
+    internal const val testRulesVersion = "1.4.0"
 }
 
 object Dependencies {
@@ -61,7 +70,7 @@ object Dependencies {
         const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
         const val navigation = "androidx.navigation:navigation-compose:$navVersion"
         const val animationGraphics =
-            "androidx.compose.animation:animation-graphics:1.3.0-beta03"
+            "androidx.compose.animation:animation-graphics:$composeUiVersion"
 
         // Material design icons
         const val materialIconCore =
@@ -70,6 +79,10 @@ object Dependencies {
             "androidx.compose.material:material-icons-extended:$materialIconsVersion"
 
         const val coil = "io.coil-kt:coil-compose:2.2.1"
+
+        const val test = "androidx.compose.ui:ui-test:$composeUiVersion"
+        const val uiTest = "androidx.compose.ui:ui-test-junit4:$composeUiVersion"
+        const val testManifest = "androidx.compose.ui:ui-test-manifest:$composeUiVersion"
     }
 
     object Accompanist {
@@ -85,6 +98,11 @@ object Dependencies {
     object Xposed {
         const val api = "de.robv.android.xposed:api:82"
         const val apiSource = "de.robv.android.xposed:api:82:sources"
+    }
+
+    object Test {
+        const val core = "androidx.test:core:$testCoreVersion"
+        const val rules = "androidx.test:rules:$testRulesVersion"
     }
 
     const val remotePreferences = "com.crossbowffs.remotepreferences:remotepreferences:0.9"

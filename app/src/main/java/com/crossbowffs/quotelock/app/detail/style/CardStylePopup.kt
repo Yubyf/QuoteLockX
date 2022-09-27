@@ -57,114 +57,139 @@ fun CardStylePopup(
         anchor = DpOffset(0.dp, 0.dp),
         alignment = Alignment.BottomCenter,
     ) {
-        val names = stringArrayResource(id = R.array.default_font_family_entries)
-        val paths = stringArrayResource(id = R.array.default_font_family_values)
-        val presetFonts = names.zip(paths).map { (name, path) ->
-            FontInfo(fileName = name, path = path)
-        }
-        val allFonts = presetFonts + fonts
-        var selectedItemIndex by remember {
-            mutableStateOf(allFonts.indexOfFirst { it.path == cardStyle.fontFamily }
-                .coerceIn(minimumValue = 0, maximumValue = allFonts.lastIndex))
-        }
-        val fontIndicatorWidth = 64.dp
-        val haptic = LocalHapticFeedback.current
-        fun performHapticFeedback() = haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-        Surface(
-            modifier = Modifier.padding(horizontal = 24.dp),
-            shape = MaterialTheme.shapes.small,
-            tonalElevation = 8.dp,
-            shadowElevation = 8.dp
+        CardStyleContent(fonts = fonts,
+            cardStyle = cardStyle,
+            onFontSelected = onFontSelected,
+            onFontAdd = onFontAdd,
+            onQuoteSizeChange = onQuoteSizeChange,
+            onSourceSizeChange = onSourceSizeChange,
+            onLineSpacingChange = onLineSpacingChange,
+            onCardPaddingChange = onCardPaddingChange,
+            onShareWatermarkChange = onShareWatermarkChange,
+            onDismiss = onDismiss)
+    }
+}
+
+@Composable
+fun CardStyleContent(
+    fonts: List<FontInfo>,
+    cardStyle: CardStyle,
+    onFontSelected: (String) -> Unit,
+    onFontAdd: () -> Unit,
+    onQuoteSizeChange: (Int) -> Unit,
+    onSourceSizeChange: (Int) -> Unit,
+    onLineSpacingChange: (Int) -> Unit,
+    onCardPaddingChange: (Int) -> Unit,
+    onShareWatermarkChange: (Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val names = stringArrayResource(id = R.array.default_font_family_entries)
+    val paths = stringArrayResource(id = R.array.default_font_family_values)
+    val presetFonts = names.zip(paths).map { (name, path) ->
+        FontInfo(fileName = name, path = path)
+    }
+    val allFonts = presetFonts + fonts
+    var selectedItemIndex by remember {
+        mutableStateOf(allFonts.indexOfFirst { it.path == cardStyle.fontFamily }
+            .coerceIn(minimumValue = 0, maximumValue = allFonts.lastIndex))
+    }
+    val fontIndicatorWidth = 64.dp
+    val haptic = LocalHapticFeedback.current
+    fun performHapticFeedback() = haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+    Surface(
+        modifier = Modifier.padding(horizontal = 24.dp),
+        shape = MaterialTheme.shapes.small,
+        tonalElevation = 8.dp,
+        shadowElevation = 8.dp
+    ) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(vertical = 16.dp)
+            .verticalScroll(rememberScrollState())
         ) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(vertical = 16.dp)
-                .verticalScroll(rememberScrollState())
-            ) {
-                LazyRow(modifier = Modifier.fillMaxWidth()) {
-                    itemsIndexed(allFonts) { index, fontInfo ->
+            LazyRow(modifier = Modifier.fillMaxWidth()) {
+                itemsIndexed(allFonts) { index, fontInfo ->
+                    Spacer(modifier = Modifier.width(16.dp))
+                    PopupFontIndicator(fontInfo = fontInfo, width = fontIndicatorWidth,
+                        selected = selectedItemIndex == index) {
+                        selectedItemIndex = index
+                        performHapticFeedback()
+                        onFontSelected(it)
+                    }
+                    if (index == presetFonts.lastIndex && fonts.isNotEmpty()) {
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Divider(modifier = Modifier
+                            .height(56.dp)
+                            .padding(top = 4.dp)
+                            .width(0.5.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    if (index == allFonts.lastIndex) {
                         Spacer(modifier = Modifier.width(16.dp))
-                        PopupFontIndicator(fontInfo = fontInfo, width = fontIndicatorWidth,
-                            selected = selectedItemIndex == index) {
-                            selectedItemIndex = index
-                            performHapticFeedback()
-                            onFontSelected(it)
+                        OutlinedButton(
+                            onClick = { onDismiss(); onFontAdd() },
+                            shape = CircleShape,
+                            border = BorderStroke(Dp.Hairline,
+                                MaterialTheme.colorScheme.outline),
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.size(fontIndicatorWidth)
+                        ) {
+                            Icon(Icons.Rounded.Add,
+                                contentDescription = "Add font",
+                                modifier = Modifier.size(32.dp))
                         }
-                        if (index == presetFonts.lastIndex && fonts.isNotEmpty()) {
-                            Spacer(modifier = Modifier.width(20.dp))
-                            Divider(modifier = Modifier
-                                .height(56.dp)
-                                .padding(top = 4.dp)
-                                .width(0.5.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                        }
-                        if (index == allFonts.lastIndex) {
-                            Spacer(modifier = Modifier.width(16.dp))
-                            OutlinedButton(
-                                onClick = { onDismiss(); onFontAdd() },
-                                shape = CircleShape,
-                                border = BorderStroke(Dp.Hairline,
-                                    MaterialTheme.colorScheme.outline),
-                                contentPadding = PaddingValues(0.dp),
-                                modifier = Modifier.size(fontIndicatorWidth)
-                            ) {
-                                Icon(Icons.Rounded.Add,
-                                    contentDescription = "Add font",
-                                    modifier = Modifier.size(32.dp))
-                            }
-                            Spacer(modifier = Modifier.width(16.dp))
-                        }
+                        Spacer(modifier = Modifier.width(16.dp))
                     }
                 }
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)) {
-                    PopupLayoutRow(
-                        lineSpacing = cardStyle.lineSpacing,
-                        cardPadding = cardStyle.cardPadding,
-                        onLineSpacingChange = { performHapticFeedback(); onLineSpacingChange(it) },
-                        onCardPaddingChange = { performHapticFeedback(); onCardPaddingChange(it) },
+            }
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)) {
+                PopupLayoutRow(
+                    lineSpacing = cardStyle.lineSpacing,
+                    cardPadding = cardStyle.cardPadding,
+                    onLineSpacingChange = { performHapticFeedback(); onLineSpacingChange(it) },
+                    onCardPaddingChange = { performHapticFeedback(); onCardPaddingChange(it) },
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                PopupFontSizeRow(
+                    quoteSize = cardStyle.quoteSize,
+                    sourceSize = cardStyle.sourceSize,
+                    onQuoteSizeChange = { performHapticFeedback(); onQuoteSizeChange(it) },
+                    onSourceSizeChange = { performHapticFeedback(); onSourceSizeChange(it) },
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(id = R.string.quote_card_style_share_watermark),
+                        fontSize = MaterialTheme.typography.labelLarge.fontSize,
+                        modifier = Modifier
+                            .weight(1f)
+                            .alpha(ContentAlpha.medium),
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    PopupFontSizeRow(
-                        quoteSize = cardStyle.quoteSize,
-                        sourceSize = cardStyle.sourceSize,
-                        onQuoteSizeChange = { performHapticFeedback(); onQuoteSizeChange(it) },
-                        onSourceSizeChange = { performHapticFeedback(); onSourceSizeChange(it) },
+                    var shareWatermark by remember {
+                        mutableStateOf(cardStyle.shareWatermark)
+                    }
+                    Switch(checked = shareWatermark,
+                        onCheckedChange = {
+                            shareWatermark = it; onShareWatermarkChange(it)
+                        })
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(modifier = Modifier
+                    .alpha(ContentAlpha.disabled),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Rounded.ErrorOutline,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(R.string.quote_card_style_popup_hint),
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                        lineHeight = 1.em,
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(id = R.string.quote_card_style_share_watermark),
-                            fontSize = MaterialTheme.typography.labelLarge.fontSize,
-                            modifier = Modifier
-                                .weight(1f)
-                                .alpha(ContentAlpha.medium),
-                        )
-                        var shareWatermark by remember {
-                            mutableStateOf(cardStyle.shareWatermark)
-                        }
-                        Switch(checked = shareWatermark,
-                            onCheckedChange = {
-                                shareWatermark = it; onShareWatermarkChange(it)
-                            })
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(modifier = Modifier
-                        .alpha(ContentAlpha.disabled),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Rounded.ErrorOutline,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(R.string.quote_card_style_popup_hint),
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                            lineHeight = 1.em,
-                        )
-                    }
                 }
             }
         }

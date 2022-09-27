@@ -20,7 +20,7 @@ fun NavGraphBuilder.mainGraph(
     onFontCustomize: () -> Unit,
 ) {
     composable(route = MainDestination.route) {
-        MainScreen(
+        MainRoute(
             onSettingsItemClick = onSettingsItemClick,
             onLockscreenStylesItemClick = onLockscreenStylesItemClick,
             onCollectionItemClick = onCollectionItemClicked,

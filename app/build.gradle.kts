@@ -4,6 +4,7 @@ import Dependencies.Compose
 import Dependencies.Google
 import Dependencies.Hilt
 import Dependencies.Room
+import Dependencies.Test
 import Dependencies.Xposed
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
@@ -58,6 +59,8 @@ android {
         minSdk = Configs.minSdk
 
         targetSdk = Configs.targetSdk
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("int", "MODULE_VERSION", "3")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "4")
@@ -201,4 +204,11 @@ dependencies {
     implementation(Dependencies.openCsv) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
+
+    // Test
+    androidTestImplementation(Test.core)
+    androidTestImplementation(Test.rules)
+    androidTestImplementation(Compose.test)
+    androidTestImplementation(Compose.uiTest)
+    debugImplementation(Compose.testManifest)
 }

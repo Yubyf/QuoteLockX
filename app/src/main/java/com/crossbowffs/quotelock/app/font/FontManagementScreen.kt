@@ -65,7 +65,6 @@ fun FontManagementRoute(
     FontManagementScreen(
         modifier = modifier,
         uiState = uiState,
-        uiDialogState = uiDialogState,
         uiEvent = uiEvent,
         onBack = onBack,
         onInAppImportButtonClick = {
@@ -81,6 +80,14 @@ fun FontManagementRoute(
         listScrolled = viewModel::systemFontListScrolled,
         snackBarShown = viewModel::snackBarShown
     )
+    uiDialogState.let {
+        when (it) {
+            is FontManagementDialogUiState.ProgressDialog -> {
+                LoadingDialog(message = it.message) {}
+            }
+            FontManagementDialogUiState.None -> {}
+        }
+    }
     pickedFontFileForSystemUri?.let { uri ->
         viewModel.importFontToSystem(uri)
         pickedFontFileForSystemUri = null
@@ -95,9 +102,8 @@ fun FontManagementRoute(
 fun FontManagementScreen(
     modifier: Modifier = Modifier,
     uiState: FontManagementListUiState,
-    uiDialogState: FontManagementDialogUiState,
     uiEvent: SnackBarEvent,
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
     onInAppImportButtonClick: () -> Unit,
     onSystemImportButtonClick: () -> Unit,
     onSystemFontDeleteMenuClick: (FontInfoWithState) -> Unit,
@@ -212,12 +218,6 @@ fun FontManagementScreen(
                     }
                 }
             }
-        }
-        when (uiDialogState) {
-            is FontManagementDialogUiState.ProgressDialog -> {
-                LoadingDialog(message = uiDialogState.message) {}
-            }
-            FontManagementDialogUiState.None -> {}
         }
     }
 }
