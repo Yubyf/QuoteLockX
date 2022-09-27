@@ -25,7 +25,8 @@ LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) no
 - Import/Export collections in .db or .csv format on local storage.
 - Backup/Restore collections on Google Drive.
 - Displays quotes on the AmbientDisplay page of *OnePlus7Pro OOS11* (**ALPHA**)
-- Imports custom fonts ([Magisk module](https://github.com/Yubyf/QuoteLockX-CustomFonts) needed).
+- Imports custom fonts ([Magisk module](https://github.com/Yubyf/QuoteLockX-CustomFonts) needed for
+  lockscreen layout).
 
 ## Tips
 
