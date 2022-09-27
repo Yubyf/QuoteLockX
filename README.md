@@ -6,6 +6,8 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/yubyf/QuoteLockX)
 [![License](https://img.shields.io/github/license/Yubyf/QuoteLockX)](https://github.com/Yubyf/QuoteLockX/blob/master/LICENSE.txt)
 
+![Screenshot](screenshots/screenshot.png)
+
 This new fork will be continuously maintained as the
 original [QuoteLock](https://github.com/apsun/QuoteLock) is no longer maintained and has been
 archived.
@@ -17,6 +19,7 @@ LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) no
 
 - Displays quotes on your lockscreen, because why not.
 - Customizes the quotes style.
+- Shares the quote card to other apps.
 - Collects your favorite quotes.
 - Records the quote history that you can always look up old entries.
 - Import/Export collections in .db or .csv format on local storage.
@@ -24,11 +27,7 @@ LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) no
 - Displays quotes on the AmbientDisplay page of *OnePlus7Pro OOS11* (**ALPHA**)
 - Imports custom fonts ([Magisk module](https://github.com/Yubyf/QuoteLockX-CustomFonts) needed).
 
-## Screenshots
-
-| &nbsp;&nbsp;Lockscreen&nbsp;&nbsp; | CustomFonts |
-| :---: | :---: |
-| <img src="screenshots/lockscreen.png" title="Lockscreen" width="360px" /> | <img src="screenshots/custom_fonts.png" title="CustomFonts" width="360px" /> |
+## Tips
 
 Long press on the quotes to show refresh and collect buttons:
 
@@ -67,32 +66,21 @@ the download service.
 
 ### Todo
 
-- [ ] ~~Add widget for launcher.~~
 - [ ] Add support for custom importing of fortune cookies.
 
 ### In Progress
-- [ ] Refactor the settings page.
+
+- [ ] Optimize for variable fonts.
+- [ ] Advanced detail pages
 
 ### Done
 
-- [x] Providers updates
-- [x] Jirishici(今日诗词) source
-- [x] Backup and restore on local and remote(Google Drive)
-- [x] Refresh and collection feature on lockscreen
-- [x] Font family and style support
-- [x] Adaptation for the AmbientDisplay page of *OnePlus7Pro OOS11* (**ALPHA**)
-- [x] Auto-sync for remote backup accounts
-- [x] Refactor with Kotlin
-- [x] Quotes preview in setting page
-- [x] Optimize collections and histories pages.
-- [x] Redesign with Material You.
-- [x] Add CSV export format support.
-- [x] Add support for [fortune-mod](https://github.com/shlomif/fortune-mod/).
-- [x] Add support for line spacing configuration between text and source.
 - [x] Add support for Chinese.
 - [x] Add support for custom fonts.
 - [x] Optimize lockscreen layout.
 - [x] Optimize style for Android S(dynamic colors).
+- [x] Refactor the settings page.
+- [x] Completely redesigned the app.
 
 ## License
 
