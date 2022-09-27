@@ -12,7 +12,6 @@ const val PREF_COMMON_UNMETERED_ONLY_DEFAULT = false
 const val PREF_COMMON_QUOTE_MODULE = "pref_common_quote_module"
 
 val PREF_COMMON_QUOTE_MODULE_DEFAULT = HitokotoQuoteModule::class.qualifiedName ?: ""
-const val PREF_COMMON_MODULE_PREFERENCES = "pref_module_preferences"
 const val PREF_COMMON_REQUIRES_INTERNET = "pref_common_requires_internet"
 const val PREF_COMMON_REFRESH_RATE_OVERRIDE = "pref_common_refresh_rate_override"
 const val PREF_COMMON_FONT_SIZE_TEXT = "pref_common_font_size_text"
@@ -21,7 +20,6 @@ const val PREF_COMMON_FONT_SIZE_SOURCE = "pref_common_font_size_source"
 const val PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT = "18"
 const val PREF_COMMON_FONT_STYLE_TEXT = "pref_common_font_style_text"
 const val PREF_COMMON_FONT_STYLE_SOURCE = "pref_common_font_style_source"
-const val PREF_COMMON_UPDATE_INFO = "pref_common_update_info"
 const val PREF_COMMON_FONT_FAMILY = "pref_common_font_family"
 const val PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT = "system"
 const val PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
@@ -38,13 +36,7 @@ const val PREF_QUOTES_SOURCE = "pref_quotes_source"
 const val PREF_QUOTES_AUTHOR = "pref_quotes_author"
 const val PREF_QUOTES_COLLECTION_STATE = "pref_quotes_collection_state"
 const val PREF_QUOTES_LAST_UPDATED = "pref_quotes_last_updated"
-const val PREF_FEATURES_COLLECTION = "pref_collection"
-const val PREF_FEATURES_HISTORY = "pref_history"
-const val PREF_ABOUT_CREDITS = "pref_about_credits"
-const val PREF_ABOUT_GITHUB = "pref_about_github_current"
-const val PREF_ABOUT_VERSION = "pref_about_version"
 const val PREF_BOOT_NOTIFY_FLAG = "boot_notify_flag"
-const val PREF_PREVIEW = "pref_preview"
 
 const val PREF_CARD_STYLE = "card_style"
 const val PREF_CARD_STYLE_FONT_SIZE_TEXT = "pref_card_style_font_size_text"
@@ -73,8 +65,6 @@ const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
 const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SERIF = "serif"
 const val PREF_CARD_STYLE_SHARE_WATERMARK = "pref_card_style_share_watermark"
 const val PREF_CARD_STYLE_SHARE_WATERMARK_DEFAULT = true
-
-const val PREF_DEBUG_RESTART_SYSTEM_UI = "pref_restart_system_ui"
 
 const val PREF_QUOTE_SOURCE_PREFIX = "―"
 
