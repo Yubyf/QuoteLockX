@@ -167,12 +167,12 @@ object FontManager {
         runCatching {
             FONT_INFO_CACHE.getOrPut(file.absolutePath) {
                 val ttfFile = TTFFile.open(file)
-                FontInfo(names = ttfFile.fullNames,
+                FontInfo(families = ttfFile.families,
                     fileName = file.name,
                     path = file.absolutePath,
                     variable = ttfFile.variable
                 ).apply {
-                    descriptionLocale = generateLocaleDescription(names)
+                    descriptionLocale = generateLocaleDescription(families)
                 }
             }
         }.onFailure {
@@ -265,7 +265,7 @@ class FontImporter @Inject constructor(
 }
 
 data class FontInfo(
-    val names: Map<String, String> = emptyMap(),
+    val families: Map<String, String> = emptyMap(),
     val fileName: String = "",
     val path: String = "",
     val variable: Boolean = false,
@@ -274,11 +274,11 @@ data class FontInfo(
 ) {
     val cjk: Boolean
         get() = when {
-            names.containsKey(Locale.SIMPLIFIED_CHINESE.toLanguageTag())
-                    || names.containsKey(Locale.TRADITIONAL_CHINESE.toLanguageTag())
-                    || names.containsKey(Locale.CHINESE.toLanguageTag())
-                    || names.containsKey(Locale.KOREAN.toLanguageTag())
-                    || names.containsKey(Locale.JAPANESE.toLanguageTag()) ->
+            families.containsKey(Locale.SIMPLIFIED_CHINESE.toLanguageTag())
+                    || families.containsKey(Locale.TRADITIONAL_CHINESE.toLanguageTag())
+                    || families.containsKey(Locale.CHINESE.toLanguageTag())
+                    || families.containsKey(Locale.KOREAN.toLanguageTag())
+                    || families.containsKey(Locale.JAPANESE.toLanguageTag()) ->
                 true
             else -> false
         }
@@ -290,7 +290,7 @@ data class FontInfo(
 
     @Suppress("DEPRECATION")
     val Configuration.localeName: String
-        get() = names[if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) locales[0] else locale]
+        get() = families[if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) locales[0] else locale]
 }
 
 data class FontInfoWithState(
