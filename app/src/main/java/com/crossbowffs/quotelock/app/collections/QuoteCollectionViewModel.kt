@@ -221,6 +221,8 @@ class QuoteCollectionViewModel @Inject constructor(
 
     fun gDriveFirstSync(merge: Boolean = false) = viewModelScope.launch {
         syncAccountManager.performFirstSync(merge)
+        _uiListState.value =
+            _uiListState.value.copy(gDriveFirstSyncConflict = false)
     }
 
     fun signOut() = viewModelScope.launch {
