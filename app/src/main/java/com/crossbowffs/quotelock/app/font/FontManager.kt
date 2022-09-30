@@ -184,7 +184,7 @@ object FontManager {
         fontPath: String,
         style: Int = Typeface.NORMAL,
     ): Typeface = runCatching {
-        TYPEFACE_CACHE.getOrElse("$fontPath&$style") {
+        TYPEFACE_CACHE.getOrPut("$fontPath&$style") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Typeface.Builder(File(fontPath))
                     .setFontVariationSettings(getFontVariationSettings(style))
