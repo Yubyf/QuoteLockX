@@ -91,7 +91,7 @@ fun SnapshotText(
     maxLines: Int = Int.MAX_VALUE,
     snapshotable: Snapshotable? = null,
 ) {
-    var textLayout: Layout? by remember {
+    var textLayout: SnapshotTextLayout? by remember {
         mutableStateOf(null)
     }
     var textPicture: Picture? by remember {
@@ -131,7 +131,7 @@ fun SnapshotText(
         content = {
             Canvas(modifier = Modifier) {
                 drawIntoCanvas { canvas ->
-                    textLayout?.let { layout ->
+                    textLayout?.layout?.let { layout ->
                         textPicture = Picture().apply {
                             layout.draw(beginRecording(layout.width, layout.height))
                             endRecording()
@@ -144,46 +144,30 @@ fun SnapshotText(
     ) { measurables, constraints ->
         require(measurables.size == 1)
         val placeable = measurables.first().measure(constraints)
-        val layout = buildTextLayout(
+        val newTextLayout = SnapshotTextLayout(
             text = text,
             width = constraints.maxWidth,
-            textColor = textColor.toArgb(),
             fontSize = fontSize.toPx(),
-            fontStyle = when {
-                fontStyle == FontStyle.Normal && fontWeight <= FontWeight.Normal -> Typeface.NORMAL
-                fontStyle == FontStyle.Normal && fontWeight > FontWeight.Normal -> Typeface.BOLD
-                fontStyle == FontStyle.Italic && fontWeight <= FontWeight.Normal -> Typeface.ITALIC
-                fontStyle == FontStyle.Italic && fontWeight > FontWeight.Normal -> Typeface.BOLD_ITALIC
-                else -> Typeface.NORMAL
-            },
+            textColor = textColor,
+            fontStyle = fontStyle,
+            fontWeight = fontWeight,
             fontFamily = fontFamily,
-            alignment = when (textAlign) {
-                TextAlign.Left -> if (layoutDirection == Ltr) {
-                    Layout.Alignment.ALIGN_NORMAL
-                } else Layout.Alignment.ALIGN_OPPOSITE
-                TextAlign.Start -> Layout.Alignment.ALIGN_NORMAL
-                TextAlign.Center -> Layout.Alignment.ALIGN_CENTER
-                TextAlign.End -> Layout.Alignment.ALIGN_OPPOSITE
-                TextAlign.Right -> if (layoutDirection == Ltr) {
-                    Layout.Alignment.ALIGN_OPPOSITE
-                } else Layout.Alignment.ALIGN_NORMAL
-                else -> Layout.Alignment.ALIGN_NORMAL
-            },
-            direction = when (layoutDirection) {
-                Ltr -> TextDirectionHeuristics.FIRSTSTRONG_LTR
-                Rtl -> TextDirectionHeuristics.FIRSTSTRONG_RTL
-            },
-            lineHeightMult = lineHeight.value,
-            ellipsize = when (overflow) {
-                TextOverflow.Ellipsis -> TextUtils.TruncateAt.END
-                TextOverflow.Clip, TextOverflow.Visible -> null
-                else -> null
-            },
-            ellipsizeWidth = constraints.maxWidth,
+            lineHeight = lineHeight,
+            layoutDirection = layoutDirection,
+            textAlign = textAlign ?: TextAlign.Start,
+            overflow = overflow,
             maxLines = maxLines,
-            includePad = false,
-        ).also {
-            textLayout = it
+        )
+        val layout: Layout = textLayout?.let {
+            if (newTextLayout == it) {
+                it.layout
+            } else {
+                newTextLayout.makeNewTextLayout().also {
+                    textLayout = newTextLayout
+                }
+            }
+        } ?: newTextLayout.makeNewTextLayout().also {
+            textLayout = newTextLayout
         }
         layout(
             if (constraints.hasFixedWidth) {
@@ -202,73 +186,167 @@ fun SnapshotText(
     }
 }
 
-@SuppressLint("WrongConstant")
-private fun buildTextLayout(
-    text: String,
-    width: Int,
-    @ColorInt textColor: Int,
-    fontSize: Float,
-    fontStyle: Int = Typeface.NORMAL,
-    fontFamily: Typeface? = null,
-    alignment: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
-    direction: TextDirectionHeuristic = TextDirectionHeuristics.FIRSTSTRONG_LTR,
-    lineHeightMult: Float = 1F,
-    ellipsize: TextUtils.TruncateAt? = null,
-    ellipsizeWidth: Int = 0,
-    maxLines: Int = Int.MAX_VALUE,
-    includePad: Boolean = true,
-): Layout {
-    val paint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG).apply {
-        textSize = fontSize
-        color = textColor
-        // Set font typeface and style
-        // Copied from [TextView#setTypeface(Typeface, int)]
-        if (fontStyle > 0) {
-            typeface = if (fontFamily == null) {
-                Typeface.defaultFromStyle(fontStyle)
+private data class SnapshotTextLayout(
+    private val text: String,
+    private val width: Int,
+    private val fontSize: Float,
+    private val textColor: Color = Color.Unspecified,
+    private val fontStyle: FontStyle = FontStyle.Normal,
+    private val fontWeight: FontWeight = FontWeight.Normal,
+    private val fontFamily: Typeface? = null,
+    private val lineHeight: TextUnit = 1.em,
+    private val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+    private val textAlign: TextAlign? = null,
+    private val overflow: TextOverflow = TextOverflow.Clip,
+    private val maxLines: Int = Int.MAX_VALUE,
+) {
+
+    lateinit var layout: Layout
+        private set
+
+    fun makeNewTextLayout(): Layout = makeNewTextLayout(
+        text = text,
+        width = width,
+        textColor = textColor.toArgb(),
+        fontSize = fontSize,
+        fontStyle = when {
+            fontStyle == FontStyle.Normal && fontWeight <= FontWeight.Normal -> Typeface.NORMAL
+            fontStyle == FontStyle.Normal && fontWeight > FontWeight.Normal -> Typeface.BOLD
+            fontStyle == FontStyle.Italic && fontWeight <= FontWeight.Normal -> Typeface.ITALIC
+            fontStyle == FontStyle.Italic && fontWeight > FontWeight.Normal -> Typeface.BOLD_ITALIC
+            else -> Typeface.NORMAL
+        },
+        fontFamily = fontFamily,
+        alignment = when (textAlign) {
+            TextAlign.Left -> if (layoutDirection == Ltr) {
+                Layout.Alignment.ALIGN_NORMAL
+            } else Layout.Alignment.ALIGN_OPPOSITE
+            TextAlign.Start -> Layout.Alignment.ALIGN_NORMAL
+            TextAlign.Center -> Layout.Alignment.ALIGN_CENTER
+            TextAlign.End -> Layout.Alignment.ALIGN_OPPOSITE
+            TextAlign.Right -> if (layoutDirection == Ltr) {
+                Layout.Alignment.ALIGN_OPPOSITE
+            } else Layout.Alignment.ALIGN_NORMAL
+            else -> Layout.Alignment.ALIGN_NORMAL
+        },
+        direction = when (layoutDirection) {
+            Ltr -> TextDirectionHeuristics.FIRSTSTRONG_LTR
+            Rtl -> TextDirectionHeuristics.FIRSTSTRONG_RTL
+        },
+        lineHeightMult = lineHeight.value,
+        ellipsize = when (overflow) {
+            TextOverflow.Ellipsis -> TextUtils.TruncateAt.END
+            TextOverflow.Clip, TextOverflow.Visible -> null
+            else -> null
+        },
+        ellipsizeWidth = width,
+        maxLines = maxLines,
+        includePad = false,
+    )
+
+    @SuppressLint("WrongConstant")
+    private fun makeNewTextLayout(
+        text: String,
+        width: Int,
+        @ColorInt textColor: Int,
+        fontSize: Float,
+        fontStyle: Int = Typeface.NORMAL,
+        fontFamily: Typeface? = null,
+        alignment: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
+        direction: TextDirectionHeuristic = TextDirectionHeuristics.FIRSTSTRONG_LTR,
+        lineHeightMult: Float = 1F,
+        ellipsize: TextUtils.TruncateAt? = null,
+        ellipsizeWidth: Int = 0,
+        maxLines: Int = Int.MAX_VALUE,
+        includePad: Boolean = true,
+    ): Layout {
+        val paint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG).apply {
+            textSize = fontSize
+            color = textColor
+            // Set font typeface and style
+            // Copied from [TextView#setTypeface(Typeface, int)]
+            if (fontStyle > 0) {
+                typeface = if (fontFamily == null) {
+                    Typeface.defaultFromStyle(fontStyle)
+                } else {
+                    Typeface.create(fontFamily, fontStyle)
+                }
+                // now compute what (if any) algorithmic styling is needed
+                val typefaceStyle = typeface?.style ?: 0
+                val need: Int = fontStyle and typefaceStyle.inv()
+                isFakeBoldText = need and Typeface.BOLD != 0
+                textSkewX = if (need and Typeface.ITALIC != 0) -0.25f else 0F
             } else {
-                Typeface.create(fontFamily, fontStyle)
+                isFakeBoldText = false
+                textSkewX = 0f
+                typeface = fontFamily
             }
-            // now compute what (if any) algorithmic styling is needed
-            val typefaceStyle = typeface?.style ?: 0
-            val need: Int = fontStyle and typefaceStyle.inv()
-            isFakeBoldText = need and Typeface.BOLD != 0
-            textSkewX = if (need and Typeface.ITALIC != 0) -0.25f else 0F
+        }
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            StaticLayout.Builder.obtain(text, 0, text.length,
+                paint, width)
+                .setAlignment(alignment)
+                .setTextDirection(direction)
+                .setLineSpacing(0F, lineHeightMult)
+                .setIncludePad(includePad)
+                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)
+                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE)
+                .apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        setJustificationMode(Layout.JUSTIFICATION_MODE_NONE)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        setUseLineSpacingFromFallbacks(false)
+                    }
+                }
+                .setEllipsize(ellipsize)
+                .setEllipsizedWidth(ellipsizeWidth)
+                .setMaxLines(maxLines)
+                .build()
         } else {
-            isFakeBoldText = false
-            textSkewX = 0f
-            typeface = fontFamily
+            @Suppress("DEPRECATION")
+            StaticLayout(text, 0, text.length,
+                paint, width,
+                alignment,
+                lineHeightMult, 0F,
+                includePad,
+                ellipsize, ellipsizeWidth)
+        }.also {
+            layout = it
         }
     }
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        StaticLayout.Builder.obtain(text, 0, text.length,
-            paint, width)
-            .setAlignment(alignment)
-            .setTextDirection(direction)
-            .setLineSpacing(0F, lineHeightMult)
-            .setIncludePad(includePad)
-            .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)
-            .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE)
-            .apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    setJustificationMode(Layout.JUSTIFICATION_MODE_NONE)
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    setUseLineSpacingFromFallbacks(false)
-                }
-            }
-            .setEllipsize(ellipsize)
-            .setEllipsizedWidth(ellipsizeWidth)
-            .setMaxLines(maxLines)
-            .build()
-    } else {
-        @Suppress("DEPRECATION")
-        StaticLayout(text, 0, text.length,
-            paint, width,
-            alignment,
-            lineHeightMult, 0F,
-            includePad,
-            ellipsize, ellipsizeWidth)
+
+    override fun hashCode(): Int {
+        var result = text.hashCode()
+        result = 31 * result + width
+        result = 31 * result + fontSize.hashCode()
+        result = 31 * result + textColor.hashCode()
+        result = 31 * result + fontStyle.hashCode()
+        result = 31 * result + fontWeight.hashCode()
+        result = 31 * result + (fontFamily?.hashCode() ?: 0)
+        result = 31 * result + lineHeight.hashCode()
+        result = 31 * result + layoutDirection.hashCode()
+        result = 31 * result + (textAlign?.hashCode() ?: 0)
+        result = 31 * result + overflow.hashCode()
+        result = 31 * result + maxLines
+        result = 31 * result + layout.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is SnapshotTextLayout &&
+                text == other.text &&
+                width == other.width &&
+                fontSize == other.fontSize &&
+                textColor == other.textColor &&
+                fontStyle == other.fontStyle &&
+                fontWeight == other.fontWeight &&
+                fontFamily == other.fontFamily &&
+                lineHeight == other.lineHeight &&
+                layoutDirection == other.layoutDirection &&
+                textAlign == other.textAlign &&
+                overflow == other.overflow &&
+                maxLines == other.maxLines
     }
 }
 
