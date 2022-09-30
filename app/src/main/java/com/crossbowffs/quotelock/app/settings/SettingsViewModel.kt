@@ -9,6 +9,7 @@ import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_MODULE_DEFAULT
 import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.data.ShareRepository
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.modules.ModuleNotFoundException
@@ -18,6 +19,7 @@ import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.findProcessAndKill
+import com.crossbowffs.quotelock.utils.humanReadableByteCountBin
 import com.crossbowffs.quotelock.xposed.LockscreenHook
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,6 +42,7 @@ data class SettingsUiState(
     val unmeteredOnly: Boolean,
     val moduleData: QuoteModuleData?,
     val updateInfo: String,
+    val cacheSize: String,
 )
 
 /**
@@ -66,6 +69,7 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val configurationRepository: ConfigurationRepository,
     private val quoteRepository: QuoteRepository,
+    private val shareRepository: ShareRepository,
     private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
@@ -80,7 +84,9 @@ class SettingsViewModel @Inject constructor(
             configurationRepository.isUnmeteredNetworkOnly,
             null,
             resourceProvider.getString(
-                R.string.pref_refresh_info_summary, "-"))
+                R.string.pref_refresh_info_summary, "-"),
+            cacheSize = "…"
+        )
     )
     val uiState: State<SettingsUiState> = _uiState
 
@@ -118,7 +124,13 @@ class SettingsViewModel @Inject constructor(
                     R.string.pref_refresh_info_summary,
                     if (updateTime > 0) DATE_FORMATTER.format(Date(updateTime)) else "-")
             )
+            shareRepository.cacheSizeFlow.onEach {
+                _uiState.value = _uiState.value.copy(
+                    cacheSize = if (it < 0) "…" else humanReadableByteCountBin(it),
+                )
+            }.launchIn(this)
             updateCurrentModule()
+            shareRepository.calcCacheSizeBytes()
         }
     }
 
@@ -162,6 +174,10 @@ class SettingsViewModel @Inject constructor(
 
     fun restartSystemUi() {
         findProcessAndKill(LockscreenHook.PACKAGE_SYSTEM_UI)
+    }
+
+    fun clearCache() = viewModelScope.launch {
+        shareRepository.clearCache()
     }
 
     fun cancelDialog() {

@@ -5,6 +5,7 @@ package com.crossbowffs.quotelock.utils
 import android.graphics.Bitmap
 import com.crossbowffs.quotelock.consts.Urls
 import com.yubyf.quotelockx.BuildConfig
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
@@ -80,18 +81,19 @@ fun OutputStream.fromFile(file: File) = use { outputStream ->
 
 @Suppress("BlockingMethodInNonBlockingContext")
 @Throws(IOException::class)
-suspend fun Bitmap.toFile(file: File): Boolean = withContext(Dispatchers.IO) {
-    file.runCatching {
-        if (parentFile?.exists() != true && parentFile?.mkdirs() != true) {
-            return@runCatching false
-        }
-        if (!exists()) {
-            createNewFile()
-        }
-        val fos: OutputStream = FileOutputStream(this)
-        compress(Bitmap.CompressFormat.PNG, 90, fos)
-        fos.flush()
-        fos.close()
-        true
-    }.getOrDefault(false)
-}
+suspend fun Bitmap.toFile(file: File, dispatcher: CoroutineDispatcher = Dispatchers.IO): Boolean =
+    withContext(dispatcher) {
+        file.runCatching {
+            if (parentFile?.exists() != true && parentFile?.mkdirs() != true) {
+                return@runCatching false
+            }
+            if (!exists()) {
+                createNewFile()
+            }
+            val fos: OutputStream = FileOutputStream(this)
+            compress(Bitmap.CompressFormat.PNG, 90, fos)
+            fos.flush()
+            fos.close()
+            true
+        }.getOrDefault(false)
+    }

@@ -1,6 +1,5 @@
 package com.crossbowffs.quotelock.app.detail
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
@@ -12,17 +11,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_FRAME_WIDTH
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX
 import com.crossbowffs.quotelock.data.CardStyleRepository
+import com.crossbowffs.quotelock.data.ShareRepository
 import com.crossbowffs.quotelock.data.api.*
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.dp2px
-import com.crossbowffs.quotelock.utils.toFile
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -53,9 +52,9 @@ data class QuoteDetailUiState(
  */
 @HiltViewModel
 class QuoteDetailViewModel @Inject constructor(
-    @ApplicationContext context: Context,
     private val cardStyleRepository: CardStyleRepository,
     private val collectionRepository: QuoteCollectionRepository,
+    private val shareRepository: ShareRepository,
     private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
@@ -75,8 +74,6 @@ class QuoteDetailViewModel @Inject constructor(
     private val _uiState =
         mutableStateOf(QuoteDetailUiState(CardStyle()))
     val uiState: State<QuoteDetailUiState> = _uiState
-
-    private var shareDir = File(context.getExternalFilesDir(null), PREF_SHARE_IMAGE_CHILD_PATH)
 
     init {
         cardStyleRepository.cardStyleFlow.onEach { cardStyle ->
@@ -164,10 +161,8 @@ class QuoteDetailViewModel @Inject constructor(
                             0F, 0F, watermarkPaint)
                     }
             }
-            val sharedFile =
-                File(shareDir, UUID.randomUUID().toString() + PREF_SHARE_IMAGE_EXTENSION)
-            val sharedResult = bitmap.toFile(sharedFile)
-            if (sharedResult) {
+            val sharedFile = shareRepository.saveBitmap(bitmap)
+            if (sharedFile.exists()) {
                 _uiEvent.emit(QuoteDetailUiEvent(sharedFile))
             }
         }

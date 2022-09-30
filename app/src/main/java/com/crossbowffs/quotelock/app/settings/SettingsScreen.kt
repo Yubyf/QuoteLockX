@@ -48,6 +48,7 @@ fun SettingsRoute(
         onRefreshIntervalItemClicked = viewModel::loadRefreshInterval,
         onUnmeteredOnlyChanged = viewModel::switchUnmeteredOnly,
         onRestartSystemUiItemClicked = viewModel::restartSystemUi,
+        onClearCacheItemClicked = viewModel::clearCache,
         onAboutItemClicked = onAboutItemClicked,
         snackBarShown = viewModel::snackBarShown,
         onBack = onBack
@@ -71,6 +72,7 @@ fun SettingsScreen(
     onRefreshIntervalItemClicked: () -> Unit = {},
     onUnmeteredOnlyChanged: (Boolean) -> Unit = {},
     onRestartSystemUiItemClicked: () -> Unit = {},
+    onClearCacheItemClicked: () -> Unit = {},
     onAboutItemClicked: () -> Unit = {},
     snackBarShown: () -> Unit,
     onBack: () -> Unit = {},
@@ -156,6 +158,11 @@ fun SettingsScreen(
                 onClick = onRestartSystemUiItemClicked
             )
             PreferenceItem(
+                title = stringResource(id = R.string.pref_clear_cache),
+                info = uiState.cacheSize,
+                onClick = onClearCacheItemClicked
+            )
+            PreferenceItem(
                 titleRes = R.string.about,
                 onClick = onAboutItemClicked
             )
@@ -210,7 +217,8 @@ private fun SettingsScreenPreview() {
                     displayOnAod = true,
                     unmeteredOnly = true,
                     moduleData = null,
-                    updateInfo = ""),
+                    updateInfo = "",
+                    cacheSize = "0.0 MB"),
                 uiEvent = emptySnackBarEvent,
                 snackBarShown = {},
             )

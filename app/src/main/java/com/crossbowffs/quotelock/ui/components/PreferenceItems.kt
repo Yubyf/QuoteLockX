@@ -72,6 +72,7 @@ fun BasePreferenceItem(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
+    info: String? = null,
     checked: Boolean = false,
     enabled: Boolean = true,
     onClick: () -> Unit = {},
@@ -128,11 +129,21 @@ fun BasePreferenceItem(
                     )
                 }
             }
-            onSwitchChange?.let {
-                Switch(
-                    checked = checkedState,
-                    // React switch changes by onClick in parent component
-                    onCheckedChange = null,
+            if (info.isNullOrBlank()) {
+                onSwitchChange?.let {
+                    Switch(
+                        checked = checkedState,
+                        // React switch changes by onClick in parent component
+                        onCheckedChange = null,
+                    )
+                }
+            } else {
+                Text(text = info,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Normal,
+                    textAlign = TextAlign.End,
+                    maxLines = 1,
+                    modifier = Modifier.alpha(if (enabled) 0.6F else ContentAlpha.medium)
                 )
             }
         }
@@ -144,6 +155,7 @@ fun PreferenceItem(
     modifier: Modifier = Modifier,
     @StringRes titleRes: Int,
     @StringRes summaryRes: Int? = null,
+    @StringRes infoRes: Int? = null,
     enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
@@ -151,6 +163,7 @@ fun PreferenceItem(
         modifier = modifier,
         title = stringResource(id = titleRes),
         summary = summaryRes?.let { stringResource(id = summaryRes) },
+        info = infoRes?.let { stringResource(id = infoRes) },
         enabled = enabled,
         onClick = onClick,
     )
@@ -161,6 +174,7 @@ fun PreferenceItem(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
+    info: String? = null,
     enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
@@ -168,6 +182,7 @@ fun PreferenceItem(
         modifier = modifier,
         title = title,
         summary = summary,
+        info = info,
         enabled = enabled,
         onClick = onClick,
     )
@@ -223,7 +238,9 @@ fun PreferenceItemPreview() {
         Surface {
             Column {
                 PreferenceTitle(title = "Title")
-                PreferenceItem(title = "Standard Item", summary = "Summary here") {}
+                PreferenceItem(title = "Standard Item",
+                    summary = "Summary here",
+                    info = "Info here") {}
                 PreferenceItem(title = "Single Line Item") {}
                 SwitchablePreferenceItem(title = "Switchable Item", summary = "Summary here") {}
             }
