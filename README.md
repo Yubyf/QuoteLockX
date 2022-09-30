@@ -72,7 +72,8 @@ the download service.
 ### In Progress
 
 - [ ] Optimize for variable fonts.
-- [ ] Advanced detail pages
+- [ ] Advanced detail pages.
+- [ ] Add support for multi-classification selection of Hitokoto.
 
 ### Done
 
