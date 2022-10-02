@@ -21,7 +21,7 @@ import javax.inject.Inject
  * UI event for the share screen.
  */
 sealed class ShareUiEvent {
-    data class SaveFile(val snackbar: SnackBarEvent) : ShareUiEvent()
+    data class SnackBar(val snackbar: SnackBarEvent) : ShareUiEvent()
     data class ShareFile(val imageFile: File?) : ShareUiEvent()
 }
 
@@ -62,12 +62,12 @@ class ShareViewModel @Inject constructor(
                 shareRepository.generateShareBitmap(containerColor, contentColor, watermark)
                     ?.let { shareRepository.saveBitmapPublic(it) }
             if (shareFile?.exists() == true) {
-                _uiEvent.emit(ShareUiEvent.SaveFile(SnackBarEvent(
+                _uiEvent.emit(ShareUiEvent.SnackBar(SnackBarEvent(
                     message = resourceProvider.getString(R.string.quote_image_share_saved,
                         shareFile.parentFile!!.path)
                 )))
             } else {
-                _uiEvent.emit(ShareUiEvent.SaveFile(SnackBarEvent(
+                _uiEvent.emit(ShareUiEvent.SnackBar(SnackBarEvent(
                     message = resourceProvider.getString(R.string.quote_image_share_save_failed)
                 )))
             }
@@ -81,10 +81,16 @@ class ShareViewModel @Inject constructor(
         watermark: Boolean,
     ) {
         viewModelScope.launch {
-            val shareFile =
+            val shareBitmap =
                 shareRepository.generateShareBitmap(containerColor, contentColor, watermark)
-                    ?.let { shareRepository.saveBitmapInternal(it) }
-            _uiEvent.emit(ShareUiEvent.ShareFile(shareFile))
+            val shareFile = shareBitmap?.let { shareRepository.saveBitmapInternal(it) }
+            if (shareFile?.exists() == true) {
+                _uiEvent.emit(ShareUiEvent.ShareFile(shareFile))
+            } else {
+                _uiEvent.emit(ShareUiEvent.SnackBar(SnackBarEvent(
+                    message = resourceProvider.getString(R.string.quote_image_share_failed)
+                )))
+            }
         }
     }
 

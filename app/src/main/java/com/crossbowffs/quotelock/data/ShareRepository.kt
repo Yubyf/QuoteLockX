@@ -33,8 +33,10 @@ class ShareRepository @Inject internal constructor(
     private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
-    private val shareFileDir =
+    private val legacyShareFileDir =
         File(App.instance.getExternalFilesDir(null), PREF_SHARE_IMAGE_CHILD_PATH)
+    private val shareFileDir =
+        File(App.instance.externalCacheDir, PREF_SHARE_IMAGE_CHILD_PATH)
     private val savePublicDir =
         File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
             PREF_PUBLIC_RELATIVE_PATH)
@@ -56,13 +58,16 @@ class ShareRepository @Inject internal constructor(
     }
 
     suspend fun clearCache() = withContext(dispatcher) {
+        legacyShareFileDir.takeIf { it.exists() }?.apply(File::deleteRecursively)
         shareFileDir.deleteRecursively()
         shareFileDir.mkdirs()
         _cacheSizeFlow.value = 0
     }
 
     suspend fun calcCacheSizeBytes() = withContext(dispatcher) {
-        _cacheSizeFlow.value = shareFileDir.listFiles()?.sumOf { it.length() } ?: 0
+        _cacheSizeFlow.value = sequenceOf(shareFileDir, legacyShareFileDir).sumOf { dir ->
+            dir.listFiles()?.sumOf { it.length() } ?: 0
+        }
     }
 
     suspend fun generateShareBitmap(

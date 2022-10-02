@@ -3,12 +3,8 @@
 
 package com.crossbowffs.quotelock.app.detail
 
-import android.content.ClipData
-import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Typeface
-import android.net.Uri
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
@@ -36,18 +32,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.*
-import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
 import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
-import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
-import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
 import com.crossbowffs.quotelock.data.api.*
 import com.crossbowffs.quotelock.ui.components.*
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
-import java.io.File
 
 
 @Composable
@@ -288,21 +280,6 @@ fun QuoteCard(
                 }
             }
         }
-    }
-}
-
-internal fun Context.shareImage(file: File) {
-    val imageFileUri: Uri =
-        FileProvider.getUriForFile(this, PREF_SHARE_FILE_AUTHORITY, file)
-    Intent().apply {
-        action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_STREAM, imageFileUri)
-        type = PREF_SHARE_IMAGE_MIME_TYPE
-        clipData = ClipData.newRawUri("", imageFileUri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-    }.let { intent ->
-        startActivity(Intent.createChooser(intent, "Share Quote"))
     }
 }
 

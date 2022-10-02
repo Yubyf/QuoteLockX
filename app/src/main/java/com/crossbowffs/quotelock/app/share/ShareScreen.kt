@@ -2,6 +2,10 @@
 
 package com.crossbowffs.quotelock.app.share
 
+import android.content.ClipData
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -23,8 +27,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.crossbowffs.quotelock.app.detail.shareImage
+import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_WATERMARK_PADDING
 import com.crossbowffs.quotelock.data.drawShareCard
 import com.crossbowffs.quotelock.data.shareBounds
@@ -32,6 +38,7 @@ import com.crossbowffs.quotelock.ui.components.ShareAppBar
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
+import java.io.File
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -87,7 +94,7 @@ fun ShareScreen(
                         uiEventHandled()
                     }
                 }
-                is ShareUiEvent.SaveFile -> {
+                is ShareUiEvent.SnackBar -> {
                     event.snackbar.message?.let {
                         val messageText = it
                         scope.launch {
@@ -192,13 +199,13 @@ fun ShareScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                FilledIconButton(modifier = Modifier.size(72.dp),
+                OutlinedIconButton(modifier = Modifier.size(72.dp),
                     onClick = { onSaveCard(containerColor, contentColor, watermark) }) {
                     Icon(Icons.Rounded.Download,
                         contentDescription = stringResource(id = R.string.save),
                         modifier = Modifier.size(36.dp))
                 }
-                FilledIconButton(modifier = Modifier.size(72.dp),
+                OutlinedIconButton(modifier = Modifier.size(72.dp),
                     onClick = { onShareCard(containerColor, contentColor, watermark) }) {
                     Icon(Icons.Rounded.Share,
                         contentDescription = stringResource(id = R.string.quote_image_share),
@@ -206,5 +213,20 @@ fun ShareScreen(
                 }
             }
         }
+    }
+}
+
+internal fun Context.shareImage(file: File) {
+    val imageFileUri: Uri =
+        FileProvider.getUriForFile(this, PREF_SHARE_FILE_AUTHORITY, file)
+    Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_STREAM, imageFileUri)
+        type = PREF_SHARE_IMAGE_MIME_TYPE
+        clipData = ClipData.newRawUri("", imageFileUri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    }.let { intent ->
+        startActivity(Intent.createChooser(intent, "Share Quote"))
     }
 }

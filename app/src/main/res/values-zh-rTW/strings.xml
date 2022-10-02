@@ -189,6 +189,7 @@
 
     <string name="quote_image_share">分享</string>
     <string name="quote_image_share_description">分享格言</string>
+    <string name="quote_image_share_failed">格言圖片分享失敗</string>
     <string name="quote_image_share_saved">格言圖片已保存至 %s</string>
     <string name="quote_image_share_save_failed">格言圖片保存失敗</string>
 
