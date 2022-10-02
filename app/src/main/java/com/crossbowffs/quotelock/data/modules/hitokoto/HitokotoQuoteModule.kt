@@ -2,6 +2,7 @@ package com.crossbowffs.quotelock.data.modules.hitokoto
 
 import android.content.Context
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitkotoNavigation
+import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPES_STRING
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
@@ -35,8 +36,10 @@ class HitokotoQuoteModule : QuoteModule {
         val dataStore =
             EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(context.applicationContext)
                 .hitokotoDataStore()
-        val type = dataStore.getStringSuspend(PREF_HITOKOTO_TYPE_STRING, "a")
-        val url = "https://v1.hitokoto.cn/?c=$type"
+        val types = dataStore.getStringSetSuspend(PREF_HITOKOTO_TYPES_STRING) ?: run {
+            dataStore.getStringSuspend(PREF_HITOKOTO_TYPE_STRING)?.let { setOf(it) }
+        } ?: setOf("a")
+        val url = "https://v1.hitokoto.cn/?${types.joinToString("&") { "c=$it" }}"
         val quoteJson = url.downloadUrl()
         val quoteJsonObject = JSONObject(quoteJson)
         val quoteText = quoteJsonObject.getString("hitokoto")

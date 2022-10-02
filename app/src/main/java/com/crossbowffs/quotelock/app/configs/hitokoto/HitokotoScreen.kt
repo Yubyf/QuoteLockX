@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.configs.ConfigsViewModel
 import com.crossbowffs.quotelock.ui.components.ConfigsAppBar
-import com.crossbowffs.quotelock.ui.components.RadioButtonItemList
+import com.crossbowffs.quotelock.ui.components.MultiSelectItemList
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 
@@ -27,11 +27,17 @@ fun HitokotoRoute(
     viewModel: ConfigsViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
+    val entryValues = stringArrayResource(id = R.array.hitokoto_type_values)
+    val selectedItems = viewModel.loadHitokotoTypesString() ?: run {
+        viewModel.loadHitokotoTypeIndex().takeIf { it > 0 }?.let { index ->
+            setOf(entryValues[index])
+        } ?: emptySet()
+    }
     HitokotoScreen(
         modifier = modifier,
-        selectedItemIndex = viewModel.loadHitokotoTypeIndex(),
-        onItemSelected = { index, item ->
-            viewModel.selectHitokotoType(index, item)
+        selectedItems = selectedItems,
+        onItemsSelected = { items ->
+            viewModel.selectHitokotoTypes(items)
         },
         onBack = onBack
     )
@@ -40,8 +46,8 @@ fun HitokotoRoute(
 @Composable
 fun HitokotoScreen(
     modifier: Modifier = Modifier,
-    selectedItemIndex: Int = 0,
-    onItemSelected: (Int, String) -> Unit = { _, _ -> },
+    selectedItems: Set<String> = emptySet(),
+    onItemsSelected: (Set<String>) -> Unit = {},
     onBack: () -> Unit = {},
 ) {
     Scaffold(
@@ -49,15 +55,17 @@ fun HitokotoScreen(
             ConfigsAppBar(titleRes = R.string.module_hitokoto_config_label, onBack = onBack)
         }
     ) { padding ->
-        RadioButtonItemList(
+        val entries = stringArrayResource(id = R.array.hitokoto_type_entries)
+        val entryValues = stringArrayResource(id = R.array.hitokoto_type_values)
+        MultiSelectItemList(
             modifier = modifier
                 .padding(padding)
                 .consumedWindowInsets(padding),
-            entries = stringArrayResource(id = R.array.hitokoto_type_entries),
-            entryValues = stringArrayResource(id = R.array.hitokoto_type_values),
-            selectedItemIndex = selectedItemIndex,
-            onItemSelected = { index, item ->
-                onItemSelected(index, item)
+            entries = entries,
+            entryValues = entryValues,
+            selectedItems = selectedItems.takeIf { it.isNotEmpty() } ?: setOf(entryValues.first()),
+            onItemsSelected = { items ->
+                onItemsSelected(items)
             }
         )
     }
