@@ -1,7 +1,11 @@
 package com.crossbowffs.quotelock.consts
 
+import android.content.res.Configuration
+import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.data.modules.hitokoto.HitokotoQuoteModule
 import com.yubyf.quotelockx.BuildConfig
+import com.yubyf.quotelockx.R
+import java.util.*
 
 const val PREF_COMMON = "common"
 const val PREF_COMMON_DISPLAY_ON_AOD = "pref_common_display_on_aod"
@@ -63,16 +67,25 @@ const val PREF_CARD_STYLE_FONT_FAMILY = "pref_card_style_font_family"
 const val PREF_CARD_STYLE_FONT_FAMILY_LEGACY_DEFAULT = "system"
 const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
 const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SERIF = "serif"
-const val PREF_CARD_STYLE_SHARE_WATERMARK = "pref_card_style_share_watermark"
-const val PREF_CARD_STYLE_SHARE_WATERMARK_DEFAULT = true
 
 const val PREF_QUOTE_SOURCE_PREFIX = "―"
 
-const val PREF_QUOTE_CARD_ELEVATION_DP = 10
+const val PREF_QUOTE_CARD_ELEVATION_DP = 6
 
 const val PREF_SHARE_FILE_AUTHORITY = "${BuildConfig.APPLICATION_ID}.fileprovider"
 const val PREF_SHARE_IMAGE_FRAME_WIDTH = 36F
+const val PREF_SHARE_IMAGE_NAME_PREFIX = "quotelockx_export_"
 const val PREF_SHARE_IMAGE_EXTENSION = ".png"
 const val PREF_SHARE_IMAGE_CHILD_PATH = "share/"
 const val PREF_SHARE_IMAGE_MIME_TYPE = "image/png"
 const val PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX = 36F
+const val PREF_SHARE_IMAGE_WATERMARK_PADDING = PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX * 2F
+
+val PREF_PUBLIC_RELATIVE_PATH by lazy {
+    // Get english application name for the default export path
+    App.instance.let {
+        it.createConfigurationContext(Configuration(it.resources.configuration).apply {
+            setLocale(Locale.ENGLISH)
+        }).resources.getString(R.string.quotelockx)
+    }
+}

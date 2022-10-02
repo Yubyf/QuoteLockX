@@ -6,10 +6,7 @@ import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -206,13 +203,59 @@ fun DetailAppBar(
         title = { Text(text = stringResource(id = R.string.pref_detail_title)) },
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
-                Icon(Icons.Rounded.Close, contentDescription = "Back")
+                Icon(Icons.Rounded.Close, contentDescription = stringResource(id = R.string.close))
             }
         },
         actions = {
             IconButton(onClick = onStyle) {
                 Icon(painter = painterResource(id = R.drawable.ic_text_style_24dp),
                     contentDescription = "Text style")
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
+fun ShareAppBar(
+    onDarkModeChecked: (Boolean) -> Unit,
+    onWatermarkChecked: (Boolean) -> Unit,
+    onBackPressed: () -> Unit,
+) {
+    CenterAlignedTopAppBar(
+        title = {},
+        navigationIcon = {
+            IconButton(onClick = onBackPressed) {
+                Icon(Icons.Rounded.Close, contentDescription = stringResource(id = R.string.close))
+            }
+        },
+        actions = {
+            var watermarkChecked by remember {
+                mutableStateOf(true)
+            }
+            IconToggleButton(checked = watermarkChecked,
+                onCheckedChange = { watermarkChecked = it; onWatermarkChecked(it) }) {
+                Icon(Icons.Rounded.BrandingWatermark,
+                    contentDescription = stringResource(id = R.string.quote_card_style_share_watermark),
+                    modifier = Modifier.padding(2.dp))
+            }
+            var darkModeChecked by remember {
+                mutableStateOf(false)
+            }
+            IconToggleButton(checked = darkModeChecked,
+                onCheckedChange = { darkModeChecked = it; onDarkModeChecked(it) },
+                colors = IconButtonDefaults.iconToggleButtonColors(
+                    checkedContentColor = LocalContentColor.current)) {
+                if (darkModeChecked) {
+                    Icon(Icons.Rounded.LightMode,
+                        contentDescription = "Light Mode")
+                } else {
+                    Icon(Icons.Rounded.DarkMode,
+                        contentDescription = "Dark Mode")
+                }
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

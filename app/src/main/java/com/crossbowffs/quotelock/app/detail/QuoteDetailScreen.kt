@@ -7,7 +7,6 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Canvas
 import android.graphics.Typeface
 import android.net.Uri
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
@@ -23,8 +22,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -63,17 +60,13 @@ fun QuoteDetailRoute(
     detailViewModel: QuoteDetailViewModel = hiltViewModel(),
     cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
     onFontCustomize: () -> Unit,
+    onShare: () -> Unit,
     onBack: () -> Unit,
 ) {
     val quoteData = QuoteData(quote, source.orEmpty(), author.orEmpty())
     detailViewModel.quoteData = quoteData
     val uiState by detailViewModel.uiState
-    val uiEvent by detailViewModel.uiEvent.collectAsState(initial = null)
     val cardStyleUiState by cardStyleViewModel.uiState
-    uiEvent?.shareFile?.let { file ->
-        LocalContext.current.shareImage(file)
-        detailViewModel.quoteShared()
-    }
     if (initialCollectState == null && uiState.collectState == null) {
         detailViewModel.queryQuoteCollectState()
     }
@@ -82,7 +75,7 @@ fun QuoteDetailRoute(
         uiState,
         onCollectClick = detailViewModel::switchCollectionState,
         onStyle = cardStyleViewModel::showStylePopup,
-        onShareCard = detailViewModel::shareQuote,
+        onShare = { detailViewModel.setSnapshotables(it); onShare() },
         onBack = onBack
     ) {
         CardStylePopup(
@@ -95,7 +88,6 @@ fun QuoteDetailRoute(
             onSourceSizeChange = cardStyleViewModel::setSourceSize,
             onLineSpacingChange = cardStyleViewModel::setLineSpacing,
             onCardPaddingChange = cardStyleViewModel::setCardPadding,
-            onShareWatermarkChange = cardStyleViewModel::setShareWatermark,
             onDismiss = cardStyleViewModel::dismissStylePopup
         )
     }
@@ -108,7 +100,7 @@ fun QuoteDetailScreen(
     uiState: QuoteDetailUiState,
     onCollectClick: (QuoteDataWithCollectState) -> Unit,
     onStyle: () -> Unit,
-    onShareCard: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
+    onShare: (Snapshotables) -> Unit = {},
     onBack: () -> Unit,
     popupContent: @Composable () -> Unit = {},
 ) {
@@ -123,15 +115,7 @@ fun QuoteDetailScreen(
                         contentDescription = stringResource(id = R.string.quote_image_share_description))
                 },
                 shape = FloatingActionButtonDefaults.largeShape,
-                onClick = {
-                    snapshotStates.bounds?.let {
-                        onShareCard(it) { canvas ->
-                            snapshotStates.forEach { snapshot ->
-                                snapshot.snapshot(canvas)
-                            }
-                        }
-                    }
-                }
+                onClick = { onShare(snapshotStates) }
             )
         },
         floatingActionButtonPosition = FabPosition.End
@@ -159,7 +143,7 @@ fun QuoteDetailPage(
     cardStyle: CardStyle = CardStyle(),
     snapshotStates: Snapshotables = Snapshotables(),
     onCollectClick: (QuoteDataWithCollectState) -> Unit,
-    onShareCard: ((size: Size, block: ((Canvas) -> Unit)) -> Unit)? = null,
+    onShareCard: ((Snapshotables) -> Unit)? = null,
 ) {
     val extraPadding = 64.dp
     var containerHeight by remember {
@@ -230,7 +214,7 @@ fun QuoteCard(
     snapshotStates: Snapshotables = Snapshotables(),
     currentCollectState: Boolean = false,
     onCollectClick: (() -> Unit)? = null,
-    onShareCard: ((size: Size, block: ((Canvas) -> Unit)) -> Unit)? = null,
+    onShareCard: ((Snapshotables) -> Unit)? = null,
 ) {
     val containerColor = QuoteLockTheme.quotelockColors.quoteCardSurface
     val contentColor = QuoteLockTheme.quotelockColors.quoteCardOnSurface
@@ -242,20 +226,18 @@ fun QuoteCard(
         elevation = PREF_QUOTE_CARD_ELEVATION_DP.dp,
         cornerSize = 8.dp,
         contentAlignment = Alignment.Center,
-        rememberSnapshotState("card").also { snapshotStates += it }
+        rememberCardSnapshotState("card").also { snapshotStates += it }
     ) {
-        var columnBounds: Rect by remember { mutableStateOf(Rect.Zero) }
         // Text container position snapshot
-        snapshotStates += rememberSnapshotState("text_container", false).apply {
-            snapshotCallback = { canvas -> canvas.translate(columnBounds.left, columnBounds.top) }
-        }
+        val textContainerSnapshotable = rememberContainerSnapshotState("text_container", false)
+        snapshotStates += textContainerSnapshotable
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(horizontal = cardPadding, vertical = cardPadding + 24.dp)
                 .align(alignment = Alignment.Center)
-                .onGloballyPositioned { columnBounds = it.boundsInParent() },
+                .onGloballyPositioned { textContainerSnapshotable.region = it.boundsInParent() },
             horizontalAlignment = Alignment.End,
         ) {
             SnapshotText(text = quote,
@@ -264,7 +246,7 @@ fun QuoteCard(
                 lineHeight = 1.3F.em,
                 textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth(),
-                snapshotable = rememberSnapshotState("quote", false)
+                snapshotable = rememberTextSnapshotState("quote", false)
                     .also { snapshotStates += it }
             )
             if (!source.isNullOrBlank()) {
@@ -275,7 +257,7 @@ fun QuoteCard(
                     modifier = Modifier
                         .wrapContentWidth()
                         .padding(top = lineSpacing),
-                    snapshotable = rememberSnapshotState("source", false)
+                    snapshotable = rememberTextSnapshotState("source", false)
                         .also { snapshotStates += it }
                 )
             }
@@ -298,15 +280,8 @@ fun QuoteCard(
                 }
             }
             onShareCard?.let {
-                IconButton(modifier = Modifier.size(36.dp), onClick = {
-                    snapshotStates.bounds?.let {
-                        onShareCard(it) { canvas ->
-                            snapshotStates.forEach { snapshot ->
-                                snapshot.snapshot(canvas)
-                            }
-                        }
-                    }
-                }) {
+                IconButton(modifier = Modifier.size(36.dp),
+                    onClick = { onShareCard(snapshotStates) }) {
                     Icon(Icons.Rounded.Share,
                         contentDescription = stringResource(id = R.string.quote_image_share_description),
                         modifier = Modifier.size(20.dp))
@@ -369,7 +344,7 @@ private fun QuoteCardPreview(
                 cardPadding = 36.dp,
                 minHeight = 240.dp,
                 onCollectClick = {},
-                onShareCard = { _, _ -> }
+                onShareCard = {}
             )
         }
     }
@@ -390,7 +365,7 @@ private fun QuotePagePreview() {
                     true
                 ),
                 onCollectClick = {},
-                onShareCard = { _, _ -> }
+                onShareCard = {}
             )
         }
     }

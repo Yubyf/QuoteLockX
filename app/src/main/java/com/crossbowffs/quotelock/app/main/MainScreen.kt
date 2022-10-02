@@ -5,7 +5,6 @@ package com.crossbowffs.quotelock.app.main
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Canvas
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
@@ -18,7 +17,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -27,7 +25,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.detail.QuoteDetailPage
 import com.crossbowffs.quotelock.app.detail.QuoteDetailUiState
 import com.crossbowffs.quotelock.app.detail.QuoteDetailViewModel
-import com.crossbowffs.quotelock.app.detail.shareImage
 import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
 import com.crossbowffs.quotelock.app.detail.style.CardStyleUiState
 import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
@@ -55,17 +52,13 @@ fun MainRoute(
     onCollectionItemClick: () -> Unit,
     onHistoryItemClick: () -> Unit,
     onFontCustomize: () -> Unit,
+    onShare: () -> Unit,
 ) {
     val mainUiEvent by mainViewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
     val mainUiState by mainViewModel.uiState
     val mainDialogUiState by mainViewModel.uiDialogState
     val detailUiState by detailViewModel.uiState
-    val detailUiEvent by detailViewModel.uiEvent.collectAsState(initial = null)
     val cardStyleUiState by cardStyleViewModel.uiState
-    detailUiEvent?.shareFile?.let { file ->
-        LocalContext.current.shareImage(file)
-        detailViewModel.quoteShared()
-    }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     mainUiEvent.let { event ->
@@ -92,7 +85,7 @@ fun MainRoute(
         showStylePopup = cardStyleViewModel::showStylePopup,
         refreshQuote = mainViewModel::refreshQuote,
         switchCollectionState = detailViewModel::switchCollectionState,
-        shareQuote = detailViewModel::shareQuote,
+        shareQuote = { detailViewModel.setSnapshotables(it); onShare() },
         onSettingsItemClick = onSettingsItemClick,
         onLockscreenStylesItemClick = onLockscreenStylesItemClick,
         onCollectionItemClick = onCollectionItemClick,
@@ -103,7 +96,6 @@ fun MainRoute(
         onSourceSizeChange = cardStyleViewModel::setSourceSize,
         onLineSpacingChange = cardStyleViewModel::setLineSpacing,
         onCardPaddingChange = cardStyleViewModel::setCardPadding,
-        onShareWatermarkChange = cardStyleViewModel::setShareWatermark,
         dismissStylePopup = cardStyleViewModel::dismissStylePopup
     )
     val context = LocalContext.current
@@ -125,7 +117,7 @@ fun MainScreen(
     showStylePopup: () -> Unit = {},
     refreshQuote: () -> Unit = {},
     switchCollectionState: (QuoteDataWithCollectState) -> Unit = {},
-    shareQuote: (size: Size, block: ((Canvas) -> Unit)) -> Unit = { _, _ -> },
+    shareQuote: (Snapshotables) -> Unit = {},
     onSettingsItemClick: () -> Unit = {},
     onLockscreenStylesItemClick: () -> Unit = {},
     onCollectionItemClick: () -> Unit = {},
@@ -136,7 +128,6 @@ fun MainScreen(
     onSourceSizeChange: (Int) -> Unit = {},
     onLineSpacingChange: (Int) -> Unit = {},
     onCardPaddingChange: (Int) -> Unit = {},
-    onShareWatermarkChange: (Boolean) -> Unit = {},
     dismissStylePopup: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
@@ -226,7 +217,6 @@ fun MainScreen(
                 onSourceSizeChange = onSourceSizeChange,
                 onLineSpacingChange = onLineSpacingChange,
                 onCardPaddingChange = onCardPaddingChange,
-                onShareWatermarkChange = onShareWatermarkChange,
                 onDismiss = dismissStylePopup
             )
         }

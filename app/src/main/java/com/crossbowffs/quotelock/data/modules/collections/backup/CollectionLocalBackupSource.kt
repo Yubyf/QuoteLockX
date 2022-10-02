@@ -2,10 +2,9 @@ package com.crossbowffs.quotelock.data.modules.collections.backup
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Configuration
 import android.net.Uri
 import android.os.Environment
-import com.crossbowffs.quotelock.app.App
+import com.crossbowffs.quotelock.consts.PREF_PUBLIC_RELATIVE_PATH
 import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDao
@@ -23,16 +22,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileWriter
 import java.io.InputStreamReader
-import java.util.*
-
-val PREF_BACKUP_RELATIVE_PATH by lazy {
-    // Get english application name for the default export path
-    App.instance.let {
-        it.createConfigurationContext(Configuration(it.resources.configuration).apply {
-            setLocale(Locale.ENGLISH)
-        }).resources.getString(R.string.quotelockx)
-    }
-}
 
 /**
  * Reference: [Database-Backup-Restore](https://github.com/prof18/Database-Backup-Restore/blob/master/app/src/main/java/com/prof/dbtest/backup/LocalBackup.java)
@@ -148,7 +137,7 @@ class CollectionLocalBackupSource internal constructor(
 
     @SuppressLint("Range")
     private fun copyFileToDownloads(file: File): String {
-        return context.copyFileToDownloads(file, PREF_BACKUP_RELATIVE_PATH)
+        return context.copyFileToDownloads(file, PREF_PUBLIC_RELATIVE_PATH)
     }
 
     companion object {

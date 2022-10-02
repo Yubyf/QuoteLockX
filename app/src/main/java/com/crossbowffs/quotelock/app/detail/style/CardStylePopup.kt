@@ -48,7 +48,6 @@ fun CardStylePopup(
     onSourceSizeChange: (Int) -> Unit,
     onLineSpacingChange: (Int) -> Unit,
     onCardPaddingChange: (Int) -> Unit,
-    onShareWatermarkChange: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     AnchorPopup(
@@ -65,7 +64,6 @@ fun CardStylePopup(
             onSourceSizeChange = onSourceSizeChange,
             onLineSpacingChange = onLineSpacingChange,
             onCardPaddingChange = onCardPaddingChange,
-            onShareWatermarkChange = onShareWatermarkChange,
             onDismiss = onDismiss)
     }
 }
@@ -80,7 +78,6 @@ fun CardStyleContent(
     onSourceSizeChange: (Int) -> Unit,
     onLineSpacingChange: (Int) -> Unit,
     onCardPaddingChange: (Int) -> Unit,
-    onShareWatermarkChange: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val names = stringArrayResource(id = R.array.default_font_family_entries)
@@ -160,23 +157,6 @@ fun CardStyleContent(
                     onQuoteSizeChange = { performHapticFeedback(); onQuoteSizeChange(it) },
                     onSourceSizeChange = { performHapticFeedback(); onSourceSizeChange(it) },
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(id = R.string.quote_card_style_share_watermark),
-                        fontSize = MaterialTheme.typography.labelLarge.fontSize,
-                        modifier = Modifier
-                            .weight(1f)
-                            .alpha(ContentAlpha.medium),
-                    )
-                    var shareWatermark by remember {
-                        mutableStateOf(cardStyle.shareWatermark)
-                    }
-                    Switch(checked = shareWatermark,
-                        onCheckedChange = {
-                            shareWatermark = it; onShareWatermarkChange(it)
-                        })
-                }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier
                     .alpha(ContentAlpha.disabled),
@@ -467,7 +447,6 @@ private fun CardStylePopupPreview() {
                 onSourceSizeChange = {},
                 onLineSpacingChange = {},
                 onCardPaddingChange = {},
-                onShareWatermarkChange = {},
                 onDismiss = {}
             )
         }

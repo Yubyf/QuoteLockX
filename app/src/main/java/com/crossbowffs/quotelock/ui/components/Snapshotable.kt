@@ -2,7 +2,10 @@ package com.crossbowffs.quotelock.ui.components
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.graphics.*
+import android.graphics.BlurMaskFilter
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Build
 import android.text.*
 import androidx.annotation.ColorInt
@@ -19,11 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.isUnspecified
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -51,28 +51,92 @@ class Snapshotables : MutableIterable<Snapshotable> {
     }
 
     val bounds: Size?
-        get() = list.filter { it.snapshotRoot }.map { it.bounds }.maxByOrNull { it.maxDimension }
+        get() = list.filter { it.snapshotRoot }.map { Size(it.bounds.width, it.bounds.height) }
+            .maxByOrNull { it.maxDimension }
+
+    fun snapshot(
+        canvas: Canvas,
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+    ) {
+        list.forEach { it.snapshot(canvas, containerColor, contentColor) }
+    }
 }
 
 @Composable
-fun rememberSnapshotState(
+fun rememberContainerSnapshotState(
     snapshotKey: String = UUID.randomUUID().toString(),
     snapshotRoot: Boolean = true,
 ) = remember {
-    Snapshotable(snapshotKey = snapshotKey, snapshotRoot = snapshotRoot)
+    ContainerSnapshotable(snapshotKey = snapshotKey, snapshotRoot = snapshotRoot)
 }
 
-class Snapshotable internal constructor(
+@Composable
+fun rememberTextSnapshotState(
+    snapshotKey: String = UUID.randomUUID().toString(),
+    snapshotRoot: Boolean = true,
+) = remember {
+    TextSnapshotable(snapshotKey = snapshotKey, snapshotRoot = snapshotRoot)
+}
+
+@Composable
+fun rememberCardSnapshotState(
+    snapshotKey: String = UUID.randomUUID().toString(),
+    snapshotRoot: Boolean = true,
+) = remember {
+    CardSnapshotable(snapshotKey = snapshotKey, snapshotRoot = snapshotRoot)
+}
+
+abstract class Snapshotable internal constructor(
     internal val snapshotKey: String = UUID.randomUUID().toString(),
     internal val snapshotRoot: Boolean = true,
-    internal var snapshotCallback: ((Canvas) -> Unit)? = null,
-    internal var boundsCallback: (() -> Size)? = null,
 ) {
-    val bounds: Size
-        get() = boundsCallback?.invoke() ?: Size.Unspecified
+    abstract val bounds: Rect
 
-    fun snapshot(canvas: Canvas) {
-        snapshotCallback?.invoke(canvas)
+    abstract fun snapshot(
+        canvas: Canvas,
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+    )
+}
+
+class ContainerSnapshotable(
+    snapshotKey: String = UUID.randomUUID().toString(),
+    snapshotRoot: Boolean = true,
+    internal var region: Rect = Rect.Zero,
+) : Snapshotable(snapshotKey, snapshotRoot) {
+    override val bounds: Rect
+        get() = region
+
+    override fun snapshot(canvas: Canvas, containerColor: Color, contentColor: Color) {
+        canvas.translate(bounds.left, bounds.top)
+    }
+}
+
+class TextSnapshotable(
+    snapshotKey: String = UUID.randomUUID().toString(),
+    snapshotRoot: Boolean = true,
+    internal var textLayout: Layout? = null,
+    internal var textRegion: Rect = Rect.Zero,
+) : Snapshotable(snapshotKey, snapshotRoot) {
+
+    override val bounds: Rect
+        get() = textRegion
+
+    override fun snapshot(
+        canvas: Canvas,
+        containerColor: Color,
+        contentColor: Color,
+    ) {
+        textLayout?.let { layout ->
+            canvas.save()
+            layout.paint.color = contentColor.toArgb()
+            if (!snapshotRoot) {
+                canvas.translate(textRegion.left, textRegion.top)
+            }
+            layout.draw(canvas)
+            canvas.restore()
+        }
     }
 }
 
@@ -89,36 +153,18 @@ fun SnapshotText(
     textAlign: TextAlign? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
-    snapshotable: Snapshotable? = null,
+    snapshotable: TextSnapshotable? = null,
 ) {
     var textLayout: SnapshotTextLayout? by remember {
-        mutableStateOf(null)
-    }
-    var textPicture: Picture? by remember {
         mutableStateOf(null)
     }
     var textRegion by remember {
         mutableStateOf(Rect.Zero)
     }
-
-    DisposableEffect(Unit) {
-        snapshotable?.let { snapshot ->
-            snapshot.snapshotCallback = { canvas ->
-                textPicture?.let { picture ->
-                    canvas.save()
-                    if (!snapshot.snapshotRoot) {
-                        canvas.translate(textRegion.left, textRegion.top)
-                    }
-                    picture.draw(canvas)
-                    canvas.restore()
-                }
-            }
-            snapshot.boundsCallback = { Size(textRegion.width, textRegion.height) }
-        }
-
-        onDispose {
-            snapshotable?.snapshotCallback = null
-            snapshotable?.boundsCallback = null
+    LaunchedEffect(textLayout, textRegion) {
+        snapshotable?.apply {
+            this.textLayout = textLayout?.makeNewTextLayout()
+            this.textRegion = textRegion
         }
     }
 
@@ -131,13 +177,7 @@ fun SnapshotText(
         content = {
             Canvas(modifier = Modifier) {
                 drawIntoCanvas { canvas ->
-                    textLayout?.layout?.let { layout ->
-                        textPicture = Picture().apply {
-                            layout.draw(beginRecording(layout.width, layout.height))
-                            endRecording()
-                            draw(canvas.nativeCanvas)
-                        }
-                    }
+                    textLayout?.layout?.draw(canvas.nativeCanvas)
                 }
             }
         }
@@ -162,11 +202,11 @@ fun SnapshotText(
             if (newTextLayout == it) {
                 it.layout
             } else {
-                newTextLayout.makeNewTextLayout().also {
+                newTextLayout.updateTextLayout().also {
                     textLayout = newTextLayout
                 }
             }
-        } ?: newTextLayout.makeNewTextLayout().also {
+        } ?: newTextLayout.updateTextLayout().also {
             textLayout = newTextLayout
         }
         layout(
@@ -195,7 +235,7 @@ private data class SnapshotTextLayout(
     private val fontWeight: FontWeight = FontWeight.Normal,
     private val fontFamily: Typeface? = null,
     private val lineHeight: TextUnit = 1.em,
-    private val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+    private val layoutDirection: LayoutDirection = Ltr,
     private val textAlign: TextAlign? = null,
     private val overflow: TextOverflow = TextOverflow.Clip,
     private val maxLines: Int = Int.MAX_VALUE,
@@ -203,6 +243,10 @@ private data class SnapshotTextLayout(
 
     lateinit var layout: Layout
         private set
+
+    fun updateTextLayout(): Layout = makeNewTextLayout().also {
+        layout = it
+    }
 
     fun makeNewTextLayout(): Layout = makeNewTextLayout(
         text = text,
@@ -311,8 +355,6 @@ private data class SnapshotTextLayout(
                 lineHeightMult, 0F,
                 includePad,
                 ellipsize, ellipsizeWidth)
-        }.also {
-            layout = it
         }
     }
 
@@ -350,6 +392,60 @@ private data class SnapshotTextLayout(
     }
 }
 
+class CardSnapshotable(
+    snapshotKey: String = UUID.randomUUID().toString(),
+    snapshotRoot: Boolean = true,
+    internal var cornerSizePx: Float = 0F,
+    internal var cardRegion: Rect = Rect.Zero,
+    internal var insideRect: Rect = Rect.Zero,
+) : Snapshotable(snapshotKey, snapshotRoot) {
+
+    private val backgroundPaint = Paint().apply {
+        style = Paint.Style.FILL
+    }
+
+    private val shadowPaint = Paint().apply {
+        color = Color.Black
+            .copy(alpha = 0.2F)
+            .toArgb()
+        style = Paint.Style.FILL
+    }
+
+    internal var elevationPx: Float = 0F
+        set(value) {
+            field = value
+            shadowPaint.maskFilter = BlurMaskFilter(value * 2,
+                BlurMaskFilter.Blur.OUTER)
+        }
+
+    override val bounds: Rect
+        get() = cardRegion.copy(
+            left = cardRegion.left - elevationPx,
+            top = cardRegion.top - elevationPx,
+            right = cardRegion.right + elevationPx,
+            bottom = cardRegion.bottom + elevationPx
+        )
+
+    override fun snapshot(
+        canvas: Canvas,
+        containerColor: Color,
+        contentColor: Color,
+    ) {
+        backgroundPaint.color = containerColor.toArgb()
+        canvas.translate(elevationPx, elevationPx)
+        canvas.save()
+        if (!snapshotRoot) {
+            canvas.translate(cardRegion.left, cardRegion.top)
+        }
+        canvas.drawRoundRect(insideRect.toAndroidRectF(), cornerSizePx, cornerSizePx, shadowPaint)
+        canvas.drawRoundRect(insideRect.toAndroidRectF(),
+            cornerSizePx,
+            cornerSizePx,
+            backgroundPaint)
+        canvas.restore()
+    }
+}
+
 @Composable
 fun SnapshotCard(
     modifier: Modifier = Modifier,
@@ -358,38 +454,39 @@ fun SnapshotCard(
     elevation: Dp = 0.dp,
     cornerSize: Dp = 0.dp,
     contentAlignment: Alignment = Alignment.TopStart,
-    snapshotable: Snapshotable? = null,
+    snapshotable: CardSnapshotable? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    var backgroundPicture: Picture? by remember {
-        mutableStateOf(null)
-    }
     var cardRegion by remember {
         mutableStateOf(Rect.Zero)
     }
     val elevationPx = with(LocalDensity.current) { elevation.toPx() }
-    DisposableEffect(Unit) {
-        snapshotable?.let { snapshot ->
-            snapshot.snapshotCallback = { canvas ->
-                backgroundPicture?.let { picture ->
-                    canvas.translate(elevationPx, elevationPx)
-                    canvas.save()
-                    if (!snapshot.snapshotRoot) {
-                        canvas.translate(cardRegion.left, cardRegion.top)
-                    }
-                    picture.draw(canvas)
-                    canvas.restore()
-                }
-            }
-            snapshot.boundsCallback = {
-                Size(cardRegion.width + elevationPx * 2,
-                    cardRegion.height + elevationPx * 2)
-            }
-        }
-
-        onDispose {
-            snapshotable?.snapshotCallback = null
-            snapshotable?.boundsCallback = null
+    val cornerSizePx = with(LocalDensity.current) { cornerSize.toPx() }
+    var insideRect by remember {
+        mutableStateOf(Rect.Zero)
+    }
+    val shadowPaint by remember {
+        mutableStateOf(Paint().apply {
+            color = Color.Black
+                .copy(alpha = 0.2F)
+                .toArgb()
+            style = Paint.Style.FILL
+            maskFilter = BlurMaskFilter(elevationPx * 2,
+                BlurMaskFilter.Blur.OUTER)
+        })
+    }
+    val backgroundPaint by remember(containerColor) {
+        mutableStateOf(Paint().apply {
+            color = containerColor.toArgb()
+            style = Paint.Style.FILL
+        })
+    }
+    LaunchedEffect(elevationPx, cornerSizePx, cardRegion, insideRect) {
+        snapshotable?.apply {
+            this.elevationPx = elevationPx
+            this.cornerSizePx = cornerSizePx
+            this.cardRegion = cardRegion
+            this.insideRect = insideRect
         }
     }
     CompositionLocalProvider(
@@ -397,37 +494,19 @@ fun SnapshotCard(
     ) {
         Box(
             modifier = modifier
-                .padding(elevation)
+                .padding(elevation * 1.6F)
                 .drawWithContent {
                     drawIntoCanvas { canvas ->
-                        backgroundPicture = Picture().apply {
-                            val pictureCanvas = beginRecording(size.width.roundToInt(),
-                                size.height.roundToInt())
-                            val rect = RectF(0F, 0F, size.width, size.height)
-                            val shadowPaint = Paint().apply {
-                                color = Color.Black
-                                    .copy(alpha = 0.2F)
-                                    .toArgb()
-                                style = Paint.Style.FILL
-                                maskFilter = BlurMaskFilter(elevation.toPx() * 2,
-                                    BlurMaskFilter.Blur.OUTER)
-                            }
-                            val backgroundPaint = Paint().apply {
-                                color = containerColor.toArgb()
-                                style = Paint.Style.FILL
-                            }
-                            pictureCanvas.drawRoundRect(rect,
-                                cornerSize.toPx(),
-                                cornerSize.toPx(),
-                                shadowPaint)
-                            pictureCanvas.drawRoundRect(rect,
-                                cornerSize.toPx(),
-                                cornerSize.toPx(),
-                                backgroundPaint
-                            )
-                            endRecording()
-                            draw(canvas.nativeCanvas)
-                        }
+                        insideRect = Rect(0F, 0F, size.width, size.height)
+                        canvas.nativeCanvas.drawRoundRect(insideRect.toAndroidRectF(),
+                            cornerSizePx,
+                            cornerSizePx,
+                            shadowPaint)
+                        canvas.nativeCanvas.drawRoundRect(insideRect.toAndroidRectF(),
+                            cornerSizePx,
+                            cornerSizePx,
+                            backgroundPaint
+                        )
                     }
                     drawContent()
                 }

@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalAnimationApi::class)
-
 package com.crossbowffs.quotelock.app.detail
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -24,7 +21,11 @@ object DetailDestination : QuoteNavigationDestination {
         "$screen/{$QUOTE_ARG}?$SOURCE_ARG={$SOURCE_ARG}&$AUTHOR_ARG={$AUTHOR_ARG}&$COLLECT_STATE_ARG={$COLLECT_STATE_ARG}"
 }
 
-fun NavGraphBuilder.detailGraph(onFontCustomize: () -> Unit, onBack: () -> Unit) {
+fun NavGraphBuilder.detailGraph(
+    onFontCustomize: () -> Unit,
+    onShare: () -> Unit,
+    onBack: () -> Unit,
+) {
     standalonePageComposable(
         route = DetailDestination.route,
         arguments = listOf(
@@ -55,6 +56,7 @@ fun NavGraphBuilder.detailGraph(onFontCustomize: () -> Unit, onBack: () -> Unit)
             source = source,
             author = author,
             initialCollectState = collectState?.toBooleanStrictOrNull(),
+            onShare = onShare,
             onBack = onBack,
             onFontCustomize = onFontCustomize)
     }

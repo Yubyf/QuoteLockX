@@ -197,6 +197,8 @@
 
     <string name="quote_image_share">Share</string>
     <string name="quote_image_share_description">Share Quote</string>
+    <string name="quote_image_share_saved">Quote image saved to %s</string>
+    <string name="quote_image_share_save_failed">Failed to save quote image</string>
 
     <string name="quote_card_style_text_title">Text</string>
     <string name="quote_card_style_source_title">Source</string>

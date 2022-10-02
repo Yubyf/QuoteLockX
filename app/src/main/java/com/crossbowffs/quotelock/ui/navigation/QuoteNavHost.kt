@@ -28,6 +28,8 @@ import com.crossbowffs.quotelock.app.main.mainGraph
 import com.crossbowffs.quotelock.app.settings.SettingsDestination
 import com.crossbowffs.quotelock.app.settings.navigateToSettings
 import com.crossbowffs.quotelock.app.settings.settingsGraph
+import com.crossbowffs.quotelock.app.share.navigateToShare
+import com.crossbowffs.quotelock.app.share.shareGraph
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -48,7 +50,8 @@ fun MainNavHost(
             onLockscreenStylesItemClick = navController::navigateToLockscreenStyles,
             onCollectionItemClicked = navController::navigateToCollection,
             onHistoryItemClicked = navController::navigateToHistory,
-            onFontCustomize = navController::navigateToFontManagement
+            onFontCustomize = navController::navigateToFontManagement,
+            onShare = navController::navigateToShare
         )
         settingsGraph(
             onModuleConfigItemClicked = navController::navigateToConfigScreen,
@@ -73,10 +76,12 @@ fun MainNavHost(
             onBack = navController::popBackStack
         )
         detailGraph(onFontCustomize = navController::navigateToFontManagement,
+            onShare = navController::navigateToShare,
             onBack = navController::popBackStack)
         configGraphs(navController::popBackStack)
         fontManagementGraph(navController::popBackStack)
         aboutGraph(navController::popBackStack)
+        shareGraph(navController::popBackStack)
     }
 }
 

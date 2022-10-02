@@ -171,6 +171,8 @@
 
     <string name="quote_image_share">分享</string>
     <string name="quote_image_share_description">分享格言</string>
+    <string name="quote_image_share_saved">格言图片已保存至 %s</string>
+    <string name="quote_image_share_save_failed">格言图片保存失败</string>
 
     <string name="quote_card_style_text_title">文本</string>
     <string name="quote_card_style_source_title">来源</string>

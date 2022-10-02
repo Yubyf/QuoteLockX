@@ -1,6 +1,5 @@
 package com.crossbowffs.quotelock.data
 
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.crossbowffs.quotelock.consts.*
@@ -54,9 +53,6 @@ class CardStyleRepository @Inject internal constructor(
     var fontFamily: String by DataStoreValue(PREF_CARD_STYLE_FONT_FAMILY,
         PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF)
 
-    var shareWatermark: Boolean by DataStoreValue(PREF_CARD_STYLE_SHARE_WATERMARK,
-        PREF_CARD_STYLE_SHARE_WATERMARK_DEFAULT)
-
     val cardStyle: CardStyle
         get() = CardStyle(
             quoteSize = quoteSize,
@@ -64,7 +60,6 @@ class CardStyleRepository @Inject internal constructor(
             fontFamily = fontFamily,
             lineSpacing = lineSpacing,
             cardPadding = cardPadding,
-            shareWatermark = shareWatermark,
         )
 
     private val _cardStyleFlow = MutableStateFlow(cardStyle)
@@ -102,12 +97,6 @@ class CardStyleRepository @Inject internal constructor(
                         preferences[intPreferencesKey(PREF_CARD_STYLE_CARD_PADDING)]
                             ?: PREF_CARD_STYLE_CARD_PADDING_DEFAULT
                     _cardStyleFlow.update { it.copy(cardPadding = cardPadding) }
-                }
-                PREF_CARD_STYLE_SHARE_WATERMARK -> {
-                    val shareWatermark =
-                        preferences[booleanPreferencesKey(PREF_CARD_STYLE_SHARE_WATERMARK)]
-                            ?: PREF_CARD_STYLE_SHARE_WATERMARK_DEFAULT
-                    _cardStyleFlow.update { it.copy(shareWatermark = shareWatermark) }
                 }
             }
         }

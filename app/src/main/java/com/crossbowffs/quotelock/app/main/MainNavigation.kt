@@ -18,6 +18,7 @@ fun NavGraphBuilder.mainGraph(
     onCollectionItemClicked: () -> Unit,
     onHistoryItemClicked: () -> Unit,
     onFontCustomize: () -> Unit,
+    onShare: () -> Unit,
 ) {
     composable(route = MainDestination.route) {
         MainRoute(
@@ -25,7 +26,8 @@ fun NavGraphBuilder.mainGraph(
             onLockscreenStylesItemClick = onLockscreenStylesItemClick,
             onCollectionItemClick = onCollectionItemClicked,
             onHistoryItemClick = onHistoryItemClicked,
-            onFontCustomize = onFontCustomize
+            onFontCustomize = onFontCustomize,
+            onShare = onShare
         )
     }
 }
