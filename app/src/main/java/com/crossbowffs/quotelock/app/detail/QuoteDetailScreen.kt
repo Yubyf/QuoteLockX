@@ -5,6 +5,7 @@ package com.crossbowffs.quotelock.app.detail
 
 import android.content.res.Configuration
 import android.graphics.Typeface
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
@@ -227,6 +228,7 @@ fun QuoteCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .animateContentSize()
                 .padding(horizontal = cardPadding, vertical = cardPadding + 24.dp)
                 .align(alignment = Alignment.Center)
                 .onGloballyPositioned { textContainerSnapshotable.region = it.boundsInParent() },
