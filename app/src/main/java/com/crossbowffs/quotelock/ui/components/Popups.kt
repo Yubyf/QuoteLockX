@@ -176,16 +176,16 @@ private data class AnchorPopupPositionProvider(
         val toDisplayLeft = 0
         val x = if (layoutDirection == LayoutDirection.Ltr) {
             sequenceOf(
-                toRight,
-                toLeft,
+                toRight.coerceAtLeast(0),
+                toLeft.coerceAtMost(windowSize.width - popupContentSize.width),
                 // If the anchor gets outside of the window on the left, we want to position
                 // toDisplayLeft for proximity to the anchor. Otherwise, toDisplayRight.
                 if (anchorBounds.left >= 0) toDisplayRight else toDisplayLeft
             )
         } else {
             sequenceOf(
-                toLeft,
-                toRight,
+                toLeft.coerceAtLeast(0),
+                toRight.coerceAtMost(windowSize.width - popupContentSize.width),
                 // If the anchor gets outside of the window on the right, we want to position
                 // toDisplayRight for proximity to the anchor. Otherwise, toDisplayLeft.
                 if (anchorBounds.right <= windowSize.width) toDisplayLeft else toDisplayRight
@@ -199,7 +199,12 @@ private data class AnchorPopupPositionProvider(
         val toTop = anchorBounds.top - contentOffsetY - popupContentSize.height
         val toCenter = anchorBounds.top - popupContentSize.height / 2
         val toDisplayBottom = windowSize.height - popupContentSize.height
-        val y = sequenceOf(toBottom, toTop, toCenter, toDisplayBottom).firstOrNull {
+        val y = sequenceOf(
+            toBottom.coerceIn(0, windowSize.height - popupContentSize.height),
+            toTop.coerceIn(0, windowSize.height - popupContentSize.height),
+            toCenter,
+            toDisplayBottom
+        ).firstOrNull {
             it >= 0 && it + popupContentSize.height <= windowSize.height
         } ?: toTop
 
