@@ -119,7 +119,8 @@ fun CardStyleContent(
                         Divider(modifier = Modifier
                             .height(56.dp)
                             .padding(top = 4.dp)
-                            .width(0.5.dp)
+                            .width(0.5.dp),
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = ContentAlpha.disabled)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                     }
@@ -196,8 +197,8 @@ private fun PopupFontIndicator(
                 )
             } else ButtonDefaults.textButtonColors(),
             shape = CircleShape,
-            border = BorderStroke(Dp.Hairline,
-                MaterialTheme.colorScheme.outline),
+            border = BorderStroke(1.dp,
+                MaterialTheme.colorScheme.outline.copy(alpha = ContentAlpha.disabled)),
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier.size(width)
         ) {
@@ -212,8 +213,8 @@ private fun PopupFontIndicator(
                 LocalConfiguration.current.localeName.takeIf { it.isNotBlank() }
                     ?: fileName
             },
-            color = AlertDialogDefaults.textContentColor,
-            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+            color = AlertDialogDefaults.textContentColor.copy(alpha = ContentAlpha.high),
+            fontSize = MaterialTheme.typography.labelSmall.fontSize,
             letterSpacing = 0.sp,
             lineHeight = 1.em,
             overflow = TextOverflow.Ellipsis,
@@ -331,7 +332,8 @@ private fun PopupFontSizeRow(
         Divider(modifier = Modifier
             .fillMaxHeight()
             .padding(vertical = 8.dp)
-            .width(0.5.dp)
+            .width(0.5.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = ContentAlpha.disabled)
         )
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -397,15 +399,15 @@ private fun NumberButtonPicker(
                 .width(48.dp)
                 .height(36.dp),
             shape = MaterialTheme.shapes.extraSmall,
-            border = BorderStroke(Dp.Hairline,
-                MaterialTheme.colorScheme.outline),
+            border = BorderStroke(1.dp,
+                MaterialTheme.colorScheme.outline.copy(alpha = ContentAlpha.disabled)),
             contentPadding = PaddingValues(0.dp)
         ) {
             decreaseIcon()
         }
         Text(text = currentValue.toString(),
-            color = AlertDialogDefaults.textContentColor,
-            fontSize = MaterialTheme.typography.bodySmall.fontSize)
+            color = AlertDialogDefaults.textContentColor.copy(alpha = ContentAlpha.high),
+            fontSize = MaterialTheme.typography.labelSmall.fontSize)
         OutlinedButton(
             onClick = {
                 if (currentValue + step <= valueRange.endInclusive) {
@@ -418,8 +420,8 @@ private fun NumberButtonPicker(
                 .width(48.dp)
                 .height(36.dp),
             shape = MaterialTheme.shapes.extraSmall,
-            border = BorderStroke(Dp.Hairline,
-                MaterialTheme.colorScheme.outline),
+            border = BorderStroke(1.dp,
+                MaterialTheme.colorScheme.outline.copy(alpha = ContentAlpha.disabled)),
             contentPadding = PaddingValues(0.dp)
         ) {
             increaseIcon()
@@ -434,11 +436,10 @@ private fun NumberButtonPicker(
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun CardStylePopupPreview() {
+private fun CardStyleContentPreview() {
     QuoteLockTheme {
         Surface {
-            CardStylePopup(
-                true,
+            CardStyleContent(
                 fonts = emptyList(),
                 cardStyle = CardStyle(),
                 onFontSelected = {},
