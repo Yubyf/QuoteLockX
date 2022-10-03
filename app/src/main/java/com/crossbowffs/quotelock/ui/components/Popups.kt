@@ -200,8 +200,18 @@ private data class AnchorPopupPositionProvider(
         val toCenter = anchorBounds.top - popupContentSize.height / 2
         val toDisplayBottom = windowSize.height - popupContentSize.height
         val y = sequenceOf(
-            toBottom.coerceIn(0, windowSize.height - popupContentSize.height),
-            toTop.coerceIn(0, windowSize.height - popupContentSize.height),
+            when {
+                toBottom < 0 -> 0
+                toBottom + popupContentSize.height > windowSize.height ->
+                    windowSize.height - popupContentSize.height
+                else -> toBottom
+            },
+            when {
+                toTop < 0 -> 0
+                toTop + popupContentSize.height > windowSize.height ->
+                    windowSize.height - popupContentSize.height
+                else -> toTop
+            },
             toCenter,
             toDisplayBottom
         ).firstOrNull {
