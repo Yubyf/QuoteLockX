@@ -25,12 +25,14 @@ private fun File.md5(): ByteArray {
     }
 }
 
-private fun ByteArray.hexString(): String {
-    val result = StringBuilder()
-    this.forEach { value ->
-        result.append(Integer.toHexString(0x000000FF and value.toInt() or -0x100).substring(6))
-    }
-    return result.toString()
+@OptIn(ExperimentalUnsignedTypes::class)
+fun ByteArray.hexString() = asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
+
+fun String.decodeHex(): ByteArray {
+    check(length % 2 == 0) { "Must have an even length" }
+    return chunked(2)
+        .map { it.toInt(16).toByte() }
+        .toByteArray()
 }
 
 @Throws(Exception::class)

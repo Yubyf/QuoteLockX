@@ -1,11 +1,14 @@
 package com.crossbowffs.quotelock.consts
 
 import android.content.res.Configuration
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import com.crossbowffs.quotelock.app.App
+import com.crossbowffs.quotelock.data.api.TextFontStyle
 import com.crossbowffs.quotelock.data.modules.hitokoto.HitokotoQuoteModule
 import com.yubyf.quotelockx.BuildConfig
 import com.yubyf.quotelockx.R
-import java.util.*
+import java.util.Locale
 
 const val PREF_COMMON = "common"
 const val PREF_COMMON_DISPLAY_ON_AOD = "pref_common_display_on_aod"
@@ -63,10 +66,27 @@ const val PREF_CARD_STYLE_CARD_PADDING_DEFAULT = 24
 const val PREF_CARD_STYLE_CARD_PADDING_MIN = 16
 const val PREF_CARD_STYLE_CARD_PADDING_MAX = 32
 const val PREF_CARD_STYLE_CARD_PADDING_STEP = 4
-const val PREF_CARD_STYLE_FONT_FAMILY = "pref_card_style_font_family"
+const val PREF_CARD_STYLE_FONT_LEGACY_FAMILY = "pref_card_style_font_family"
 const val PREF_CARD_STYLE_FONT_FAMILY_LEGACY_DEFAULT = "system"
 const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
 const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SERIF = "serif"
+const val PREF_CARD_STYLE_FONT_STYLE_TEXT = "pref_card_style_font_style_text"
+const val PREF_CARD_STYLE_FONT_STYLE_SOURCE = "pref_card_style_font_style_source"
+const val PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_DEFAULT = 0
+const val PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT = 0x0001
+const val PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_ITALIC = 0x0010
+val PREF_CARD_STYLE_FONT_WEIGHT_TEXT_DEFAULT = FontWeight.Normal
+val PREF_CARD_STYLE_FONT_ITALIC_TEXT_DEFAULT = FontStyle.Normal.value.toFloat()
+val PREF_CARD_STYLE_FONT_WEIGHT_SOURCE_DEFAULT = FontWeight.Normal
+val PREF_CARD_STYLE_FONT_ITALIC_SOURCE_DEFAULT = FontStyle.Normal.value.toFloat()
+val PREF_CARD_STYLE_FONT_STYLE_TEXT_DEFAULT = TextFontStyle(
+    weight = PREF_CARD_STYLE_FONT_WEIGHT_TEXT_DEFAULT,
+    italic = PREF_CARD_STYLE_FONT_ITALIC_TEXT_DEFAULT
+)
+val PREF_CARD_STYLE_FONT_STYLE_SOURCE_DEFAULT = TextFontStyle(
+    weight = PREF_CARD_STYLE_FONT_WEIGHT_SOURCE_DEFAULT,
+    italic = PREF_CARD_STYLE_FONT_ITALIC_SOURCE_DEFAULT
+)
 
 const val PREF_QUOTE_SOURCE_PREFIX = "―"
 

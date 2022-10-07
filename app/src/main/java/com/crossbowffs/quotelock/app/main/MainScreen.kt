@@ -9,12 +9,47 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationConstants
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.rounded.ManageSearch
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Style
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
@@ -96,6 +131,10 @@ fun MainRoute(
         onSourceSizeChange = cardStyleViewModel::setSourceSize,
         onLineSpacingChange = cardStyleViewModel::setLineSpacing,
         onCardPaddingChange = cardStyleViewModel::setCardPadding,
+        onQuoteWeightChange = cardStyleViewModel::setQuoteWeight,
+        onQuoteItalicChange = cardStyleViewModel::setQuoteItalic,
+        onSourceWeightChange = cardStyleViewModel::setSourceWeight,
+        onSourceItalicChange = cardStyleViewModel::setSourceItalic,
         dismissStylePopup = cardStyleViewModel::dismissStylePopup
     )
     val context = LocalContext.current
@@ -122,12 +161,16 @@ fun MainScreen(
     onLockscreenStylesItemClick: () -> Unit = {},
     onCollectionItemClick: () -> Unit = {},
     onHistoryItemClick: () -> Unit = {},
-    selectFontFamily: (String) -> Unit = {},
+    selectFontFamily: (String, Int) -> Unit = { _, _ -> },
     onFontCustomize: () -> Unit = {},
     onQuoteSizeChange: (Int) -> Unit = {},
     onSourceSizeChange: (Int) -> Unit = {},
     onLineSpacingChange: (Int) -> Unit = {},
     onCardPaddingChange: (Int) -> Unit = {},
+    onQuoteWeightChange: (Int) -> Unit = {},
+    onQuoteItalicChange: (Float) -> Unit = {},
+    onSourceWeightChange: (Int) -> Unit = {},
+    onSourceItalicChange: (Float) -> Unit = {},
     dismissStylePopup: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
@@ -217,6 +260,10 @@ fun MainScreen(
                 onSourceSizeChange = onSourceSizeChange,
                 onLineSpacingChange = onLineSpacingChange,
                 onCardPaddingChange = onCardPaddingChange,
+                onQuoteWeightChange = onQuoteWeightChange,
+                onQuoteItalicChange = onQuoteItalicChange,
+                onSourceWeightChange = onSourceWeightChange,
+                onSourceItalicChange = onSourceItalicChange,
                 onDismiss = dismissStylePopup
             )
         }

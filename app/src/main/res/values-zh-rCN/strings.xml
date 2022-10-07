@@ -179,4 +179,6 @@
     <string name="quote_card_style_source_title">来源</string>
     <string name="quote_card_style_share_watermark">分享卡片水印</string>
     <string name="quote_card_style_popup_hint">如需设置锁屏样式，请前往「更多>锁屏样式」</string>
+    <string name="quote_card_style_variable_font_weight">可变字重</string>
+    <string name="quote_card_style_variable_font_italic">可变斜体</string>
 </resources>

@@ -11,7 +11,11 @@ import androidx.compose.ui.text.font.FontWeight
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.di.IoDispatcher
-import com.crossbowffs.quotelock.utils.*
+import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.className
+import com.crossbowffs.quotelock.utils.getFontVariationSettings
+import com.crossbowffs.quotelock.utils.loadComposeFont
+import com.crossbowffs.quotelock.utils.toFile
 import com.yubyf.quotelockx.R
 import com.yubyf.truetypeparser.TTFFile
 import com.yubyf.truetypeparser.get
@@ -21,9 +25,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.roundToInt
 
 /**
  * @author Yubyf
@@ -170,7 +175,19 @@ object FontManager {
                 FontInfo(families = ttfFile.families,
                     fileName = file.name,
                     path = file.absolutePath,
-                    variable = ttfFile.variable
+                    variable = ttfFile.variable,
+                    variableWeight = ttfFile.variationAxes.firstOrNull { it.tag == "wght" }?.let {
+                        FontInfo.VariableWeight(
+                            it.minValue.roundToInt()..it.maxValue.roundToInt(),
+                            it.defaultValue.roundToInt()
+                        )
+                    },
+                    variableItalic = ttfFile.variationAxes.firstOrNull { it.tag == "ital" }?.let {
+                        FontInfo.VariableItalic(
+                            it.minValue..it.maxValue,
+                            it.defaultValue
+                        )
+                    }
                 ).apply {
                     descriptionLocale = generateLocaleDescription(families)
                 }
@@ -182,12 +199,13 @@ object FontManager {
 
     fun loadTypeface(
         fontPath: String,
-        style: Int = Typeface.NORMAL,
+        weight: FontWeight = FontWeight.Normal,
+        italic: Float = FontStyle.Normal.value.toFloat(),
     ): Typeface = runCatching {
-        TYPEFACE_CACHE.getOrPut("$fontPath&$style") {
+        TYPEFACE_CACHE.getOrPut("$fontPath&${weight.weight}&$italic") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Typeface.Builder(File(fontPath))
-                    .setFontVariationSettings(getFontVariationSettings(style))
+                    .setFontVariationSettings(getFontVariationSettings(weight, italic))
                     .build()
             } else {
                 Typeface.createFromFile(fontPath)
@@ -269,6 +287,8 @@ data class FontInfo(
     val fileName: String = "",
     val path: String = "",
     val variable: Boolean = false,
+    val variableWeight: VariableWeight? = null,
+    val variableItalic: VariableItalic? = null,
     val descriptionLatin: String = FONT_DESCRIPTION_LATIN,
     var descriptionLocale: String = FONT_DESCRIPTION_SIMPLIFIED_CHINESE,
 ) {
@@ -280,8 +300,15 @@ data class FontInfo(
                     || families.containsKey(Locale.KOREAN.toLanguageTag())
                     || families.containsKey(Locale.JAPANESE.toLanguageTag()) ->
                 true
+
             else -> false
         }
+
+    val supportVariableWeight: Boolean
+        get() = variable && variableWeight != null
+
+    val supportVariableItalic: Boolean
+        get() = variable && variableItalic != null
 
     fun composeFontInStyle(
         weight: FontWeight = FontWeight.Normal,
@@ -291,6 +318,16 @@ data class FontInfo(
     @Suppress("DEPRECATION")
     val Configuration.localeName: String
         get() = families[if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) locales[0] else locale]
+
+    data class VariableWeight(
+        val range: IntRange,
+        val default: Int,
+    )
+
+    data class VariableItalic(
+        val range: ClosedFloatingPointRange<Float>,
+        val default: Float,
+    )
 }
 
 data class FontInfoWithState(

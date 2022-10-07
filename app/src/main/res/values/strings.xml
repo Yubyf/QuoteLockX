@@ -205,4 +205,6 @@
     <string name="quote_card_style_source_title">Source</string>
     <string name="quote_card_style_share_watermark">Watermark on shared cards</string>
     <string name="quote_card_style_popup_hint">To set the lockscreen style, please go to \"More > Lockscreen Styles\"</string>
+    <string name="quote_card_style_variable_font_weight">Variable Weight</string>
+    <string name="quote_card_style_variable_font_italic">Variable Italic</string>
 </resources>

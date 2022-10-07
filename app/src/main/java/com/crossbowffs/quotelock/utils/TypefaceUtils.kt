@@ -35,23 +35,36 @@ fun getTypefaceStyle(styles: Set<String>?): Int {
 fun getFontVariationSettings(
     style: Int = Typeface.NORMAL,
 ): Array<FontVariationAxis> = arrayOf(
-    FontVariationAxis("wght",
+    FontVariationAxis(
+        "wght",
         when (style) {
             Typeface.BOLD,
             Typeface.BOLD_ITALIC,
             -> 700f
+
             Typeface.NORMAL -> 400f
             else -> 400f
         }
     ),
-    FontVariationAxis("ital",
+    FontVariationAxis(
+        "ital",
         when (style) {
             Typeface.ITALIC,
             Typeface.BOLD_ITALIC,
             -> 1f
+
             else -> 0f
         }
     )
+)
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun getFontVariationSettings(
+    weight: FontWeight = FontWeight.Normal,
+    italic: Float = FontStyle.Normal.value.toFloat(),
+): Array<FontVariationAxis> = arrayOf(
+    FontVariationAxis("wght", weight.weight.toFloat()),
+    FontVariationAxis("ital", italic)
 )
 
 fun getComposeFontStyle(styles: Set<String>?): FontStyle {
