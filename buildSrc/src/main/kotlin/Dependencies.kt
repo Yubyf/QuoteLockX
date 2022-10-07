@@ -10,21 +10,21 @@ import Versions.testRulesVersion
 
 object Versions {
     const val androidGradlePluginVersion = "7.2.2"
-    const val kotlinVersion = "1.7.10"
+    const val kotlinVersion = "1.7.20"
     const val hiltVersion = "2.44"
     const val gradleVersionsPluginVersion = "0.42.0"
 
     internal const val roomVersion = "2.4.2"
-    const val composeVersion = "1.3.1"
-    const val composeUiVersion = "1.3.0-beta03"
-    internal const val accompanistVersion = "0.26.4-beta"
+    const val composeVersion = "1.3.2"
+    const val composeUiVersion = "1.3.0-rc01"
+    internal const val accompanistVersion = "0.26.5-rc"
 
     internal const val navVersion = "2.5.1"
     internal const val materialIconsVersion = "1.2.1"
 
     // Use 1.5.0-alpha02 to resolve ActivityNotFound exception above Android 13.
     // See https://github.com/android/android-test/issues/1412
-    internal const val testCoreVersion = "1.5.0-alpha02"
+    internal const val testCoreVersion = "1.5.0-beta01"
     internal const val testRulesVersion = "1.4.0"
 }
 
@@ -63,7 +63,7 @@ object Dependencies {
     object Compose {
         const val compiler = "androidx.compose.compiler:compiler:$composeVersion"
         const val activity = "androidx.activity:activity-compose:1.6.0"
-        const val material3 = "androidx.compose.material3:material3:1.0.0-beta03"
+        const val material3 = "androidx.compose.material3:material3:1.0.0-rc01"
         const val animation = "androidx.compose.animation:animation:1.2.1"
         const val uiTooling = "androidx.compose.ui:ui-tooling:1.2.1"
         const val uiToolingPreview = "androidx.compose.ui:ui-tooling-preview:1.2.1"
@@ -78,7 +78,7 @@ object Dependencies {
         const val materialIconExtended =
             "androidx.compose.material:material-icons-extended:$materialIconsVersion"
 
-        const val coil = "io.coil-kt:coil-compose:2.2.1"
+        const val coil = "io.coil-kt:coil-compose:2.2.2"
 
         const val test = "androidx.compose.ui:ui-test:$composeUiVersion"
         const val uiTest = "androidx.compose.ui:ui-test-junit4:$composeUiVersion"
