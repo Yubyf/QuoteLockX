@@ -147,7 +147,6 @@ android {
 dependencies {
     // Xposed
     compileOnly(Xposed.api)
-    compileOnly(Xposed.apiSource)
 
     // AndroidX
     implementation(AndroidX.activity)

@@ -97,7 +97,6 @@ object Dependencies {
 
     object Xposed {
         const val api = "de.robv.android.xposed:api:82"
-        const val apiSource = "de.robv.android.xposed:api:82:sources"
     }
 
     object Test {
