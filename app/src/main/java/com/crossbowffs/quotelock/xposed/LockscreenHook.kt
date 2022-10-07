@@ -20,6 +20,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.annotation.RequiresApi
 import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.buildReadableSource
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.provider.ActionProvider
@@ -69,8 +70,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
         null,
         -> Typeface.SANS_SERIF
+
         PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
         -> Typeface.SERIF
+
         else -> runCatching {
             typefaceCache.getOrElse("$font&$style") {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -90,10 +93,12 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         Xlog.d(TAG, "Quote changed, updating lockscreen layout")
 
         // Update quote text
-        var text = mQuotePrefs.getString(PREF_QUOTES_TEXT, null)
-        var source = mQuotePrefs.getString(PREF_QUOTES_SOURCE, null)
+        val quoteDataByteString = mQuotePrefs.getString(PREF_QUOTES_CONTENTS, null)
+        val quoteData = quoteDataByteString?.let { QuoteData.fromByteString(it) } ?: QuoteData()
+        var text = quoteData.quoteText
+        var source = quoteData.quoteSource
+        val author = quoteData.quoteAuthor
         val originalSource = source
-        val author = mQuotePrefs.getString(PREF_QUOTES_AUTHOR, null)
         val isQuoteGeneratedByApp = isQuoteGeneratedByApp(text, source, author)
         if (isQuoteGeneratedByApp) {
             mCollectImageView.visibility = View.GONE
@@ -103,14 +108,14 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             mLayoutTranslation = -(16f + 32f + 16f + 32f + 16f + 1f)
         }
         val collectionState = mQuotePrefs.getBoolean(PREF_QUOTES_COLLECTION_STATE, false)
-        if (text.isNullOrBlank()) {
+        if (text.isBlank()) {
             try {
                 text = sModuleRes.getString(RES_STRING_OPEN_APP_1)
                 source = sModuleRes.getString(RES_STRING_OPEN_APP_2)
             } catch (e: NotFoundException) {
                 Xlog.e(TAG, "Could not load string resource", e)
-                text = null
-                source = null
+                text = ""
+                source = ""
             }
         } else {
             source = buildReadableSource(source, author, !isQuoteGeneratedByApp)
@@ -139,25 +144,33 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
         // Update layout padding
         val paddingTop = mCommonPrefs.getString(
-            PREF_COMMON_PADDING_TOP, PREF_COMMON_PADDING_TOP_DEFAULT)!!.toInt()
+            PREF_COMMON_PADDING_TOP, PREF_COMMON_PADDING_TOP_DEFAULT
+        )!!.toInt()
         val paddingBottom = mCommonPrefs.getString(
-            PREF_COMMON_PADDING_BOTTOM, PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toInt()
-        mQuoteContainer.setPadding(mQuoteContainer.paddingStart,
+            PREF_COMMON_PADDING_BOTTOM, PREF_COMMON_PADDING_BOTTOM_DEFAULT
+        )!!.toInt()
+        mQuoteContainer.setPadding(
+            mQuoteContainer.paddingStart,
             paddingTop.dp2px().toInt(),
             mQuoteContainer.paddingEnd,
-            paddingBottom.dp2px().toInt())
+            paddingBottom.dp2px().toInt()
+        )
 
         // Quote spacing
-        val quoteSpacing = mCommonPrefs.getString(PREF_COMMON_QUOTE_SPACING,
-            PREF_COMMON_QUOTE_SPACING_DEFAULT)!!.toInt()
+        val quoteSpacing = mCommonPrefs.getString(
+            PREF_COMMON_QUOTE_SPACING,
+            PREF_COMMON_QUOTE_SPACING_DEFAULT
+        )!!.toInt()
         (mSourceTextView.layoutParams as LinearLayout.LayoutParams).topMargin = quoteSpacing.dp2px()
             .toInt()
 
         // Update font size
         val textFontSize = mCommonPrefs.getString(
-            PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
+            PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
+        )!!.toFloat()
         val sourceFontSize = mCommonPrefs.getString(
-            PREF_COMMON_FONT_SIZE_SOURCE, PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toFloat()
+            PREF_COMMON_FONT_SIZE_SOURCE, PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
+        )!!.toFloat()
         mQuoteTextView.textSize = textFontSize
         mSourceTextView.textSize = sourceFontSize
 
@@ -167,7 +180,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val quoteStyle = getTypefaceStyle(quoteStyles)
         val sourceStyle = getTypefaceStyle(sourceStyles)
         val font = mCommonPrefs.getString(
-            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF)
+            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF
+        )
         val quoteTypeface = loadTypeface(font, quoteStyle)
         val sourceTypeface = loadTypeface(font, sourceStyle)
         mQuoteTextView.setTypeface(quoteTypeface, quoteStyle)
@@ -175,9 +189,11 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     }
 
     private fun refreshAodQuote() {
-        Xlog.d(TAG, "Quote changed, updating aod layout. " +
-                "Current thread [" + Thread.currentThread().id + "]" +
-                if (Looper.myLooper() == Looper.getMainLooper()) " is UI-Thread" else "")
+        Xlog.d(
+            TAG, "Quote changed, updating aod layout. " +
+                    "Current thread [" + Thread.currentThread().id + "]" +
+                    if (Looper.myLooper() == Looper.getMainLooper()) " is UI-Thread" else ""
+        )
         mDisplayOnAod = mCommonPrefs.getBoolean(PREF_COMMON_DISPLAY_ON_AOD, false)
         if (!isAodViewAvailable) {
             return
@@ -190,17 +206,19 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         }
 
         // Update quote text
-        var text = mQuotePrefs.getString(PREF_QUOTES_TEXT, null)
-        var source = mQuotePrefs.getString(PREF_QUOTES_SOURCE, null)
-        val author = mQuotePrefs.getString(PREF_QUOTES_AUTHOR, null)
-        if (text.isNullOrBlank()) {
+        val quoteDataByteString = mQuotePrefs.getString(PREF_QUOTES_CONTENTS, null)
+        val quoteData = quoteDataByteString?.let { QuoteData.fromByteString(it) } ?: QuoteData()
+        var text = quoteData.quoteText
+        var source = quoteData.quoteSource
+        val author = quoteData.quoteAuthor
+        if (text.isBlank()) {
             try {
                 text = sModuleRes.getString(RES_STRING_OPEN_APP_1)
                 source = sModuleRes.getString(RES_STRING_OPEN_APP_2)
             } catch (e: NotFoundException) {
                 Xlog.e(TAG, "Could not load string resource", e)
-                text = null
-                source = null
+                text = ""
+                source = ""
             }
         } else {
             source =
@@ -218,25 +236,33 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
         // Update layout padding
         val paddingTop = mCommonPrefs.getString(
-            PREF_COMMON_PADDING_TOP, PREF_COMMON_PADDING_TOP_DEFAULT)!!.toInt()
+            PREF_COMMON_PADDING_TOP, PREF_COMMON_PADDING_TOP_DEFAULT
+        )!!.toInt()
         val paddingBottom = mCommonPrefs.getString(
-            PREF_COMMON_PADDING_BOTTOM, PREF_COMMON_PADDING_BOTTOM_DEFAULT)!!.toInt()
-        mAodQuoteContainer.setPadding(mAodQuoteContainer.paddingStart,
+            PREF_COMMON_PADDING_BOTTOM, PREF_COMMON_PADDING_BOTTOM_DEFAULT
+        )!!.toInt()
+        mAodQuoteContainer.setPadding(
+            mAodQuoteContainer.paddingStart,
             paddingTop.dp2px().toInt(),
             mAodQuoteContainer.paddingEnd,
-            paddingBottom.dp2px().toInt())
+            paddingBottom.dp2px().toInt()
+        )
 
         // Quote spacing
-        val quoteSpacing = mCommonPrefs.getString(PREF_COMMON_QUOTE_SPACING,
-            PREF_COMMON_QUOTE_SPACING_DEFAULT)!!.toInt()
+        val quoteSpacing = mCommonPrefs.getString(
+            PREF_COMMON_QUOTE_SPACING,
+            PREF_COMMON_QUOTE_SPACING_DEFAULT
+        )!!.toInt()
         (mAodSourceTextView.layoutParams as LinearLayout.LayoutParams).topMargin =
             quoteSpacing.dp2px().toInt()
 
         // Update font size
         val textFontSize = mCommonPrefs.getString(
-            PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT)!!.toFloat()
+            PREF_COMMON_FONT_SIZE_TEXT, PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
+        )!!.toFloat()
         val sourceFontSize = mCommonPrefs.getString(
-            PREF_COMMON_FONT_SIZE_SOURCE, PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT)!!.toFloat()
+            PREF_COMMON_FONT_SIZE_SOURCE, PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
+        )!!.toFloat()
         mAodQuoteTextView.textSize = textFontSize
         mAodSourceTextView.textSize = sourceFontSize
 
@@ -246,7 +272,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val quoteStyle = getTypefaceStyle(quoteStyles)
         val sourceStyle = getTypefaceStyle(sourceStyles)
         val font = mCommonPrefs.getString(
-            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT)
+            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT
+        )
         val quoteTypeface = loadTypeface(font, quoteStyle)
         val sourceTypeface = loadTypeface(font, sourceStyle)
         mAodQuoteTextView.setTypeface(quoteTypeface, quoteStyle)
@@ -286,8 +313,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val author = mQuoteTextView.hint?.toString() ?: ""
         val uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build()
         val resolver = context.contentResolver
-        val result = resolver.delete(uri, QuoteCollectionContract.MD5 + "=?",
-            arrayOf(("$text$source$author").md5()))
+        val result = resolver.delete(
+            uri, QuoteCollectionContract.MD5 + "=?",
+            arrayOf(("$text$source$author").md5())
+        )
         if (result < 0) {
             resetTranslationAnimator()
         }
@@ -402,12 +431,16 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                 "android.content.res.Resources",
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        Xlog.d(TAG,
-                            "KeyguardClockPositionAlgorithm#loadDimens calling...")
+                        Xlog.d(
+                            TAG,
+                            "KeyguardClockPositionAlgorithm#loadDimens calling..."
+                        )
                         param.thisObject.apply {
                             getReflectionField<Int>("mStatusViewBottomMargin")?.let {
-                                setReflectionField("mStatusViewBottomMargin",
-                                    it + 28F.dp2px().toInt())
+                                setReflectionField(
+                                    "mStatusViewBottomMargin",
+                                    it + 28F.dp2px().toInt()
+                                )
                             }
                         }
                     }
@@ -502,8 +535,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             lpparam.classLoader,
             "onEmptySpaceClick", Float::class.javaPrimitiveType, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    Xlog.i(TAG,
-                        "PanelViewController#onEmptySpaceClick() called, reset QuoteContainer position...")
+                    Xlog.i(
+                        TAG,
+                        "PanelViewController#onEmptySpaceClick() called, reset QuoteContainer position..."
+                    )
                     if (!::mQuoteContainer.isInitialized || !mQuoteContainer.isAttachedToWindow) {
                         Xlog.e(TAG, "QuoteContainer is empty or not attached to window")
                         return
@@ -519,16 +554,21 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                 "com.oneplus.aod.OpClockViewCtrl", lpparam.classLoader,
                 "initViews", ViewGroup::class.java, object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        Xlog.i(TAG,
-                            "com.oneplus.aop.OpClockViewCtrl#initViews() called, injecting views...")
+                        Xlog.i(
+                            TAG,
+                            "com.oneplus.aop.OpClockViewCtrl#initViews() called, injecting views..."
+                        )
                         // This method is not called on UI thread, so the injected views should be refreshed on current thread.
                         mAodHandler = Handler(Looper.myLooper() ?: Looper.getMainLooper())
                         val root = param.args[0] as ViewGroup
                         Xlog.d(TAG, "OpClockViewCtrl root $root")
                         val context = root.context
                         val opAodContainer = root.findViewById<View>(
-                            context.resources.getIdentifier(RES_ID_OP_AOD_CONTAINER,
-                                "id", PACKAGE_SYSTEM_UI)) as LinearLayout
+                            context.resources.getIdentifier(
+                                RES_ID_OP_AOD_CONTAINER,
+                                "id", PACKAGE_SYSTEM_UI
+                            )
+                        ) as LinearLayout
                         Xlog.d(TAG, "OpClockViewCtrl opAodContainer$opAodContainer")
                         val layoutInflater = LayoutInflater.from(context)
                         val parser: XmlPullParser = try {
@@ -541,15 +581,19 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                         opAodContainer.addView(view)
                         try {
                             mAodQuoteContainer =
-                                sModuleRes.findViewById(view,
-                                    RES_ID_QUOTE_CONTAINER) as LinearLayout
+                                sModuleRes.findViewById(
+                                    view,
+                                    RES_ID_QUOTE_CONTAINER
+                                ) as LinearLayout
                             mAodQuoteTextView =
                                 sModuleRes.findViewById(view, RES_ID_QUOTE_TEXTVIEW) as TextView
                             mAodSourceTextView =
                                 sModuleRes.findViewById(view, RES_ID_SOURCE_TEXTVIEW) as TextView
                             val aodActionContainer =
-                                sModuleRes.findViewById(view,
-                                    RES_ID_ACTION_CONTAINER) as LinearLayout
+                                sModuleRes.findViewById(
+                                    view,
+                                    RES_ID_ACTION_CONTAINER
+                                ) as LinearLayout
                             aodActionContainer.visibility = View.GONE
                         } catch (e: NotFoundException) {
                             Xlog.e(TAG, "Could not find text views, aborting", e)
@@ -570,9 +614,11 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             val locales = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 resparam.res.configuration.locales
             } else null
-            quotesGeneratedByApp = arrayOf(Locale.ENGLISH,
+            quotesGeneratedByApp = arrayOf(
+                Locale.ENGLISH,
                 Locale.SIMPLIFIED_CHINESE,
-                Locale.TRADITIONAL_CHINESE).flatMap {
+                Locale.TRADITIONAL_CHINESE
+            ).flatMap {
                 resparam.res.configuration.setLocale(it)
                 createInstance(sModulePath, resparam.res).run {
                     listOf(

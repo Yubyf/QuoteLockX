@@ -18,7 +18,6 @@ import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING_DEFAULT
 import com.crossbowffs.quotelock.utils.decodeHex
 import com.crossbowffs.quotelock.utils.hexString
-import okio.utf8Size
 import java.nio.ByteBuffer
 
 data class CardStyle(
@@ -64,8 +63,8 @@ data class TextFontStyle(
         get() {
             val familyBytes = family.toByteArray()
             val bufferSize =
-                Int.SIZE_BYTES + family.utf8Size() + Int.SIZE_BYTES + Float.SIZE_BYTES
-            val byteBuffer = ByteBuffer.allocate(bufferSize.toInt())
+                Int.SIZE_BYTES + familyBytes.size + Int.SIZE_BYTES + Float.SIZE_BYTES
+            val byteBuffer = ByteBuffer.allocate(bufferSize)
                 .put(familyBytes)
                 .putInt(supportedFeatures)
                 .putInt(weight.weight)

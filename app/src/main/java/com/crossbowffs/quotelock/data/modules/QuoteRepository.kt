@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_CONTENTS
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_LAST_UPDATED
+import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.md5
@@ -13,7 +16,11 @@ import com.crossbowffs.quotelock.di.IoDispatcher
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,30 +44,27 @@ class QuoteRepository @Inject internal constructor(
         CoroutineScope(dispatcher).launch {
             quoteLocalSource.observeQuoteDataStore(this) { preferences, key ->
                 when (key?.name) {
-                    PREF_QUOTES_TEXT -> _quoteDataFlow.update { currentValue ->
-                        currentValue.copy(
-                            quoteText = preferences[stringPreferencesKey(PREF_QUOTES_TEXT)]
+                    PREF_QUOTES_CONTENTS -> _quoteDataFlow.update { currentValue ->
+                        QuoteData.fromByteString(
+                            preferences[stringPreferencesKey(PREF_QUOTES_CONTENTS)]
                                 .orEmpty()
-                        )
-                    }
-                    PREF_QUOTES_AUTHOR,
-                    PREF_QUOTES_SOURCE,
-                    -> {
-                        val source = preferences[stringPreferencesKey(PREF_QUOTES_SOURCE)]
-                        val author = preferences[stringPreferencesKey(PREF_QUOTES_AUTHOR)]
-                        _quoteDataFlow.update { currentValue ->
+                        ).let {
                             currentValue.copy(
-                                quoteSource = source.orEmpty(),
-                                quoteAuthor = author.orEmpty()
+                                quoteText = it.quoteText,
+                                quoteSource = it.quoteSource,
+                                quoteAuthor = it.quoteAuthor
                             )
                         }
                     }
+
                     PREF_QUOTES_COLLECTION_STATE -> _quoteDataFlow.update { currentValue ->
                         currentValue.copy(
                             collectState = preferences[booleanPreferencesKey(
-                                PREF_QUOTES_COLLECTION_STATE)] ?: false
+                                PREF_QUOTES_COLLECTION_STATE
+                            )] ?: false
                         )
                     }
+
                     PREF_QUOTES_LAST_UPDATED -> _lastUpdateFlow.value =
                         preferences[longPreferencesKey(PREF_QUOTES_LAST_UPDATED)] ?: 0L
                 }

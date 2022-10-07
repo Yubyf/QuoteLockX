@@ -1,7 +1,10 @@
 package com.crossbowffs.quotelock.data.modules
 
 import androidx.datastore.preferences.core.Preferences
-import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.consts.PREF_BOOT_NOTIFY_FLAG
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_CONTENTS
+import com.crossbowffs.quotelock.consts.PREF_QUOTES_LAST_UPDATED
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
@@ -50,11 +53,12 @@ class QuoteLocalSource @Inject constructor(
         }
         val collectionState = queryQuoteCollectionState(quoteText, quoteSource, quoteAuthor)
         quotesDataStore.bulkPut(
-            mapOf(PREF_QUOTES_TEXT to quoteText,
-                PREF_QUOTES_SOURCE to quoteSource,
-                PREF_QUOTES_AUTHOR to quoteAuthor,
+            mapOf(
+                PREF_QUOTES_CONTENTS to byteString,
                 PREF_QUOTES_COLLECTION_STATE to collectionState,
-                PREF_QUOTES_LAST_UPDATED to System.currentTimeMillis()))
+                PREF_QUOTES_LAST_UPDATED to System.currentTimeMillis()
+            )
+        )
     }
 
     fun setQuoteCollectionState(state: Boolean) {
@@ -65,10 +69,12 @@ class QuoteLocalSource @Inject constructor(
         runBlocking { quotesDataStore.getLongSuspend(PREF_QUOTES_LAST_UPDATED, -1) }
 
     fun getCurrentQuote() = runBlocking {
+        val quoteDataByteString = quotesDataStore.getStringSuspend(PREF_QUOTES_CONTENTS, "")!!
+        val quoteData = QuoteData.fromByteString(quoteDataByteString)
         QuoteDataWithCollectState(
-            quotesDataStore.getStringSuspend(PREF_QUOTES_TEXT, "")!!,
-            quotesDataStore.getStringSuspend(PREF_QUOTES_SOURCE, "")!!,
-            quotesDataStore.getStringSuspend(PREF_QUOTES_AUTHOR, "")!!,
+            quoteData.quoteText,
+            quoteData.quoteSource,
+            quoteData.quoteAuthor,
             quotesDataStore.getBooleanSuspend(PREF_QUOTES_COLLECTION_STATE, false),
         )
     }
