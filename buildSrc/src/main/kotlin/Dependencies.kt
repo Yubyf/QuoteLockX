@@ -108,6 +108,6 @@ object Dependencies {
     const val jsoup = "org.jsoup:jsoup:1.15.3"
     const val datastorePreferences =
         "io.github.yubyf.datastorepreferences:datastorepreferences:1.2.2"
-    const val trueTypeParserLight = "io.github.yubyf:truetypeparser-light:2.1.3"
+    const val trueTypeParserLight = "io.github.yubyf:truetypeparser-light:2.1.4"
     const val openCsv = "com.opencsv:opencsv:5.7.0"
 }

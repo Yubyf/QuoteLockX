@@ -55,7 +55,7 @@ import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_CARD_PADDING_MAX
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_CARD_PADDING_MIN
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_CARD_PADDING_STEP
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_ITALIC
+import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING_MAX
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING_MIN
@@ -168,8 +168,8 @@ fun CardStyleContent(
                             it.path,
                             (if (!it.supportVariableWeight) 0
                             else PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT)
-                                    or (if (!it.supportVariableItalic) 0
-                            else PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_ITALIC)
+                                    or (if (!it.supportVariableSlant) 0
+                            else PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT)
                         )
                     }
                     if (index == presetFonts.lastIndex && fonts.isNotEmpty()) {

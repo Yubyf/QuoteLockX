@@ -13,7 +13,7 @@ import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_STYLE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_STYLE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_DEFAULT
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_ITALIC
+import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING_DEFAULT
 import com.crossbowffs.quotelock.utils.decodeHex
@@ -53,8 +53,10 @@ data class TextFontStyle(
                     family,
                     if (supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT != 0)
                         weight else FontWeight.Normal,
-                    if (supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_ITALIC != 0)
-                        italic else FontStyle.Normal.value.toFloat()
+                    if (supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT != 0)
+                        FontStyle.Normal.value.toFloat() else italic,
+                    if (supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT != 0)
+                        italic else 0F
                 )
             }.getOrNull()
         }

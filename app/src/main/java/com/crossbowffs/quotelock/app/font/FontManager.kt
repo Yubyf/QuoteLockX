@@ -60,8 +60,10 @@ object FontManager {
         return (systemFontFiles + inAppFontFiles).sortedBy { it.lastModified() }.distinctBy {
             it.name to it.length()
         }.map {
-            FONT_INFO_CACHE[it.absolutePath] ?: FontInfo(fileName = it.nameWithoutExtension,
-                path = it.absolutePath)
+            FONT_INFO_CACHE[it.absolutePath] ?: FontInfo(
+                fileName = it.nameWithoutExtension,
+                path = it.absolutePath
+            )
         }
     }
 
@@ -138,8 +140,10 @@ object FontManager {
         return SYSTEM_CUSTOM_FONT_DIR.listFiles()?.filter {
             it.isFontFile() && pendingRemoveFonts?.find { pending -> pending.name == it.name } == null
         }?.sortedBy { it.lastModified() }?.map {
-            FONT_INFO_CACHE[it.absolutePath] ?: FontInfo(fileName = it.nameWithoutExtension,
-                path = it.absolutePath)
+            FONT_INFO_CACHE[it.absolutePath] ?: FontInfo(
+                fileName = it.nameWithoutExtension,
+                path = it.absolutePath
+            )
         }
     }
 
@@ -182,8 +186,8 @@ object FontManager {
                             it.defaultValue.roundToInt()
                         )
                     },
-                    variableItalic = ttfFile.variationAxes.firstOrNull { it.tag == "ital" }?.let {
-                        FontInfo.VariableItalic(
+                    variableSlant = ttfFile.variationAxes.firstOrNull { it.tag == "slnt" }?.let {
+                        FontInfo.VariableSlant(
                             it.minValue..it.maxValue,
                             it.defaultValue
                         )
@@ -201,14 +205,23 @@ object FontManager {
         fontPath: String,
         weight: FontWeight = FontWeight.Normal,
         italic: Float = FontStyle.Normal.value.toFloat(),
+        slant: Float = 0F,
     ): Typeface = runCatching {
-        TYPEFACE_CACHE.getOrPut("$fontPath&${weight.weight}&$italic") {
+        val key = "$fontPath&${weight.weight}&$italic&$slant"
+        TYPEFACE_CACHE.getOrElse(key) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Typeface.Builder(File(fontPath))
-                    .setFontVariationSettings(getFontVariationSettings(weight, italic))
+                    .setFontVariationSettings(getFontVariationSettings(weight, italic, slant))
                     .build()
             } else {
                 Typeface.createFromFile(fontPath)
+            }.also {
+                if (slant != 0F || weight != FontWeight.Normal && weight != FontWeight.Bold) {
+                    TYPEFACE_CACHE.keys.find { key -> key.startsWith(fontPath) }?.let { key ->
+                        TYPEFACE_CACHE.remove(key)
+                    }
+                }
+                TYPEFACE_CACHE[key] = it
             }
         }
     }.onFailure {
@@ -219,8 +232,10 @@ object FontManager {
         return when {
             names.containsKey(Locale.SIMPLIFIED_CHINESE.toLanguageTag()) ->
                 FONT_DESCRIPTION_SIMPLIFIED_CHINESE
+
             names.containsKey(Locale.TRADITIONAL_CHINESE.toLanguageTag()) ->
                 FONT_DESCRIPTION_TRADITIONAL_CHINESE
+
             else -> ""
         }
     }
@@ -232,8 +247,10 @@ class FontImporter @Inject constructor(
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
     private fun Context.getFontNameFromUri(fileUri: Uri) =
-        contentResolver.query(fileUri, null, null,
-            null, null)?.use { cursor ->
+        contentResolver.query(
+            fileUri, null, null,
+            null, null
+        )?.use { cursor ->
             // Get the name of the font file
             val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             cursor.moveToFirst()
@@ -249,16 +266,28 @@ class FontImporter @Inject constructor(
                 context.getFontNameFromUri(fileUri) ?: throw IOException("Failed to get font name")
             val fontFile = File(FontManager.INTERNAL_CUSTOM_FONT_DIR, name)
             if (fontFile.exists()) {
-                AsyncResult.Error(Exception(context.getString(
-                    R.string.quote_fonts_management_font_already_exists, name)))
+                AsyncResult.Error(
+                    Exception(
+                        context.getString(
+                            R.string.quote_fonts_management_font_already_exists, name
+                        )
+                    )
+                )
             } else {
                 context.contentResolver.openInputStream(fileUri)?.toFile(fontFile)
                 AsyncResult.Success(fontFile.absolutePath)
             }
         }.onFailure {
             Xlog.e(TAG, "Failed to import font", it)
-        }.getOrDefault(AsyncResult.Error(Exception(context.getString(
-            R.string.quote_fonts_management_import_failed))))
+        }.getOrDefault(
+            AsyncResult.Error(
+                Exception(
+                    context.getString(
+                        R.string.quote_fonts_management_import_failed
+                    )
+                )
+            )
+        )
     }
 
     suspend fun importFontToSystem(fileUri: Uri): AsyncResult<String> = withContext(dispatcher) {
@@ -273,8 +302,15 @@ class FontImporter @Inject constructor(
             AsyncResult.Success(fontFile.absolutePath)
         }.onFailure {
             Xlog.e(TAG, "Failed to import font", it)
-        }.getOrDefault(AsyncResult.Error(Exception(context.getString(
-            R.string.quote_fonts_management_import_failed))))
+        }.getOrDefault(
+            AsyncResult.Error(
+                Exception(
+                    context.getString(
+                        R.string.quote_fonts_management_import_failed
+                    )
+                )
+            )
+        )
     }
 
     companion object {
@@ -288,7 +324,7 @@ data class FontInfo(
     val path: String = "",
     val variable: Boolean = false,
     val variableWeight: VariableWeight? = null,
-    val variableItalic: VariableItalic? = null,
+    val variableSlant: VariableSlant? = null,
     val descriptionLatin: String = FONT_DESCRIPTION_LATIN,
     var descriptionLocale: String = FONT_DESCRIPTION_SIMPLIFIED_CHINESE,
 ) {
@@ -307,8 +343,8 @@ data class FontInfo(
     val supportVariableWeight: Boolean
         get() = variable && variableWeight != null
 
-    val supportVariableItalic: Boolean
-        get() = variable && variableItalic != null
+    val supportVariableSlant: Boolean
+        get() = variable && variableSlant != null
 
     fun composeFontInStyle(
         weight: FontWeight = FontWeight.Normal,
@@ -324,7 +360,7 @@ data class FontInfo(
         val default: Int,
     )
 
-    data class VariableItalic(
+    data class VariableSlant(
         val range: ClosedFloatingPointRange<Float>,
         val default: Float,
     )

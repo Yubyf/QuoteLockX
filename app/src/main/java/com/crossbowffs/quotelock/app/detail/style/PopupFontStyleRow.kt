@@ -84,7 +84,7 @@ internal fun PopupFontStyleRow(
         }
         var quoteItalicChecked by remember(selectedFont) {
             mutableStateOf(
-                !fontChanged && !selectedFont.supportVariableItalic
+                !fontChanged && !selectedFont.supportVariableSlant
                         && cardStyle.quoteFontStyle.italic.roundToInt() == FontStyle.Italic.value
             )
         }
@@ -96,7 +96,7 @@ internal fun PopupFontStyleRow(
         }
         var sourceItalicChecked by remember(selectedFont) {
             mutableStateOf(
-                !fontChanged && !selectedFont.supportVariableItalic
+                !fontChanged && !selectedFont.supportVariableSlant
                         && cardStyle.sourceFontStyle.italic.roundToInt() == FontStyle.Italic.value
             )
         }
@@ -171,7 +171,7 @@ internal fun PopupFontStyleRow(
                         quoteBoldChecked = it
                         if (it && selectedFont.supportVariableWeight) {
                             sourceBoldChecked = false
-                            if (selectedFont.supportVariableItalic) {
+                            if (selectedFont.supportVariableSlant) {
                                 quoteItalicChecked = false
                                 sourceItalicChecked = false
                             }
@@ -189,16 +189,16 @@ internal fun PopupFontStyleRow(
                     },
                     onItalicChange = {
                         quoteItalicChecked = it
-                        if (it && selectedFont.supportVariableItalic) {
+                        if (it && selectedFont.supportVariableSlant) {
                             sourceItalicChecked = false
                             if (selectedFont.supportVariableWeight) {
                                 quoteBoldChecked = false
                                 sourceBoldChecked = false
                             }
                             variableValueRange =
-                                (selectedFont.variableItalic?.range?.start
+                                (selectedFont.variableSlant?.range?.start
                                     ?: FontStyle.Normal.value.toFloat())..
-                                        (selectedFont.variableItalic?.range?.endInclusive
+                                        (selectedFont.variableSlant?.range?.endInclusive
                                             ?: FontStyle.Italic.value.toFloat())
                         } else {
                             onQuoteItalicChange(
@@ -258,7 +258,7 @@ internal fun PopupFontStyleRow(
                         sourceBoldChecked = it
                         if (it && selectedFont.supportVariableWeight) {
                             quoteBoldChecked = false
-                            if (selectedFont.supportVariableItalic) {
+                            if (selectedFont.supportVariableSlant) {
                                 quoteItalicChecked = false
                                 sourceItalicChecked = false
                             }
@@ -276,16 +276,16 @@ internal fun PopupFontStyleRow(
                     },
                     onItalicChange = {
                         sourceItalicChecked = it
-                        if (it && selectedFont.supportVariableItalic) {
+                        if (it && selectedFont.supportVariableSlant) {
                             quoteItalicChecked = false
                             if (selectedFont.supportVariableWeight) {
                                 quoteBoldChecked = false
                                 sourceBoldChecked = false
                             }
                             variableValueRange =
-                                (selectedFont.variableItalic?.range?.start
+                                (selectedFont.variableSlant?.range?.start
                                     ?: FontStyle.Normal.value.toFloat())..
-                                        (selectedFont.variableItalic?.range?.endInclusive
+                                        (selectedFont.variableSlant?.range?.endInclusive
                                             ?: FontStyle.Italic.value.toFloat())
                         } else {
                             onSourceItalicChange(
@@ -297,11 +297,11 @@ internal fun PopupFontStyleRow(
             }
         }
         val textVariableWeightChecked = selectedFont.supportVariableWeight && quoteBoldChecked
-        val textVariableItalicChecked = selectedFont.supportVariableItalic && quoteItalicChecked
+        val textVariableItalicChecked = selectedFont.supportVariableSlant && quoteItalicChecked
         val sourceVariableWeightChecked = selectedFont.supportVariableWeight && sourceBoldChecked
-        val sourceVariableItalicChecked = selectedFont.supportVariableItalic && sourceItalicChecked
+        val sourceVariableItalicChecked = selectedFont.supportVariableSlant && sourceItalicChecked
         if (selectedFont.supportVariableWeight && (quoteBoldChecked || sourceBoldChecked)
-            || selectedFont.supportVariableItalic && (quoteItalicChecked || sourceItalicChecked)
+            || selectedFont.supportVariableSlant && (quoteItalicChecked || sourceItalicChecked)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             Surface(
@@ -448,7 +448,7 @@ fun FontStyleRow(
                 checkedContentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            if (fontInfo.supportVariableItalic) {
+            if (fontInfo.supportVariableSlant) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_variable_italic_24dp),
                     contentDescription = null,

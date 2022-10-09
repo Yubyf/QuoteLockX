@@ -62,9 +62,11 @@ fun getFontVariationSettings(
 fun getFontVariationSettings(
     weight: FontWeight = FontWeight.Normal,
     italic: Float = FontStyle.Normal.value.toFloat(),
+    slant: Float = Float.NaN,
 ): Array<FontVariationAxis> = arrayOf(
     FontVariationAxis("wght", weight.weight.toFloat()),
-    FontVariationAxis("ital", italic)
+    if (slant.isNaN()) FontVariationAxis("ital", italic)
+    else FontVariationAxis("slnt", slant)
 )
 
 fun getComposeFontStyle(styles: Set<String>?): FontStyle {
@@ -102,7 +104,9 @@ fun loadComposeFontWithSystem(
     PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
     PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
     -> FontFamily.SansSerif
+
     PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
     -> FontFamily.Serif
+
     else -> loadComposeFont(fontPath, weight, style)
 }
