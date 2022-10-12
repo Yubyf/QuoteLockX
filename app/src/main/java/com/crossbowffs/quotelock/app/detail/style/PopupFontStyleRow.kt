@@ -27,7 +27,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,27 +40,28 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.crossbowffs.quotelock.app.font.FontInfo
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_ITALIC_SOURCE_DEFAULT
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_ITALIC_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_SOURCE_MAX
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_SOURCE_MIN
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_SOURCE_STEP
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_TEXT_MAX
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_TEXT_MIN
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_TEXT_STEP
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_WEIGHT_SOURCE_DEFAULT
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_WEIGHT_TEXT_DEFAULT
 import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.ui.components.ContentAlpha
 import com.yubyf.quotelockx.R
 import kotlin.math.roundToInt
 
+private enum class VariableCheckedType {
+    QUOTE_WEIGHT,
+    QUOTE_SLANT,
+    SOURCE_WEIGHT,
+    SOURCE_SLANT,
+    NONE
+}
 
 @Composable
 internal fun PopupFontStyleRow(
     modifier: Modifier = Modifier,
-    selectedFont: FontInfo,
     cardStyle: CardStyle,
     onQuoteSizeChange: (Int) -> Unit,
     onSourceSizeChange: (Int) -> Unit,
@@ -71,60 +71,18 @@ internal fun PopupFontStyleRow(
     onSourceItalicChange: (Float) -> Unit,
 ) {
     Column(modifier = modifier) {
-        val fontChanged by remember(selectedFont) {
-            derivedStateOf {
-                selectedFont.path != cardStyle.fontFamily
-            }
+        var variableCheckedType by remember { mutableStateOf(VariableCheckedType.NONE) }
+        if ((variableCheckedType == VariableCheckedType.QUOTE_WEIGHT
+                    && !cardStyle.quoteFontStyle.supportVariableWeight)
+            || (variableCheckedType == VariableCheckedType.QUOTE_SLANT
+                    && !cardStyle.quoteFontStyle.supportVariableSlant)
+            || (variableCheckedType == VariableCheckedType.SOURCE_WEIGHT
+                    && !cardStyle.sourceFontStyle.supportVariableWeight)
+            || (variableCheckedType == VariableCheckedType.SOURCE_SLANT
+                    && !cardStyle.sourceFontStyle.supportVariableSlant)
+        ) {
+            variableCheckedType = VariableCheckedType.NONE
         }
-        var quoteBoldChecked by remember(selectedFont) {
-            mutableStateOf(
-                !fontChanged && !selectedFont.supportVariableWeight
-                        && cardStyle.quoteFontStyle.weight == FontWeight.Bold
-            )
-        }
-        var quoteItalicChecked by remember(selectedFont) {
-            mutableStateOf(
-                !fontChanged && !selectedFont.supportVariableSlant
-                        && cardStyle.quoteFontStyle.italic.roundToInt() == FontStyle.Italic.value
-            )
-        }
-        var sourceBoldChecked by remember(selectedFont) {
-            mutableStateOf(
-                !fontChanged && !selectedFont.supportVariableWeight
-                        && cardStyle.sourceFontStyle.weight == FontWeight.Bold
-            )
-        }
-        var sourceItalicChecked by remember(selectedFont) {
-            mutableStateOf(
-                !fontChanged && !selectedFont.supportVariableSlant
-                        && cardStyle.sourceFontStyle.italic.roundToInt() == FontStyle.Italic.value
-            )
-        }
-        var textWeightVariableValue by remember(selectedFont, cardStyle.quoteFontStyle.weight) {
-            mutableStateOf(
-                if (fontChanged) PREF_CARD_STYLE_FONT_WEIGHT_TEXT_DEFAULT.weight.toFloat()
-                else cardStyle.quoteFontStyle.weight.weight.toFloat()
-            )
-        }
-        var sourceWeightVariableValue by remember(selectedFont, cardStyle.sourceFontStyle.weight) {
-            mutableStateOf(
-                if (fontChanged) PREF_CARD_STYLE_FONT_WEIGHT_SOURCE_DEFAULT.weight.toFloat()
-                else cardStyle.sourceFontStyle.weight.weight.toFloat()
-            )
-        }
-        var textItalicVariableValue by remember(selectedFont, cardStyle.quoteFontStyle.italic) {
-            mutableStateOf(
-                if (fontChanged) PREF_CARD_STYLE_FONT_ITALIC_TEXT_DEFAULT
-                else cardStyle.quoteFontStyle.italic
-            )
-        }
-        var sourceItalicVariableValue by remember(selectedFont, cardStyle.sourceFontStyle.italic) {
-            mutableStateOf(
-                if (fontChanged) PREF_CARD_STYLE_FONT_ITALIC_SOURCE_DEFAULT
-                else cardStyle.sourceFontStyle.italic
-            )
-        }
-        var variableValueRange by remember { mutableStateOf(0F..1F) }
         Row(
             modifier = Modifier
                 .height(IntrinsicSize.Min)
@@ -164,47 +122,37 @@ internal fun PopupFontStyleRow(
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                FontStyleRow(fontInfo = selectedFont,
-                    boldChecked = quoteBoldChecked,
-                    italicChecked = quoteItalicChecked,
+                val supportVariableWeight = cardStyle.quoteFontStyle.supportVariableWeight
+                val supportVariableSlant = cardStyle.quoteFontStyle.supportVariableSlant
+                FontStyleRow(
+                    supportVariableWeight = supportVariableWeight,
+                    supportVariableSlant = supportVariableSlant,
+                    boldChecked = variableCheckedType == VariableCheckedType.QUOTE_WEIGHT
+                            || !supportVariableWeight && cardStyle.quoteFontStyle.weight == FontWeight.Bold,
+                    italicChecked = variableCheckedType == VariableCheckedType.QUOTE_SLANT
+                            || cardStyle.quoteFontStyle.italic.roundToInt() == FontStyle.Italic.value,
                     onWeightChange = {
-                        quoteBoldChecked = it
-                        if (it && selectedFont.supportVariableWeight) {
-                            sourceBoldChecked = false
-                            if (selectedFont.supportVariableSlant) {
-                                quoteItalicChecked = false
-                                sourceItalicChecked = false
-                            }
-                            variableValueRange =
-                                (selectedFont.variableWeight?.range?.start?.toFloat()
-                                    ?: FontWeight.Normal.weight.toFloat())..
-                                        (selectedFont.variableWeight?.range?.endInclusive?.toFloat()
-                                            ?: FontWeight.Bold.weight.toFloat())
-                        } else {
+                        if (it && supportVariableWeight) {
+                            variableCheckedType = VariableCheckedType.QUOTE_WEIGHT
+                        } else if (!supportVariableWeight) {
                             onQuoteWeightChange(
                                 if (it) FontWeight.Bold.weight
                                 else FontWeight.Normal.weight
                             )
+                        } else {
+                            variableCheckedType = VariableCheckedType.NONE
                         }
                     },
                     onItalicChange = {
-                        quoteItalicChecked = it
-                        if (it && selectedFont.supportVariableSlant) {
-                            sourceItalicChecked = false
-                            if (selectedFont.supportVariableWeight) {
-                                quoteBoldChecked = false
-                                sourceBoldChecked = false
-                            }
-                            variableValueRange =
-                                (selectedFont.variableSlant?.range?.start
-                                    ?: FontStyle.Normal.value.toFloat())..
-                                        (selectedFont.variableSlant?.range?.endInclusive
-                                            ?: FontStyle.Italic.value.toFloat())
-                        } else {
+                        if (it && supportVariableSlant) {
+                            variableCheckedType = VariableCheckedType.QUOTE_SLANT
+                        } else if (!supportVariableSlant) {
                             onQuoteItalicChange(
                                 if (it) FontStyle.Italic.value.toFloat()
                                 else FontStyle.Normal.value.toFloat()
                             )
+                        } else {
+                            variableCheckedType = VariableCheckedType.NONE
                         }
                     })
             }
@@ -251,58 +199,42 @@ internal fun PopupFontStyleRow(
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                FontStyleRow(fontInfo = selectedFont,
-                    boldChecked = sourceBoldChecked,
-                    italicChecked = sourceItalicChecked,
+                val supportVariableWeight = cardStyle.sourceFontStyle.supportVariableWeight
+                val supportVariableSlant = cardStyle.sourceFontStyle.supportVariableSlant
+                FontStyleRow(
+                    supportVariableWeight = supportVariableWeight,
+                    supportVariableSlant = supportVariableSlant,
+                    boldChecked = variableCheckedType == VariableCheckedType.SOURCE_WEIGHT
+                            || !supportVariableWeight && cardStyle.sourceFontStyle.weight == FontWeight.Bold,
+                    italicChecked = variableCheckedType == VariableCheckedType.SOURCE_SLANT
+                            || cardStyle.sourceFontStyle.italic.roundToInt() == FontStyle.Italic.value,
                     onWeightChange = {
-                        sourceBoldChecked = it
-                        if (it && selectedFont.supportVariableWeight) {
-                            quoteBoldChecked = false
-                            if (selectedFont.supportVariableSlant) {
-                                quoteItalicChecked = false
-                                sourceItalicChecked = false
-                            }
-                            variableValueRange =
-                                (selectedFont.variableWeight?.range?.start?.toFloat()
-                                    ?: FontWeight.Normal.weight.toFloat())..
-                                        (selectedFont.variableWeight?.range?.endInclusive?.toFloat()
-                                            ?: FontWeight.Bold.weight.toFloat())
-                        } else {
+                        if (it && supportVariableWeight) {
+                            variableCheckedType = VariableCheckedType.SOURCE_WEIGHT
+                        } else if (!supportVariableWeight) {
                             onSourceWeightChange(
                                 if (it) FontWeight.Bold.weight
                                 else FontWeight.Normal.weight
                             )
+                        } else {
+                            variableCheckedType = VariableCheckedType.NONE
                         }
                     },
                     onItalicChange = {
-                        sourceItalicChecked = it
-                        if (it && selectedFont.supportVariableSlant) {
-                            quoteItalicChecked = false
-                            if (selectedFont.supportVariableWeight) {
-                                quoteBoldChecked = false
-                                sourceBoldChecked = false
-                            }
-                            variableValueRange =
-                                (selectedFont.variableSlant?.range?.start
-                                    ?: FontStyle.Normal.value.toFloat())..
-                                        (selectedFont.variableSlant?.range?.endInclusive
-                                            ?: FontStyle.Italic.value.toFloat())
-                        } else {
+                        if (it && supportVariableSlant) {
+                            variableCheckedType = VariableCheckedType.SOURCE_SLANT
+                        } else if (!supportVariableSlant) {
                             onSourceItalicChange(
                                 if (it) FontStyle.Italic.value.toFloat()
                                 else FontStyle.Normal.value.toFloat()
                             )
+                        } else {
+                            variableCheckedType = VariableCheckedType.NONE
                         }
                     })
             }
         }
-        val textVariableWeightChecked = selectedFont.supportVariableWeight && quoteBoldChecked
-        val textVariableItalicChecked = selectedFont.supportVariableSlant && quoteItalicChecked
-        val sourceVariableWeightChecked = selectedFont.supportVariableWeight && sourceBoldChecked
-        val sourceVariableItalicChecked = selectedFont.supportVariableSlant && sourceItalicChecked
-        if (selectedFont.supportVariableWeight && (quoteBoldChecked || sourceBoldChecked)
-            || selectedFont.supportVariableSlant && (quoteItalicChecked || sourceItalicChecked)
-        ) {
+        if (variableCheckedType != VariableCheckedType.NONE) {
             Spacer(modifier = Modifier.height(16.dp))
             Surface(
                 shape = MaterialTheme.shapes.extraSmall, border = BorderStroke(
@@ -315,13 +247,43 @@ internal fun PopupFontStyleRow(
                         .wrapContentHeight()
                         .padding(start = 16.dp, top = 8.dp, end = 16.dp)
                 ) {
-                    val variableItalic = textVariableItalicChecked || sourceVariableItalicChecked
-                    val variableValue = when {
-                        textVariableWeightChecked -> textWeightVariableValue
-                        textVariableItalicChecked -> textItalicVariableValue
-                        sourceVariableWeightChecked -> sourceWeightVariableValue
-                        sourceVariableItalicChecked -> sourceItalicVariableValue
-                        else -> 0f
+                    val variableItalic = variableCheckedType == VariableCheckedType.QUOTE_SLANT
+                            || variableCheckedType == VariableCheckedType.SOURCE_SLANT
+                    var quoteWeightVariableValue by remember(cardStyle.quoteFontStyle.weight) {
+                        mutableStateOf(cardStyle.quoteFontStyle.weight.weight.toFloat())
+                    }
+                    var sourceWeightVariableValue by remember(cardStyle.sourceFontStyle.weight) {
+                        mutableStateOf(cardStyle.sourceFontStyle.weight.weight.toFloat())
+                    }
+                    var quoteSlantVariableValue by remember(cardStyle.quoteFontStyle.italic) {
+                        mutableStateOf(cardStyle.quoteFontStyle.italic)
+                    }
+                    var sourceSlantVariableValue by remember(cardStyle.sourceFontStyle.italic) {
+                        mutableStateOf(cardStyle.sourceFontStyle.italic)
+                    }
+                    val variableValue = when (variableCheckedType) {
+                        VariableCheckedType.QUOTE_WEIGHT -> quoteWeightVariableValue
+                        VariableCheckedType.QUOTE_SLANT -> quoteSlantVariableValue
+                        VariableCheckedType.SOURCE_WEIGHT -> sourceWeightVariableValue
+                        VariableCheckedType.SOURCE_SLANT -> sourceSlantVariableValue
+                        VariableCheckedType.NONE -> 0f
+                    }
+                    val variableValueRange = when (variableCheckedType) {
+                        VariableCheckedType.QUOTE_WEIGHT ->
+                            cardStyle.quoteFontStyle.minWeight.weight.toFloat()..
+                                    cardStyle.quoteFontStyle.maxWeight.weight.toFloat()
+
+                        VariableCheckedType.QUOTE_SLANT ->
+                            cardStyle.quoteFontStyle.minSlant..cardStyle.quoteFontStyle.maxSlant
+
+                        VariableCheckedType.SOURCE_WEIGHT ->
+                            cardStyle.sourceFontStyle.minWeight.weight.toFloat()..
+                                    cardStyle.sourceFontStyle.maxWeight.weight.toFloat()
+
+                        VariableCheckedType.SOURCE_SLANT ->
+                            cardStyle.sourceFontStyle.minSlant..cardStyle.sourceFontStyle.maxSlant
+
+                        VariableCheckedType.NONE -> 0f..0f
                     }
                     Row(
                         modifier = Modifier
@@ -348,34 +310,37 @@ internal fun PopupFontStyleRow(
                     Slider(value = variableValue,
                         valueRange = variableValueRange,
                         onValueChange = {
-                            when {
-                                textVariableWeightChecked -> textWeightVariableValue =
+                            when (variableCheckedType) {
+                                VariableCheckedType.QUOTE_WEIGHT -> quoteWeightVariableValue =
                                     it.roundToInt().toFloat()
 
-                                textVariableItalicChecked -> textItalicVariableValue = it
-                                sourceVariableWeightChecked -> sourceWeightVariableValue =
+                                VariableCheckedType.QUOTE_SLANT -> quoteSlantVariableValue = it
+                                VariableCheckedType.SOURCE_WEIGHT -> sourceWeightVariableValue =
                                     it.roundToInt().toFloat()
 
-                                sourceVariableItalicChecked -> sourceItalicVariableValue = it
+                                VariableCheckedType.SOURCE_SLANT -> sourceSlantVariableValue = it
+                                VariableCheckedType.NONE -> {}
                             }
                         },
                         onValueChangeFinished = {
-                            when {
-                                textVariableWeightChecked -> onQuoteWeightChange(
-                                    textWeightVariableValue.roundToInt()
+                            when (variableCheckedType) {
+                                VariableCheckedType.QUOTE_WEIGHT -> onQuoteWeightChange(
+                                    quoteWeightVariableValue.roundToInt()
                                 )
 
-                                textVariableItalicChecked -> onQuoteItalicChange(
-                                    textItalicVariableValue
+                                VariableCheckedType.QUOTE_SLANT -> onQuoteItalicChange(
+                                    quoteSlantVariableValue
                                 )
 
-                                sourceVariableWeightChecked -> onSourceWeightChange(
+                                VariableCheckedType.SOURCE_WEIGHT -> onSourceWeightChange(
                                     sourceWeightVariableValue.roundToInt()
                                 )
 
-                                sourceVariableItalicChecked -> onSourceItalicChange(
-                                    sourceItalicVariableValue
+                                VariableCheckedType.SOURCE_SLANT -> onSourceItalicChange(
+                                    sourceSlantVariableValue
                                 )
+
+                                VariableCheckedType.NONE -> {}
                             }
                         })
                 }
@@ -386,7 +351,8 @@ internal fun PopupFontStyleRow(
 
 @Composable
 fun FontStyleRow(
-    fontInfo: FontInfo,
+    supportVariableWeight: Boolean = false,
+    supportVariableSlant: Boolean = false,
     boldChecked: Boolean = false,
     italicChecked: Boolean = false,
     onWeightChange: (Boolean) -> Unit,
@@ -415,7 +381,7 @@ fun FontStyleRow(
                 checkedContentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            if (fontInfo.supportVariableWeight) {
+            if (supportVariableWeight) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_variable_weight_24dp),
                     contentDescription = null,
@@ -448,7 +414,7 @@ fun FontStyleRow(
                 checkedContentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            if (fontInfo.supportVariableSlant) {
+            if (supportVariableSlant) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_variable_italic_24dp),
                     contentDescription = null,

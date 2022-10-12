@@ -36,8 +36,18 @@ data class TextFontStyle(
     val family: String = PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF,
     val supportedFeatures: Int = PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_DEFAULT,
     val weight: FontWeight,
+    val minWeight: FontWeight = FontWeight.Normal,
+    val maxWeight: FontWeight = FontWeight.Normal,
     val italic: Float,
+    val minSlant: Float = 0f,
+    val maxSlant: Float = 0f,
 ) {
+
+    val supportVariableWeight: Boolean
+        get() = supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT != 0
+
+    val supportVariableSlant: Boolean
+        get() = supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT != 0
 
     val typeface: Typeface?
         get() = when (family) {
@@ -51,12 +61,9 @@ data class TextFontStyle(
             else -> runCatching {
                 FontManager.loadTypeface(
                     family,
-                    if (supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT != 0)
-                        weight else FontWeight.Normal,
-                    if (supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT != 0)
-                        FontStyle.Normal.value.toFloat() else italic,
-                    if (supportedFeatures and PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT != 0)
-                        italic else 0F
+                    if (supportVariableWeight) weight else FontWeight.Normal,
+                    if (supportVariableSlant) FontStyle.Normal.value.toFloat() else italic,
+                    if (supportVariableSlant) italic else 0F
                 )
             }.getOrNull()
         }
@@ -65,12 +72,16 @@ data class TextFontStyle(
         get() {
             val familyBytes = family.toByteArray()
             val bufferSize =
-                Int.SIZE_BYTES + familyBytes.size + Int.SIZE_BYTES + Float.SIZE_BYTES
+                familyBytes.size + Int.SIZE_BYTES + Int.SIZE_BYTES * 3 + Float.SIZE_BYTES * 3
             val byteBuffer = ByteBuffer.allocate(bufferSize)
                 .put(familyBytes)
                 .putInt(supportedFeatures)
                 .putInt(weight.weight)
+                .putInt(minWeight.weight)
+                .putInt(maxWeight.weight)
                 .putFloat(italic)
+                .putFloat(minSlant)
+                .putFloat(maxSlant)
             return byteBuffer.array().hexString()
         }
 
@@ -79,13 +90,20 @@ data class TextFontStyle(
             return byteString.decodeHex().let {
                 val buffer = ByteBuffer.wrap(it)
                 val familyBytes =
-                    ByteArray(it.size - Int.SIZE_BYTES - Int.SIZE_BYTES - Float.SIZE_BYTES)
+                    ByteArray(it.size - Int.SIZE_BYTES - Int.SIZE_BYTES * 3 - Float.SIZE_BYTES * 3)
                 buffer.get(familyBytes)
                 val fontFamily = String(familyBytes)
                 val fontSupportedFeatures = buffer.int
                 val fontWeight = FontWeight(buffer.int)
+                val minFontWeight = FontWeight(buffer.int)
+                val maxFontWeight = FontWeight(buffer.int)
                 val fontItalic = buffer.float
-                TextFontStyle(fontFamily, fontSupportedFeatures, fontWeight, fontItalic)
+                val minFontSlant = buffer.float
+                val maxFontSlant = buffer.float
+                TextFontStyle(
+                    fontFamily, fontSupportedFeatures, fontWeight, minFontWeight,
+                    maxFontWeight, fontItalic, minFontSlant, maxFontSlant
+                )
             }
         }
     }

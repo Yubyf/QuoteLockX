@@ -55,8 +55,6 @@ import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_CARD_PADDING_MAX
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_CARD_PADDING_MIN
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_CARD_PADDING_STEP
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING_MAX
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING_MIN
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING_STEP
@@ -73,7 +71,7 @@ fun CardStylePopup(
     popped: Boolean,
     fonts: List<FontInfo>,
     cardStyle: CardStyle,
-    onFontSelected: (String, Int) -> Unit,
+    onFontSelected: (FontInfo) -> Unit,
     onFontAdd: () -> Unit,
     onQuoteSizeChange: (Int) -> Unit,
     onSourceSizeChange: (Int) -> Unit,
@@ -113,7 +111,7 @@ fun CardStylePopup(
 fun CardStyleContent(
     fonts: List<FontInfo>,
     cardStyle: CardStyle,
-    onFontSelected: (String, Int) -> Unit,
+    onFontSelected: (FontInfo) -> Unit,
     onFontAdd: () -> Unit,
     onQuoteSizeChange: (Int) -> Unit,
     onSourceSizeChange: (Int) -> Unit,
@@ -134,10 +132,6 @@ fun CardStyleContent(
     var selectedItemIndex by remember {
         mutableStateOf(allFonts.indexOfFirst { it.path == cardStyle.fontFamily }
             .coerceIn(minimumValue = 0, maximumValue = allFonts.lastIndex))
-    }
-    var selectedFont by remember(allFonts) {
-        mutableStateOf(
-            allFonts.firstOrNull { it.path == cardStyle.fontFamily } ?: presetFonts.first())
     }
     val fontIndicatorWidth = 64.dp
     val haptic = LocalHapticFeedback.current
@@ -162,15 +156,8 @@ fun CardStyleContent(
                         selected = selectedItemIndex == index
                     ) {
                         selectedItemIndex = index
-                        selectedFont = fontInfo
                         performHapticFeedback()
-                        onFontSelected(
-                            it.path,
-                            (if (!it.supportVariableWeight) 0
-                            else PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT)
-                                    or (if (!it.supportVariableSlant) 0
-                            else PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT)
-                        )
+                        onFontSelected(fontInfo)
                     }
                     if (index == presetFonts.lastIndex && fonts.isNotEmpty()) {
                         Spacer(modifier = Modifier.width(20.dp))
@@ -218,7 +205,6 @@ fun CardStyleContent(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 PopupFontStyleRow(
-                    selectedFont = selectedFont,
                     cardStyle = cardStyle,
                     onQuoteSizeChange = { performHapticFeedback(); onQuoteSizeChange(it) },
                     onSourceSizeChange = { performHapticFeedback(); onSourceSizeChange(it) },
@@ -394,7 +380,7 @@ private fun CardStyleContentPreview() {
             CardStyleContent(
                 fonts = emptyList(),
                 cardStyle = CardStyle(),
-                onFontSelected = { _, _ -> },
+                onFontSelected = { },
                 onFontAdd = {},
                 onQuoteSizeChange = {},
                 onSourceSizeChange = {},

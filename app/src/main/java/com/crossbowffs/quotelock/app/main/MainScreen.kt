@@ -64,6 +64,7 @@ import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
 import com.crossbowffs.quotelock.app.detail.style.CardStyleUiState
 import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
+import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
@@ -161,7 +162,7 @@ fun MainScreen(
     onLockscreenStylesItemClick: () -> Unit = {},
     onCollectionItemClick: () -> Unit = {},
     onHistoryItemClick: () -> Unit = {},
-    selectFontFamily: (String, Int) -> Unit = { _, _ -> },
+    selectFontFamily: (FontInfo) -> Unit = { },
     onFontCustomize: () -> Unit = {},
     onQuoteSizeChange: (Int) -> Unit = {},
     onSourceSizeChange: (Int) -> Unit = {},
