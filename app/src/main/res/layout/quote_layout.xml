@@ -28,8 +28,9 @@
             android:id="@+id/source_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:alpha="0.7"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#bebebe"
+            android:textColor="@android:color/white"
             tools:text="@string/open_quotelock_app_line2" />
     </LinearLayout>
 
