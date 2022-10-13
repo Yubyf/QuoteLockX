@@ -4,8 +4,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_CARD_PADDING
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_CARD_PADDING_DEFAULT
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF
-import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_LEGACY_FAMILY
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_SOURCE
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_FONT_SIZE_TEXT
@@ -70,11 +68,6 @@ class CardStyleRepository @Inject internal constructor(
     var cardPadding: Int by DataStoreValue(
         PREF_CARD_STYLE_CARD_PADDING,
         PREF_CARD_STYLE_CARD_PADDING_DEFAULT
-    )
-
-    var fontFamily: String by DataStoreValue(
-        PREF_CARD_STYLE_FONT_LEGACY_FAMILY,
-        PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF
     )
 
     private var _quoteFontStyle: String? by DataStoreValue(

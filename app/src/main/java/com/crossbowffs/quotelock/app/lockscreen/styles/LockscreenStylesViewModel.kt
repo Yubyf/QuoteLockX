@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.data.api.TextFontStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -33,11 +34,11 @@ sealed class LockscreenStylesDialogUiState {
     ) : LockscreenStylesDialogUiState()
 
     data class QuoteStylesDialog(
-        val currentStyles: Set<String>?,
+        val currentStyle: TextFontStyle,
     ) : LockscreenStylesDialogUiState()
 
     data class SourceStylesDialog(
-        val currentStyles: Set<String>?,
+        val currentStyle: TextFontStyle,
     ) : LockscreenStylesDialogUiState()
 
     data class FontFamilyDialog(
@@ -71,7 +72,8 @@ class LockscreenStylesViewModel @Inject constructor(
     private val _uiState = mutableStateOf(
         LockscreenStylesUiState(
             // Only enable font family above API26
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+        )
     )
     val uiState: State<LockscreenStylesUiState> = _uiState
 
@@ -97,28 +99,30 @@ class LockscreenStylesViewModel @Inject constructor(
         configurationRepository.sourceSize = size
     }
 
-    fun loadQuoteStyles() {
+    fun loadQuoteStyle() {
         _uiDialogState.value =
-            LockscreenStylesDialogUiState.QuoteStylesDialog(configurationRepository.quoteStyles)
+            LockscreenStylesDialogUiState.QuoteStylesDialog(configurationRepository.quoteFontStyle)
     }
 
-    fun selectQuoteStyles(styles: Set<String>?) {
-        configurationRepository.quoteStyles = styles
+    fun selectQuoteStyle(style: TextFontStyle) {
+        configurationRepository.quoteFontStyle = style
     }
 
     fun loadSourceStyles() {
         _uiDialogState.value =
-            LockscreenStylesDialogUiState.SourceStylesDialog(configurationRepository.sourceStyles)
+            LockscreenStylesDialogUiState.SourceStylesDialog(configurationRepository.sourceFontStyle)
     }
 
-    fun selectSourceStyles(styles: Set<String>?) {
-        configurationRepository.sourceStyles = styles
+    fun selectSourceStyles(style: TextFontStyle) {
+        configurationRepository.sourceFontStyle = style
     }
 
     fun loadFontFamily() {
         val activeFonts = (FontManager.loadActiveSystemFontsList() ?: emptyList())
-        _uiDialogState.value = LockscreenStylesDialogUiState.FontFamilyDialog(fonts = activeFonts,
-            currentFont = configurationRepository.fontFamily)
+        _uiDialogState.value = LockscreenStylesDialogUiState.FontFamilyDialog(
+            fonts = activeFonts,
+            currentFont = configurationRepository.quoteFontStyle.family
+        )
         viewModelScope.launch {
             activeFonts.filter { it.families.isEmpty() }
                 .forEach { (_, fileName, path) ->
@@ -134,8 +138,11 @@ class LockscreenStylesViewModel @Inject constructor(
         }
     }
 
-    fun selectFontFamily(fontFamily: String) {
-        configurationRepository.fontFamily = fontFamily
+    fun selectFontFamily(font: FontInfo) {
+        configurationRepository.quoteFontStyle =
+            configurationRepository.quoteFontStyle.migrateTo(font)
+        configurationRepository.sourceFontStyle =
+            configurationRepository.sourceFontStyle.migrateTo(font)
     }
 
     fun loadQuoteSpacing() {

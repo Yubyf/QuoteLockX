@@ -3,9 +3,24 @@
 package com.crossbowffs.quotelock.app.lockscreen.styles
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -18,13 +33,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.ExperimentalUnitApi
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteViewData
+import com.crossbowffs.quotelock.data.api.composeFontFamily
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import com.crossbowffs.quotelock.ui.components.PreferenceTitle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
@@ -63,15 +83,15 @@ fun PreviewScreen(
                 .wrapContentHeight(),
             quote = uiState.quoteData.quoteText,
             quoteSize = uiState.quoteStyle.quoteSize.toFloat(),
-            quoteFamily = uiState.quoteStyle.quoteFontFamily,
-            quoteFontWeight = uiState.quoteStyle.quoteFontWeight,
-            quoteFontStyle = uiState.quoteStyle.quoteFontStyle,
+            quoteFamily = uiState.quoteStyle.quoteFontStyle.composeFontFamily,
+            quoteFontWeight = uiState.quoteStyle.quoteFontStyle.weight,
+            quoteFontStyle = uiState.quoteStyle.quoteFontStyle.composeFontStyle,
             source = if (quoteGeneratedByApp) uiState.quoteData.readableSource
             else uiState.quoteData.readableSourceWithPrefix,
             sourceSize = uiState.quoteStyle.sourceSize.toFloat(),
-            sourceFamily = uiState.quoteStyle.sourceFamily,
-            sourceFontWeight = uiState.quoteStyle.sourceFontWeight,
-            sourceFontStyle = uiState.quoteStyle.sourceFontStyle,
+            sourceFamily = uiState.quoteStyle.sourceFontStyle.composeFontFamily,
+            sourceFontWeight = uiState.quoteStyle.sourceFontStyle.weight,
+            sourceFontStyle = uiState.quoteStyle.sourceFontStyle.composeFontStyle,
             quoteSpacing = uiState.quoteStyle.quoteSpacing.dp,
             paddingTop = uiState.quoteStyle.paddingTop.dp,
             paddingBottom = uiState.quoteStyle.paddingBottom.dp,

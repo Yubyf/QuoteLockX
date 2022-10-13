@@ -19,9 +19,13 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import com.crossbowffs.quotelock.consts.*
 import com.crossbowffs.quotelock.data.api.QuoteData
+import com.crossbowffs.quotelock.data.api.TextFontStyle
 import com.crossbowffs.quotelock.data.api.buildReadableSource
+import com.crossbowffs.quotelock.data.api.typefaceStyle
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.provider.ActionProvider
 import com.crossbowffs.quotelock.provider.PreferenceProvider
@@ -63,29 +67,40 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                 || quotesGeneratedByApp.contains(source) || quotesGeneratedByApp.contains(author)
 
     private fun loadTypeface(
-        font: String?,
-        style: Int = Typeface.NORMAL,
-    ): Typeface = when (font) {
+        style: TextFontStyle,
+    ): Typeface = when (style.family) {
         PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
         PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
-        null,
         -> Typeface.SANS_SERIF
 
         PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
         -> Typeface.SERIF
 
         else -> runCatching {
-            typefaceCache.getOrElse("$font&$style") {
+            val weight = if (style.supportVariableWeight) style.weight else FontWeight.Normal
+            val italic =
+                if (style.supportVariableSlant) FontStyle.Normal.value.toFloat() else style.italic
+            val slant = if (style.supportVariableSlant) style.italic else 0F
+            val key = "${style.family}&${weight.weight}&${italic}&${slant}"
+            typefaceCache.getOrElse(key) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Typeface.Builder(File(font))
-                        .setFontVariationSettings(getFontVariationSettings())
+                    Typeface.Builder(File(style.family))
+                        .setFontVariationSettings(getFontVariationSettings(weight, italic, slant))
                         .build()
                 } else {
-                    Typeface.createFromFile(font)
+                    Typeface.createFromFile(style.family)
+                }.also {
+                    if (slant != 0F || weight != FontWeight.Normal && weight != FontWeight.Bold) {
+                        typefaceCache.keys.find { key -> key.startsWith(style.family) }
+                            ?.let { key ->
+                                typefaceCache.remove(key)
+                            }
+                    }
+                    typefaceCache[key] = it
                 }
             }
         }.onFailure {
-            Xlog.e(TAG, "Failed to load typeface: $font", it)
+            Xlog.e(TAG, "Failed to load typeface: ${style.family}", it)
         }.getOrNull() ?: Typeface.DEFAULT
     }
 
@@ -175,17 +190,16 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         mSourceTextView.textSize = sourceFontSize
 
         // Font properties
-        val quoteStyles = mCommonPrefs.getStringSet(PREF_COMMON_FONT_STYLE_TEXT, null)
-        val sourceStyles = mCommonPrefs.getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
-        val quoteStyle = getTypefaceStyle(quoteStyles)
-        val sourceStyle = getTypefaceStyle(sourceStyles)
-        val font = mCommonPrefs.getString(
-            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF
-        )
-        val quoteTypeface = loadTypeface(font, quoteStyle)
-        val sourceTypeface = loadTypeface(font, sourceStyle)
-        mQuoteTextView.setTypeface(quoteTypeface, quoteStyle)
-        mSourceTextView.setTypeface(sourceTypeface, sourceStyle)
+        val quoteStyle = mCommonPrefs.getString(PREF_COMMON_FONT_STYLE_TEXT, null)
+            ?.let { TextFontStyle.fromByteString(it) } ?: PREF_COMMON_FONT_STYLE_TEXT_DEFAULT
+        val sourceStyle = mCommonPrefs.getString(PREF_COMMON_FONT_STYLE_SOURCE, null)
+            ?.let { TextFontStyle.fromByteString(it) } ?: PREF_COMMON_FONT_STYLE_SOURCE_DEFAULT
+        val quoteTypeface = loadTypeface(quoteStyle)
+        val sourceTypeface = loadTypeface(sourceStyle)
+        val quoteTypefaceStyle = quoteStyle.typefaceStyle
+        val sourceTypefaceStyle = sourceStyle.typefaceStyle
+        mQuoteTextView.setTypeface(quoteTypeface, quoteTypefaceStyle)
+        mSourceTextView.setTypeface(sourceTypeface, sourceTypefaceStyle)
     }
 
     private fun refreshAodQuote() {
@@ -267,17 +281,16 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         mAodSourceTextView.textSize = sourceFontSize
 
         // Font properties
-        val quoteStyles = mCommonPrefs.getStringSet(PREF_COMMON_FONT_STYLE_TEXT, null)
-        val sourceStyles = mCommonPrefs.getStringSet(PREF_COMMON_FONT_STYLE_SOURCE, null)
-        val quoteStyle = getTypefaceStyle(quoteStyles)
-        val sourceStyle = getTypefaceStyle(sourceStyles)
-        val font = mCommonPrefs.getString(
-            PREF_COMMON_FONT_FAMILY, PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT
-        )
-        val quoteTypeface = loadTypeface(font, quoteStyle)
-        val sourceTypeface = loadTypeface(font, sourceStyle)
-        mAodQuoteTextView.setTypeface(quoteTypeface, quoteStyle)
-        mAodSourceTextView.setTypeface(sourceTypeface, sourceStyle)
+        val quoteStyle = mCommonPrefs.getString(PREF_COMMON_FONT_STYLE_TEXT, null)
+            ?.let { TextFontStyle.fromByteString(it) } ?: PREF_COMMON_FONT_STYLE_TEXT_DEFAULT
+        val sourceStyle = mCommonPrefs.getString(PREF_COMMON_FONT_STYLE_SOURCE, null)
+            ?.let { TextFontStyle.fromByteString(it) } ?: PREF_COMMON_FONT_STYLE_SOURCE_DEFAULT
+        val quoteTypeface = loadTypeface(quoteStyle)
+        val sourceTypeface = loadTypeface(sourceStyle)
+        val quoteTypefaceStyle = quoteStyle.typefaceStyle
+        val sourceTypefaceStyle = sourceStyle.typefaceStyle
+        mAodQuoteTextView.setTypeface(quoteTypeface, quoteTypefaceStyle)
+        mAodSourceTextView.setTypeface(sourceTypeface, sourceTypefaceStyle)
     }
 
     private val isAodViewAvailable: Boolean

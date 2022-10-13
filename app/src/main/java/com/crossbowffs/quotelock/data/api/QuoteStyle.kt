@@ -1,20 +1,19 @@
 package com.crossbowffs.quotelock.data.api
 
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
+import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
+import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_STYLE_SOURCE_DEFAULT
+import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_STYLE_TEXT_DEFAULT
+import com.crossbowffs.quotelock.consts.PREF_COMMON_PADDING_BOTTOM_DEFAULT
+import com.crossbowffs.quotelock.consts.PREF_COMMON_PADDING_TOP_DEFAULT
+import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_SPACING_DEFAULT
 
 data class QuoteStyle(
     val quoteSize: Int = PREF_COMMON_FONT_SIZE_TEXT_DEFAULT.toInt(),
     val sourceSize: Int = PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT.toInt(),
     // Font properties
-    val quoteFontFamily: FontFamily = FontFamily.Default,
-    val quoteFontWeight: FontWeight = FontWeight.Normal,
-    val quoteFontStyle: FontStyle = FontStyle.Normal,
-    val sourceFamily: FontFamily = FontFamily.Default,
-    val sourceFontWeight: FontWeight = FontWeight.Normal,
-    val sourceFontStyle: FontStyle = FontStyle.Normal,
+    val quoteFontStyle: TextFontStyle = PREF_COMMON_FONT_STYLE_TEXT_DEFAULT,
+    val sourceFontStyle: TextFontStyle = PREF_COMMON_FONT_STYLE_SOURCE_DEFAULT,
     // Quote spacing
     val quoteSpacing: Int = PREF_COMMON_QUOTE_SPACING_DEFAULT.toInt(),
     // Layout padding

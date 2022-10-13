@@ -42,14 +42,6 @@
         <item>sans-serif</item>
         <item>serif</item>
     </string-array>
-    <string-array name="font_style_entries">
-        <item>Bold</item>
-        <item>Italic</item>
-    </string-array>
-    <string-array name="font_style_values" translatable="false">
-        <item>bold</item>
-        <item>italic</item>
-    </string-array>
     <string-array name="layout_padding_entries" translatable="false">
         <item>0 pt</item>
         <item>8 pt</item>

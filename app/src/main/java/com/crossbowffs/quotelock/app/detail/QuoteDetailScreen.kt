@@ -75,6 +75,7 @@ import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
+import com.crossbowffs.quotelock.data.api.typeface
 import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.ui.components.DetailAppBar
 import com.crossbowffs.quotelock.ui.components.SnapshotCard

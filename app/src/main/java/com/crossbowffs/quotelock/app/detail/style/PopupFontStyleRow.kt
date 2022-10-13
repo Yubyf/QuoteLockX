@@ -128,9 +128,9 @@ internal fun PopupFontStyleRow(
                     supportVariableWeight = supportVariableWeight,
                     supportVariableSlant = supportVariableSlant,
                     boldChecked = variableCheckedType == VariableCheckedType.QUOTE_WEIGHT
-                            || !supportVariableWeight && cardStyle.quoteFontStyle.weight == FontWeight.Bold,
+                            || cardStyle.quoteFontStyle.isNonVariableWeightBold,
                     italicChecked = variableCheckedType == VariableCheckedType.QUOTE_SLANT
-                            || cardStyle.quoteFontStyle.italic.roundToInt() == FontStyle.Italic.value,
+                            || cardStyle.quoteFontStyle.isNonVariableSlantItalic,
                     onWeightChange = {
                         if (it && supportVariableWeight) {
                             variableCheckedType = VariableCheckedType.QUOTE_WEIGHT
@@ -205,9 +205,9 @@ internal fun PopupFontStyleRow(
                     supportVariableWeight = supportVariableWeight,
                     supportVariableSlant = supportVariableSlant,
                     boldChecked = variableCheckedType == VariableCheckedType.SOURCE_WEIGHT
-                            || !supportVariableWeight && cardStyle.sourceFontStyle.weight == FontWeight.Bold,
+                            || cardStyle.sourceFontStyle.isNonVariableWeightBold,
                     italicChecked = variableCheckedType == VariableCheckedType.SOURCE_SLANT
-                            || cardStyle.sourceFontStyle.italic.roundToInt() == FontStyle.Italic.value,
+                            || cardStyle.sourceFontStyle.isNonVariableSlantItalic,
                     onWeightChange = {
                         if (it && supportVariableWeight) {
                             variableCheckedType = VariableCheckedType.SOURCE_WEIGHT
@@ -294,7 +294,7 @@ internal fun PopupFontStyleRow(
                     ) {
                         Text(
                             text = stringResource(
-                                if (variableItalic) R.string.quote_card_style_variable_font_italic
+                                if (variableItalic) R.string.quote_card_style_variable_font_slant
                                 else R.string.quote_card_style_variable_font_weight
                             ),
                             color = AlertDialogDefaults.textContentColor,

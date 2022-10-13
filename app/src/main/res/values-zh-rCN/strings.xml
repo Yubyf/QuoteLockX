@@ -54,6 +54,10 @@
     <string name="pref_font_style_source_summary">来源文本字体样式</string>
     <string name="pref_font_family_title">字体</string>
     <string name="pref_font_family_summary">格言和来源文本的字体</string>
+    <string name="pref_font_style_bold">粗体</string>
+    <string name="pref_font_style_italic">斜体</string>
+    <string name="pref_variable_font_style_weight">可变字重</string>
+    <string name="pref_variable_font_style_slant">可变倾斜</string>
     <string name="pref_layout_padding_top_title">上边距</string>
     <string name="pref_layout_quote_spacing_summary">格言与来源文本间的行间距</string>
     <string name="pref_layout_quote_spacing_title">格言间距</string>
@@ -180,5 +184,5 @@
     <string name="quote_card_style_share_watermark">分享卡片水印</string>
     <string name="quote_card_style_popup_hint">如需设置锁屏样式，请前往「更多>锁屏样式」</string>
     <string name="quote_card_style_variable_font_weight">可变字重</string>
-    <string name="quote_card_style_variable_font_italic">可变斜体</string>
+    <string name="quote_card_style_variable_font_slant">可变倾斜</string>
 </resources>

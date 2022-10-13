@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -18,8 +22,15 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
-import com.crossbowffs.quotelock.ui.components.*
+import com.crossbowffs.quotelock.data.api.TextFontStyle
+import com.crossbowffs.quotelock.ui.components.FontListPreferenceDialog
+import com.crossbowffs.quotelock.ui.components.FontStylePreferenceDialog
+import com.crossbowffs.quotelock.ui.components.ListPreferenceDialog
+import com.crossbowffs.quotelock.ui.components.LockscreenStylesAppBar
+import com.crossbowffs.quotelock.ui.components.PreferenceItem
+import com.crossbowffs.quotelock.ui.components.PreferenceTitle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 
@@ -45,7 +56,7 @@ fun LockscreenStylesRoute(
                 uiState = uiPreferenceState,
                 onQuoteSizeItemClicked = viewModel::loadQuoteSize,
                 onSourceSizeItemClicked = viewModel::loadSourceSize,
-                onQuoteStylesItemClicked = viewModel::loadQuoteStyles,
+                onQuoteStylesItemClicked = viewModel::loadQuoteStyle,
                 onSourceStylesItemClicked = viewModel::loadSourceStyles,
                 onFontFamilyItemClicked = viewModel::loadFontFamily,
                 onQuoteSpacingItemClicked = viewModel::loadQuoteSpacing,
@@ -56,8 +67,8 @@ fun LockscreenStylesRoute(
                 uiDialogState = uiDialogState,
                 onQuoteSizeSelected = viewModel::selectQuoteSize,
                 onSourceSizeSelected = viewModel::selectSourceSize,
-                onQuoteStylesSelected = viewModel::selectQuoteStyles,
-                onSourceStylesSelected = viewModel::selectSourceStyles,
+                onQuoteStyleSelected = viewModel::selectQuoteStyle,
+                onSourceStyleSelected = viewModel::selectSourceStyles,
                 onFontFamilySelected = viewModel::selectFontFamily,
                 onFontCustomize = onFontCustomize,
                 onQuoteSpacingSelected = viewModel::selectQuoteSpacing,
@@ -147,9 +158,9 @@ fun LockscreenStylesDialogs(
     uiDialogState: LockscreenStylesDialogUiState,
     onQuoteSizeSelected: (Int) -> Unit,
     onSourceSizeSelected: (Int) -> Unit,
-    onQuoteStylesSelected: (Set<String>?) -> Unit,
-    onSourceStylesSelected: (Set<String>?) -> Unit,
-    onFontFamilySelected: (String) -> Unit,
+    onQuoteStyleSelected: (TextFontStyle) -> Unit,
+    onSourceStyleSelected: (TextFontStyle) -> Unit,
+    onFontFamilySelected: (FontInfo) -> Unit,
     onFontCustomize: () -> Unit,
     onQuoteSpacingSelected: (Int) -> Unit,
     onPaddingTopSelected: (Int) -> Unit,
@@ -177,22 +188,18 @@ fun LockscreenStylesDialogs(
         )
     }
     is LockscreenStylesDialogUiState.QuoteStylesDialog -> {
-        MultiSelectListPreferenceDialog(
+        FontStylePreferenceDialog(
             title = stringResource(id = R.string.pref_font_style_text_title),
-            entries = stringArrayResource(id = R.array.font_style_entries),
-            entryValues = stringArrayResource(id = R.array.font_style_values),
-            selectedItems = uiDialogState.currentStyles,
-            onItemsSelected = onQuoteStylesSelected,
+            style = uiDialogState.currentStyle,
+            onStyleChange = onQuoteStyleSelected,
             onDismiss = onDialogDismiss
         )
     }
     is LockscreenStylesDialogUiState.SourceStylesDialog -> {
-        MultiSelectListPreferenceDialog(
+        FontStylePreferenceDialog(
             title = stringResource(id = R.string.pref_font_style_source_title),
-            entries = stringArrayResource(id = R.array.font_style_entries),
-            entryValues = stringArrayResource(id = R.array.font_style_values),
-            selectedItems = uiDialogState.currentStyles,
-            onItemsSelected = onSourceStylesSelected,
+            style = uiDialogState.currentStyle,
+            onStyleChange = onSourceStyleSelected,
             onDismiss = onDialogDismiss
         )
     }

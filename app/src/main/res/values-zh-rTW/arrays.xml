@@ -13,10 +13,6 @@
         <item>無襯線體</item>
         <item>襯線體</item>
     </string-array>
-    <string-array name="font_style_entries">
-        <item>粗體</item>
-        <item>斜體</item>
-    </string-array>
 
     <string-array name="hitokoto_type_entries">
         <item>動畫</item>

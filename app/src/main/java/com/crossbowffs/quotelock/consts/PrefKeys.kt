@@ -25,12 +25,31 @@ const val PREF_COMMON_FONT_SIZE_TEXT = "pref_common_font_size_text"
 const val PREF_COMMON_FONT_SIZE_TEXT_DEFAULT = "20"
 const val PREF_COMMON_FONT_SIZE_SOURCE = "pref_common_font_size_source"
 const val PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT = "18"
-const val PREF_COMMON_FONT_STYLE_TEXT = "pref_common_font_style_text"
-const val PREF_COMMON_FONT_STYLE_SOURCE = "pref_common_font_style_source"
-const val PREF_COMMON_FONT_FAMILY = "pref_common_font_family"
+const val PREF_COMMON_FONT_STYLE_TEXT = "pref_common_font_style_group_text"
+const val PREF_COMMON_FONT_STYLE_SOURCE = "pref_common_font_style_group_source"
+
+@Deprecated("Use PREF_COMMON_FONT_STYLE_TEXT and PREF_COMMON_FONT_STYLE_SOURCE instead")
+const val PREF_COMMON_FONT_LEGACY_FAMILY = "pref_common_font_family"
+
+@Deprecated("Use PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF and PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF instead")
 const val PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT = "system"
 const val PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
 const val PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF = "serif"
+const val PREF_COMMON_FONT_SUPPORTED_FEATURES_DEFAULT = 0
+const val PREF_COMMON_FONT_SUPPORTED_FEATURES_WEIGHT = 0x0001
+const val PREF_COMMON_FONT_SUPPORTED_FEATURES_SLANT = 0x0010
+val PREF_COMMON_FONT_WEIGHT_TEXT_DEFAULT = FontWeight.Normal
+val PREF_COMMON_FONT_ITALIC_TEXT_DEFAULT = FontStyle.Normal.value.toFloat()
+val PREF_COMMON_FONT_WEIGHT_SOURCE_DEFAULT = FontWeight.Normal
+val PREF_COMMON_FONT_ITALIC_SOURCE_DEFAULT = FontStyle.Normal.value.toFloat()
+val PREF_COMMON_FONT_STYLE_TEXT_DEFAULT = TextFontStyle(
+    weight = PREF_COMMON_FONT_WEIGHT_TEXT_DEFAULT,
+    italic = PREF_COMMON_FONT_ITALIC_TEXT_DEFAULT
+)
+val PREF_COMMON_FONT_STYLE_SOURCE_DEFAULT = TextFontStyle(
+    weight = PREF_COMMON_FONT_WEIGHT_SOURCE_DEFAULT,
+    italic = PREF_COMMON_FONT_ITALIC_SOURCE_DEFAULT
+)
 const val PREF_COMMON_QUOTE_SPACING = "pref_common_quote_spacing"
 const val PREF_COMMON_QUOTE_SPACING_DEFAULT = "0"
 const val PREF_COMMON_PADDING_TOP = "pref_common_padding_top"
@@ -64,15 +83,11 @@ const val PREF_CARD_STYLE_CARD_PADDING_DEFAULT = 24
 const val PREF_CARD_STYLE_CARD_PADDING_MIN = 16
 const val PREF_CARD_STYLE_CARD_PADDING_MAX = 32
 const val PREF_CARD_STYLE_CARD_PADDING_STEP = 4
+
+@Deprecated("Use PREF_CARD_STYLE_FONT_STYLE_TEXT and PREF_CARD_STYLE_FONT_STYLE_SOURCE instead")
 const val PREF_CARD_STYLE_FONT_LEGACY_FAMILY = "pref_card_style_font_family"
-const val PREF_CARD_STYLE_FONT_FAMILY_LEGACY_DEFAULT = "system"
-const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
-const val PREF_CARD_STYLE_FONT_FAMILY_DEFAULT_SERIF = "serif"
-const val PREF_CARD_STYLE_FONT_STYLE_TEXT = "pref_card_style_font_style_text"
-const val PREF_CARD_STYLE_FONT_STYLE_SOURCE = "pref_card_style_font_style_source"
-const val PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_DEFAULT = 0
-const val PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_WEIGHT = 0x0001
-const val PREF_CARD_STYLE_FONT_SUPPORTED_FEATURES_SLANT = 0x0010
+const val PREF_CARD_STYLE_FONT_STYLE_TEXT = "pref_card_style_font_style_group_text"
+const val PREF_CARD_STYLE_FONT_STYLE_SOURCE = "pref_card_style_font_style_group_source"
 val PREF_CARD_STYLE_FONT_WEIGHT_TEXT_DEFAULT = FontWeight.Normal
 val PREF_CARD_STYLE_FONT_ITALIC_TEXT_DEFAULT = FontStyle.Normal.value.toFloat()
 val PREF_CARD_STYLE_FONT_WEIGHT_SOURCE_DEFAULT = FontWeight.Normal
