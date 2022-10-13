@@ -172,24 +172,24 @@
     <string name="replace">替換</string>
 
     <string name="pref_font_family_custom">自定義</string>
-    <string name="quote_fonts_management_screen_label">自定義字體</string>
+    <string name="quote_fonts_management_screen_label">自定義字型</string>
     <string name="quote_fonts_management_import">匯入</string>
-    <string name="quote_fonts_management_importing">正在匯入字體…</string>
-    <string name="quote_fonts_management_font_imported">字體 %s 已匯入</string>
-    <string name="quote_fonts_management_import_failed">匯入字體失敗</string>
+    <string name="quote_fonts_management_importing">正在匯入字型…</string>
+    <string name="quote_fonts_management_font_imported">字型 %s 已匯入</string>
+    <string name="quote_fonts_management_import_failed">匯入字型失敗</string>
     <string name="quote_fonts_management_inactive">未生效</string>
-    <string name="quote_fonts_management_delete_font_failed">刪除字體 %s 失敗</string>
+    <string name="quote_fonts_management_delete_font_failed">刪除字型 %s 失敗</string>
     <string name="quote_fonts_management_delete_active_font_successfully">重啟設備以使刪除操作生效</string>
-    <string name="quote_fonts_management_delete_inactive_font_successfully">字體 %s 已刪除</string>
-    <string name="quote_fonts_management_delete_in_app_font_successfully">字體 %s 已刪除</string>
+    <string name="quote_fonts_management_delete_inactive_font_successfully">字型 %s 已刪除</string>
+    <string name="quote_fonts_management_delete_in_app_font_successfully">字型 %s 已刪除</string>
     <string name="quote_fonts_magisk_module_needed_title">需安裝 Magisk 模塊</string>
     <string name="quote_fonts_magisk_module_needed_message">
-        Android 不支援應用以常規方式將匯入的字體共享到鎖屏應用顯示。\n\n要想使用 QuoteLockX 自定義字體功能，您必須下載並在 Magisk 中安裝 QuoteLockX-CustomFonts 模塊。
+        Android 不支援應用以常規方式將匯入的字型共享到鎖屏應用顯示。\n\n要想使用 QuoteLockX 自定義字型功能，您必須下載並在 Magisk 中安裝 QuoteLockX-CustomFonts 模塊。
     </string>
     <string name="download">下載</string>
-    <string name="quote_fonts_management_activate_tips">重啟設備以使匯入字體生效</string>
-    <string name="quote_fonts_management_variable_font_tips">可變字體</string>
-    <string name="quote_fonts_management_font_already_exists">字體 %s 已存在</string>
+    <string name="quote_fonts_management_activate_tips">重啟設備以使匯入字型生效</string>
+    <string name="quote_fonts_management_variable_font_tips">可變字型</string>
+    <string name="quote_fonts_management_font_already_exists">字型 %s 已存在</string>
 
     <string name="quote_image_share">分享</string>
     <string name="quote_image_share_description">分享格言</string>
