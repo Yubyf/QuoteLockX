@@ -13,10 +13,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -44,16 +51,24 @@ fun LockscreenStylesRoute(
 ) {
     val uiPreferenceState by viewModel.uiState
     val uiDialogState by viewModel.uiDialogState
+    val topAppBarScrollState = rememberTopAppBarState()
+    var scrollable by remember { mutableStateOf(false) }
+    val scrollBehavior =
+        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarScrollState, { scrollable })
 
-    Scaffold(topBar = { LockscreenStylesAppBar(onBack) }) { padding ->
-        Column(modifier = modifier
-            .fillMaxSize()
-            .padding(padding)
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = { LockscreenStylesAppBar(onBack, scrollBehavior) }) { padding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
         ) {
             PreviewRoute(onPreviewClick = onPreviewClick)
             LockscreenStylesScreen(
                 modifier = modifier,
                 uiState = uiPreferenceState,
+                onScrollable = { scrollable = true },
                 onQuoteSizeItemClicked = viewModel::loadQuoteSize,
                 onSourceSizeItemClicked = viewModel::loadSourceSize,
                 onQuoteStylesItemClicked = viewModel::loadQuoteStyle,
@@ -84,6 +99,8 @@ fun LockscreenStylesRoute(
 fun LockscreenStylesScreen(
     modifier: Modifier = Modifier,
     uiState: LockscreenStylesUiState,
+    nestedScrollConnection: NestedScrollConnection? = null,
+    onScrollable: () -> Unit = {},
     onQuoteSizeItemClicked: () -> Unit = {},
     onSourceSizeItemClicked: () -> Unit = {},
     onQuoteStylesItemClicked: () -> Unit = {},
@@ -95,17 +112,29 @@ fun LockscreenStylesScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        modifier = Modifier.apply { nestedScrollConnection?.let { nestedScroll(it) } },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
+        var scrollable by remember { mutableStateOf(false) }
         val scrollState = rememberScrollState()
-        Column(modifier = modifier
-            .fillMaxSize()
-            .padding(padding)
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
         ) {
             PreferenceTitle(R.string.style)
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(state = scrollState)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(state = scrollState)
+                    .onGloballyPositioned {
+                        if (!scrollable
+                            && it.size.height > (it.parentCoordinates?.size?.height ?: 0)
+                        ) {
+                            scrollable = true
+                            onScrollable()
+                        }
+                    }
             ) {
                 PreferenceItem(
                     titleRes = R.string.pref_font_size_text_title,
@@ -177,6 +206,7 @@ fun LockscreenStylesDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is LockscreenStylesDialogUiState.SourceSizeDialog -> {
         ListPreferenceDialog(
             title = stringResource(id = R.string.pref_font_size_source_title),
@@ -187,6 +217,7 @@ fun LockscreenStylesDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is LockscreenStylesDialogUiState.QuoteStylesDialog -> {
         FontStylePreferenceDialog(
             title = stringResource(id = R.string.pref_font_style_text_title),
@@ -195,6 +226,7 @@ fun LockscreenStylesDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is LockscreenStylesDialogUiState.SourceStylesDialog -> {
         FontStylePreferenceDialog(
             title = stringResource(id = R.string.pref_font_style_source_title),
@@ -203,6 +235,7 @@ fun LockscreenStylesDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is LockscreenStylesDialogUiState.FontFamilyDialog -> {
         FontListPreferenceDialog(
             title = stringResource(id = R.string.pref_font_style_source_title),
@@ -213,6 +246,7 @@ fun LockscreenStylesDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is LockscreenStylesDialogUiState.QuoteSpacingDialog -> {
         ListPreferenceDialog(
             title = stringResource(id = R.string.pref_layout_quote_spacing_title),
@@ -223,6 +257,7 @@ fun LockscreenStylesDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is LockscreenStylesDialogUiState.PaddingTopDialog -> {
         ListPreferenceDialog(
             title = stringResource(id = R.string.pref_layout_padding_top_title),
@@ -233,6 +268,7 @@ fun LockscreenStylesDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is LockscreenStylesDialogUiState.PaddingBottomDialog -> {
         ListPreferenceDialog(
             title = stringResource(id = R.string.pref_layout_padding_bottom_title),
@@ -243,15 +279,20 @@ fun LockscreenStylesDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is LockscreenStylesDialogUiState.None -> {}
 }
 
-@Preview(name = "Lockscreen Styles Screen Light",
+@Preview(
+    name = "Lockscreen Styles Screen Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Lockscreen Styles Screen Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Lockscreen Styles Screen Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun LockscreenStylesScreenPreview() {
     QuoteLockTheme {

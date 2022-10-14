@@ -8,9 +8,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -79,9 +93,14 @@ fun SettingsScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val topAppBarScrollState = rememberTopAppBarState()
+    var scrollable by remember { mutableStateOf(false) }
+    val scrollBehavior =
+        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarScrollState, { scrollable })
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        topBar = { SettingsAppBar(onBack = onBack) }
+        topBar = { SettingsAppBar(onBack = onBack, scrollBehavior = scrollBehavior) }
     ) { padding ->
         uiEvent.message?.let {
             val messageText = it
@@ -99,6 +118,11 @@ fun SettingsScreen(
             .fillMaxSize()
             .padding(padding)
             .verticalScroll(state = scrollState)
+            .onGloballyPositioned {
+                if (!scrollable && it.size.height > (it.parentCoordinates?.size?.height ?: 0)) {
+                    scrollable = true
+                }
+            }
         ) {
             if (uiState.enableAod) {
                 SwitchablePreferenceItem(
@@ -184,11 +208,12 @@ fun SettingsDialogs(
             entryValues = uiDialogState.modules.second,
             selectedItem = uiDialogState.currentModule,
             onItemSelected = { item ->
-                item?.let { it -> onModuleSelected(it) }
+                item?.let { onModuleSelected(it) }
             },
             onDismiss = onDialogDismiss
         )
     }
+
     is SettingsDialogUiState.RefreshIntervalDialog -> {
         ListPreferenceDialog(
             title = stringResource(id = R.string.pref_refresh_interval_title),
@@ -199,26 +224,33 @@ fun SettingsDialogs(
             onDismiss = onDialogDismiss
         )
     }
+
     is SettingsDialogUiState.None -> {}
 }
 
-@Preview(name = "Settings Screen Light",
+@Preview(
+    name = "Settings Screen Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Settings Screen Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Settings Screen Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun SettingsScreenPreview() {
     QuoteLockTheme {
         Surface {
             SettingsScreen(
-                uiState = SettingsUiState(enableAod = true,
+                uiState = SettingsUiState(
+                    enableAod = true,
                     displayOnAod = true,
                     unmeteredOnly = true,
                     moduleData = null,
                     updateInfo = "",
-                    cacheSize = "0.0 MB"),
+                    cacheSize = "0.0 MB"
+                ),
                 uiEvent = emptySnackBarEvent,
                 snackBarShown = {},
             )

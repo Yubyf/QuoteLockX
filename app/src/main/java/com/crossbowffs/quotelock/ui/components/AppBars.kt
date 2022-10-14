@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -89,6 +90,7 @@ fun MainAppBar(
 @Composable
 fun SettingsAppBar(
     onBack: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     LargeTopAppBar(
         title = { Text(text = stringResource(id = R.string.settings)) },
@@ -101,6 +103,7 @@ fun SettingsAppBar(
             containerColor = Color.Transparent,
         ),
         modifier = Modifier.fillMaxWidth(),
+        scrollBehavior = scrollBehavior
     )
 }
 
@@ -118,13 +121,14 @@ fun AboutAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent,
         ),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
 @Composable
 fun LockscreenStylesAppBar(
     onBack: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     LargeTopAppBar(
         title = { Text(text = stringResource(id = R.string.lockscreen_styles)) },
@@ -137,6 +141,7 @@ fun LockscreenStylesAppBar(
             containerColor = Color.Transparent,
         ),
         modifier = Modifier.fillMaxWidth(),
+        scrollBehavior = scrollBehavior
     )
 }
 
@@ -476,7 +481,7 @@ private fun MainTopAppBarPreview() {
 private fun SettingsTopAppBarPreview() {
     QuoteLockTheme {
         Surface {
-            SettingsAppBar {}
+            SettingsAppBar({})
         }
     }
 }
