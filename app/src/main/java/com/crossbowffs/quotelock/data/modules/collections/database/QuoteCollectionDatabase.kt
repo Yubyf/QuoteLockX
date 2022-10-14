@@ -1,7 +1,17 @@
 package com.crossbowffs.quotelock.data.modules.collections.database
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.crossbowffs.quotelock.data.api.QuoteEntity
@@ -29,8 +39,10 @@ object QuoteCollectionContract {
     const val ID = QuoteEntityContract.ID
 }
 
-@Entity(tableName = QuoteCollectionContract.TABLE,
-    indices = [Index(value = [QuoteCollectionContract.MD5], unique = true)])
+@Entity(
+    tableName = QuoteCollectionContract.TABLE,
+    indices = [Index(value = [QuoteCollectionContract.MD5], unique = true)]
+)
 data class QuoteCollectionEntity @JvmOverloads constructor(
     @CsvBindByName(column = QuoteCollectionContract.ID, required = true)
     @PrimaryKey(autoGenerate = true)
@@ -65,13 +77,22 @@ interface QuoteCollectionDao {
     @Query("SELECT * FROM ${QuoteCollectionContract.TABLE}")
     fun getAllStream(): Flow<List<QuoteCollectionEntity>>
 
+    @Query(
+        "SELECT * FROM ${QuoteCollectionContract.TABLE} WHERE (text LIKE '%' || :keyword || '%'" +
+                " OR source LIKE '%' || :keyword || '%'" +
+                " OR author LIKE '%' || :keyword || '%')"
+    )
+    fun searchStream(keyword: String): Flow<List<QuoteCollectionEntity>>
+
     @Query("SELECT * FROM ${QuoteCollectionContract.TABLE}")
     suspend fun getAll(): List<QuoteCollectionEntity>
 
-    @Query("""SELECT * FROM ${QuoteCollectionContract.TABLE}"""
-            + """ WHERE ${QuoteCollectionContract.TEXT} = :text"""
-            + """ AND ${QuoteCollectionContract.SOURCE} = :source"""
-            + """ AND ${QuoteCollectionContract.AUTHOR} = :author""")
+    @Query(
+        """SELECT * FROM ${QuoteCollectionContract.TABLE}"""
+                + """ WHERE ${QuoteCollectionContract.TEXT} = :text"""
+                + """ AND ${QuoteCollectionContract.SOURCE} = :source"""
+                + """ AND ${QuoteCollectionContract.AUTHOR} = :author"""
+    )
     suspend fun getByQuote(text: String, source: String, author: String?): QuoteCollectionEntity?
 
     @Query("SELECT * FROM ${QuoteCollectionContract.TABLE} ORDER BY RANDOM() LIMIT 1")
@@ -99,8 +120,10 @@ interface QuoteCollectionDao {
     suspend fun clear()
 }
 
-@Database(entities = [QuoteCollectionEntity::class],
-    version = BuildConfig.QUOTE_COLLECTIONS_DB_VERSION)
+@Database(
+    entities = [QuoteCollectionEntity::class],
+    version = BuildConfig.QUOTE_COLLECTIONS_DB_VERSION
+)
 abstract class QuoteCollectionDatabase : RoomDatabase() {
     abstract fun dao(): QuoteCollectionDao
 
@@ -114,31 +137,40 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
         }
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE ${QuoteCollectionContract.TABLE}" +
-                        " ADD COLUMN ${QuoteCollectionContract.AUTHOR} TEXT")
+                database.execSQL(
+                    "ALTER TABLE ${QuoteCollectionContract.TABLE}" +
+                            " ADD COLUMN ${QuoteCollectionContract.AUTHOR} TEXT"
+                )
             }
         }
         private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
-                    "ALTER TABLE ${QuoteCollectionContract.TABLE} RENAME TO tmp_table")
-                database.execSQL("CREATE TABLE ${QuoteCollectionContract.TABLE}(" +
-                        "${QuoteCollectionContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "${QuoteCollectionContract.TEXT} TEXT NOT NULL, " +
-                        "${QuoteCollectionContract.SOURCE} TEXT NOT NULL, " +
-                        "${QuoteCollectionContract.MD5} TEXT UNIQUE NOT NULL, " +
-                        "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')")
-                database.execSQL("CREATE UNIQUE INDEX index_" +
-                        "${"${QuoteCollectionContract.TABLE}_${QuoteCollectionContract.MD5}"} " +
-                        "on ${QuoteCollectionContract.TABLE}(${QuoteCollectionContract.MD5})")
-                database.execSQL("INSERT OR REPLACE INTO ${QuoteCollectionContract.TABLE}(" +
-                        "${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
-                        "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
-                        "${QuoteCollectionContract.AUTHOR}) " +
-                        "SELECT ${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
-                        "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
-                        "${QuoteEntityContract.AUTHOR_OLD} " +
-                        "FROM tmp_table")
+                    "ALTER TABLE ${QuoteCollectionContract.TABLE} RENAME TO tmp_table"
+                )
+                database.execSQL(
+                    "CREATE TABLE ${QuoteCollectionContract.TABLE}(" +
+                            "${QuoteCollectionContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "${QuoteCollectionContract.TEXT} TEXT NOT NULL, " +
+                            "${QuoteCollectionContract.SOURCE} TEXT NOT NULL, " +
+                            "${QuoteCollectionContract.MD5} TEXT UNIQUE NOT NULL, " +
+                            "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')"
+                )
+                database.execSQL(
+                    "CREATE UNIQUE INDEX index_" +
+                            "${"${QuoteCollectionContract.TABLE}_${QuoteCollectionContract.MD5}"} " +
+                            "on ${QuoteCollectionContract.TABLE}(${QuoteCollectionContract.MD5})"
+                )
+                database.execSQL(
+                    "INSERT OR REPLACE INTO ${QuoteCollectionContract.TABLE}(" +
+                            "${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
+                            "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
+                            "${QuoteCollectionContract.AUTHOR}) " +
+                            "SELECT ${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
+                            "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
+                            "${QuoteEntityContract.AUTHOR_OLD} " +
+                            "FROM tmp_table"
+                )
                 database.execSQL("DROP TABLE tmp_table")
             }
         }

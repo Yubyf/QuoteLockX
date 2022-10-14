@@ -17,6 +17,7 @@
     <string name="style">样式</string>
     <string name="about">关于</string>
     <string name="close">关闭</string>
+    <string name="search">搜索</string>
     <string name="data_retention">数据</string>
     <string name="connect_account">连接到谷歌账户</string>
     <string name="disconnect_account">断开连接</string>

@@ -12,6 +12,8 @@ class QuoteHistoryRepository internal constructor(
 
     fun getAll(): Flow<List<QuoteHistoryEntity>> = historyDao.getAllStream()
 
+    fun search(keyword: String): Flow<List<QuoteHistoryEntity>> = historyDao.searchStream(keyword)
+
     fun count(): Flow<Int> = historyDao.countStream()
 
     suspend fun insert(quote: QuoteHistoryEntity): Long? = withContext(dispatcher) {

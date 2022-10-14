@@ -19,10 +19,16 @@ import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollecti
 import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @Retention(AnnotationRetention.SOURCE)
@@ -56,7 +62,9 @@ data class QuoteCollectionMenuUiState(
  * UI state for the quote collection list screen.
  */
 data class QuoteCollectionListUiState(
-    val items: List<QuoteCollectionEntity> = emptyList(),
+    val allItems: List<QuoteCollectionEntity> = emptyList(),
+    val searchKeyword: String = "",
+    val searchedItems: List<QuoteCollectionEntity> = emptyList(),
     val gDriveFirstSyncConflict: Boolean = false,
 )
 
@@ -94,7 +102,7 @@ class QuoteCollectionViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             ).onEach {
-                _uiListState.value = _uiListState.value.copy(items = it)
+                _uiListState.value = _uiListState.value.copy(allItems = it)
                 _uiMenuState.value = _uiMenuState.value.copy(exportEnabled = it.isNotEmpty())
             }.launchIn(this)
             if (googleAccountManager.checkGooglePlayService()) {
@@ -116,6 +124,31 @@ class QuoteCollectionViewModel @Inject constructor(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    fun prepareSearch() {
+        _uiListState.value =
+            _uiListState.value.copy(searchKeyword = "", searchedItems = emptyList())
+    }
+
+    fun search(keyword: String) {
+        if (keyword.trim() == _uiListState.value.searchKeyword.trim()) {
+            if (keyword != _uiListState.value.searchKeyword) {
+                _uiListState.value = _uiListState.value.copy(searchKeyword = keyword)
+            }
+            return
+        }
+        if (keyword.isBlank()) {
+            _uiListState.value =
+                _uiListState.value.copy(searchKeyword = "", searchedItems = emptyList())
+            return
+        }
+        _uiListState.value = _uiListState.value.copy(searchKeyword = keyword)
+        viewModelScope.launch {
+            collectionRepository.search(keyword.trim()).collect() {
+                _uiListState.value = _uiListState.value.copy(searchedItems = it)
             }
         }
     }
@@ -205,7 +238,7 @@ class QuoteCollectionViewModel @Inject constructor(
             if (account.email.isNotEmpty()) {
                 syncAccountManager.addOrUpdateAccount(account.email, true)
                 if (syncTime > 0) {
-                    if (uiListState.value.items.isNotEmpty()) {
+                    if (uiListState.value.allItems.isNotEmpty()) {
                         _uiListState.value = _uiListState.value.copy(gDriveFirstSyncConflict = true)
                     } else {
                         syncAccountManager.performFirstSync(false)

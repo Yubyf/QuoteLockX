@@ -24,6 +24,9 @@ class QuoteCollectionRepository internal constructor(
 
     fun getAllStream(): Flow<List<QuoteCollectionEntity>> = collectionDao.getAllStream()
 
+    fun search(keyword: String): Flow<List<QuoteCollectionEntity>> =
+        collectionDao.searchStream(keyword)
+
     suspend fun getByQuote(text: String, source: String, author: String?): QuoteCollectionEntity? =
         withContext(dispatcher) {
             collectionDao.getByQuote(text, source, author)

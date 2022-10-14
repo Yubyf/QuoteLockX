@@ -1,7 +1,18 @@
 package com.crossbowffs.quotelock.data.history
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.crossbowffs.quotelock.data.api.QuoteEntity
@@ -26,8 +37,10 @@ object QuoteHistoryContract {
 }
 
 
-@Entity(tableName = QuoteHistoryContract.TABLE,
-    indices = [Index(value = [QuoteHistoryContract.MD5], unique = true)])
+@Entity(
+    tableName = QuoteHistoryContract.TABLE,
+    indices = [Index(value = [QuoteHistoryContract.MD5], unique = true)]
+)
 data class QuoteHistoryEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = QuoteHistoryContract.ID)
@@ -46,6 +59,13 @@ data class QuoteHistoryEntity(
 interface QuoteHistoryDao {
     @Query("SELECT * FROM ${QuoteHistoryContract.TABLE}")
     fun getAllStream(): Flow<List<QuoteHistoryEntity>>
+
+    @Query(
+        "SELECT * FROM ${QuoteHistoryContract.TABLE} WHERE (text LIKE '%' || :keyword || '%'" +
+                " OR source LIKE '%' || :keyword || '%'" +
+                " OR author LIKE '%' || :keyword || '%')"
+    )
+    fun searchStream(keyword: String): Flow<List<QuoteHistoryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(quote: QuoteHistoryEntity): Long?
@@ -77,31 +97,40 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
         }
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE ${QuoteHistoryContract.TABLE}" +
-                        " ADD COLUMN ${QuoteHistoryContract.AUTHOR} TEXT NOT NULL DEFAULT ''")
+                database.execSQL(
+                    "ALTER TABLE ${QuoteHistoryContract.TABLE}" +
+                            " ADD COLUMN ${QuoteHistoryContract.AUTHOR} TEXT NOT NULL DEFAULT ''"
+                )
             }
         }
         private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
-                    "ALTER TABLE ${QuoteHistoryContract.TABLE} RENAME TO tmp_table")
-                database.execSQL("CREATE TABLE ${QuoteHistoryContract.TABLE}(" +
-                        "${QuoteHistoryContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "${QuoteHistoryContract.TEXT} TEXT NOT NULL, " +
-                        "${QuoteHistoryContract.SOURCE} TEXT NOT NULL, " +
-                        "${QuoteHistoryContract.MD5} TEXT UNIQUE NOT NULL, " +
-                        "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')")
-                database.execSQL("CREATE UNIQUE INDEX index_" +
-                        "${"${QuoteHistoryContract.TABLE}_${QuoteHistoryContract.MD5}"} " +
-                        "on ${QuoteHistoryContract.TABLE}(${QuoteHistoryContract.MD5})")
-                database.execSQL("INSERT OR REPLACE INTO ${QuoteHistoryContract.TABLE}(" +
-                        "${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
-                        "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
-                        "${QuoteHistoryContract.AUTHOR}) " +
-                        "SELECT ${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
-                        "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
-                        "${QuoteEntityContract.AUTHOR_OLD} " +
-                        "FROM tmp_table")
+                    "ALTER TABLE ${QuoteHistoryContract.TABLE} RENAME TO tmp_table"
+                )
+                database.execSQL(
+                    "CREATE TABLE ${QuoteHistoryContract.TABLE}(" +
+                            "${QuoteHistoryContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "${QuoteHistoryContract.TEXT} TEXT NOT NULL, " +
+                            "${QuoteHistoryContract.SOURCE} TEXT NOT NULL, " +
+                            "${QuoteHistoryContract.MD5} TEXT UNIQUE NOT NULL, " +
+                            "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')"
+                )
+                database.execSQL(
+                    "CREATE UNIQUE INDEX index_" +
+                            "${"${QuoteHistoryContract.TABLE}_${QuoteHistoryContract.MD5}"} " +
+                            "on ${QuoteHistoryContract.TABLE}(${QuoteHistoryContract.MD5})"
+                )
+                database.execSQL(
+                    "INSERT OR REPLACE INTO ${QuoteHistoryContract.TABLE}(" +
+                            "${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
+                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
+                            "${QuoteHistoryContract.AUTHOR}) " +
+                            "SELECT ${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
+                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
+                            "${QuoteEntityContract.AUTHOR_OLD} " +
+                            "FROM tmp_table"
+                )
                 database.execSQL("DROP TABLE tmp_table")
             }
         }

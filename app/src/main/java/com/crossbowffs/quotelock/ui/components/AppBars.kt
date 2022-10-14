@@ -3,16 +3,60 @@
 package com.crossbowffs.quotelock.ui.components
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidthIn
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.BrandingWatermark
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -28,8 +72,10 @@ fun MainAppBar(
         title = { Text(text = stringResource(id = R.string.quotelockx)) },
         actions = {
             IconButton(onClick = onStyle) {
-                Icon(painter = painterResource(id = R.drawable.ic_text_style_24dp),
-                    contentDescription = "Text style")
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_text_style_24dp),
+                    contentDescription = "Text style"
+                )
             }
             onMenuMore()
         },
@@ -109,8 +155,10 @@ fun CustomQuoteAppBar(
         actions = {
             onAdd?.let {
                 IconButton(onClick = it) {
-                    Icon(Icons.Rounded.Edit,
-                        contentDescription = stringResource(id = R.string.module_custom_create_quote))
+                    Icon(
+                        Icons.Rounded.Edit,
+                        contentDescription = stringResource(id = R.string.module_custom_create_quote)
+                    )
                 }
             }
         },
@@ -122,8 +170,69 @@ fun CustomQuoteAppBar(
 }
 
 @Composable
+fun SearchBar(
+    keyword: String,
+    onClose: () -> Unit,
+    onSearch: (String) -> Unit,
+) {
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    var textFieldValue by remember(keyword) {
+        mutableStateOf(
+            TextFieldValue(
+                keyword,
+                TextRange(keyword.length)
+            )
+        )
+    }
+    BackHandler(true) {
+        onClose(); textFieldValue = TextFieldValue()
+    }
+    DisposableEffect(Unit) {
+        focusRequester.requestFocus()
+        onDispose { }
+    }
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(focusRequester)
+            .height(64.dp),
+        value = textFieldValue,
+        onValueChange = { textFieldValue = it },
+        placeholder = { Text(text = stringResource(R.string.search)) },
+        singleLine = true,
+        shape = RectangleShape,
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            containerColor = Color.Transparent
+        ),
+        leadingIcon = {
+            Icon(
+                Icons.Filled.Search,
+                contentDescription = stringResource(id = R.string.search)
+            )
+        },
+        trailingIcon = {
+            IconButton(onClick = {
+                onClose(); textFieldValue = TextFieldValue()
+            }) {
+                Icon(
+                    Icons.Filled.Close,
+                    contentDescription = stringResource(id = R.string.close)
+                )
+            }
+        },
+        keyboardActions = KeyboardActions(onSearch = {
+            focusManager.clearFocus()
+            onSearch(textFieldValue.text)
+        }),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
+    )
+}
+
+@Composable
 fun HistoryAppBar(
     onBack: () -> Unit,
+    onSearch: (() -> Unit)? = null,
     onClear: (() -> Unit)? = null,
 ) {
     CenterAlignedTopAppBar(
@@ -134,10 +243,20 @@ fun HistoryAppBar(
             }
         },
         actions = {
+            onSearch?.let {
+                IconButton(onClick = onSearch) {
+                    Icon(
+                        Icons.Rounded.Search,
+                        contentDescription = stringResource(id = R.string.search)
+                    )
+                }
+            }
             onClear?.let {
                 IconButton(onClick = it) {
-                    Icon(Icons.Rounded.Delete,
-                        contentDescription = stringResource(id = R.string.clear))
+                    Icon(
+                        Icons.Rounded.Delete,
+                        contentDescription = stringResource(id = R.string.clear)
+                    )
                 }
             }
         },
@@ -151,6 +270,7 @@ fun HistoryAppBar(
 @Composable
 fun CollectionAppBar(
     onBack: () -> Unit,
+    onSearch: (() -> Unit)? = null,
     dataRetentionMenu: @Composable RowScope.() -> Unit,
 ) {
     CenterAlignedTopAppBar(
@@ -161,6 +281,14 @@ fun CollectionAppBar(
             }
         },
         actions = {
+            onSearch?.let {
+                IconButton(onClick = onSearch) {
+                    Icon(
+                        Icons.Rounded.Search,
+                        contentDescription = stringResource(id = R.string.search)
+                    )
+                }
+            }
             dataRetentionMenu()
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -208,8 +336,10 @@ fun DetailAppBar(
         },
         actions = {
             IconButton(onClick = onStyle) {
-                Icon(painter = painterResource(id = R.drawable.ic_text_style_24dp),
-                    contentDescription = "Text style")
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_text_style_24dp),
+                    contentDescription = "Text style"
+                )
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -238,23 +368,32 @@ fun ShareAppBar(
             }
             IconToggleButton(checked = watermarkChecked,
                 onCheckedChange = { watermarkChecked = it; onWatermarkChecked(it) }) {
-                Icon(Icons.Rounded.BrandingWatermark,
+                Icon(
+                    Icons.Rounded.BrandingWatermark,
                     contentDescription = stringResource(id = R.string.quote_card_style_share_watermark),
-                    modifier = Modifier.padding(2.dp))
+                    modifier = Modifier.padding(2.dp)
+                )
             }
             var darkModeChecked by remember {
                 mutableStateOf(false)
             }
-            IconToggleButton(checked = darkModeChecked,
+            IconToggleButton(
+                checked = darkModeChecked,
                 onCheckedChange = { darkModeChecked = it; onDarkModeChecked(it) },
                 colors = IconButtonDefaults.iconToggleButtonColors(
-                    checkedContentColor = LocalContentColor.current)) {
+                    checkedContentColor = LocalContentColor.current
+                )
+            ) {
                 if (darkModeChecked) {
-                    Icon(Icons.Rounded.LightMode,
-                        contentDescription = "Light Mode")
+                    Icon(
+                        Icons.Rounded.LightMode,
+                        contentDescription = "Light Mode"
+                    )
                 } else {
-                    Icon(Icons.Rounded.DarkMode,
-                        contentDescription = "Dark Mode")
+                    Icon(
+                        Icons.Rounded.DarkMode,
+                        contentDescription = "Dark Mode"
+                    )
                 }
             }
         },
@@ -304,12 +443,16 @@ fun FontManagementAppBar(
     )
 }
 
-@Preview(name = "Main App Bar Light",
+@Preview(
+    name = "Main App Bar Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Main App Bar Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Main App Bar Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun MainTopAppBarPreview() {
     QuoteLockTheme {
@@ -319,12 +462,16 @@ private fun MainTopAppBarPreview() {
     }
 }
 
-@Preview(name = "Settings Bar Light",
+@Preview(
+    name = "Settings Bar Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Settings Bar Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Settings Bar Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun SettingsTopAppBarPreview() {
     QuoteLockTheme {
@@ -334,12 +481,16 @@ private fun SettingsTopAppBarPreview() {
     }
 }
 
-@Preview(name = "About Bar Light",
+@Preview(
+    name = "About Bar Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "About Bar Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "About Bar Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun AboutTopAppBarPreview() {
     QuoteLockTheme {
@@ -349,12 +500,16 @@ private fun AboutTopAppBarPreview() {
     }
 }
 
-@Preview(name = "Custom quote App Bar Light",
+@Preview(
+    name = "Custom quote App Bar Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Custom quote App Bar Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Custom quote App Bar Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun CustomQuoteTopAppBarPreview() {
     QuoteLockTheme {
@@ -364,12 +519,16 @@ private fun CustomQuoteTopAppBarPreview() {
     }
 }
 
-@Preview(name = "Collection App Bar Light",
+@Preview(
+    name = "Collection App Bar Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Collection App Bar Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Collection App Bar Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun CollectionTopAppBarPreview() {
     QuoteLockTheme {
@@ -379,32 +538,59 @@ private fun CollectionTopAppBarPreview() {
     }
 }
 
-@Preview(name = "History App Bar Light",
+@Preview(
+    name = "History App Bar Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "History App Bar Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "History App Bar Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun HistoryTopAppBarPreview() {
     QuoteLockTheme {
         Surface {
-            HistoryAppBar({}) {}
+            HistoryAppBar({}, {})
         }
     }
 }
 
-@Preview(name = "Detail App Bar Light",
+@Preview(
+    name = "Detail App Bar Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Detail App Bar Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Detail App Bar Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun DetailTopAppBarPreview() {
     QuoteLockTheme {
         Surface {
             DetailAppBar({}, {})
+        }
+    }
+}
+
+@Preview(
+    name = "Search Bar Light",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Search Bar Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun SearchBarPreview() {
+    QuoteLockTheme {
+        Surface {
+            SearchBar("Search Quotes", {}, {})
         }
     }
 }

@@ -1,6 +1,8 @@
-@file:OptIn(ExperimentalMaterial3Api::class,
+@file:OptIn(
+    ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class,
-    ExperimentalLayoutApi::class)
+    ExperimentalLayoutApi::class
+)
 
 package com.crossbowffs.quotelock.app.collections
 
@@ -16,16 +18,62 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.CloudDownload
+import androidx.compose.material.icons.rounded.CloudSync
+import androidx.compose.material.icons.rounded.CloudUpload
+import androidx.compose.material.icons.rounded.FileDownload
+import androidx.compose.material.icons.rounded.FileUpload
+import androidx.compose.material.icons.rounded.ImportExport
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.LinkOff
+import androidx.compose.material.icons.rounded.Loop
+import androidx.compose.material.icons.rounded.Merge
+import androidx.compose.material.icons.rounded.NavigateNext
+import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,9 +92,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
-import com.crossbowffs.quotelock.data.api.*
+import com.crossbowffs.quotelock.data.api.GoogleAccount
+import com.crossbowffs.quotelock.data.api.QuoteData
+import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
+import com.crossbowffs.quotelock.data.api.QuoteEntity
+import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
-import com.crossbowffs.quotelock.ui.components.*
+import com.crossbowffs.quotelock.ui.components.AnchorPopup
+import com.crossbowffs.quotelock.ui.components.CollectionAppBar
+import com.crossbowffs.quotelock.ui.components.ContentAlpha
+import com.crossbowffs.quotelock.ui.components.DeletableQuoteListItem
+import com.crossbowffs.quotelock.ui.components.LoadingDialog
+import com.crossbowffs.quotelock.ui.components.SearchBar
+import com.crossbowffs.quotelock.ui.components.TopAppBarDropdownMenu
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
@@ -97,17 +155,23 @@ fun QuoteCollectionRoute(
         uiEvent = uiEvent,
         onItemClick = { onItemClick(it.withCollectState(true)) },
         onBack = onBack,
+        onPrepareSearch = viewModel::prepareSearch,
+        onSearch = viewModel::search,
         onDeleteMenuClicked = viewModel::delete,
         onExportDatabase = {
-            if (ensurePermissions(context,
-                    requestPermissionLauncher) { viewModel.onPermissionDenied() }
+            if (ensurePermissions(
+                    context,
+                    requestPermissionLauncher
+                ) { viewModel.onPermissionDenied() }
             ) {
                 viewModel.export(LocalBackupType.DB)
             }
         },
         onExportCsv = {
-            if (ensurePermissions(context,
-                    requestPermissionLauncher) { viewModel.onPermissionDenied() }
+            if (ensurePermissions(
+                    context,
+                    requestPermissionLauncher
+                ) { viewModel.onPermissionDenied() }
             ) {
                 viewModel.export(LocalBackupType.CSV)
             }
@@ -138,6 +202,8 @@ private fun QuoteCollectionScreen(
     uiEvent: SnackBarEvent,
     onItemClick: (QuoteData) -> Unit,
     onBack: () -> Unit,
+    onPrepareSearch: () -> Unit = {},
+    onSearch: (String) -> Unit = {},
     onDeleteMenuClicked: (Long) -> Unit,
     onExportDatabase: () -> Unit = {},
     onExportCsv: () -> Unit = {},
@@ -157,45 +223,58 @@ private fun QuoteCollectionScreen(
             if (listUiState.gDriveFirstSyncConflict) ConflictType.GOOGLE_DRIVE_FIRST_SYNC else null
         )
     }
+    var searching by rememberSaveable { mutableStateOf(false) }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            CollectionAppBar(onBack = onBack) {
-                CollectionDataRetentionMenu(
-                    enableExport = menuUiState.exportEnabled,
-                    enableSync = menuUiState.syncEnabled,
-                    account = menuUiState.googleAccount,
-                    lastSyncTime = menuUiState.syncTime,
-                    onExportDatabase = onExportDatabase,
-                    onExportCsv = onExportCsv,
-                    onImportDatabase = {
-                        if (listUiState.items.isEmpty()) onImportDatabase(false)
-                        else {
-                            conflictType = ConflictType.LOCAL_DB_IMPORT
-                        }
-                    },
-                    onImportCsv = {
-                        if (listUiState.items.isEmpty()) onImportDatabase(false)
-                        else {
-                            conflictType = ConflictType.LOCAL_CSV_IMPORT
-                        }
-                    },
-                    onSignIn = onSignIn,
-                    onSignOut = onSignOut,
-                    onGdriveBackup = onGdriveBackup,
-                    onGdriveRestore = {
-                        if (listUiState.items.isEmpty()) onGdriveRestore(false)
-                        else {
-                            conflictType = ConflictType.GOOGLE_DRIVE_RESTORE
-                        }
-                    }
+            if (searching) {
+                SearchBar(
+                    keyword = listUiState.searchKeyword,
+                    onClose = { searching = false },
+                    onSearch = onSearch
                 )
+            } else {
+                CollectionAppBar(onBack = onBack,
+                    onSearch = if (menuUiState.exportEnabled) {
+                        { onPrepareSearch();searching = true }
+                    } else null) {
+                    CollectionDataRetentionMenu(
+                        enableExport = menuUiState.exportEnabled,
+                        enableSync = menuUiState.syncEnabled,
+                        account = menuUiState.googleAccount,
+                        lastSyncTime = menuUiState.syncTime,
+                        onExportDatabase = onExportDatabase,
+                        onExportCsv = onExportCsv,
+                        onImportDatabase = {
+                            if (listUiState.allItems.isEmpty()) onImportDatabase(false)
+                            else {
+                                conflictType = ConflictType.LOCAL_DB_IMPORT
+                            }
+                        },
+                        onImportCsv = {
+                            if (listUiState.allItems.isEmpty()) onImportDatabase(false)
+                            else {
+                                conflictType = ConflictType.LOCAL_CSV_IMPORT
+                            }
+                        },
+                        onSignIn = onSignIn,
+                        onSignOut = onSignOut,
+                        onGdriveBackup = onGdriveBackup,
+                        onGdriveRestore = {
+                            if (listUiState.allItems.isEmpty()) onGdriveRestore(false)
+                            else {
+                                conflictType = ConflictType.GOOGLE_DRIVE_RESTORE
+                            }
+                        }
+                    )
+                }
             }
         }
     ) { padding ->
         when (uiDialogState) {
             is QuoteCollectionDialogUiState.ProgressDialog ->
                 LoadingDialog(message = uiDialogState.message) {}
+
             QuoteCollectionDialogUiState.None -> {}
         }
         uiEvent.message?.let {
@@ -209,16 +288,28 @@ private fun QuoteCollectionScreen(
             }
             snackBarShown()
         }
-        CollectionItemList(
+        Box(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
-                .consumedWindowInsets(padding),
-            entities = listUiState.items,
-            onItemClick = onItemClick,
-            onDeleteMenuClicked = onDeleteMenuClicked,
-        )
-        CollectionConflictPopup(popped = conflictType != null,
+                .consumedWindowInsets(padding)
+        ) {
+            if (!searching) {
+                CollectionItemList(
+                    entities = listUiState.allItems,
+                    onItemClick = onItemClick,
+                    onDeleteMenuClicked = onDeleteMenuClicked,
+                )
+            } else {
+                CollectionItemList(
+                    entities = listUiState.searchedItems,
+                    onItemClick = onItemClick,
+                    onDeleteMenuClicked = onDeleteMenuClicked,
+                )
+            }
+        }
+        CollectionConflictPopup(
+            popped = conflictType != null,
             conflictType = conflictType,
             onMerge = { type ->
                 when (type) {
@@ -261,8 +352,10 @@ fun CollectionDataRetentionMenu(
     var backupMenuExpanded by remember { mutableStateOf(false) }
     var syncMenuExpanded by remember { mutableStateOf(false) }
     TopAppBarDropdownMenu(iconContent = {
-        Icon(Icons.Rounded.Restore,
-            contentDescription = stringResource(id = R.string.data_retention))
+        Icon(
+            Icons.Rounded.Restore,
+            contentDescription = stringResource(id = R.string.data_retention)
+        )
     }, content = { _, closeMenu ->
         DropdownMenuItem(
             leadingIcon = {
@@ -463,7 +556,8 @@ fun CollectionSyncMenu(
                     text = {
                         Column {
                             Text(text = stringResource(id = R.string.restore))
-                            Text(text = lastSyncTime,
+                            Text(
+                                text = lastSyncTime,
                                 fontSize = MaterialTheme.typography.labelSmall.fontSize,
                                 modifier = Modifier.alpha(ContentAlpha.disabled)
                             )
@@ -507,9 +601,11 @@ private fun CollectionItemList(
                     }
                 }
                 if (index < entities.lastIndex) {
-                    Divider(Modifier
-                        .animateItemPlacement(animationSpec)
-                        .fillMaxWidth())
+                    Divider(
+                        Modifier
+                            .animateItemPlacement(animationSpec)
+                            .fillMaxWidth()
+                    )
                 }
             }
         }
@@ -537,11 +633,12 @@ private fun CollectionConflictPopup(
             tonalElevation = AlertDialogDefaults.TonalElevation,
             shadowElevation = AlertDialogDefaults.TonalElevation
         ) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState())
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Icon(
                     Icons.Rounded.Warning,
@@ -552,13 +649,18 @@ private fun CollectionConflictPopup(
                     tint = AlertDialogDefaults.iconContentColor
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = stringResource(id = when (conflictType) {
-                    ConflictType.LOCAL_DB_IMPORT, ConflictType.LOCAL_CSV_IMPORT ->
-                        R.string.import_conflict_detected
-                    ConflictType.GOOGLE_DRIVE_RESTORE, ConflictType.GOOGLE_DRIVE_FIRST_SYNC ->
-                        R.string.sync_conflict_detected
-                    null -> R.string.import_conflict_detected
-                }),
+                Text(
+                    text = stringResource(
+                        id = when (conflictType) {
+                            ConflictType.LOCAL_DB_IMPORT, ConflictType.LOCAL_CSV_IMPORT ->
+                                R.string.import_conflict_detected
+
+                            ConflictType.GOOGLE_DRIVE_RESTORE, ConflictType.GOOGLE_DRIVE_FIRST_SYNC ->
+                                R.string.sync_conflict_detected
+
+                            null -> R.string.import_conflict_detected
+                        }
+                    ),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     color = AlertDialogDefaults.titleContentColor
@@ -584,9 +686,11 @@ private fun CollectionConflictPopup(
                         shape = MaterialTheme.shapes.small,
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Rounded.Merge,
+                            Icon(
+                                Icons.Rounded.Merge,
                                 contentDescription = null,
-                                modifier = Modifier.size(48.dp))
+                                modifier = Modifier.size(48.dp)
+                            )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(text = stringResource(id = R.string.merge).uppercase())
                         }
@@ -600,8 +704,10 @@ private fun CollectionConflictPopup(
                         shape = MaterialTheme.shapes.small
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Rounded.Loop, contentDescription = null,
-                                modifier = Modifier.size(48.dp))
+                            Icon(
+                                Icons.Rounded.Loop, contentDescription = null,
+                                modifier = Modifier.size(48.dp)
+                            )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(text = stringResource(id = R.string.replace).uppercase())
                         }
@@ -639,8 +745,10 @@ private fun verifyPermissions(
     requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
 ): Boolean {
     // Check if we have write permission
-    return if (ContextCompat.checkSelfPermission(context,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+    return if (ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) != PackageManager.PERMISSION_GRANTED
     ) {
         // We don't have permission so prompt the user
         requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -654,12 +762,16 @@ class CollectionPreviewParameterProvider : PreviewParameterProvider<List<QuoteCo
     })
 }
 
-@Preview(name = "Collection Screen Light",
+@Preview(
+    name = "Collection Screen Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Collection Screen Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Collection Screen Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun CollectionScreenPreview(
     @PreviewParameter(CollectionPreviewParameterProvider::class) entities: List<QuoteCollectionEntity>,
