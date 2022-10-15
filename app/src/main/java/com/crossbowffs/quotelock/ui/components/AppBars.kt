@@ -5,6 +5,7 @@ package com.crossbowffs.quotelock.ui.components
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.ColumnScope
@@ -379,8 +380,9 @@ fun ShareAppBar(
                     modifier = Modifier.padding(2.dp)
                 )
             }
+            val systemDarkMode = isSystemInDarkTheme()
             var darkModeChecked by remember {
-                mutableStateOf(false)
+                mutableStateOf(systemDarkMode)
             }
             IconToggleButton(
                 checked = darkModeChecked,
