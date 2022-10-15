@@ -106,9 +106,12 @@ fun ShareScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            ShareAppBar(onDarkModeChecked = { darkMode = it },
+            ShareAppBar(
+                darkMode,
+                onDarkModeChecked = { darkMode = it },
                 onWatermarkChecked = { watermark = it },
-                onBackPressed = onBack)
+                onBackPressed = onBack
+            )
         }
     ) { internalPadding ->
         uiEvent?.let { event ->
