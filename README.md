@@ -27,6 +27,9 @@ LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) no
 - Displays quotes on the AmbientDisplay page of *OnePlus7Pro OOS11* (**ALPHA**)
 - Imports custom fonts ([Magisk module](https://github.com/Yubyf/QuoteLockX-CustomFonts) needed for
   lockscreen layout).
+- Support for variable font weight and slant axis properties.
+
+<img src="screenshots/variable_font_showcase.webp" width="300px" />
 
 ## Tips
 
@@ -71,9 +74,7 @@ the download service.
 
 ### In Progress
 
-- [ ] Optimize for variable fonts.
 - [ ] Advanced detail pages.
-- [ ] Add support for multi-classification selection of Hitokoto.
 
 ### Done
 
@@ -83,6 +84,8 @@ the download service.
 - [x] Optimize style for Android S(dynamic colors).
 - [x] Refactor the settings page.
 - [x] Completely redesigned the app.
+- [x] Add support for multi-classification selection of Hitokoto.
+- [x] Optimize for variable fonts.
 
 ## License
 
