@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
+import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,7 +34,6 @@ data class QuoteHistoryListUiState(
 @HiltViewModel
 class QuoteHistoryViewModel @Inject constructor(
     private val historyRepository: QuoteHistoryRepository,
-    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
@@ -90,9 +89,7 @@ class QuoteHistoryViewModel @Inject constructor(
         viewModelScope.launch {
             historyRepository.deleteAll()
             _uiEvent.emit(
-                SnackBarEvent(
-                    resourceProvider.getString(R.string.quote_histories_cleared_quote)
-                )
+                SnackBarEvent(AndroidString.StringRes(R.string.quote_histories_cleared_quote))
             )
         }
     }
@@ -101,9 +98,7 @@ class QuoteHistoryViewModel @Inject constructor(
         viewModelScope.launch {
             historyRepository.delete(id)
             _uiEvent.emit(
-                SnackBarEvent(
-                    resourceProvider.getString(R.string.module_custom_deleted_quote)
-                )
+                SnackBarEvent(AndroidString.StringRes(R.string.module_custom_deleted_quote))
             )
         }
     }

@@ -10,12 +10,12 @@ import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_MODULE_DEFAULT
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.ShareRepository
+import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.data.modules.Modules
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.findProcessAndKill
@@ -30,7 +30,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -41,7 +42,7 @@ data class SettingsUiState(
     val displayOnAod: Boolean,
     val unmeteredOnly: Boolean,
     val moduleData: QuoteModuleData?,
-    val updateInfo: String,
+    val updateInfo: AndroidString,
     val cacheSize: String,
 )
 
@@ -58,6 +59,10 @@ sealed class SettingsDialogUiState {
         val currentInterval: Int,
     ) : SettingsDialogUiState()
 
+    data class LanguageDialog(
+        val currentLanguage: String?,
+    ) : SettingsDialogUiState()
+
     object None : SettingsDialogUiState()
 }
 
@@ -70,7 +75,6 @@ class SettingsViewModel @Inject constructor(
     private val configurationRepository: ConfigurationRepository,
     private val quoteRepository: QuoteRepository,
     private val shareRepository: ShareRepository,
-    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
@@ -83,8 +87,9 @@ class SettingsViewModel @Inject constructor(
             configurationRepository.displayOnAod,
             configurationRepository.isUnmeteredNetworkOnly,
             null,
-            resourceProvider.getString(
-                R.string.pref_refresh_info_summary, "-"),
+            AndroidString.StringRes(
+                R.string.pref_refresh_info_summary, arrayOf("-")
+            ),
             cacheSize = "…"
         )
     )
@@ -105,24 +110,28 @@ class SettingsViewModel @Inject constructor(
                 onSelectedModuleChanged()
             }.launchIn(this)
             configurationRepository.quoteRefreshRateNotifyFlow.onEach {
-                WorkUtils.createQuoteDownloadWork(context,
+                WorkUtils.createQuoteDownloadWork(
+                    context,
                     configurationRepository.refreshInterval,
                     configurationRepository.isRequireInternet,
                     configurationRepository.isUnmeteredNetworkOnly,
-                    true)
+                    true
+                )
             }.launchIn(this)
             quoteRepository.lastUpdateFlow.onEach {
                 _uiState.value = _uiState.value.copy(
-                    updateInfo = resourceProvider.getString(
+                    updateInfo = AndroidString.StringRes(
                         R.string.pref_refresh_info_summary,
-                        if (it > 0) DATE_FORMATTER.format(Date(it)) else "-")
+                        arrayOf(if (it > 0) DATE_FORMATTER.format(Date(it)) else "-")
+                    )
                 )
             }.launchIn(this)
             val updateTime = quoteRepository.getLastUpdateTime()
             _uiState.value = _uiState.value.copy(
-                updateInfo = resourceProvider.getString(
+                updateInfo = AndroidString.StringRes(
                     R.string.pref_refresh_info_summary,
-                    if (updateTime > 0) DATE_FORMATTER.format(Date(updateTime)) else "-")
+                    arrayOf(if (updateTime > 0) DATE_FORMATTER.format(Date(updateTime)) else "-")
+                )
             )
             shareRepository.cacheSizeFlow.onEach {
                 _uiState.value = _uiState.value.copy(
@@ -151,8 +160,10 @@ class SettingsViewModel @Inject constructor(
 
     fun loadModuleProviders() {
         _uiDialogState.value =
-            SettingsDialogUiState.ModuleProviderDialog(getModuleList(),
-                configurationRepository.currentModuleName)
+            SettingsDialogUiState.ModuleProviderDialog(
+                getModuleList(),
+                configurationRepository.currentModuleName
+            )
     }
 
     fun selectModule(moduleName: String) {
@@ -162,6 +173,11 @@ class SettingsViewModel @Inject constructor(
     fun loadRefreshInterval() {
         _uiDialogState.value =
             SettingsDialogUiState.RefreshIntervalDialog(configurationRepository.refreshInterval)
+    }
+
+    fun loadLanguage(currentLanguage: String?) {
+        _uiDialogState.value =
+            SettingsDialogUiState.LanguageDialog(currentLanguage)
     }
 
     fun switchUnmeteredOnly(checked: Boolean) {
@@ -219,7 +235,7 @@ class SettingsViewModel @Inject constructor(
             // selected one was not found. Change through the
             // ListPreference so that it updates its value.
             selectModule(PREF_COMMON_QUOTE_MODULE_DEFAULT)
-            _uiEvent.emit(SnackBarEvent(message = resourceProvider.getString(R.string.selected_module_not_found)))
+            _uiEvent.emit(SnackBarEvent(message = AndroidString.StringRes(R.string.selected_module_not_found)))
             loadSelectedModule()
         }
     }

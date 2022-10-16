@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import com.crossbowffs.quotelock.consts.PREF_PUBLIC_RELATIVE_PATH
 import com.crossbowffs.quotelock.data.AsyncResult
+import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDao
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDatabase
@@ -44,13 +45,16 @@ class CollectionLocalBackupSource internal constructor(
     }.onFailure {
         Xlog.e(TAG, "Failed to export database: $it")
     }
-        .getOrDefault(AsyncResult.Error(Exception(context.getString(R.string.unable_to_export_database))))
+        .getOrDefault(
+            AsyncResult.Error.Message(
+                AndroidString.StringRes(R.string.unable_to_export_database)
+            )
+        )
 
     /**
      *  Ask the user a name for the export csv file and perform it.
      *  The export file will be saved to a custom folder in [Environment.DIRECTORY_DOWNLOADS].
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(Exception::class)
     suspend fun exportCsv(databaseName: String): AsyncResult<String> = runCatching {
         val csvFile =
@@ -64,11 +68,12 @@ class CollectionLocalBackupSource internal constructor(
         AsyncResult.Success(copyFileToDownloads(csvFile))
     }.onFailure {
         Xlog.e(TAG, "Failed to export CSV: $it")
-    }.getOrDefault(AsyncResult.Error(Exception(context.getString(R.string.unable_to_export_csv))))
+    }.getOrDefault(
+        AsyncResult.Error.Message(AndroidString.StringRes(R.string.unable_to_export_csv))
+    )
 
     /** Ask the user which file to import from. */
     @SuppressLint("Recycle")
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun importDb(
         databaseName: String, fileUri: Uri,
         merge: Boolean = false,
@@ -84,11 +89,11 @@ class CollectionLocalBackupSource internal constructor(
         }
     }.onFailure {
         Xlog.e(TAG, "Failed to import database: $it")
-    }
-        .getOrDefault(AsyncResult.Error(Exception(context.getString(R.string.unable_to_import_database))))
+    }.getOrDefault(
+        AsyncResult.Error.Message(AndroidString.StringRes(R.string.unable_to_import_database))
+    )
 
     /** Ask the user which file to import from. */
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun importCsv(
         fileUri: Uri,
         merge: Boolean = false,
@@ -109,7 +114,9 @@ class CollectionLocalBackupSource internal constructor(
         }
     }.onFailure {
         Xlog.e(TAG, "Failed to import CSV: $it")
-    }.getOrDefault(AsyncResult.Error(Exception(context.getString(R.string.unable_to_import_csv))))
+    }.getOrDefault(
+        AsyncResult.Error.Message(AndroidString.StringRes(R.string.unable_to_import_csv))
+    )
 
     /**
      * Import collection database from .db file by replacing data contents.
@@ -121,8 +128,10 @@ class CollectionLocalBackupSource internal constructor(
     ): Boolean {
         return withContext(Dispatchers.IO) {
             val temporaryCollectionDatabase =
-                QuoteCollectionDatabase.openTemporaryDatabaseFrom(context,
-                    "${QuoteCollectionContract.DATABASE_NAME}_${System.currentTimeMillis()}", file)
+                QuoteCollectionDatabase.openTemporaryDatabaseFrom(
+                    context,
+                    "${QuoteCollectionContract.DATABASE_NAME}_${System.currentTimeMillis()}", file
+                )
             val collections = temporaryCollectionDatabase.dao().getAll()
             if (collections.isNotEmpty()) {
                 if (!merge) {

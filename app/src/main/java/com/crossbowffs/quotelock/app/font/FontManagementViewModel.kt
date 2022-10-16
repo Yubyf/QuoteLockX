@@ -9,7 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.AsyncResult
-import com.crossbowffs.quotelock.di.ResourceProvider
+import com.crossbowffs.quotelock.data.api.AndroidString
+import com.crossbowffs.quotelock.data.exceptionMessage
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,7 +34,7 @@ data class FontManagementListUiState(
  * Dialog UI state for the font management screen.
  */
 sealed class FontManagementDialogUiState {
-    data class ProgressDialog(val message: String?) : FontManagementDialogUiState()
+    data class ProgressDialog(val message: AndroidString?) : FontManagementDialogUiState()
 
     object None : FontManagementDialogUiState()
 }
@@ -44,16 +45,19 @@ sealed class FontManagementDialogUiState {
 @HiltViewModel
 class FontManagementViewModel @Inject constructor(
     private val fontImporter: FontImporter,
-    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     private val _uiListState =
-        mutableStateOf(FontManagementListUiState(emptyList(), emptyList(),
-            systemTabScrollToBottom = false,
-            inAppTabScrollToBottom = false))
+        mutableStateOf(
+            FontManagementListUiState(
+                emptyList(), emptyList(),
+                systemTabScrollToBottom = false,
+                inAppTabScrollToBottom = false
+            )
+        )
     val uiListState: State<FontManagementListUiState>
         get() = _uiListState
 
@@ -75,22 +79,28 @@ class FontManagementViewModel @Inject constructor(
 
     private suspend fun loadInAppFontsList() {
         _uiListState.value =
-            _uiListState.value.copy(inAppFontItems = FontManager.loadInAppFontsList()
-                ?: emptyList())
+            _uiListState.value.copy(
+                inAppFontItems = FontManager.loadInAppFontsList()
+                    ?: emptyList()
+            )
     }
 
     private suspend fun loadSystemFontsList() {
         _uiListState.value =
-            _uiListState.value.copy(systemFontItems = FontManager.loadSystemFontsList()
-                ?: emptyList())
+            _uiListState.value.copy(
+                systemFontItems = FontManager.loadSystemFontsList()
+                    ?: emptyList()
+            )
     }
 
     fun deleteInAppFont(it: FontInfo) = viewModelScope.launch {
-        val message = resourceProvider.getString(if (FontManager.deleteInAppFont(it.fileName)) {
-            R.string.quote_fonts_management_delete_in_app_font_successfully
-        } else {
-            R.string.quote_fonts_management_delete_font_failed
-        }, resourceProvider.getFontLocaleName(it))
+        val message = AndroidString.StringRes(
+            if (FontManager.deleteInAppFont(it.fileName)) {
+                R.string.quote_fonts_management_delete_in_app_font_successfully
+            } else {
+                R.string.quote_fonts_management_delete_font_failed
+            }, arrayOf(it)
+        )
         _uiEvent.emit(SnackBarEvent(message))
         loadInAppFontsList()
     }
@@ -98,17 +108,21 @@ class FontManagementViewModel @Inject constructor(
     fun deleteSystemFont(it: FontInfoWithState) = viewModelScope.launch {
         val message = if (it.active) {
             if (FontManager.deleteActiveSystemFont(it.fontInfo.fileName)) {
-                resourceProvider.getString(R.string.quote_fonts_management_delete_active_font_successfully)
+                AndroidString.StringRes(R.string.quote_fonts_management_delete_active_font_successfully)
             } else {
-                resourceProvider.getString(R.string.quote_fonts_management_delete_font_failed,
-                    resourceProvider.getFontLocaleName(it.fontInfo))
+                AndroidString.StringRes(
+                    R.string.quote_fonts_management_delete_font_failed,
+                    arrayOf(it.fontInfo)
+                )
             }
         } else {
-            resourceProvider.getString(if (FontManager.deleteInactiveSystemFont(it.fontInfo.fileName)) {
-                R.string.quote_fonts_management_delete_inactive_font_successfully
-            } else {
-                R.string.quote_fonts_management_delete_font_failed
-            }, resourceProvider.getFontLocaleName(it.fontInfo))
+            AndroidString.StringRes(
+                if (FontManager.deleteInactiveSystemFont(it.fontInfo.fileName)) {
+                    R.string.quote_fonts_management_delete_inactive_font_successfully
+                } else {
+                    R.string.quote_fonts_management_delete_font_failed
+                }, arrayOf(it.fontInfo)
+            )
         }
         _uiEvent.emit(SnackBarEvent(message))
         loadSystemFontsList()
@@ -116,7 +130,8 @@ class FontManagementViewModel @Inject constructor(
 
     fun importFontInApp(uri: Uri) = viewModelScope.launch {
         _uiDialogState.value = FontManagementDialogUiState.ProgressDialog(
-            message = resourceProvider.getString(R.string.quote_fonts_management_importing))
+            message = AndroidString.StringRes(R.string.quote_fonts_management_importing)
+        )
         when (val result = fontImporter.importFontInApp(uri)) {
             is AsyncResult.Success -> {
                 result.data.let { path ->
@@ -124,17 +139,41 @@ class FontManagementViewModel @Inject constructor(
                 }?.let {
                     loadInAppFontsList()
                     _uiListState.value = _uiListState.value.copy(inAppTabScrollToBottom = true)
-                    _uiEvent.emit(SnackBarEvent(
-                        resourceProvider.getString(R.string.quote_fonts_management_font_imported,
-                            resourceProvider.getFontLocaleName(it))))
+                    _uiEvent.emit(
+                        SnackBarEvent(
+                            AndroidString.StringRes(
+                                R.string.quote_fonts_management_font_imported, arrayOf(it)
+                            )
+                        )
+                    )
                 } ?: run {
-                    _uiEvent.emit(SnackBarEvent(
-                        resourceProvider.getString(R.string.quote_fonts_management_import_failed)))
+                    _uiEvent.emit(
+                        SnackBarEvent(
+                            AndroidString.StringRes(R.string.quote_fonts_management_import_failed)
+                        )
+                    )
                 }
             }
-            is AsyncResult.Error -> {
-                _uiEvent.emit(SnackBarEvent(result.exception.message))
+
+            is AsyncResult.Error.Message -> {
+                _uiEvent.emit(SnackBarEvent(result.message))
             }
+
+            is AsyncResult.Error.ExceptionWrapper -> {
+                if (result.exception is FontImporter.FontAlreadyExistsException) {
+                    _uiEvent.emit(
+                        SnackBarEvent(
+                            AndroidString.StringRes(
+                                R.string.quote_fonts_management_font_already_exists,
+                                arrayOf(result.exception.name)
+                            )
+                        )
+                    )
+                } else {
+                    _uiEvent.emit(SnackBarEvent(result.exceptionMessage?.let(AndroidString::StringText)))
+                }
+            }
+
             else -> {}
         }
         _uiDialogState.value = FontManagementDialogUiState.None
@@ -142,7 +181,8 @@ class FontManagementViewModel @Inject constructor(
 
     fun importFontToSystem(uri: Uri) = viewModelScope.launch {
         _uiDialogState.value = FontManagementDialogUiState.ProgressDialog(
-            message = resourceProvider.getString(R.string.quote_fonts_management_importing))
+            message = AndroidString.StringRes(R.string.quote_fonts_management_importing)
+        )
         when (val result = fontImporter.importFontToSystem(uri)) {
             is AsyncResult.Success -> {
                 result.data.let { path ->
@@ -150,24 +190,48 @@ class FontManagementViewModel @Inject constructor(
                 }?.let {
                     if (FontManager.isSystemFontActivated(it.fileName)) {
                         FontManager.deleteInactiveSystemFont(it.fileName)
-                        resourceProvider.getString(R.string.quote_fonts_management_font_already_exists,
-                            resourceProvider.getFontLocaleName(it))
+                        AndroidString.StringRes(
+                            R.string.quote_fonts_management_font_already_exists,
+                            arrayOf(it)
+                        )
                     } else {
                         loadSystemFontsList()
                         _uiListState.value = _uiListState.value.copy(systemTabScrollToBottom = true)
-                        resourceProvider.getString(R.string.quote_fonts_management_font_imported,
-                            resourceProvider.getFontLocaleName(it))
+                        AndroidString.StringRes(
+                            R.string.quote_fonts_management_font_imported,
+                            arrayOf(it)
+                        )
                     }.let { message ->
                         _uiEvent.emit(SnackBarEvent(message))
                     }
                 } ?: run {
-                    _uiEvent.emit(SnackBarEvent(
-                        resourceProvider.getString(R.string.quote_fonts_management_import_failed)))
+                    _uiEvent.emit(
+                        SnackBarEvent(
+                            AndroidString.StringRes(R.string.quote_fonts_management_import_failed)
+                        )
+                    )
                 }
             }
-            is AsyncResult.Error -> {
-                _uiEvent.emit(SnackBarEvent(result.exception.message))
+
+            is AsyncResult.Error.Message -> {
+                _uiEvent.emit(SnackBarEvent(result.message))
             }
+
+            is AsyncResult.Error.ExceptionWrapper -> {
+                if (result.exception is FontImporter.FontAlreadyExistsException) {
+                    _uiEvent.emit(
+                        SnackBarEvent(
+                            AndroidString.StringRes(
+                                R.string.quote_fonts_management_font_already_exists,
+                                arrayOf(result.exception.name)
+                            )
+                        )
+                    )
+                } else {
+                    _uiEvent.emit(SnackBarEvent(result.exceptionMessage?.let(AndroidString::StringText)))
+                }
+            }
+
             else -> {}
         }
         _uiDialogState.value = FontManagementDialogUiState.None

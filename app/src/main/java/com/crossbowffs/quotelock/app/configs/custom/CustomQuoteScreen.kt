@@ -1,6 +1,8 @@
-@file:OptIn(ExperimentalMaterial3Api::class,
+@file:OptIn(
+    ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class,
-    ExperimentalLayoutApi::class)
+    ExperimentalLayoutApi::class
+)
 
 package com.crossbowffs.quotelock.app.configs.custom
 
@@ -9,12 +11,28 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -25,6 +43,7 @@ import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteEntity
+import com.crossbowffs.quotelock.data.api.contextString
 import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteEntity
 import com.crossbowffs.quotelock.ui.components.CustomQuoteAppBar
@@ -76,10 +95,11 @@ fun CustomQuoteScreen(
             })
         }
     ) { padding ->
+        val context = LocalContext.current
         uiEvent.message?.let {
             val messageText = it
             scope.launch {
-                snackbarHostState.showSnackbar(messageText)
+                snackbarHostState.showSnackbar(messageText.contextString(context))
             }
             snackBarShown()
         }
@@ -141,9 +161,11 @@ private fun CustomQuoteItemList(
                     }
                 }
                 if (index < entities.lastIndex) {
-                    Divider(Modifier
-                        .animateItemPlacement(animationSpec)
-                        .fillMaxWidth())
+                    Divider(
+                        Modifier
+                            .animateItemPlacement(animationSpec)
+                            .fillMaxWidth()
+                    )
                 }
             }
         }
@@ -156,12 +178,16 @@ class CustomQuotePreviewParameterProvider : PreviewParameterProvider<List<Custom
     })
 }
 
-@Preview(name = "Custom Quote Screen Light",
+@Preview(
+    name = "Custom Quote Screen Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Custom Quote Screen Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Custom Quote Screen Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun CustomQuoteScreenPreview(
     @PreviewParameter(CustomQuotePreviewParameterProvider::class) entities: List<CustomQuoteEntity>,

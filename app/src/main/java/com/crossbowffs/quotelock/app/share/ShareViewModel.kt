@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.app.share
 
+import android.graphics.drawable.Drawable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
@@ -7,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.data.ShareRepository
-import com.crossbowffs.quotelock.di.ResourceProvider
+import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.ui.components.Snapshotables
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +37,6 @@ data class ShareUiState(val snapshot: Snapshotables?)
 @HiltViewModel
 class ShareViewModel @Inject constructor(
     private val shareRepository: ShareRepository,
-    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<ShareUiEvent?>()
@@ -51,34 +51,42 @@ class ShareViewModel @Inject constructor(
         shareRepository.currentSnapshotables = null
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     fun saveQuoteCard(
         containerColor: Color,
         contentColor: Color,
-        watermark: Boolean,
+        watermark: Pair<String, Drawable?>? = null,
     ) {
         viewModelScope.launch {
             val shareFile =
                 shareRepository.generateShareBitmap(containerColor, contentColor, watermark)
                     ?.let { shareRepository.saveBitmapPublic(it) }
             if (shareFile?.exists() == true) {
-                _uiEvent.emit(ShareUiEvent.SnackBar(SnackBarEvent(
-                    message = resourceProvider.getString(R.string.quote_image_share_saved,
-                        shareFile.parentFile!!.path)
-                )))
+                _uiEvent.emit(
+                    ShareUiEvent.SnackBar(
+                        SnackBarEvent(
+                            message = AndroidString.StringRes(
+                                R.string.quote_image_share_saved,
+                                arrayOf(shareFile.parentFile!!.path)
+                            )
+                        )
+                    )
+                )
             } else {
-                _uiEvent.emit(ShareUiEvent.SnackBar(SnackBarEvent(
-                    message = resourceProvider.getString(R.string.quote_image_share_save_failed)
-                )))
+                _uiEvent.emit(
+                    ShareUiEvent.SnackBar(
+                        SnackBarEvent(
+                            message = AndroidString.StringRes(R.string.quote_image_share_save_failed)
+                        )
+                    )
+                )
             }
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     fun shareQuoteCard(
         containerColor: Color,
         contentColor: Color,
-        watermark: Boolean,
+        watermark: Pair<String, Drawable?>? = null,
     ) {
         viewModelScope.launch {
             val shareBitmap =
@@ -87,9 +95,13 @@ class ShareViewModel @Inject constructor(
             if (shareFile?.exists() == true) {
                 _uiEvent.emit(ShareUiEvent.ShareFile(shareFile))
             } else {
-                _uiEvent.emit(ShareUiEvent.SnackBar(SnackBarEvent(
-                    message = resourceProvider.getString(R.string.quote_image_share_failed)
-                )))
+                _uiEvent.emit(
+                    ShareUiEvent.SnackBar(
+                        SnackBarEvent(
+                            message = AndroidString.StringRes(R.string.quote_image_share_failed)
+                        )
+                    )
+                )
             }
         }
     }

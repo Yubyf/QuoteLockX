@@ -67,6 +67,7 @@ import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
+import com.crossbowffs.quotelock.data.api.contextString
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import com.crossbowffs.quotelock.ui.components.AlertDialog
 import com.crossbowffs.quotelock.ui.components.MainAppBar
@@ -97,16 +98,17 @@ fun MainRoute(
     val cardStyleUiState by cardStyleViewModel.uiState
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     mainUiEvent.let { event ->
         event.message?.let { message ->
             scope.launch {
                 snackbarHostState.currentSnackbarData?.takeIf {
-                    it.visuals.message == message
+                    it.visuals.message == message.contextString(context)
                 }?.dismiss()
                 snackbarHostState.showSnackbar(
-                    message = message,
+                    message = message.contextString(context),
                     duration = SnackbarDuration.Short,
-                    actionLabel = event.actionText
+                    actionLabel = event.actionText.contextString(context)
                 )
             }
             mainViewModel.snackBarShown()
@@ -138,7 +140,6 @@ fun MainRoute(
         onSourceItalicChange = cardStyleViewModel::setSourceItalic,
         dismissStylePopup = cardStyleViewModel::dismissStylePopup
     )
-    val context = LocalContext.current
     MainDialogs(
         uiDialogState = mainDialogUiState,
         onStartXposedPage = { with(mainViewModel) { context.startXposedPage(it) } },

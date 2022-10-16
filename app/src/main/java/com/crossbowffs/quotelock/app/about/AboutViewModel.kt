@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_DEVELOPER_APSUN_AVATAR_URL
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_DEVELOPER_APSUN_NAME
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_DEVELOPER_APSUN_PROFILE_URL
@@ -30,7 +31,6 @@ import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDER_JINRIS
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDER_LIBQUOTES
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDER_NATUNE
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDER_WIKIQUOTE
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -68,40 +68,49 @@ data class Library(
  * @author Yubyf
  */
 @HiltViewModel
-class AboutViewModel @Inject constructor(
-    resourceProvider: ResourceProvider,
-) : ViewModel() {
+class AboutViewModel @Inject constructor() : ViewModel() {
 
     val uiState: State<AboutUiState>
 
     init {
-        uiState = mutableStateOf(AboutUiState(
-            developers = listOf(
-                Developer(PREF_DEVELOPER_YUBYF_NAME,
-                    Uri.parse(PREF_DEVELOPER_YUBYF_AVATAR_URL),
-                    Uri.parse(PREF_DEVELOPER_YUBYF_PROFILE_URL),
-                    true),
-                Developer(PREF_DEVELOPER_APSUN_NAME,
-                    Uri.parse(PREF_DEVELOPER_APSUN_AVATAR_URL),
-                    Uri.parse(PREF_DEVELOPER_APSUN_PROFILE_URL),
-                    isOriginalDeveloper = true),
-                Developer(PREF_DEVELOPER_HUAL_NAME,
-                    Uri.parse(PREF_DEVELOPER_HUAL_AVATAR_URL),
-                    Uri.parse(PREF_DEVELOPER_HUAL_PROFILE_URL))
-            ),
-            translators = listOf(
-                Developer("$PREF_DEVELOPER_JIA_BIN_NAME (${
-                    resourceProvider.getString(R.string.about_traditional_chinese)
-                })",
-                    Uri.parse(PREF_DEVELOPER_JIA_BIN_AVATAR_URL),
-                    Uri.parse(PREF_DEVELOPER_JIA_BIN_PROFILE_URL))
-            ),
-            quoteProviders = listOf(
-                QuoteProvider(PREF_QUOTE_PROVIDER_HITOKOTO.first,
-                    Uri.parse(PREF_QUOTE_PROVIDER_HITOKOTO.second),
-                    R.mipmap.ic_logo_hitokoto
+        uiState = mutableStateOf(
+            AboutUiState(
+                developers = listOf(
+                    Developer(
+                        PREF_DEVELOPER_YUBYF_NAME,
+                        Uri.parse(PREF_DEVELOPER_YUBYF_AVATAR_URL),
+                        Uri.parse(PREF_DEVELOPER_YUBYF_PROFILE_URL),
+                        true
+                    ),
+                    Developer(
+                        PREF_DEVELOPER_APSUN_NAME,
+                        Uri.parse(PREF_DEVELOPER_APSUN_AVATAR_URL),
+                        Uri.parse(PREF_DEVELOPER_APSUN_PROFILE_URL),
+                        isOriginalDeveloper = true
+                    ),
+                    Developer(
+                        PREF_DEVELOPER_HUAL_NAME,
+                        Uri.parse(PREF_DEVELOPER_HUAL_AVATAR_URL),
+                        Uri.parse(PREF_DEVELOPER_HUAL_PROFILE_URL)
+                    )
                 ),
-                QuoteProvider(PREF_QUOTE_PROVIDER_WIKIQUOTE.first,
+                translators = listOf(
+                    Developer(
+                        "$PREF_DEVELOPER_JIA_BIN_NAME (${
+                            App.instance.getString(R.string.about_traditional_chinese)
+                        })",
+                        Uri.parse(PREF_DEVELOPER_JIA_BIN_AVATAR_URL),
+                        Uri.parse(PREF_DEVELOPER_JIA_BIN_PROFILE_URL)
+                    )
+                ),
+                quoteProviders = listOf(
+                    QuoteProvider(
+                        PREF_QUOTE_PROVIDER_HITOKOTO.first,
+                        Uri.parse(PREF_QUOTE_PROVIDER_HITOKOTO.second),
+                        R.mipmap.ic_logo_hitokoto
+                    ),
+                    QuoteProvider(
+                        PREF_QUOTE_PROVIDER_WIKIQUOTE.first,
                     Uri.parse(PREF_QUOTE_PROVIDER_WIKIQUOTE.second),
                     R.mipmap.ic_logo_wikiquote
                 ),

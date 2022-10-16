@@ -11,12 +11,14 @@ object SettingsDestination : QuoteNavigationDestination {
 }
 
 fun NavGraphBuilder.settingsGraph(
+    onLanguageItemClicked: () -> Unit,
     onModuleConfigItemClicked: (String) -> Unit,
     onAboutItemClicked: () -> Unit,
     onBack: () -> Unit,
 ) {
     standardPageComposable(route = SettingsDestination.route) {
         SettingsRoute(
+            onLanguageItemClicked = onLanguageItemClicked,
             onModuleConfigItemClicked = onModuleConfigItemClicked,
             onAboutItemClicked = onAboutItemClicked,
             onBack = onBack

@@ -3,6 +3,7 @@
 package com.crossbowffs.quotelock.app.settings
 
 import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,13 +26,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
+import com.crossbowffs.quotelock.data.api.AndroidString
+import com.crossbowffs.quotelock.data.api.contextString
 import com.crossbowffs.quotelock.ui.components.ListPreferenceDialog
 import com.crossbowffs.quotelock.ui.components.PreferenceItem
 import com.crossbowffs.quotelock.ui.components.SettingsAppBar
@@ -44,6 +49,7 @@ import kotlinx.coroutines.launch
 fun SettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
+    onLanguageItemClicked: () -> Unit,
     onModuleConfigItemClicked: (String) -> Unit,
     onAboutItemClicked: () -> Unit,
     onBack: () -> Unit,
@@ -56,6 +62,7 @@ fun SettingsRoute(
         modifier = modifier,
         uiState = uiPreferenceState,
         uiEvent = uiEvent,
+        onLanguageItemClicked = onLanguageItemClicked,
         onDisplayOnAodChanged = viewModel::switchDisplayOnAod,
         onModuleProviderItemClicked = viewModel::loadModuleProviders,
         onModuleConfigItemClicked = onModuleConfigItemClicked,
@@ -80,6 +87,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     uiState: SettingsUiState,
     uiEvent: SnackBarEvent,
+    onLanguageItemClicked: () -> Unit = {},
     onDisplayOnAodChanged: (Boolean) -> Unit = {},
     onModuleProviderItemClicked: () -> Unit = {},
     onModuleConfigItemClicked: (String) -> Unit = {},
@@ -102,13 +110,14 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = { SettingsAppBar(onBack = onBack, scrollBehavior = scrollBehavior) }
     ) { padding ->
+        val context = LocalContext.current
         uiEvent.message?.let {
             val messageText = it
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = messageText,
+                    message = messageText.contextString(context),
                     duration = uiEvent.duration,
-                    actionLabel = uiEvent.actionText
+                    actionLabel = uiEvent.actionText.contextString(context)
                 )
             }
             snackBarShown()
@@ -124,6 +133,15 @@ fun SettingsScreen(
                 }
             }
         ) {
+            val currentLanguage = AppCompatDelegate.getApplicationLocales()[0]?.toLanguageTag()
+            PreferenceItem(
+                title = stringResource(id = R.string.pref_language_title),
+                summary = stringArrayResource(id = R.array.lang_entries)
+                    .zip(stringArrayResource(id = R.array.lang_values))
+                    .find { it.second == currentLanguage }?.first
+                    ?: stringResource(id = R.string.pref_language_system),
+                onClick = onLanguageItemClicked
+            )
             if (uiState.enableAod) {
                 SwitchablePreferenceItem(
                     titleRes = R.string.pref_display_on_aod_title,
@@ -162,7 +180,7 @@ fun SettingsScreen(
             )
             PreferenceItem(
                 title = stringResource(R.string.pref_refresh_info_title),
-                summary = uiState.updateInfo,
+                summary = uiState.updateInfo.contextString(context),
                 enabled = false
             )
             // If the module doesn't require internet connectivity, disable the
@@ -225,6 +243,21 @@ fun SettingsDialogs(
         )
     }
 
+    is SettingsDialogUiState.LanguageDialog -> {
+        ListPreferenceDialog(
+            title = stringResource(id = R.string.pref_language_title),
+            entries = arrayOf(stringResource(id = R.string.pref_language_system))
+                    + stringArrayResource(id = R.array.lang_entries),
+            entryValues = arrayOf<String?>(null) + stringArrayResource(id = R.array.lang_values),
+            selectedItem = uiDialogState.currentLanguage,
+            onItemSelected = {
+                val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(it)
+                AppCompatDelegate.setApplicationLocales(appLocale)
+            },
+            onDismiss = onDialogDismiss
+        )
+    }
+
     is SettingsDialogUiState.None -> {}
 }
 
@@ -248,7 +281,7 @@ private fun SettingsScreenPreview() {
                     displayOnAod = true,
                     unmeteredOnly = true,
                     moduleData = null,
-                    updateInfo = "",
+                    updateInfo = AndroidString.StringText(""),
                     cacheSize = "0.0 MB"
                 ),
                 uiEvent = emptySnackBarEvent,

@@ -10,27 +10,33 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.crossbowffs.quotelock.app.App
-import com.crossbowffs.quotelock.consts.*
+import com.crossbowffs.quotelock.consts.PREF_PUBLIC_RELATIVE_PATH
+import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_CHILD_PATH
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_EXTENSION
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_FRAME_WIDTH
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_NAME_PREFIX
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_WATERMARK_PADDING
+import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX
 import com.crossbowffs.quotelock.di.IoDispatcher
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.ui.components.Snapshotables
 import com.crossbowffs.quotelock.utils.dp2px
 import com.crossbowffs.quotelock.utils.toFile
-import com.yubyf.quotelockx.R
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.roundToInt
 
 @Singleton
 class ShareRepository @Inject internal constructor(
-    private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
     private val legacyShareFileDir =
@@ -38,22 +44,28 @@ class ShareRepository @Inject internal constructor(
     private val shareFileDir =
         File(App.instance.externalCacheDir, PREF_SHARE_IMAGE_CHILD_PATH)
     private val savePublicDir =
-        File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            PREF_PUBLIC_RELATIVE_PATH)
+        File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+            PREF_PUBLIC_RELATIVE_PATH
+        )
 
     private val _cacheSizeFlow = MutableStateFlow(-1L)
     val cacheSizeFlow = _cacheSizeFlow.asStateFlow()
 
     var currentSnapshotables: Snapshotables? = Snapshotables()
 
-    suspend fun saveBitmapPublic(bitmap: Bitmap): File = File(savePublicDir,
+    suspend fun saveBitmapPublic(bitmap: Bitmap): File = File(
+        savePublicDir,
         PREF_SHARE_IMAGE_NAME_PREFIX + DATE_FORMATTER.format(Date(System.currentTimeMillis()))
-                + PREF_SHARE_IMAGE_EXTENSION).also {
+                + PREF_SHARE_IMAGE_EXTENSION
+    ).also {
         bitmap.toFile(it, dispatcher)
     }
 
-    suspend fun saveBitmapInternal(bitmap: Bitmap): File = File(shareFileDir,
-        UUID.randomUUID().toString() + PREF_SHARE_IMAGE_EXTENSION).also {
+    suspend fun saveBitmapInternal(bitmap: Bitmap): File = File(
+        shareFileDir,
+        UUID.randomUUID().toString() + PREF_SHARE_IMAGE_EXTENSION
+    ).also {
         bitmap.toFile(it, dispatcher)
     }
 
@@ -73,23 +85,26 @@ class ShareRepository @Inject internal constructor(
     suspend fun generateShareBitmap(
         containerColor: Color,
         contentColor: Color,
-        watermark: Boolean,
+        watermark: Pair<String, Drawable?>? = null,
     ): Bitmap? =
         withContext(dispatcher) {
             currentSnapshotables?.let { snapshotables ->
                 snapshotables.shareBounds?.let { size ->
-                    Bitmap.createBitmap(size.width.roundToInt(),
+                    Bitmap.createBitmap(
+                        size.width.roundToInt(),
                         (size.height
-                                + if (watermark) PREF_SHARE_IMAGE_WATERMARK_PADDING else 0F).roundToInt(),
-                        Bitmap.Config.ARGB_8888)
+                                + if (watermark != null) PREF_SHARE_IMAGE_WATERMARK_PADDING else 0F).roundToInt(),
+                        Bitmap.Config.ARGB_8888
+                    )
                         .also { bitmap ->
                             val canvas = Canvas(bitmap)
-                            snapshotables.drawShareCard(canvas,
+                            snapshotables.drawShareCard(
+                                canvas,
                                 containerColor,
                                 contentColor,
                                 true,
-                                if (watermark) resourceProvider.getDrawable(R.drawable.ic_quotelockx) else null,
-                                resourceProvider.getString(R.string.quotelockx))
+                                watermark
+                            )
                         }
                 }
             }
@@ -102,8 +117,10 @@ class ShareRepository @Inject internal constructor(
 
 val Snapshotables.shareBounds: Size?
     get() = bounds?.let { size ->
-        Size(size.width + PREF_SHARE_IMAGE_FRAME_WIDTH * 2,
-            size.height + PREF_SHARE_IMAGE_FRAME_WIDTH * 2)
+        Size(
+            size.width + PREF_SHARE_IMAGE_FRAME_WIDTH * 2,
+            size.height + PREF_SHARE_IMAGE_FRAME_WIDTH * 2
+        )
     }
 
 fun Canvas.drawWatermark(icon: Drawable?, watermark: String) {
@@ -115,10 +132,12 @@ fun Canvas.drawWatermark(icon: Drawable?, watermark: String) {
     }
     val watermarkIconSize = PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX * 0.9F
     icon?.apply {
-        setBounds(0,
+        setBounds(
+            0,
             -(watermarkIconSize / 2).roundToInt(),
             watermarkIconSize.roundToInt(),
-            (watermarkIconSize / 2).roundToInt())
+            (watermarkIconSize / 2).roundToInt()
+        )
         setTint(Color.Black.toArgb())
         alpha = (255 * watermarkAlpha).roundToInt()
         translate(watermarkIconSize / 2F, 0F)
@@ -138,26 +157,31 @@ fun Snapshotables.drawShareCard(
     containerColor: Color,
     contentColor: Color,
     drawBackground: Boolean,
-    watermarkIcon: Drawable? = null,
-    watermarkText: String,
+    watermark: Pair<String, Drawable?>? = null,
 ) {
     shareBounds?.let {
         if (drawBackground) {
             canvas.drawColor(Color.White.toArgb())
         }
         canvas.save()
-        canvas.translate(PREF_SHARE_IMAGE_FRAME_WIDTH,
-            PREF_SHARE_IMAGE_FRAME_WIDTH)
-        snapshot(canvas,
+        canvas.translate(
+            PREF_SHARE_IMAGE_FRAME_WIDTH,
+            PREF_SHARE_IMAGE_FRAME_WIDTH
+        )
+        snapshot(
+            canvas,
             containerColor,
-            contentColor)
+            contentColor
+        )
         canvas.restore()
-        watermarkIcon?.let { icon ->
+        watermark?.let { (text, icon) ->
             // Watermark
-            canvas.translate(PREF_QUOTE_CARD_ELEVATION_DP.dp2px()
-                    + PREF_SHARE_IMAGE_FRAME_WIDTH,
-                it.height + PREF_SHARE_IMAGE_WATERMARK_PADDING / 4)
-            canvas.drawWatermark(icon, watermarkText)
+            canvas.translate(
+                PREF_QUOTE_CARD_ELEVATION_DP.dp2px()
+                        + PREF_SHARE_IMAGE_FRAME_WIDTH,
+                it.height + PREF_SHARE_IMAGE_WATERMARK_PADDING / 4
+            )
+            canvas.drawWatermark(icon, text)
         }
     }
 }

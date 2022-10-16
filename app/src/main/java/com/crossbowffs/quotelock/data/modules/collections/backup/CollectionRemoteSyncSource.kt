@@ -20,8 +20,8 @@ import android.content.Context
 import androidx.core.util.Pair
 import com.crossbowffs.quotelock.account.google.GoogleAccountManager
 import com.crossbowffs.quotelock.data.AsyncResult
+import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.di.IoDispatcher
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.toFile
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -55,7 +55,6 @@ class CollectionRemoteSyncSource @Inject internal constructor(
     @ApplicationContext private val context: Context,
     private val localBackupSource: CollectionLocalBackupSource,
     private val googleAccountManager: GoogleAccountManager,
-    private val resourceProvider: ResourceProvider,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
     val cloudFileTimestampFlow = MutableStateFlow(0L)
@@ -66,12 +65,14 @@ class CollectionRemoteSyncSource @Inject internal constructor(
         googleAccountManager.getGoogleAccount().also {
             // Use the authenticated account to sign in to the Drive service.
             val credential = GoogleAccountCredential.usingOAuth2(
-                context, setOf(DriveScopes.DRIVE_FILE))
+                context, setOf(DriveScopes.DRIVE_FILE)
+            )
             credential.selectedAccount = it.account
             drive = Drive.Builder(
                 NetHttpTransport(),
                 GsonFactory(),
-                credential)
+                credential
+            )
                 .setApplicationName(context.getString(R.string.quotelockx))
                 .build()
         }
@@ -216,38 +217,31 @@ class CollectionRemoteSyncSource @Inject internal constructor(
         databaseName: String,
     ): Flow<AsyncResult<String>> = flow {
         drive.run {
-            emit(AsyncResult.Loading(
-                resourceProvider.getString(R.string.google_drive_querying_backup_file)))
+            emit(AsyncResult.Loading(AndroidString.StringRes(R.string.google_drive_querying_backup_file)))
             val queryFiles = withContext(dispatcher) { queryFilesSync() }
             queryFiles ?: run {
-                emit(AsyncResult.Error(
-                    Exception(resourceProvider.getString(R.string.google_drive_query_failed))))
+                emit(AsyncResult.Error.Message(AndroidString.StringRes(R.string.google_drive_query_failed)))
                 return@flow
             }
             val databaseFile = queryFiles.files.find { it.name == databaseName }
             databaseFile?.run {
-                emit(AsyncResult.Loading(
-                    resourceProvider.getString(R.string.google_drive_uploading_file)))
+                emit(AsyncResult.Loading(AndroidString.StringRes(R.string.google_drive_uploading_file)))
                 if (withContext(dispatcher) { saveFileSync(id, databaseName) }.success) {
                     emit(AsyncResult.Success(""))
                 } else {
-                    emit(AsyncResult.Error(
-                        Exception(resourceProvider.getString(R.string.google_drive_save_failed))))
+                    emit(AsyncResult.Error.Message(AndroidString.StringRes(R.string.google_drive_save_failed)))
                 }
                 return@flow
             }
-            emit(AsyncResult.Loading(
-                resourceProvider.getString(R.string.google_drive_creating_file)))
+            emit(AsyncResult.Loading(AndroidString.StringRes(R.string.google_drive_creating_file)))
             if (!withContext(dispatcher) { createFileSync(databaseName) }.isNullOrBlank()) {
-                emit(AsyncResult.Error(
-                    Exception(resourceProvider.getString(R.string.google_drive_create_failed))))
+                emit(AsyncResult.Error.Message(AndroidString.StringRes(R.string.google_drive_create_failed)))
                 return@flow
             }
             if (withContext(dispatcher) { saveFileSync(null, databaseName) }.success) {
                 emit(AsyncResult.Success(""))
             } else {
-                emit(AsyncResult.Error(
-                    Exception(resourceProvider.getString(R.string.google_drive_save_failed))))
+                emit(AsyncResult.Error.Message(AndroidString.StringRes(R.string.google_drive_save_failed)))
             }
         }
     }
@@ -280,29 +274,24 @@ class CollectionRemoteSyncSource @Inject internal constructor(
         merge: Boolean = false,
     ): Flow<AsyncResult<String>> = flow {
         drive.run {
-            emit(AsyncResult.Loading(
-                resourceProvider.getString(R.string.google_drive_querying_backup_file)))
+            emit(AsyncResult.Loading(AndroidString.StringRes(R.string.google_drive_querying_backup_file)))
             val queryFiles = withContext(dispatcher) { queryFilesSync() }
             queryFiles ?: run {
-                emit(AsyncResult.Error(
-                    Exception(resourceProvider.getString(R.string.google_drive_query_failed))))
+                emit(AsyncResult.Error.Message(AndroidString.StringRes(R.string.google_drive_query_failed)))
                 return@flow
             }
             val databaseFile = queryFiles.files.find { it.name == databaseName }
             databaseFile?.run {
-                emit(AsyncResult.Loading(
-                    resourceProvider.getString(R.string.google_drive_importing_file)))
+                emit(AsyncResult.Loading(AndroidString.StringRes(R.string.google_drive_importing_file)))
                 if (withContext(dispatcher) { importDbFileSync(id, databaseName, merge) }.success) {
                     emit(AsyncResult.Success(""))
                 } else {
-                    emit(AsyncResult.Error(
-                        Exception(resourceProvider.getString(R.string.google_drive_read_failed))))
+                    emit(AsyncResult.Error.Message(AndroidString.StringRes(R.string.google_drive_read_failed)))
                 }
                 return@flow
             } ?: run { cloudFileTimestampFlow.value = 0 }
             Xlog.e(TAG, "There is no $databaseName on drive")
-            emit(AsyncResult.Error(
-                Exception(resourceProvider.getString(R.string.google_drive_no_existing_file))))
+            emit(AsyncResult.Error.Message(AndroidString.StringRes(R.string.google_drive_no_existing_file)))
         }
     }
 
@@ -314,9 +303,11 @@ class CollectionRemoteSyncSource @Inject internal constructor(
                 val fileList = drive.queryFilesSync() ?: return@withContext result
                 fileList.files.find { it.name == databaseName }?.let {
                     return@withContext runBlocking {
-                        drive.importDbFileSync(it.id,
+                        drive.importDbFileSync(
+                            it.id,
                             databaseName,
-                            merge)
+                            merge
+                        )
                     }
                 } ?: run { cloudFileTimestampFlow.value = 0 }
             } catch (e: IOException) {

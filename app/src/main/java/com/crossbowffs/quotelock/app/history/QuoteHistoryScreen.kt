@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -44,6 +45,7 @@ import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteEntity
+import com.crossbowffs.quotelock.data.api.contextString
 import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.ui.components.DeletableQuoteListItem
@@ -111,10 +113,11 @@ fun QuoteHistoryScreen(
             }
         }
     ) { padding ->
+        val context = LocalContext.current
         uiEvent.message?.let {
             val messageText = it
             scope.launch {
-                snackbarHostState.showSnackbar(messageText)
+                snackbarHostState.showSnackbar(messageText.contextString(context))
             }
             snackBarShown()
         }

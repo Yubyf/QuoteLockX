@@ -3,10 +3,11 @@ package com.crossbowffs.quotelock.data.api
 import android.content.Context
 import android.content.res.Configuration
 import android.provider.BaseColumns
+import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.utils.md5
 import com.yubyf.quotelockx.R
-import java.util.*
+import java.util.Locale
 
 /**
  * @author Yubyf
@@ -57,6 +58,9 @@ fun Context.isQuoteGeneratedByApp(text: String, source: String?, author: String?
         }
     }.reduce { acc, b -> acc || b }
 }
+
+fun isQuoteJustForDisplay(text: String, source: String?, author: String?) =
+    App.instance.isQuoteGeneratedByApp(text, source, author)
 
 fun QuoteEntity.toQuoteData(): QuoteData = QuoteData(text, source, author.orEmpty())
 

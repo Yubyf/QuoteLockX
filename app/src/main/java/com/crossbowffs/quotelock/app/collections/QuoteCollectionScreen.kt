@@ -96,6 +96,7 @@ import com.crossbowffs.quotelock.data.api.GoogleAccount
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteEntity
+import com.crossbowffs.quotelock.data.api.contextString
 import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
 import com.crossbowffs.quotelock.ui.components.AnchorPopup
@@ -271,9 +272,10 @@ private fun QuoteCollectionScreen(
             }
         }
     ) { padding ->
+        val context = LocalContext.current
         when (uiDialogState) {
             is QuoteCollectionDialogUiState.ProgressDialog ->
-                LoadingDialog(message = uiDialogState.message) {}
+                LoadingDialog(message = uiDialogState.message.contextString(context)) {}
 
             QuoteCollectionDialogUiState.None -> {}
         }
@@ -281,9 +283,9 @@ private fun QuoteCollectionScreen(
             val messageText = it
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = messageText,
+                    message = messageText.contextString(context),
                     duration = uiEvent.duration,
-                    actionLabel = uiEvent.actionText
+                    actionLabel = uiEvent.actionText.contextString(context)
                 )
             }
             snackBarShown()

@@ -39,6 +39,8 @@
         Android 不支持应用以常规方式将文本添加到锁屏界面显示。\n\n要使格言锁屏 X 正常运行，您必须启用本应用对应的 Xposed 模块。</string>
     <string name="battery_optimization_title">电池优化已启用</string>
     <string name="battery_optimization_message">这可能会导致在某些设备上后台自动刷新任务失败，是否要禁用？</string>
+    <string name="pref_language_title">语言</string>
+    <string name="pref_language_system">跟随系统</string>
     <string name="pref_refresh_interval_title">刷新间隔</string>
     <string name="pref_refresh_interval_summary">多久刷新一次格言</string>
     <string name="pref_refresh_interval_summary_alt">无法为选定的提供服务设置刷新率</string>
@@ -119,8 +121,8 @@
     <string name="module_collections_setup_line2">请打开格言收藏</string>
     <string name="quote_histories_screen_label">历史</string>
     <string name="quote_histories_cleared_quote">已清除历史格言</string>
-    <string name="database_exported">数据库导出至</string>
-    <string name="csv_exported">CSV 导出至</string>
+    <string name="database_exported">数据库导出至 %s</string>
+    <string name="csv_exported">CSV 导出至 %s</string>
     <string name="database_imported">数据库已导入</string>
     <string name="csv_imported">CSV 已导入</string>
     <string name="remote_backup_completed">在线备份已完成</string>

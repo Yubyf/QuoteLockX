@@ -1,5 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalLayoutApi::class, ExperimentalPagerApi::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalLayoutApi::class, ExperimentalPagerApi::class
+)
 
 package com.crossbowffs.quotelock.app.font
 
@@ -11,7 +13,17 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -20,8 +32,29 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,7 +69,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
-import com.crossbowffs.quotelock.ui.components.*
+import com.crossbowffs.quotelock.data.api.contextString
+import com.crossbowffs.quotelock.ui.components.ContentAlpha
+import com.crossbowffs.quotelock.ui.components.DeletableFontListItem
+import com.crossbowffs.quotelock.ui.components.FontManagementAppBar
+import com.crossbowffs.quotelock.ui.components.LoadingDialog
+import com.crossbowffs.quotelock.ui.components.pagerTabIndicatorOffset
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -49,6 +87,7 @@ fun FontManagementRoute(
     viewModel: FontManagementViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiListState
     val uiDialogState by viewModel.uiDialogState
     val uiEvent by viewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
@@ -83,8 +122,9 @@ fun FontManagementRoute(
     uiDialogState.let {
         when (it) {
             is FontManagementDialogUiState.ProgressDialog -> {
-                LoadingDialog(message = it.message) {}
+                LoadingDialog(message = it.message.contextString(context)) {}
             }
+
             FontManagementDialogUiState.None -> {}
         }
     }
@@ -122,8 +162,10 @@ fun FontManagementScreen(
                 ExtendedFloatingActionButton(
                     text = { Text(text = stringResource(id = R.string.quote_fonts_management_import)) },
                     icon = {
-                        Icon(Icons.Rounded.Add,
-                            contentDescription = stringResource(id = R.string.quote_fonts_management_import))
+                        Icon(
+                            Icons.Rounded.Add,
+                            contentDescription = stringResource(id = R.string.quote_fonts_management_import)
+                        )
                     },
                     shape = FloatingActionButtonDefaults.largeShape,
                     onClick = if (pagerState.currentPage == 0) onInAppImportButtonClick
@@ -133,13 +175,14 @@ fun FontManagementScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
+        val context = LocalContext.current
         uiEvent.message?.let {
             val messageText = it
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = messageText,
+                    message = messageText.contextString(context),
                     duration = uiEvent.duration,
-                    actionLabel = uiEvent.actionText
+                    actionLabel = uiEvent.actionText.contextString(context)
                 )
             }
             snackBarShown()
@@ -169,9 +212,11 @@ fun FontManagementScreen(
                             scope.launch { pagerState.scrollToPage(index) }
                         },
                         text = {
-                            Text(text = title,
+                            Text(
+                                text = title,
                                 maxLines = 2,
-                                overflow = TextOverflow.Ellipsis)
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
                     )
                 }
@@ -242,16 +287,20 @@ private fun InAppFontInfoItemList(
                 modifier = Modifier
                     .animateItemPlacement(animationSpec)
                     .fillMaxWidth(),
-                fontInfoWithState = FontInfoWithState(fontInfo = entity,
+                fontInfoWithState = FontInfoWithState(
+                    fontInfo = entity,
                     systemFont = false,
-                    active = true),
+                    active = true
+                ),
             ) {
                 onDeleteMenuClicked.invoke(it.fontInfo)
             }
             if (index < entities.lastIndex) {
-                Divider(Modifier
-                    .animateItemPlacement(animationSpec)
-                    .fillMaxWidth())
+                Divider(
+                    Modifier
+                        .animateItemPlacement(animationSpec)
+                        .fillMaxWidth()
+                )
             } else if (index == entities.lastIndex) {
                 Spacer(modifier = Modifier.height(64.dp))
             }
@@ -284,9 +333,11 @@ private fun SystemFontInfoItemList(
                 onDeleteMenuClicked.invoke(it)
             }
             if (index < entities.lastIndex) {
-                Divider(Modifier
-                    .animateItemPlacement(animationSpec)
-                    .fillMaxWidth())
+                Divider(
+                    Modifier
+                        .animateItemPlacement(animationSpec)
+                        .fillMaxWidth()
+                )
             } else if (index == entities.lastIndex) {
                 Spacer(modifier = Modifier.height(64.dp))
             }
@@ -310,7 +361,8 @@ private fun EnableMagiskModuleLayout() {
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = stringResource(id = R.string.quote_fonts_magisk_module_needed_title),
-                style = MaterialTheme.typography.titleLarge)
+                style = MaterialTheme.typography.titleLarge
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
@@ -318,10 +370,15 @@ private fun EnableMagiskModuleLayout() {
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
-        OutlinedButton(onClick = {
-            context.startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse(Urls.GITHUB_QUOTELOCK_CUSTOM_FONTS_RELEASE)))
-        },
+        OutlinedButton(
+            onClick = {
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(Urls.GITHUB_QUOTELOCK_CUSTOM_FONTS_RELEASE)
+                    )
+                )
+            },
             modifier = Modifier.align(Alignment.End)
         ) {
             Text(text = stringResource(id = R.string.download))

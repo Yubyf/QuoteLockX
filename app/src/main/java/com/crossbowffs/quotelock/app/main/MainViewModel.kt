@@ -11,9 +11,9 @@ import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.XposedUtils.startXposedActivity
@@ -46,7 +46,6 @@ class MainViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val quoteRepository: QuoteRepository,
     configurationRepository: ConfigurationRepository,
-    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
@@ -90,8 +89,9 @@ class MainViewModel @Inject constructor(
         }
         _uiState.value = _uiState.value.copy(refreshing = false)
         _uiEvent.emit(SnackBarEvent(
-            message = resourceProvider.getString(
-                if (quote == null) R.string.quote_download_failed else R.string.quote_download_success)
+            message = AndroidString.StringRes(
+                if (quote == null) R.string.quote_download_failed else R.string.quote_download_success
+            )
         ))
     }
 
@@ -103,7 +103,7 @@ class MainViewModel @Inject constructor(
         if (!startXposedActivity(section)) {
             viewModelScope.launch {
                 _uiEvent.emit(SnackBarEvent(
-                    message = resourceProvider.getString(R.string.xposed_not_installed)
+                    message = AndroidString.StringRes(R.string.xposed_not_installed)
                 ))
             }
             startBrowserActivity(Urls.XPOSED_FORUM)

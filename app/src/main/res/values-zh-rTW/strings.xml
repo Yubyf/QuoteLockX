@@ -42,6 +42,8 @@
     <string name="report_bug">反饋問題</string>
     <string name="battery_optimization_title">電池最佳化已啟用</string>
     <string name="battery_optimization_message">這可能會導致在某些裝置上後臺自動重新整理任務失敗，是否要禁用?</string>
+    <string name="pref_language_title">語言</string>
+    <string name="pref_language_system">跟隨系統</string>
     <string name="pref_refresh_interval_title">重新整理間隔</string>
     <string name="pref_refresh_interval_summary">多久重新整理一次格言</string>
     <string name="pref_refresh_interval_summary_alt">無法為選定的提供服務設定重新整理率</string>
@@ -137,8 +139,8 @@
     <string name="quote_histories_cleared_quote">已清除歷史格言</string>
 
     <!-- Data retention-->
-    <string name="database_exported">資料庫匯出至</string>
-    <string name="csv_exported">CSV 匯出至</string>
+    <string name="database_exported">資料庫匯出至 %s</string>
+    <string name="csv_exported">CSV 匯出至 %s</string>
     <string name="database_imported">資料庫已匯入</string>
     <string name="csv_imported">CSV 已匯入</string>
     <string name="remote_backup_completed">線上備份已完成</string>

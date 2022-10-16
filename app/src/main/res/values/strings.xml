@@ -44,6 +44,8 @@
     <string name="report_bug">Report bug</string>
     <string name="battery_optimization_title">Battery optimization enabled</string>
     <string name="battery_optimization_message">This may cause the background task to fail to run automatically on some devices, disable it?</string>
+    <string name="pref_language_title">Language</string>
+    <string name="pref_language_system">Follow System</string>
     <string name="pref_refresh_interval_title">Refresh interval</string>
     <string name="pref_refresh_interval_summary">How often to refresh the quote</string>
     <string name="pref_refresh_interval_summary_alt">Cannot set refresh rate for selected provider</string>
@@ -165,8 +167,8 @@
     <string name="quote_fonts_management_variable_font_tips">Variable font</string>
 
     <!-- Data retention-->
-    <string name="database_exported">Database exported to</string>
-    <string name="csv_exported">CSV exported to</string>
+    <string name="database_exported">Database exported to %s</string>
+    <string name="csv_exported">CSV exported to %s</string>
     <string name="database_imported">Database imported</string>
     <string name="csv_imported">CSV imported</string>
     <string name="remote_backup_completed">Remote backup completed</string>

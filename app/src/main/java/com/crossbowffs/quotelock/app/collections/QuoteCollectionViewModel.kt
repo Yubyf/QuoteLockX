@@ -12,11 +12,11 @@ import com.crossbowffs.quotelock.account.google.GoogleAccountManager
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.AsyncResult
+import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.api.GoogleAccount
-import com.crossbowffs.quotelock.data.failedMessage
+import com.crossbowffs.quotelock.data.exceptionMessage
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -43,7 +43,7 @@ annotation class LocalBackupType {
  * UI event for the quote collection list screen.
  */
 sealed class QuoteCollectionDialogUiState {
-    data class ProgressDialog(val message: String? = null) : QuoteCollectionDialogUiState()
+    data class ProgressDialog(val message: AndroidString? = null) : QuoteCollectionDialogUiState()
 
     object None : QuoteCollectionDialogUiState()
 }
@@ -76,7 +76,6 @@ class QuoteCollectionViewModel @Inject constructor(
     private val collectionRepository: QuoteCollectionRepository,
     private val googleAccountManager: GoogleAccountManager,
     private val syncAccountManager: SyncAccountManager,
-    private val resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
@@ -86,10 +85,12 @@ class QuoteCollectionViewModel @Inject constructor(
         mutableStateOf<QuoteCollectionDialogUiState>(QuoteCollectionDialogUiState.None)
     val uiDialogState: State<QuoteCollectionDialogUiState> = _uiDialogState
 
-    private val _uiMenuState = mutableStateOf(QuoteCollectionMenuUiState(
-        syncEnabled = googleAccountManager.checkGooglePlayService(),
-        googleAccount = googleAccountManager.getSignedInGoogleAccount(),
-    ))
+    private val _uiMenuState = mutableStateOf(
+        QuoteCollectionMenuUiState(
+            syncEnabled = googleAccountManager.checkGooglePlayService(),
+            googleAccount = googleAccountManager.getSignedInGoogleAccount(),
+        )
+    )
     val uiMenuState: State<QuoteCollectionMenuUiState> = _uiMenuState
 
     private val _uiListState = mutableStateOf(QuoteCollectionListUiState())
@@ -157,7 +158,7 @@ class QuoteCollectionViewModel @Inject constructor(
         viewModelScope.launch {
             _uiEvent.emit(
                 SnackBarEvent(
-                    message = resourceProvider.getString(R.string.grant_storage_permission_tips),
+                    message = AndroidString.StringRes(R.string.grant_storage_permission_tips),
                     duration = SnackbarDuration.Short
                 )
             )
@@ -167,7 +168,7 @@ class QuoteCollectionViewModel @Inject constructor(
     fun export(@LocalBackupType type: Int) {
         viewModelScope.launch {
             _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
-                message = resourceProvider.getString(
+                message = AndroidString.StringRes(
                     if (type == LocalBackupType.CSV) R.string.exporting_csv
                     else R.string.exporting_database
                 )
@@ -178,19 +179,23 @@ class QuoteCollectionViewModel @Inject constructor(
             _uiDialogState.value = QuoteCollectionDialogUiState.None
             when (result) {
                 is AsyncResult.Success -> {
-                    _uiEvent.emit(SnackBarEvent(
-                        message = resourceProvider.getString(
-                            if (type == LocalBackupType.CSV) R.string.csv_exported
-                            else R.string.database_exported)
-                            .plus(" ")
-                            .plus(result.data),
-                        duration = SnackbarDuration.Long,
-                        actionText = resourceProvider.getString(R.string.ok),
-                    ))
+                    _uiEvent.emit(
+                        SnackBarEvent(
+                            message = AndroidString.StringRes(
+                                if (type == LocalBackupType.CSV) R.string.csv_exported
+                                else R.string.database_exported,
+                                arrayOf(result.data)
+                            ),
+                            duration = SnackbarDuration.Long,
+                            actionText = AndroidString.StringRes(R.string.ok),
+                        )
+                    )
                 }
+
                 is AsyncResult.Error -> {
-                    _uiEvent.emit(SnackBarEvent(message = result.failedMessage))
+                    _uiEvent.emit(SnackBarEvent(message = result.exceptionMessage?.let(AndroidString::StringText)))
                 }
+
                 is AsyncResult.Loading -> {}
             }
         }
@@ -199,7 +204,7 @@ class QuoteCollectionViewModel @Inject constructor(
     fun import(@LocalBackupType type: Int, uri: Uri, merge: Boolean = false) {
         viewModelScope.launch {
             _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
-                message = resourceProvider.getString(
+                message = AndroidString.StringRes(
                     if (type == LocalBackupType.CSV) R.string.importing_csv
                     else R.string.importing_database
                 )
@@ -210,15 +215,20 @@ class QuoteCollectionViewModel @Inject constructor(
             _uiDialogState.value = QuoteCollectionDialogUiState.None
             when (result) {
                 is AsyncResult.Success -> {
-                    _uiEvent.emit(SnackBarEvent(
-                        message = resourceProvider.getString(
-                            if (type == LocalBackupType.CSV) R.string.csv_imported
-                            else R.string.database_imported)
-                    ))
+                    _uiEvent.emit(
+                        SnackBarEvent(
+                            message = AndroidString.StringRes(
+                                if (type == LocalBackupType.CSV) R.string.csv_imported
+                                else R.string.database_imported
+                            )
+                        )
+                    )
                 }
+
                 is AsyncResult.Error -> {
-                    _uiEvent.emit(SnackBarEvent(message = result.failedMessage))
+                    _uiEvent.emit(SnackBarEvent(message = result.exceptionMessage?.let(AndroidString::StringText)))
                 }
+
                 is AsyncResult.Loading -> {}
             }
         }
@@ -232,8 +242,8 @@ class QuoteCollectionViewModel @Inject constructor(
         if (account != null) {
             collectionRepository.updateDriveService()
             val syncTime = collectionRepository.queryDriveFileTimestamp()
-            _uiEvent.emit(SnackBarEvent(
-                message = resourceProvider.getString(R.string.google_account_connected))
+            _uiEvent.emit(
+                SnackBarEvent(message = AndroidString.StringRes(R.string.google_account_connected))
             )
             if (account.email.isNotEmpty()) {
                 syncAccountManager.addOrUpdateAccount(account.email, true)
@@ -246,8 +256,10 @@ class QuoteCollectionViewModel @Inject constructor(
                 }
             }
         } else {
-            _uiEvent.emit(SnackBarEvent(
-                message = resourceProvider.getString(R.string.google_account_sign_in_failed))
+            _uiEvent.emit(
+                SnackBarEvent(
+                    message = AndroidString.StringRes(R.string.google_account_sign_in_failed)
+                )
             )
         }
     }
@@ -260,7 +272,7 @@ class QuoteCollectionViewModel @Inject constructor(
 
     fun signOut() = viewModelScope.launch {
         _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
-            message = resourceProvider.getString(R.string.sign_out_google_account)
+            message = AndroidString.StringRes(R.string.sign_out_google_account)
         )
         val result = googleAccountManager.signOutAccount()
         _uiDialogState.value = QuoteCollectionDialogUiState.None
@@ -268,7 +280,7 @@ class QuoteCollectionViewModel @Inject constructor(
             _uiMenuState.value = _uiMenuState.value.copy(googleAccount = null)
             syncAccountManager.removeAccount(result.second)
         } else {
-            _uiEvent.emit(SnackBarEvent(message = result.second))
+            _uiEvent.emit(SnackBarEvent(message = AndroidString.StringText(result.second)))
         }
     }
 
@@ -278,23 +290,33 @@ class QuoteCollectionViewModel @Inject constructor(
         ensureDriveService()
         viewModelScope.launch {
             _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
-                message = resourceProvider.getString(R.string.start_google_drive_backup)
+                message = AndroidString.StringRes(R.string.start_google_drive_backup)
             )
             collectionRepository.gDriveBackup().collect {
                 when (it) {
                     is AsyncResult.Success -> {
                         _uiDialogState.value = QuoteCollectionDialogUiState.None
-                        _uiEvent.emit(SnackBarEvent(
-                            message = resourceProvider.getString(R.string.remote_backup_completed)
-                        ))
+                        _uiEvent.emit(
+                            SnackBarEvent(
+                                message = AndroidString.StringRes(R.string.remote_backup_completed)
+                            )
+                        )
                     }
-                    is AsyncResult.Error -> {
+
+                    is AsyncResult.Error.Message -> {
                         _uiDialogState.value = QuoteCollectionDialogUiState.None
-                        _uiEvent.emit(SnackBarEvent(message = it.failedMessage))
+                        _uiEvent.emit(SnackBarEvent(message = it.message))
                     }
+
+                    is AsyncResult.Error.ExceptionWrapper -> {
+                        _uiDialogState.value = QuoteCollectionDialogUiState.None
+                        _uiEvent.emit(SnackBarEvent(message = it.exceptionMessage?.let(AndroidString::StringText)))
+                    }
+
                     is AsyncResult.Loading -> {
-                        _uiDialogState.value =
-                            QuoteCollectionDialogUiState.ProgressDialog(it.message)
+                        _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
+                            message = it.message
+                        )
                     }
                 }
             }
@@ -305,23 +327,33 @@ class QuoteCollectionViewModel @Inject constructor(
         ensureDriveService()
         viewModelScope.launch {
             _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
-                message = resourceProvider.getString(R.string.start_google_drive_restore)
+                message = AndroidString.StringRes(R.string.start_google_drive_restore)
             )
             collectionRepository.gDriveRestore(merge).collect {
                 when (it) {
                     is AsyncResult.Success -> {
                         _uiDialogState.value = QuoteCollectionDialogUiState.None
-                        _uiEvent.emit(SnackBarEvent(
-                            message = resourceProvider.getString(R.string.remote_restore_completed)
-                        ))
+                        _uiEvent.emit(
+                            SnackBarEvent(
+                                message = AndroidString.StringRes(R.string.remote_restore_completed)
+                            )
+                        )
                     }
-                    is AsyncResult.Error -> {
+
+                    is AsyncResult.Error.Message -> {
                         _uiDialogState.value = QuoteCollectionDialogUiState.None
-                        _uiEvent.emit(SnackBarEvent(message = it.failedMessage))
+                        _uiEvent.emit(SnackBarEvent(message = it.message))
                     }
+
+                    is AsyncResult.Error.ExceptionWrapper -> {
+                        _uiDialogState.value = QuoteCollectionDialogUiState.None
+                        _uiEvent.emit(SnackBarEvent(message = it.exceptionMessage?.let(AndroidString::StringText)))
+                    }
+
                     is AsyncResult.Loading -> {
-                        _uiDialogState.value =
-                            QuoteCollectionDialogUiState.ProgressDialog(it.message)
+                        _uiDialogState.value = QuoteCollectionDialogUiState.ProgressDialog(
+                            message = it.message
+                        )
                     }
                 }
             }
@@ -331,8 +363,8 @@ class QuoteCollectionViewModel @Inject constructor(
     fun delete(id: Long) {
         viewModelScope.launch {
             collectionRepository.delete(id)
-            _uiEvent.emit(SnackBarEvent(
-                resourceProvider.getString(R.string.module_custom_deleted_quote))
+            _uiEvent.emit(
+                SnackBarEvent(AndroidString.StringRes(R.string.module_custom_deleted_quote))
             )
         }
     }

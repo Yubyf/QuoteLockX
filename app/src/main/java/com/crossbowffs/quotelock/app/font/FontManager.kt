@@ -1,5 +1,6 @@
 package com.crossbowffs.quotelock.app.font
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Typeface
@@ -10,6 +11,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.data.AsyncResult
+import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
@@ -257,6 +259,7 @@ class FontImporter @Inject constructor(
             cursor.getString(nameIndex)
         } ?: fileUri.lastPathSegment
 
+    @SuppressLint("Recycle")
     suspend fun importFontInApp(fileUri: Uri): AsyncResult<String> = withContext(dispatcher) {
         runCatching {
             if (!FontManager.ensureInAppFontDir()) {
@@ -266,13 +269,7 @@ class FontImporter @Inject constructor(
                 context.getFontNameFromUri(fileUri) ?: throw IOException("Failed to get font name")
             val fontFile = File(FontManager.INTERNAL_CUSTOM_FONT_DIR, name)
             if (fontFile.exists()) {
-                AsyncResult.Error(
-                    Exception(
-                        context.getString(
-                            R.string.quote_fonts_management_font_already_exists, name
-                        )
-                    )
-                )
+                AsyncResult.Error.ExceptionWrapper(FontAlreadyExistsException(name))
             } else {
                 context.contentResolver.openInputStream(fileUri)?.toFile(fontFile)
                 AsyncResult.Success(fontFile.absolutePath)
@@ -280,16 +277,11 @@ class FontImporter @Inject constructor(
         }.onFailure {
             Xlog.e(TAG, "Failed to import font", it)
         }.getOrDefault(
-            AsyncResult.Error(
-                Exception(
-                    context.getString(
-                        R.string.quote_fonts_management_import_failed
-                    )
-                )
-            )
+            AsyncResult.Error.Message(AndroidString.StringRes(R.string.quote_fonts_management_import_failed))
         )
     }
 
+    @SuppressLint("Recycle")
     suspend fun importFontToSystem(fileUri: Uri): AsyncResult<String> = withContext(dispatcher) {
         runCatching {
             if (!FontManager.ensureInternalFontDir()) {
@@ -303,19 +295,15 @@ class FontImporter @Inject constructor(
         }.onFailure {
             Xlog.e(TAG, "Failed to import font", it)
         }.getOrDefault(
-            AsyncResult.Error(
-                Exception(
-                    context.getString(
-                        R.string.quote_fonts_management_import_failed
-                    )
-                )
-            )
+            AsyncResult.Error.Message(AndroidString.StringRes(R.string.quote_fonts_management_import_failed))
         )
     }
 
     companion object {
         private val TAG = className<FontImporter>()
     }
+
+    class FontAlreadyExistsException(val name: String) : Exception()
 }
 
 data class FontInfo(

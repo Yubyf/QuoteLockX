@@ -7,11 +7,11 @@ import com.crossbowffs.quotelock.consts.PREF_QUOTES_CONTENTS
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_LAST_UPDATED
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
+import com.crossbowffs.quotelock.data.api.isQuoteJustForDisplay
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.di.QuotesDataStore
-import com.crossbowffs.quotelock.di.ResourceProvider
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.md5
 import com.yubyf.datastore.DataStoreDelegate
@@ -25,7 +25,6 @@ class QuoteLocalSource @Inject constructor(
     @QuotesDataStore private val quotesDataStore: DataStoreDelegate,
     private val collectionRepository: QuoteCollectionRepository,
     private val historyRepository: QuoteHistoryRepository,
-    private val resourceProvider: ResourceProvider,
 ) {
 
     private suspend fun queryQuoteCollectionState(
@@ -48,7 +47,7 @@ class QuoteLocalSource @Inject constructor(
         Xlog.d(TAG, "Text: $quoteText")
         Xlog.d(TAG, "Source: $quoteSource")
         Xlog.d(TAG, "Author: $quoteAuthor")
-        if (!resourceProvider.isQuoteJustForDisplay(quoteText, quoteSource, quoteAuthor)) {
+        if (!isQuoteJustForDisplay(quoteText, quoteSource, quoteAuthor)) {
             insertQuoteHistory(quoteText, quoteSource, quoteAuthor)
         }
         val collectionState = queryQuoteCollectionState(quoteText, quoteSource, quoteAuthor)

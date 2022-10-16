@@ -52,6 +52,7 @@ fun BrainyQuoteScreen(
             modifier = modifier
                 .padding(padding)
                 .consumedWindowInsets(padding),
+            stretchToFill = true,
             entries = stringArrayResource(id = R.array.brainy_quote_type_entries),
             entryValues = stringArrayResource(id = R.array.brainy_quote_type_values),
             selectedItemIndex = selectedItemIndex,

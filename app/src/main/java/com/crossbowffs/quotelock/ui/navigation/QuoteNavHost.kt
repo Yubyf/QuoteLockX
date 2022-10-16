@@ -2,11 +2,23 @@
 
 package com.crossbowffs.quotelock.ui.navigation
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.*
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDeepLink
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import com.crossbowffs.quotelock.app.about.aboutGraph
 import com.crossbowffs.quotelock.app.about.navigateToAbout
 import com.crossbowffs.quotelock.app.collections.collectionGraph
@@ -26,6 +38,8 @@ import com.crossbowffs.quotelock.app.lockscreen.styles.navigateToLockscreenStyle
 import com.crossbowffs.quotelock.app.main.MainDestination
 import com.crossbowffs.quotelock.app.main.mainGraph
 import com.crossbowffs.quotelock.app.settings.SettingsDestination
+import com.crossbowffs.quotelock.app.settings.languageQuoteGraph
+import com.crossbowffs.quotelock.app.settings.navigateToLanguage
 import com.crossbowffs.quotelock.app.settings.navigateToSettings
 import com.crossbowffs.quotelock.app.settings.settingsGraph
 import com.crossbowffs.quotelock.app.share.navigateToShare
@@ -54,10 +68,12 @@ fun MainNavHost(
             onShare = navController::navigateToShare
         )
         settingsGraph(
+            onLanguageItemClicked = navController::navigateToLanguage,
             onModuleConfigItemClicked = navController::navigateToConfigScreen,
             onAboutItemClicked = navController::navigateToAbout,
             onBack = navController::popBackStack
         )
+        languageQuoteGraph { navController.popBackStack() }
         lockscreenStylesGraph(
             onPreviewClick = navController::navigateToDetail,
             onFontCustomize = navController::navigateToFontManagement,

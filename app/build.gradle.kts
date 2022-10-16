@@ -71,6 +71,7 @@ android {
 
         resValue("string", "account_type", "${applicationId}.account")
         resValue("string", "account_authority", "${applicationId}.collection.provider")
+        resourceConfigurations += arrayOf("en", "zh-rCN", "zh-rTW")
 
         kapt {
             arguments {
@@ -149,6 +150,7 @@ dependencies {
     compileOnly(Xposed.api)
 
     // AndroidX
+    implementation(AndroidX.appcompat)
     implementation(AndroidX.activity)
     implementation(AndroidX.workRuntimeKtx)
     implementation(AndroidX.concurrentFutures)

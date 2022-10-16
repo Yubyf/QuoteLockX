@@ -224,8 +224,8 @@ fun <T> ListPreferenceDialog(
                         .requiredWidth(with(LocalDensity.current) { containerWidth.toDp() }),
                         onClick = {
                             selectedItemIndex = index
-                            onItemSelected(value)
                             onDismiss()
+                            onItemSelected(value)
                         }
                     ) {
                         RadioButton(

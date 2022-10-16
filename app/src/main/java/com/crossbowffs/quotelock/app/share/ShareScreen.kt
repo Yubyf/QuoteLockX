@@ -5,6 +5,7 @@ package com.crossbowffs.quotelock.app.share
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
@@ -57,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_WATERMARK_PADDING
+import com.crossbowffs.quotelock.data.api.contextString
 import com.crossbowffs.quotelock.data.drawShareCard
 import com.crossbowffs.quotelock.data.shareBounds
 import com.crossbowffs.quotelock.ui.components.ShareAppBar
@@ -75,13 +77,15 @@ fun ShareRoute(
 ) {
     val uiState: ShareUiState by viewModel.uiState
     val uiEvent by viewModel.uiEvent.collectAsState(initial = null)
-    ShareScreen(modifier = modifier,
+    ShareScreen(
+        modifier = modifier,
         uiEvent = uiEvent,
         uiState = uiState,
         onSaveCard = viewModel::saveQuoteCard,
         onShareCard = viewModel::shareQuoteCard,
         uiEventHandled = viewModel::uiEventHandled,
-        onBack = onBack)
+        onBack = onBack
+    )
 }
 
 @Composable
@@ -89,8 +93,8 @@ fun ShareScreen(
     modifier: Modifier = Modifier,
     uiEvent: ShareUiEvent?,
     uiState: ShareUiState,
-    onSaveCard: (Color, Color, Boolean) -> Unit,
-    onShareCard: (Color, Color, Boolean) -> Unit,
+    onSaveCard: (Color, Color, Pair<String, Drawable?>?) -> Unit,
+    onShareCard: (Color, Color, Pair<String, Drawable?>?) -> Unit,
     uiEventHandled: () -> Unit,
     onBack: () -> Unit = {},
 ) {
@@ -114,6 +118,7 @@ fun ShareScreen(
             )
         }
     ) { internalPadding ->
+        val context = LocalContext.current
         uiEvent?.let { event ->
             when (event) {
                 is ShareUiEvent.ShareFile -> {
@@ -122,11 +127,12 @@ fun ShareScreen(
                         uiEventHandled()
                     }
                 }
+
                 is ShareUiEvent.SnackBar -> {
                     event.snackbar.message?.let {
                         val messageText = it
                         scope.launch {
-                            snackbarHostState.showSnackbar(messageText)
+                            snackbarHostState.showSnackbar(messageText.contextString(context))
                         }
                         uiEventHandled()
                     }
@@ -146,11 +152,17 @@ fun ShareScreen(
             var contentColor: Color by remember {
                 mutableStateOf(Color.Unspecified)
             }
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1F)
-                .padding(16.dp),
-                contentAlignment = Alignment.Center) {
+            val context = LocalContext.current
+            val watermarkIcon =
+                remember { ContextCompat.getDrawable(context, R.drawable.ic_quotelockx) }
+            val watermarkText = stringResource(R.string.quotelockx)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1F)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 QuoteLockTheme(useDarkTheme = darkMode) {
                     Layout(modifier = Modifier
                         .wrapContentSize()
@@ -158,9 +170,6 @@ fun ShareScreen(
                         content = {
                             containerColor = QuoteLockTheme.quotelockColors.quoteCardSurface
                             contentColor = QuoteLockTheme.quotelockColors.quoteCardOnSurface
-                            val watermarkIcon = ContextCompat.getDrawable(LocalContext.current,
-                                R.drawable.ic_quotelockx)
-                            val watermarkText = stringResource(R.string.quotelockx)
                             Canvas(modifier = Modifier.fillMaxSize()) {
                                 drawIntoCanvas { canvas ->
                                     uiState.snapshot?.takeIf { it.shareBounds != null }
@@ -169,16 +178,19 @@ fun ShareScreen(
                                                 val bounds =
                                                     shareBounds.copy(height = shareBounds.height + if (watermark) PREF_SHARE_IMAGE_WATERMARK_PADDING else 0F)
                                                 if (size.width < bounds.width || size.height < bounds.height) {
-                                                    val scale = min(size.width / bounds.width,
-                                                        size.height / bounds.height)
+                                                    val scale = min(
+                                                        size.width / bounds.width,
+                                                        size.height / bounds.height
+                                                    )
                                                     canvas.scale(scale, scale)
                                                 }
-                                                it.drawShareCard(canvas.nativeCanvas,
+                                                it.drawShareCard(
+                                                    canvas.nativeCanvas,
                                                     containerColor,
                                                     contentColor,
                                                     systemDarkMode,
-                                                    if (watermark) watermarkIcon else null,
-                                                    watermarkText)
+                                                    if (watermark) watermarkText to watermarkIcon else null
+                                                )
                                             }
                                         }
                                 }
@@ -189,13 +201,17 @@ fun ShareScreen(
                         val placeable = measurables.first().measure(constraints)
                         val size = uiState.snapshot?.shareBounds?.let { shareBounds ->
                             val bounds =
-                                shareBounds.copy(height = shareBounds.height
-                                        + if (watermark) PREF_SHARE_IMAGE_WATERMARK_PADDING else 0F)
+                                shareBounds.copy(
+                                    height = shareBounds.height
+                                            + if (watermark) PREF_SHARE_IMAGE_WATERMARK_PADDING else 0F
+                                )
                             val scale = if (constraints.maxWidth < bounds.width
                                 || constraints.maxHeight < bounds.height
                             ) {
-                                min(constraints.maxWidth / bounds.width,
-                                    constraints.maxHeight / bounds.height)
+                                min(
+                                    constraints.maxWidth / bounds.width,
+                                    constraints.maxHeight / bounds.height
+                                )
                             } else 1F
                             val width = if (constraints.hasFixedWidth) {
                                 constraints.maxWidth
@@ -228,16 +244,32 @@ fun ShareScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 OutlinedIconButton(modifier = Modifier.size(72.dp),
-                    onClick = { onSaveCard(containerColor, contentColor, watermark) }) {
-                    Icon(Icons.Rounded.Download,
+                    onClick = {
+                        onSaveCard(
+                            containerColor,
+                            contentColor,
+                            if (watermark) watermarkText to watermarkIcon else null
+                        )
+                    }) {
+                    Icon(
+                        Icons.Rounded.Download,
                         contentDescription = stringResource(id = R.string.save),
-                        modifier = Modifier.size(36.dp))
+                        modifier = Modifier.size(36.dp)
+                    )
                 }
                 OutlinedIconButton(modifier = Modifier.size(72.dp),
-                    onClick = { onShareCard(containerColor, contentColor, watermark) }) {
-                    Icon(Icons.Rounded.Share,
+                    onClick = {
+                        onShareCard(
+                            containerColor,
+                            contentColor,
+                            if (watermark) watermarkText to watermarkIcon else null
+                        )
+                    }) {
+                    Icon(
+                        Icons.Rounded.Share,
                         contentDescription = stringResource(id = R.string.quote_image_share),
-                        modifier = Modifier.size(36.dp))
+                        modifier = Modifier.size(36.dp)
+                    )
                 }
             }
         }
@@ -252,8 +284,10 @@ internal fun Context.shareImage(file: File) {
         putExtra(Intent.EXTRA_STREAM, imageFileUri)
         type = PREF_SHARE_IMAGE_MIME_TYPE
         clipData = ClipData.newRawUri("", imageFileUri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        addFlags(
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        )
     }.let { intent ->
         startActivity(Intent.createChooser(intent, "Share Quote"))
     }
