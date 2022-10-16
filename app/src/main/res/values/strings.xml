@@ -46,6 +46,8 @@
     <string name="battery_optimization_message">This may cause the background task to fail to run automatically on some devices, disable it?</string>
     <string name="pref_language_title">Language</string>
     <string name="pref_language_system">Follow System</string>
+    <string name="pref_dark_mode_title">Dark Mode</string>
+    <string name="pref_dark_mode_system">Follow System</string>
     <string name="pref_refresh_interval_title">Refresh interval</string>
     <string name="pref_refresh_interval_summary">How often to refresh the quote</string>
     <string name="pref_refresh_interval_summary_alt">Cannot set refresh rate for selected provider</string>

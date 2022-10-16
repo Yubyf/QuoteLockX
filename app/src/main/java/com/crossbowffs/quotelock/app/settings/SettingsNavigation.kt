@@ -12,6 +12,7 @@ object SettingsDestination : QuoteNavigationDestination {
 
 fun NavGraphBuilder.settingsGraph(
     onLanguageItemClicked: () -> Unit,
+    onDarkModeItemClicked: () -> Unit,
     onModuleConfigItemClicked: (String) -> Unit,
     onAboutItemClicked: () -> Unit,
     onBack: () -> Unit,
@@ -19,6 +20,7 @@ fun NavGraphBuilder.settingsGraph(
     standardPageComposable(route = SettingsDestination.route) {
         SettingsRoute(
             onLanguageItemClicked = onLanguageItemClicked,
+            onDarkModeItemClicked = onDarkModeItemClicked,
             onModuleConfigItemClicked = onModuleConfigItemClicked,
             onAboutItemClicked = onAboutItemClicked,
             onBack = onBack

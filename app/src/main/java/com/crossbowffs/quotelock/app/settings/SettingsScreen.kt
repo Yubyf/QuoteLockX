@@ -50,6 +50,7 @@ fun SettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
     onLanguageItemClicked: () -> Unit,
+    onDarkModeItemClicked: () -> Unit,
     onModuleConfigItemClicked: (String) -> Unit,
     onAboutItemClicked: () -> Unit,
     onBack: () -> Unit,
@@ -63,6 +64,7 @@ fun SettingsRoute(
         uiState = uiPreferenceState,
         uiEvent = uiEvent,
         onLanguageItemClicked = onLanguageItemClicked,
+        onDarkModeItemClicked = onDarkModeItemClicked,
         onDisplayOnAodChanged = viewModel::switchDisplayOnAod,
         onModuleProviderItemClicked = viewModel::loadModuleProviders,
         onModuleConfigItemClicked = onModuleConfigItemClicked,
@@ -88,6 +90,7 @@ fun SettingsScreen(
     uiState: SettingsUiState,
     uiEvent: SnackBarEvent,
     onLanguageItemClicked: () -> Unit = {},
+    onDarkModeItemClicked: () -> Unit = {},
     onDisplayOnAodChanged: (Boolean) -> Unit = {},
     onModuleProviderItemClicked: () -> Unit = {},
     onModuleConfigItemClicked: (String) -> Unit = {},
@@ -141,6 +144,15 @@ fun SettingsScreen(
                     .find { it.second == currentLanguage }?.first
                     ?: stringResource(id = R.string.pref_language_system),
                 onClick = onLanguageItemClicked
+            )
+            val currentDarkMode = AppCompatDelegate.getDefaultNightMode()
+            PreferenceItem(
+                title = stringResource(id = R.string.pref_dark_mode_title),
+                summary = stringArrayResource(id = R.array.dark_mode_entries)
+                    .zip(integerArrayResource(id = R.array.dark_mode_values).toTypedArray())
+                    .find { it.second == currentDarkMode }?.first
+                    ?: stringResource(id = R.string.pref_dark_mode_system),
+                onClick = onDarkModeItemClicked
             )
             if (uiState.enableAod) {
                 SwitchablePreferenceItem(

@@ -38,7 +38,9 @@ import com.crossbowffs.quotelock.app.lockscreen.styles.navigateToLockscreenStyle
 import com.crossbowffs.quotelock.app.main.MainDestination
 import com.crossbowffs.quotelock.app.main.mainGraph
 import com.crossbowffs.quotelock.app.settings.SettingsDestination
+import com.crossbowffs.quotelock.app.settings.darkModeQuoteGraph
 import com.crossbowffs.quotelock.app.settings.languageQuoteGraph
+import com.crossbowffs.quotelock.app.settings.navigateToDarkMode
 import com.crossbowffs.quotelock.app.settings.navigateToLanguage
 import com.crossbowffs.quotelock.app.settings.navigateToSettings
 import com.crossbowffs.quotelock.app.settings.settingsGraph
@@ -69,11 +71,13 @@ fun MainNavHost(
         )
         settingsGraph(
             onLanguageItemClicked = navController::navigateToLanguage,
+            onDarkModeItemClicked = navController::navigateToDarkMode,
             onModuleConfigItemClicked = navController::navigateToConfigScreen,
             onAboutItemClicked = navController::navigateToAbout,
             onBack = navController::popBackStack
         )
         languageQuoteGraph { navController.popBackStack() }
+        darkModeQuoteGraph { navController.popBackStack() }
         lockscreenStylesGraph(
             onPreviewClick = navController::navigateToDetail,
             onFontCustomize = navController::navigateToFontManagement,

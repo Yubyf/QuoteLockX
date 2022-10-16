@@ -41,6 +41,8 @@
     <string name="battery_optimization_message">这可能会导致在某些设备上后台自动刷新任务失败，是否要禁用？</string>
     <string name="pref_language_title">语言</string>
     <string name="pref_language_system">跟随系统</string>
+    <string name="pref_dark_mode_title">深色模式</string>
+    <string name="pref_dark_mode_system">跟随系统</string>
     <string name="pref_refresh_interval_title">刷新间隔</string>
     <string name="pref_refresh_interval_summary">多久刷新一次格言</string>
     <string name="pref_refresh_interval_summary_alt">无法为选定的提供服务设置刷新率</string>

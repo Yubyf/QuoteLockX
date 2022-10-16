@@ -44,6 +44,8 @@
     <string name="battery_optimization_message">這可能會導致在某些裝置上後臺自動重新整理任務失敗，是否要禁用?</string>
     <string name="pref_language_title">語言</string>
     <string name="pref_language_system">跟隨系統</string>
+    <string name="pref_dark_mode_title">深色模式</string>
+    <string name="pref_dark_mode_system">跟隨系統</string>
     <string name="pref_refresh_interval_title">重新整理間隔</string>
     <string name="pref_refresh_interval_summary">多久重新整理一次格言</string>
     <string name="pref_refresh_interval_summary_alt">無法為選定的提供服務設定重新整理率</string>

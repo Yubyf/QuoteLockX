@@ -33,4 +33,10 @@
         <item>应用内</item>
         <item>系统</item>
     </string-array>
+
+    <string-array name="dark_mode_entries">
+        <item>跟随系统</item>
+        <item>浅色</item>
+        <item>深色</item>
+    </string-array>
 </resources>
