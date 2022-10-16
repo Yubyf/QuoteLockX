@@ -17,13 +17,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -52,9 +49,7 @@ fun LockscreenStylesRoute(
     val uiPreferenceState by viewModel.uiState
     val uiDialogState by viewModel.uiDialogState
     val topAppBarScrollState = rememberTopAppBarState()
-    var scrollable by remember { mutableStateOf(false) }
-    val scrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarScrollState, { scrollable })
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarScrollState)
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -68,7 +63,6 @@ fun LockscreenStylesRoute(
             LockscreenStylesScreen(
                 modifier = modifier,
                 uiState = uiPreferenceState,
-                onScrollable = { scrollable = true },
                 onQuoteSizeItemClicked = viewModel::loadQuoteSize,
                 onSourceSizeItemClicked = viewModel::loadSourceSize,
                 onQuoteStylesItemClicked = viewModel::loadQuoteStyle,
@@ -100,7 +94,6 @@ fun LockscreenStylesScreen(
     modifier: Modifier = Modifier,
     uiState: LockscreenStylesUiState,
     nestedScrollConnection: NestedScrollConnection? = null,
-    onScrollable: () -> Unit = {},
     onQuoteSizeItemClicked: () -> Unit = {},
     onSourceSizeItemClicked: () -> Unit = {},
     onQuoteStylesItemClicked: () -> Unit = {},
@@ -115,7 +108,6 @@ fun LockscreenStylesScreen(
         modifier = Modifier.apply { nestedScrollConnection?.let { nestedScroll(it) } },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
-        var scrollable by remember { mutableStateOf(false) }
         val scrollState = rememberScrollState()
         Column(
             modifier = modifier
@@ -127,14 +119,6 @@ fun LockscreenStylesScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(state = scrollState)
-                    .onGloballyPositioned {
-                        if (!scrollable
-                            && it.size.height > (it.parentCoordinates?.size?.height ?: 0)
-                        ) {
-                            scrollable = true
-                            onScrollable()
-                        }
-                    }
             ) {
                 PreferenceItem(
                     titleRes = R.string.pref_font_size_text_title,

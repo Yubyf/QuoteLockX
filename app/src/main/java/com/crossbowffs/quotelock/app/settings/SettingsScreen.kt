@@ -19,13 +19,10 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
@@ -105,9 +102,7 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val topAppBarScrollState = rememberTopAppBarState()
-    var scrollable by remember { mutableStateOf(false) }
-    val scrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarScrollState, { scrollable })
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarScrollState)
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -130,11 +125,6 @@ fun SettingsScreen(
             .fillMaxSize()
             .padding(padding)
             .verticalScroll(state = scrollState)
-            .onGloballyPositioned {
-                if (!scrollable && it.size.height > (it.parentCoordinates?.size?.height ?: 0)) {
-                    scrollable = true
-                }
-            }
         ) {
             val currentLanguage = AppCompatDelegate.getApplicationLocales()[0]?.toLanguageTag()
             PreferenceItem(
