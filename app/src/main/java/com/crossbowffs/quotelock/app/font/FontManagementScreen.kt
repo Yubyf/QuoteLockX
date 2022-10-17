@@ -7,6 +7,7 @@ package com.crossbowffs.quotelock.app.font
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -108,11 +109,17 @@ fun FontManagementRoute(
         onBack = onBack,
         onInAppImportButtonClick = {
             viewModel.inAppFontListScrolled()
-            pickedFontFileForAppLauncher.launch(arrayOf("font/ttf", "font/otf"))
+            pickedFontFileForAppLauncher.launch(
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) arrayOf("font/ttf", "font/otf")
+                else arrayOf("application/octet-stream")
+            )
         },
         onSystemImportButtonClick = {
             viewModel.systemFontListScrolled()
-            pickedFontFileForSystemLauncher.launch(arrayOf("font/ttf", "font/otf"))
+            pickedFontFileForSystemLauncher.launch(
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) arrayOf("font/ttf", "font/otf")
+                else arrayOf("application/octet-stream")
+            )
         },
         onSystemFontDeleteMenuClick = viewModel::deleteSystemFont,
         onInAppFontDeleteMenuClick = viewModel::deleteInAppFont,
