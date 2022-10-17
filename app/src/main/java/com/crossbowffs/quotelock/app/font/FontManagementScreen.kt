@@ -86,6 +86,7 @@ import kotlinx.coroutines.launch
 fun FontManagementRoute(
     modifier: Modifier = Modifier,
     viewModel: FontManagementViewModel = hiltViewModel(),
+    initialTab: Int = 0,
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -106,6 +107,7 @@ fun FontManagementRoute(
         modifier = modifier,
         uiState = uiState,
         uiEvent = uiEvent,
+        initialTab = initialTab,
         onBack = onBack,
         onInAppImportButtonClick = {
             viewModel.inAppFontListScrolled()
@@ -150,6 +152,7 @@ fun FontManagementScreen(
     modifier: Modifier = Modifier,
     uiState: FontManagementListUiState,
     uiEvent: SnackBarEvent,
+    initialTab: Int = 0,
     onBack: (() -> Unit)?,
     onInAppImportButtonClick: () -> Unit,
     onSystemImportButtonClick: () -> Unit,
@@ -160,7 +163,7 @@ fun FontManagementScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(initialTab)
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = { FontManagementAppBar(onBack = onBack) },

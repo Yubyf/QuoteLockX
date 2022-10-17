@@ -80,7 +80,7 @@ fun MainNavHost(
         darkModeQuoteGraph { navController.popBackStack() }
         lockscreenStylesGraph(
             onPreviewClick = navController::navigateToDetail,
-            onFontCustomize = navController::navigateToFontManagement,
+            onFontCustomize = { navController.navigateToFontManagement(1) },
             onBack = navController::popBackStack
         )
         customQuoteGraph(
