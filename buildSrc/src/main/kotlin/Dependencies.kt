@@ -31,7 +31,8 @@ object Versions {
 object Dependencies {
 
     object AndroidX {
-        const val appcompat = "androidx.appcompat:appcompat:1.6.0-rc01"
+        // See https://issuetracker.google.com/issues/243119645
+        const val appcompat = "androidx.appcompat:appcompat:1.7.0-alpha01"
         const val activity = "androidx.activity:activity:1.6.0"
         const val workRuntimeKtx = "androidx.work:work-runtime-ktx:2.7.1"
         const val concurrentFutures = "androidx.concurrent:concurrent-futures:1.1.0"
