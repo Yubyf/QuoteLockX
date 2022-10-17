@@ -192,7 +192,11 @@ class QuoteCollectionViewModel @Inject constructor(
                     )
                 }
 
-                is AsyncResult.Error -> {
+                is AsyncResult.Error.Message -> {
+                    _uiEvent.emit(SnackBarEvent(message = result.message))
+                }
+
+                is AsyncResult.Error.ExceptionWrapper -> {
                     _uiEvent.emit(SnackBarEvent(message = result.exceptionMessage?.let(AndroidString::StringText)))
                 }
 
@@ -225,7 +229,11 @@ class QuoteCollectionViewModel @Inject constructor(
                     )
                 }
 
-                is AsyncResult.Error -> {
+                is AsyncResult.Error.Message -> {
+                    _uiEvent.emit(SnackBarEvent(message = result.message))
+                }
+
+                is AsyncResult.Error.ExceptionWrapper -> {
                     _uiEvent.emit(SnackBarEvent(message = result.exceptionMessage?.let(AndroidString::StringText)))
                 }
 
