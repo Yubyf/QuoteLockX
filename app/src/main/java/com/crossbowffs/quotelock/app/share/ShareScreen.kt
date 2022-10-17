@@ -152,7 +152,6 @@ fun ShareScreen(
             var contentColor: Color by remember {
                 mutableStateOf(Color.Unspecified)
             }
-            val context = LocalContext.current
             val watermarkIcon =
                 remember { ContextCompat.getDrawable(context, R.drawable.ic_quotelockx) }
             val watermarkText = stringResource(R.string.quotelockx)
