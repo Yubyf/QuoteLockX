@@ -253,7 +253,7 @@ private fun QuoteCollectionScreen(
                             }
                         },
                         onImportCsv = {
-                            if (listUiState.allItems.isEmpty()) onImportDatabase(false)
+                            if (listUiState.allItems.isEmpty()) onImportCsv(false)
                             else {
                                 conflictType = ConflictType.LOCAL_CSV_IMPORT
                             }
