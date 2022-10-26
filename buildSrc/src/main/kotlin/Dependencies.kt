@@ -1,7 +1,9 @@
 import Versions.accompanistVersion
+import Versions.activityVersion
 import Versions.composeUiVersion
 import Versions.composeVersion
 import Versions.hiltVersion
+import Versions.material3Version
 import Versions.materialIconsVersion
 import Versions.navVersion
 import Versions.roomVersion
@@ -9,18 +11,21 @@ import Versions.testCoreVersion
 import Versions.testRulesVersion
 
 object Versions {
-    const val androidGradlePluginVersion = "7.2.2"
+    const val androidGradlePluginVersion = "7.3.1"
     const val kotlinVersion = "1.7.20"
     const val hiltVersion = "2.44"
-    const val gradleVersionsPluginVersion = "0.42.0"
+    const val gradleVersionsPluginVersion = "0.43.0"
 
-    internal const val roomVersion = "2.4.2"
+    internal const val activityVersion = "1.6.1"
+
+    internal const val roomVersion = "2.4.3"
     const val composeVersion = "1.3.2"
-    const val composeUiVersion = "1.3.0-rc01"
-    internal const val accompanistVersion = "0.26.5-rc"
+    internal const val material3Version = "1.0.0"
+    internal const val composeUiVersion = "1.3.0"
+    internal const val accompanistVersion = "0.27.0"
 
-    internal const val navVersion = "2.5.1"
-    internal const val materialIconsVersion = "1.2.1"
+    internal const val navVersion = "2.5.3"
+    internal const val materialIconsVersion = "1.3.0"
 
     // Use 1.5.0-alpha02 to resolve ActivityNotFound exception above Android 13.
     // See https://github.com/android/android-test/issues/1412
@@ -33,7 +38,7 @@ object Dependencies {
     object AndroidX {
         // See https://issuetracker.google.com/issues/243119645
         const val appcompat = "androidx.appcompat:appcompat:1.7.0-alpha01"
-        const val activity = "androidx.activity:activity:1.6.0"
+        const val activity = "androidx.activity:activity:$activityVersion"
         const val workRuntimeKtx = "androidx.work:work-runtime-ktx:2.7.1"
         const val concurrentFutures = "androidx.concurrent:concurrent-futures:1.1.0"
 
@@ -55,7 +60,7 @@ object Dependencies {
     }
 
     object Google {
-        const val material = "com.google.android.material:material:1.6.1"
+        const val material = "com.google.android.material:material:1.7.0"
         const val playServicesAuth = "com.google.android.gms:play-services-auth:20.3.0"
         const val apiClient = "com.google.api-client:google-api-client-android:2.0.0"
         const val apiServicesDrive =
@@ -64,11 +69,11 @@ object Dependencies {
 
     object Compose {
         const val compiler = "androidx.compose.compiler:compiler:$composeVersion"
-        const val activity = "androidx.activity:activity-compose:1.6.0"
-        const val material3 = "androidx.compose.material3:material3:1.0.0-rc01"
-        const val animation = "androidx.compose.animation:animation:1.2.1"
-        const val uiTooling = "androidx.compose.ui:ui-tooling:1.2.1"
-        const val uiToolingPreview = "androidx.compose.ui:ui-tooling-preview:1.2.1"
+        const val activity = "androidx.activity:activity-compose:$activityVersion"
+        const val material3 = "androidx.compose.material3:material3:$material3Version"
+        const val animation = "androidx.compose.animation:animation:$composeUiVersion"
+        const val uiTooling = "androidx.compose.ui:ui-tooling:$composeUiVersion"
+        const val uiToolingPreview = "androidx.compose.ui:ui-tooling-preview:$composeUiVersion"
         const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
         const val navigation = "androidx.navigation:navigation-compose:$navVersion"
         const val animationGraphics =
@@ -111,5 +116,5 @@ object Dependencies {
     const val datastorePreferences =
         "io.github.yubyf.datastorepreferences:datastorepreferences:1.2.2"
     const val trueTypeParserLight = "io.github.yubyf:truetypeparser-light:2.1.4"
-    const val openCsv = "com.opencsv:opencsv:5.7.0"
+    const val openCsv = "com.opencsv:opencsv:5.7.1"
 }

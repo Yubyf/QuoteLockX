@@ -5,6 +5,8 @@ object Configs {
     const val minSdk = 21
     const val targetSdk = 33
 
+    const val namespace = "com.yubyf.quotelockx"
+
     // See https://github.com/gradle/gradle/issues/18935
     const val jvmTarget = "1.8"
 

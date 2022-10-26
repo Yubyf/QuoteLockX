@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import Dependencies.Accompanist
 import Dependencies.AndroidX
 import Dependencies.Compose
@@ -143,6 +145,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = Versions.composeVersion
     }
+    namespace = Configs.namespace
 }
 
 dependencies {
