@@ -200,6 +200,7 @@ dependencies {
     implementation(Accompanist.systemUiController)
     implementation(Accompanist.pager)
     implementation(Accompanist.pagerIndicators)
+    implementation(Accompanist.placeholder)
 
     implementation(Dependencies.remotePreferences)
     implementation(Dependencies.jsoup)

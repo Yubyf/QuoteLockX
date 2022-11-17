@@ -100,6 +100,7 @@ object Dependencies {
         const val pager = "com.google.accompanist:accompanist-pager:$accompanistVersion"
         const val pagerIndicators =
             "com.google.accompanist:accompanist-pager-indicators:$accompanistVersion"
+        const val placeholder = "com.google.accompanist:accompanist-placeholder-material:$accompanistVersion"
     }
 
     object Xposed {

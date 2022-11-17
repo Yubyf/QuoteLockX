@@ -86,6 +86,9 @@ import com.crossbowffs.quotelock.ui.components.rememberContainerSnapshotState
 import com.crossbowffs.quotelock.ui.components.rememberTextSnapshotState
 import com.crossbowffs.quotelock.ui.components.verticalFadingEdge
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import com.yubyf.quotelockx.R
 import kotlin.math.roundToInt
 
@@ -184,6 +187,7 @@ fun QuoteDetailScreen(
 fun QuoteDetailPage(
     modifier: Modifier = Modifier,
     quoteData: QuoteDataWithCollectState,
+    refreshing: Boolean = false,
     cardStyle: CardStyle = CardStyle(),
     snapshotStates: Snapshotables = Snapshotables(),
     onCollectClick: (QuoteDataWithCollectState) -> Unit,
@@ -222,6 +226,7 @@ fun QuoteDetailPage(
                     bottom = 16.dp + if (includeExtraPadding) extraPadding else 0.dp
                 )
                 .onSizeChanged { contentSize = it },
+            refreshing = refreshing,
             quote = quoteData.quoteText,
             source = if (quoteGeneratedByApp) quoteData.readableSource
             else quoteData.readableSourceWithPrefix,
@@ -256,6 +261,7 @@ fun QuoteDetailPage(
 @Composable
 fun QuoteCard(
     modifier: Modifier = Modifier,
+    refreshing: Boolean = false,
     quote: String,
     source: String?,
     quoteSize: TextUnit,
@@ -307,7 +313,11 @@ fun QuoteCard(
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animateContentSize(),
+                    .animateContentSize()
+                    .placeholder(
+                        visible = refreshing,
+                        highlight = PlaceholderHighlight.shimmer()
+                    ),
                 snapshotable = rememberTextSnapshotState("quote", false)
                     .also { snapshotStates += it }
             )
@@ -321,7 +331,11 @@ fun QuoteCard(
                     textAlign = TextAlign.Start,
                     modifier = Modifier
                         .wrapContentWidth()
-                        .animateContentSize(),
+                        .animateContentSize()
+                        .placeholder(
+                            visible = refreshing,
+                            highlight = PlaceholderHighlight.shimmer()
+                        ),
                     snapshotable = rememberTextSnapshotState("source", false)
                         .also { snapshotStates += it }
                 )

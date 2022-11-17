@@ -242,6 +242,7 @@ fun MainScreen(
                 modifier = Modifier
                     .fillMaxSize(),
                 quoteData = mainUiState.quoteData,
+                refreshing = mainUiState.refreshing,
                 cardStyle = detailUiState.cardStyle,
                 snapshotStates = snapshotStates,
                 onCollectClick = switchCollectionState,
@@ -249,7 +250,8 @@ fun MainScreen(
                     && !LocalContext.current.isQuoteGeneratedByApp(
                         mainUiState.quoteData.quoteText,
                         mainUiState.quoteData.quoteSource,
-                        mainUiState.quoteData.quoteAuthor)
+                        mainUiState.quoteData.quoteAuthor
+                    )
                 ) shareQuote else null
             )
             CardStylePopup(
