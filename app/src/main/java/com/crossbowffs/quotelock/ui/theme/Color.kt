@@ -60,13 +60,10 @@ val md_theme_dark_onPrimary = Color(0xFF002D6F)
 val md_theme_dark_primaryContainer = Color(0xFF17448F)
 val md_theme_dark_primary = Color(0xFFADC6FF)
 
-/** [Xuebai](http://zhongguose.com/#xuebai) */
-val color_xuebai = Color(0xFFFFFEF9)
-
 /** [Baicaoshuang](http://www.2kil.com/) */
 val color_baicaoshuang = Color(0xFF303030)
 
-val quote_card_theme_light_surface = color_xuebai
+val quote_card_theme_light_surface = Color.White
 val quote_card_theme_light_onSurface = color_baicaoshuang
 val quote_card_theme_dark_surface = color_baicaoshuang
-val quote_card_theme_dark_onSurface = color_xuebai
+val quote_card_theme_dark_onSurface = Color.White
