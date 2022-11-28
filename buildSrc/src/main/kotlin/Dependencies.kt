@@ -1,5 +1,6 @@
 import Versions.accompanistVersion
 import Versions.activityVersion
+import Versions.testVersion
 import Versions.composeUiVersion
 import Versions.composeVersion
 import Versions.hiltVersion
@@ -27,6 +28,7 @@ object Versions {
     internal const val navVersion = "2.5.3"
     internal const val materialIconsVersion = "1.3.0"
 
+    internal const val testVersion = "1.1.3"
     // Use 1.5.0-alpha02 to resolve ActivityNotFound exception above Android 13.
     // See https://github.com/android/android-test/issues/1412
     internal const val testCoreVersion = "1.5.0-beta01"
@@ -108,6 +110,7 @@ object Dependencies {
     }
 
     object Test {
+        const val test = "androidx.test.ext:junit:$testVersion"
         const val core = "androidx.test:core:$testCoreVersion"
         const val rules = "androidx.test:rules:$testRulesVersion"
     }
