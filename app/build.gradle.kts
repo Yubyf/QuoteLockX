@@ -162,6 +162,9 @@ dependencies {
     kapt(libs.hilt.compiler)
 
     // Jetpack Compose
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
     implementation(libs.bundles.compose.standard)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.coil)
