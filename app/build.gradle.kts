@@ -1,21 +1,14 @@
 @file:Suppress("UnstableApiUsage")
 
-import Dependencies.Accompanist
-import Dependencies.AndroidX
-import Dependencies.Compose
-import Dependencies.Google
-import Dependencies.Hilt
-import Dependencies.Room
-import Dependencies.Test
-import Dependencies.Xposed
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.kapt")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.kotlin)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.android.hilt)
 }
 
 //region Keystore
@@ -143,77 +136,49 @@ android {
         jvmTarget = Configs.jvmTarget
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.composeVersion
+        kotlinCompilerExtensionVersion = libs.versions.compose.version.get()
     }
     namespace = Configs.namespace
 }
 
 dependencies {
     // Xposed
-    compileOnly(Xposed.api)
+    compileOnly(libs.xposed)
 
     // AndroidX
-    implementation(AndroidX.appcompat)
-    implementation(AndroidX.activity)
-    implementation(AndroidX.workRuntimeKtx)
-    implementation(AndroidX.concurrentFutures)
-    // Fix the conflict between concurrent-futures and guava libs.
-    implementation(AndroidX.listenableFuture)
+    implementation(libs.bundles.androidx.standard)
 
     // Google
-    implementation(Google.material)
-    implementation(Google.playServicesAuth)
-    implementation(Google.apiClient) {
-        exclude(group = "org.apache.httpcomponents")
-    }
-    implementation(Google.apiServicesDrive) {
+    implementation(libs.bundles.google) {
         exclude(group = "org.apache.httpcomponents")
     }
 
     // Room
-    implementation(Room.runtime)
-    kapt(Room.compiler)
-    implementation(Room.ktx)
+    implementation(libs.bundles.androidx.room)
+    kapt(libs.androidx.room.compiler)
 
     // Hilt
-    implementation(Hilt.android)
-    kapt(Hilt.compiler)
-    implementation(Hilt.navigationCompose)
+    implementation(libs.bundles.hilt)
+    kapt(libs.hilt.compiler)
 
     // Jetpack Compose
-    implementation(Compose.compiler)
-    implementation(Compose.activity)
-    implementation(Compose.material3)
-    debugImplementation(Compose.uiTooling)
-    implementation(Compose.uiToolingPreview)
-    implementation(Compose.lifecycleViewModel)
-    implementation(Compose.navigation)
-    implementation(Compose.animation)
-    implementation(Compose.animationGraphics)
-    // Material design icons
-    implementation(Compose.materialIconCore)
-    implementation(Compose.materialIconExtended)
-    implementation(Compose.coil)
+    implementation(libs.bundles.compose.standard)
+    debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.coil)
 
     // Accompanist
-    implementation(Accompanist.navigation)
-    implementation(Accompanist.systemUiController)
-    implementation(Accompanist.pager)
-    implementation(Accompanist.pagerIndicators)
-    implementation(Accompanist.placeholder)
+    implementation(libs.bundles.accompanist)
 
-    implementation(Dependencies.remotePreferences)
-    implementation(Dependencies.jsoup)
-    implementation(Dependencies.datastorePreferences)
-    implementation(Dependencies.trueTypeParserLight)
-    implementation(Dependencies.openCsv) {
+    implementation(libs.remote.preferences)
+    implementation(libs.jsoup)
+    implementation(libs.datastore.preferences)
+    implementation(libs.truetype.parser.light)
+    implementation(libs.open.csv) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
 
     // Test
-    androidTestImplementation(Test.core)
-    androidTestImplementation(Test.rules)
-    androidTestImplementation(Compose.test)
-    androidTestImplementation(Compose.uiTest)
-    debugImplementation(Compose.testManifest)
+    androidTestImplementation(libs.bundles.test)
+    androidTestImplementation(libs.bundles.compose.test)
+    debugImplementation(libs.compose.test.manifest)
 }
