@@ -209,7 +209,7 @@ fun QuoteDetailPage(
             .verticalFadingEdge(scrollState = scrollState, length = 72.dp)
             .verticalScroll(scrollState)
             .onGloballyPositioned { containerHeight = it.size.height }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 20.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.Center
     ) {
         val quoteGeneratedByApp =
@@ -243,7 +243,7 @@ fun QuoteDetailPage(
             sourceStyle = if (cardStyle.sourceFontStyle.italic.roundToInt() == FontStyle.Italic.value)
                 FontStyle.Italic else FontStyle.Normal,
             minHeight = if (!LocalInspectionMode.current) {
-                with(LocalDensity.current) { max(containerHeight.toDp(), 320.dp) * 0.6F }
+                with(LocalDensity.current) { max(containerHeight.toDp(), 320.dp) * 0.45F }
             } else 320.dp,
             snapshotStates = snapshotStates,
             currentCollectState = quoteData.collectState ?: false,

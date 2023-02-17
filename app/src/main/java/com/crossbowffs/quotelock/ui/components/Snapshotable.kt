@@ -392,6 +392,8 @@ private data class SnapshotTextLayout(
     }
 }
 
+private const val CARD_SHADOW_ALPHA = 0.1F
+
 class CardSnapshotable(
     snapshotKey: String = UUID.randomUUID().toString(),
     snapshotRoot: Boolean = true,
@@ -406,7 +408,7 @@ class CardSnapshotable(
 
     private val shadowPaint = Paint().apply {
         color = Color.Black
-            .copy(alpha = 0.2F)
+            .copy(alpha = CARD_SHADOW_ALPHA)
             .toArgb()
         style = Paint.Style.FILL
     }
@@ -468,7 +470,7 @@ fun SnapshotCard(
     val shadowPaint by remember {
         mutableStateOf(Paint().apply {
             color = Color.Black
-                .copy(alpha = 0.2F)
+                .copy(alpha = CARD_SHADOW_ALPHA)
                 .toArgb()
             style = Paint.Style.FILL
             maskFilter = BlurMaskFilter(elevationPx * 2,
@@ -498,11 +500,14 @@ fun SnapshotCard(
                 .drawWithContent {
                     drawIntoCanvas { canvas ->
                         insideRect = Rect(0F, 0F, size.width, size.height)
-                        canvas.nativeCanvas.drawRoundRect(insideRect.toAndroidRectF(),
+                        canvas.nativeCanvas.drawRoundRect(
+                            insideRect.toAndroidRectF(),
                             cornerSizePx,
                             cornerSizePx,
-                            shadowPaint)
-                        canvas.nativeCanvas.drawRoundRect(insideRect.toAndroidRectF(),
+                            shadowPaint
+                        )
+                        canvas.nativeCanvas.drawRoundRect(
+                            insideRect.toAndroidRectF(),
                             cornerSizePx,
                             cornerSizePx,
                             backgroundPaint
