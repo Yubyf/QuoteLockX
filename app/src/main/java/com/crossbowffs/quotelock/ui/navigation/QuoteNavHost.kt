@@ -26,9 +26,6 @@ import com.crossbowffs.quotelock.app.collections.navigateToCollection
 import com.crossbowffs.quotelock.app.configs.configGraphs
 import com.crossbowffs.quotelock.app.configs.custom.customQuoteGraph
 import com.crossbowffs.quotelock.app.configs.navigateToConfigScreen
-import com.crossbowffs.quotelock.app.detail.DetailDestination
-import com.crossbowffs.quotelock.app.detail.detailGraph
-import com.crossbowffs.quotelock.app.detail.navigateToDetail
 import com.crossbowffs.quotelock.app.font.fontManagementGraph
 import com.crossbowffs.quotelock.app.font.navigateToFontManagement
 import com.crossbowffs.quotelock.app.history.historyGraph
@@ -37,6 +34,9 @@ import com.crossbowffs.quotelock.app.lockscreen.styles.lockscreenStylesGraph
 import com.crossbowffs.quotelock.app.lockscreen.styles.navigateToLockscreenStyles
 import com.crossbowffs.quotelock.app.main.MainDestination
 import com.crossbowffs.quotelock.app.main.mainGraph
+import com.crossbowffs.quotelock.app.quote.QuoteDestination
+import com.crossbowffs.quotelock.app.quote.navigateToQuote
+import com.crossbowffs.quotelock.app.quote.quoteGraph
 import com.crossbowffs.quotelock.app.settings.SettingsDestination
 import com.crossbowffs.quotelock.app.settings.darkModeQuoteGraph
 import com.crossbowffs.quotelock.app.settings.languageQuoteGraph
@@ -79,25 +79,27 @@ fun MainNavHost(
         languageQuoteGraph { navController.popBackStack() }
         darkModeQuoteGraph { navController.popBackStack() }
         lockscreenStylesGraph(
-            onPreviewClick = navController::navigateToDetail,
+            onPreviewClick = navController::navigateToQuote,
             onFontCustomize = { navController.navigateToFontManagement(1) },
             onBack = navController::popBackStack
         )
         customQuoteGraph(
-            onItemClick = navController::navigateToDetail,
+            onItemClick = navController::navigateToQuote,
             onBack = navController::popBackStack
         )
         historyGraph(
-            onItemClick = navController::navigateToDetail,
+            onItemClick = navController::navigateToQuote,
             onBack = navController::popBackStack
         )
         collectionGraph(
-            onItemClick = navController::navigateToDetail,
+            onItemClick = navController::navigateToQuote,
             onBack = navController::popBackStack
         )
-        detailGraph(onFontCustomize = navController::navigateToFontManagement,
+        quoteGraph(
+            onFontCustomize = navController::navigateToFontManagement,
             onShare = navController::navigateToShare,
-            onBack = navController::popBackStack)
+            onBack = navController::popBackStack
+        )
         configGraphs(navController::popBackStack)
         fontManagementGraph(navController::popBackStack)
         aboutGraph(navController::popBackStack)
@@ -125,9 +127,11 @@ fun NavGraphBuilder.standardPageComposable(
     }
     val popEnterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?) = {
         when (initialState.destination.route) {
-            DetailDestination.route -> SCALE_FADE_IN_TRANSITION
-            else -> slideIntoContainer(AnimatedContentScope.SlideDirection.Right,
-                animationSpec = tween(animationDuration))
+            QuoteDestination.route -> SCALE_FADE_IN_TRANSITION
+            else -> slideIntoContainer(
+                AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(animationDuration)
+            )
         }
     }
     val popExitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) = {

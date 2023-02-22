@@ -10,7 +10,6 @@ import com.crossbowffs.quotelock.consts.PREF_QUOTES_LAST_UPDATED
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
-import com.crossbowffs.quotelock.data.api.md5
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.di.IoDispatcher
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -48,13 +47,7 @@ class QuoteRepository @Inject internal constructor(
                         QuoteData.fromByteString(
                             preferences[stringPreferencesKey(PREF_QUOTES_CONTENTS)]
                                 .orEmpty()
-                        ).let {
-                            currentValue.copy(
-                                quoteText = it.quoteText,
-                                quoteSource = it.quoteSource,
-                                quoteAuthor = it.quoteAuthor
-                            )
-                        }
+                        ).let(currentValue::copy)
                     }
 
                     PREF_QUOTES_COLLECTION_STATE -> _quoteDataFlow.update { currentValue ->
@@ -71,7 +64,7 @@ class QuoteRepository @Inject internal constructor(
             }
             collectionRepository.getAllStream().onEach { collections ->
                 val quoteData = quoteDataFlow.value
-                if (collections.find { quoteData.md5 == it.md5 } == null) {
+                if (collections.find { quoteData.uid == it.uid } == null) {
                     quoteLocalSource.setQuoteCollectionState(false)
                 } else {
                     quoteLocalSource.setQuoteCollectionState(true)

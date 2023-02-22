@@ -2,6 +2,7 @@ package com.crossbowffs.quotelock.data.modules.hitokoto
 
 import android.content.Context
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitkotoNavigation
+import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPES_STRING
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING
 import com.crossbowffs.quotelock.data.api.QuoteData
@@ -30,7 +31,6 @@ class HitokotoQuoteModule : QuoteModule {
         return true
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class, JSONException::class)
     override suspend fun getQuote(context: Context): QuoteData {
         val dataStore =
@@ -45,9 +45,12 @@ class HitokotoQuoteModule : QuoteModule {
         val quoteText = quoteJsonObject.getString("hitokoto")
         val quoteSource = quoteJsonObject.getString("from")
         val quoteAuthor = quoteJsonObject.getString("from_who")
-        return QuoteData(quoteText,
-            quoteSource ?: "",
-            if (quoteAuthor == "null") "" else quoteAuthor)
+        return QuoteData(
+            quoteText = quoteText,
+            quoteSource = quoteSource ?: "",
+            quoteAuthor = if (quoteAuthor == "null") "" else quoteAuthor,
+            provider = PREF_HITOKOTO
+        )
     }
 
     override val characterType: Int

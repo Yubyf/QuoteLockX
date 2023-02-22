@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.provider.BaseColumns
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
-import com.crossbowffs.quotelock.utils.md5
 import com.yubyf.quotelockx.R
 import java.util.Locale
 
@@ -13,20 +12,24 @@ import java.util.Locale
  * @author Yubyf
  */
 object QuoteEntityContract {
+    @Deprecated("Use [UID] instead")
     const val MD5 = "md5"
     const val TEXT = "text"
     const val SOURCE = "source"
     const val AUTHOR_OLD = "AUTHOR"
     const val AUTHOR = "author"
     const val ID = BaseColumns._ID
+    const val UID = "uid"
+    const val PROVIDER = "provider"
 }
 
 interface QuoteEntity {
     val id: Int?
-    val md5: String
     val text: String
     val source: String
     val author: String?
+    val provider: String
+    val uid: String
 
     override fun equals(other: Any?): Boolean
 }
@@ -62,10 +65,4 @@ fun Context.isQuoteGeneratedByApp(text: String, source: String?, author: String?
 fun isQuoteJustForDisplay(text: String, source: String?, author: String?) =
     App.instance.isQuoteGeneratedByApp(text, source, author)
 
-fun QuoteEntity.toQuoteData(): QuoteData = QuoteData(text, source, author.orEmpty())
-
-val QuoteData.md5: String
-    get() = ("$quoteText$quoteSource$quoteAuthor").md5()
-
-val QuoteDataWithCollectState.md5: String
-    get() = ("$quoteText$quoteSource$quoteAuthor").md5()
+fun QuoteEntity.toQuoteData(): QuoteData = QuoteData(text, source, author.orEmpty(), provider, uid)

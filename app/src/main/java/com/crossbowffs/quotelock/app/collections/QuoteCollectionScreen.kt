@@ -760,7 +760,7 @@ private fun verifyPermissions(
 
 class CollectionPreviewParameterProvider : PreviewParameterProvider<List<QuoteCollectionEntity>> {
     override val values: Sequence<List<QuoteCollectionEntity>> = sequenceOf(List(20) {
-        QuoteCollectionEntity(it, "", "落霞与孤鹜齐飞，秋水共长天一色", "《滕王阁序》", "王勃")
+        QuoteCollectionEntity(it, "落霞与孤鹜齐飞，秋水共长天一色", "《滕王阁序》", "王勃", "", "")
     })
 }
 

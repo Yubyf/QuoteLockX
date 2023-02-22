@@ -79,7 +79,6 @@ fun OutputStream.fromFile(file: File) = use { outputStream ->
     outputStream.flush()
 }
 
-@Suppress("BlockingMethodInNonBlockingContext")
 @Throws(IOException::class)
 suspend fun Bitmap.toFile(file: File, dispatcher: CoroutineDispatcher = Dispatchers.IO): Boolean =
     withContext(dispatcher) {

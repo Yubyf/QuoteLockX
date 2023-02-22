@@ -18,8 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.crossbowffs.quotelock.app.detail.QuoteCard
 import com.crossbowffs.quotelock.app.font.FontManager
+import com.crossbowffs.quotelock.app.quote.QuoteCard
+import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import kotlin.math.abs
@@ -34,10 +35,12 @@ import kotlin.math.roundToInt
 @Composable
 private fun AnimateVariableFontAxisPreview() {
     val quote = QuoteDataWithCollectState(
-        "Knowledge is power.",
-        "",
-        "Francis Bacon",
-        false
+        quote = QuoteData(
+            quoteText = "Knowledge is power.",
+            quoteSource = "Francis Bacon",
+            quoteAuthor = "",
+        ),
+        collectState = false
     )
     val currentState = remember { MutableTransitionState(false) }
     currentState.targetState = true

@@ -72,7 +72,7 @@ class FortuneConverterTest {
                         FortuneQuoteEntity(
                             text = text.toString(),
                             source = source.toString(),
-                            md5 = ("$text$source").md5(),
+                            uid = ("$text$source${FortuneQuoteContract.TABLE}").md5(),
                             author = "",
                             category = category,
                         )
@@ -103,7 +103,7 @@ class FortuneConverterTest {
                 FortuneQuoteEntity(
                     text = text.toString(),
                     source = source.toString(),
-                    md5 = ("$text$source").md5(),
+                    uid = ("$text$source${FortuneQuoteContract.TABLE}").md5(),
                     author = "",
                     category = category,
                 )

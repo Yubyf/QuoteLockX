@@ -5,6 +5,7 @@ import com.crossbowffs.quotelock.app.configs.custom.CustomQuoteDestination
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAULT
+import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteContract
 import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.EntryPointAccessors
@@ -29,10 +30,11 @@ class CustomQuoteModule : QuoteModule {
         val repository = EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(
             context.applicationContext).customQuoteRepository()
         return repository.getRandomItem()?.let {
-            QuoteData(it.text, it.source)
+            QuoteData(quoteText = it.text, quoteSource = it.source, provider = it.provider)
         } ?: QuoteData(
-            context.getString(R.string.module_custom_setup_line1),
-            context.getString(R.string.module_custom_setup_line2)
+            quoteText = context.getString(R.string.module_custom_setup_line1),
+            quoteSource = context.getString(R.string.module_custom_setup_line2),
+            provider = CustomQuoteContract.PROVIDER_VALUE,
         )
     }
 

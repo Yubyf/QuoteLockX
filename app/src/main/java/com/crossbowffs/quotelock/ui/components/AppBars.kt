@@ -328,12 +328,12 @@ fun TopAppBarDropdownMenu(
 }
 
 @Composable
-fun DetailAppBar(
+fun QuoteAppBar(
     onStyle: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
-        title = { Text(text = stringResource(id = R.string.pref_detail_title)) },
+        title = { Text(text = stringResource(id = R.string.pref_quote_title)) },
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
                 Icon(Icons.Rounded.Close, contentDescription = stringResource(id = R.string.close))
@@ -574,7 +574,7 @@ private fun HistoryTopAppBarPreview() {
 private fun DetailTopAppBarPreview() {
     QuoteLockTheme {
         Surface {
-            DetailAppBar({}, {})
+            QuoteAppBar({}, {})
         }
     }
 }

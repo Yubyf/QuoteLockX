@@ -2,7 +2,6 @@ package com.crossbowffs.quotelock.data.modules.collections
 
 import android.net.Uri
 import com.crossbowffs.quotelock.data.api.QuoteData
-import com.crossbowffs.quotelock.data.api.md5
 import com.crossbowffs.quotelock.data.modules.collections.backup.CollectionLocalBackupSource
 import com.crossbowffs.quotelock.data.modules.collections.backup.CollectionRemoteSyncSource
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
@@ -27,21 +26,23 @@ class QuoteCollectionRepository internal constructor(
     fun search(keyword: String): Flow<List<QuoteCollectionEntity>> =
         collectionDao.searchStream(keyword)
 
-    suspend fun getByQuote(text: String, source: String, author: String?): QuoteCollectionEntity? =
-        withContext(dispatcher) {
-            collectionDao.getByQuote(text, source, author)
-        }
+    suspend fun getByUid(uid: String): QuoteCollectionEntity? = withContext(dispatcher) {
+        collectionDao.getByUid(uid)
+    }
 
     suspend fun getRandomItem(): QuoteCollectionEntity? = withContext(dispatcher) {
         collectionDao.getRandomItem()
     }
 
     suspend fun insert(quoteData: QuoteData): Long? =
-        insert(QuoteCollectionEntity(
-            text = quoteData.quoteText,
-            source = quoteData.quoteSource,
-            author = quoteData.quoteAuthor,
-            md5 = quoteData.md5)
+        insert(
+            QuoteCollectionEntity(
+                text = quoteData.quoteText,
+                source = quoteData.quoteSource,
+                author = quoteData.quoteAuthor,
+                provider = quoteData.provider,
+                uid = quoteData.uid
+            )
         )
 
     suspend fun insert(quote: QuoteCollectionEntity): Long? = withContext(dispatcher) {
@@ -58,8 +59,8 @@ class QuoteCollectionRepository internal constructor(
         collectionDao.delete(id)
     }
 
-    suspend fun delete(md5: String): Int = withContext(dispatcher) {
-        collectionDao.delete(md5)
+    suspend fun delete(uid: String): Int = withContext(dispatcher) {
+        collectionDao.delete(uid)
     }
 
     suspend fun clear() = withContext(dispatcher) {

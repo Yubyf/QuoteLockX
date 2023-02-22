@@ -22,6 +22,8 @@ object CustomQuoteContract {
     const val SOURCE = QuoteEntityContract.SOURCE
     const val AUTHOR = QuoteEntityContract.AUTHOR
     const val ID = QuoteEntityContract.ID
+    const val PROVIDER = QuoteEntityContract.PROVIDER
+    const val PROVIDER_VALUE = "custom"
 }
 
 @Entity(tableName = CustomQuoteContract.TABLE)
@@ -37,7 +39,10 @@ data class CustomQuoteEntity(
     override val author: String = "",
 ) : QuoteEntity {
     @Ignore
-    override val md5: String = ""
+    override val uid: String = ""
+
+    @ColumnInfo(name = CustomQuoteContract.PROVIDER)
+    override var provider: String = CustomQuoteContract.PROVIDER_VALUE
 }
 
 @Dao

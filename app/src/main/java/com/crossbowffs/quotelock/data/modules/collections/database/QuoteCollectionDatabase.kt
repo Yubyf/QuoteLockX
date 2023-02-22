@@ -19,6 +19,7 @@ import com.crossbowffs.quotelock.data.api.QuoteEntityContract
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract.DATABASE_NAME
 import com.crossbowffs.quotelock.utils.md5
 import com.opencsv.bean.CsvBindByName
+import com.opencsv.bean.HeaderColumnNameTranslateMappingStrategy
 import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.flow.Flow
 import java.io.File
@@ -32,34 +33,55 @@ object QuoteCollectionContract {
     const val DATABASE_NAME = "quote_collections.db"
 
     const val TABLE = "collections"
+
+    @Deprecated("Use [UID] instead")
     const val MD5 = QuoteEntityContract.MD5
     const val TEXT = QuoteEntityContract.TEXT
     const val SOURCE = QuoteEntityContract.SOURCE
     const val AUTHOR = QuoteEntityContract.AUTHOR
     const val ID = QuoteEntityContract.ID
+    const val UID = QuoteEntityContract.UID
+    const val PROVIDER = QuoteEntityContract.PROVIDER
 }
+
+internal val collectionCsvReadStrategy: HeaderColumnNameTranslateMappingStrategy<QuoteCollectionEntity> =
+    HeaderColumnNameTranslateMappingStrategy<QuoteCollectionEntity>().apply {
+        columnMapping = mapOf(
+            QuoteCollectionContract.ID to "id",
+            QuoteCollectionContract.TEXT to QuoteCollectionContract.TEXT,
+            QuoteCollectionContract.SOURCE to QuoteCollectionContract.SOURCE,
+            QuoteCollectionContract.AUTHOR to QuoteCollectionContract.AUTHOR,
+            QuoteCollectionContract.PROVIDER to QuoteCollectionContract.PROVIDER,
+            QuoteCollectionContract.UID to QuoteCollectionContract.UID,
+            QuoteCollectionContract.MD5 to QuoteCollectionContract.UID
+        )
+        type = QuoteCollectionEntity::class.java
+    }
 
 @Entity(
     tableName = QuoteCollectionContract.TABLE,
-    indices = [Index(value = [QuoteCollectionContract.MD5], unique = true)]
+    indices = [Index(value = [QuoteCollectionContract.UID], unique = true)]
 )
 data class QuoteCollectionEntity @JvmOverloads constructor(
     @CsvBindByName(column = QuoteCollectionContract.ID, required = true)
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = QuoteCollectionContract.ID)
     override var id: Int? = null,
-    @CsvBindByName(column = QuoteCollectionContract.MD5, required = true)
-    @ColumnInfo(name = QuoteCollectionContract.MD5)
-    override var md5: String,
     @CsvBindByName(column = QuoteCollectionContract.TEXT, required = true)
     @ColumnInfo(name = QuoteCollectionContract.TEXT)
     override var text: String,
-    @CsvBindByName(column = QuoteCollectionContract.SOURCE, required = false)
+    @CsvBindByName(column = QuoteCollectionContract.SOURCE)
     @ColumnInfo(name = QuoteCollectionContract.SOURCE)
     override var source: String,
-    @CsvBindByName(column = QuoteCollectionContract.AUTHOR, required = false)
+    @CsvBindByName(column = QuoteCollectionContract.AUTHOR)
     @ColumnInfo(name = QuoteCollectionContract.AUTHOR)
     override var author: String = "",
+    @CsvBindByName(column = QuoteCollectionContract.PROVIDER)
+    @ColumnInfo(name = QuoteCollectionContract.PROVIDER)
+    override var provider: String = "",
+    @CsvBindByName(column = QuoteCollectionContract.UID)
+    @ColumnInfo(name = QuoteCollectionContract.UID)
+    override var uid: String,
 ) : QuoteEntity {
     // Empty constructor for OpenCSV
     @Suppress("unused")
@@ -68,7 +90,8 @@ data class QuoteCollectionEntity @JvmOverloads constructor(
         text = "",
         source = "",
         author = "",
-        md5 = "".md5()
+        provider = "",
+        uid = "".md5()
     )
 }
 
@@ -95,6 +118,11 @@ interface QuoteCollectionDao {
     )
     suspend fun getByQuote(text: String, source: String, author: String?): QuoteCollectionEntity?
 
+    @Query(
+        "SELECT * FROM ${QuoteCollectionContract.TABLE} WHERE ${QuoteCollectionContract.UID} = :uid"
+    )
+    suspend fun getByUid(uid: String): QuoteCollectionEntity?
+
     @Query("SELECT * FROM ${QuoteCollectionContract.TABLE} ORDER BY RANDOM() LIMIT 1")
     suspend fun getRandomItem(): QuoteCollectionEntity?
 
@@ -113,8 +141,8 @@ interface QuoteCollectionDao {
     @Query("DELETE FROM ${QuoteCollectionContract.TABLE} WHERE ${QuoteCollectionContract.ID} = :id")
     suspend fun delete(id: Long): Int
 
-    @Query("DELETE FROM ${QuoteCollectionContract.TABLE} WHERE ${QuoteCollectionContract.MD5} = :md5")
-    suspend fun delete(md5: String): Int
+    @Query("DELETE FROM ${QuoteCollectionContract.TABLE} WHERE ${QuoteCollectionContract.UID} = :uid")
+    suspend fun delete(uid: String): Int
 
     @Query("DELETE FROM ${QuoteCollectionContract.TABLE}")
     suspend fun clear()
@@ -174,6 +202,42 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                 database.execSQL("DROP TABLE tmp_table")
             }
         }
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE ${QuoteCollectionContract.TABLE}" +
+                            " ADD COLUMN ${QuoteCollectionContract.PROVIDER} TEXT DEFAULT '' NOT NULL"
+                )
+                database.execSQL(
+                    "ALTER TABLE ${QuoteCollectionContract.TABLE} RENAME TO tmp_table"
+                )
+                database.execSQL(
+                    "CREATE TABLE ${QuoteCollectionContract.TABLE}(" +
+                            "${QuoteCollectionContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "${QuoteCollectionContract.TEXT} TEXT NOT NULL, " +
+                            "${QuoteCollectionContract.SOURCE} TEXT NOT NULL, " +
+                            "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '', " +
+                            "${QuoteCollectionContract.PROVIDER} TEXT NOT NULL, " +
+                            "${QuoteCollectionContract.UID} TEXT UNIQUE NOT NULL)"
+                )
+                database.execSQL(
+                    "CREATE UNIQUE INDEX index_" +
+                            "${"${QuoteCollectionContract.TABLE}_${QuoteCollectionContract.UID}"} " +
+                            "on ${QuoteCollectionContract.TABLE}(${QuoteCollectionContract.UID})"
+                )
+                database.execSQL(
+                    "INSERT OR REPLACE INTO ${QuoteCollectionContract.TABLE}(" +
+                            "${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
+                            "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.AUTHOR}, " +
+                            "${QuoteCollectionContract.PROVIDER}, ${QuoteCollectionContract.UID}) " +
+                            "SELECT ${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
+                            "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.AUTHOR}, " +
+                            "${QuoteEntityContract.PROVIDER}, ${QuoteCollectionContract.MD5} " +
+                            "FROM tmp_table"
+                )
+                database.execSQL("DROP TABLE tmp_table")
+            }
+        }
 
         fun getDatabase(context: Context): QuoteCollectionDatabase {
             // if the INSTANCE is not null, then return it,
@@ -184,7 +248,7 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                     QuoteCollectionDatabase::class.java,
                     DATABASE_NAME
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build()
                 INSTANCE = instance
                 // return instance
@@ -203,7 +267,7 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                     QuoteCollectionDatabase::class.java,
                     name
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .createFromFile(file)
                     .build()
             }

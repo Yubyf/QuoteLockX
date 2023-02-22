@@ -1,7 +1,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
     ExperimentalAnimationGraphicsApi::class)
 
-package com.crossbowffs.quotelock.app.detail
+package com.crossbowffs.quotelock.app.quote
 
 import android.content.res.Configuration
 import android.graphics.Typeface
@@ -68,8 +68,8 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
-import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
+import com.crossbowffs.quotelock.app.quote.style.CardStylePopup
+import com.crossbowffs.quotelock.app.quote.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
 import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.data.api.QuoteData
@@ -77,7 +77,7 @@ import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import com.crossbowffs.quotelock.data.api.typeface
 import com.crossbowffs.quotelock.data.api.withCollectState
-import com.crossbowffs.quotelock.ui.components.DetailAppBar
+import com.crossbowffs.quotelock.ui.components.QuoteAppBar
 import com.crossbowffs.quotelock.ui.components.SnapshotCard
 import com.crossbowffs.quotelock.ui.components.SnapshotText
 import com.crossbowffs.quotelock.ui.components.Snapshotables
@@ -94,31 +94,29 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun QuoteDetailRoute(
+fun QuoteRoute(
     modifier: Modifier = Modifier,
-    quote: String,
-    source: String?,
-    author: String?,
+    quote: QuoteData,
     initialCollectState: Boolean? = null,
-    detailViewModel: QuoteDetailViewModel = hiltViewModel(),
+    quoteViewModel: QuoteViewModel = hiltViewModel(),
     cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
     onFontCustomize: () -> Unit,
     onShare: () -> Unit,
     onBack: () -> Unit,
 ) {
-    val quoteData = QuoteData(quote, source.orEmpty(), author.orEmpty())
-    detailViewModel.quoteData = quoteData
-    val uiState by detailViewModel.uiState
+    quoteViewModel.quoteData = quote
+    val uiState by quoteViewModel.uiState
     val cardStyleUiState by cardStyleViewModel.uiState
     if (initialCollectState == null && uiState.collectState == null) {
-        detailViewModel.queryQuoteCollectState()
+        quoteViewModel.queryQuoteCollectState()
     }
-    QuoteDetailScreen(modifier,
-        quoteData.withCollectState(uiState.collectState ?: initialCollectState),
+    QuoteScreen(
+        modifier,
+        quote.withCollectState(uiState.collectState ?: initialCollectState),
         uiState,
-        onCollectClick = detailViewModel::switchCollectionState,
+        onCollectClick = quoteViewModel::switchCollectionState,
         onStyle = cardStyleViewModel::showStylePopup,
-        onShare = { detailViewModel.setSnapshotables(it); onShare() },
+        onShare = { quoteViewModel.setSnapshotables(it); onShare() },
         onBack = onBack
     ) {
         CardStylePopup(
@@ -141,10 +139,10 @@ fun QuoteDetailRoute(
 }
 
 @Composable
-fun QuoteDetailScreen(
+fun QuoteScreen(
     modifier: Modifier = Modifier,
     quoteData: QuoteDataWithCollectState,
-    uiState: QuoteDetailUiState,
+    uiState: QuoteUiState,
     onCollectClick: (QuoteDataWithCollectState) -> Unit,
     onStyle: () -> Unit,
     onShare: (Snapshotables) -> Unit = {},
@@ -153,13 +151,15 @@ fun QuoteDetailScreen(
 ) {
     val snapshotStates = Snapshotables()
     Scaffold(
-        topBar = { DetailAppBar(onStyle = onStyle, onBackPressed = onBack) },
+        topBar = { QuoteAppBar(onStyle = onStyle, onBackPressed = onBack) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text(text = stringResource(id = R.string.quote_image_share)) },
                 icon = {
-                    Icon(Icons.Rounded.Share,
-                        contentDescription = stringResource(id = R.string.quote_image_share_description))
+                    Icon(
+                        Icons.Rounded.Share,
+                        contentDescription = stringResource(id = R.string.quote_image_share_description)
+                    )
                 },
                 shape = FloatingActionButtonDefaults.largeShape,
                 onClick = { onShare(snapshotStates) }
@@ -172,7 +172,7 @@ fun QuoteDetailScreen(
             .padding(internalPadding)
             .consumedWindowInsets(internalPadding)
         ) {
-            QuoteDetailPage(
+            QuotePage(
                 quoteData = quoteData,
                 cardStyle = uiState.cardStyle,
                 snapshotStates = snapshotStates,
@@ -184,7 +184,7 @@ fun QuoteDetailScreen(
 }
 
 @Composable
-fun QuoteDetailPage(
+fun QuotePage(
     modifier: Modifier = Modifier,
     quoteData: QuoteDataWithCollectState,
     refreshing: Boolean = false,
@@ -373,16 +373,20 @@ fun QuoteCard(
 class QuotePreviewParameterProvider : PreviewParameterProvider<QuoteDataWithCollectState> {
     override val values: Sequence<QuoteDataWithCollectState> = sequenceOf(
         QuoteDataWithCollectState(
-            "落霞与孤鹜齐飞，秋水共长天一色",
-            "《滕王阁序》",
-            "王勃",
-            true
+            quote = QuoteData(
+                quoteText = "落霞与孤鹜齐飞，秋水共长天一色",
+                quoteSource = "《滕王阁序》",
+                quoteAuthor = "王勃",
+            ),
+            collectState = true
         ),
         QuoteDataWithCollectState(
-            "Knowledge is power.",
-            "Francis Bacon",
-            "",
-            false
+            quote = QuoteData(
+                quoteText = "Knowledge is power.",
+                quoteSource = "Francis Bacon",
+                quoteAuthor = "",
+            ),
+            collectState = false
         ),
     )
 }
@@ -421,12 +425,14 @@ private fun QuoteCardPreview(
 private fun QuotePagePreview() {
     QuoteLockTheme {
         Surface {
-            QuoteDetailPage(
+            QuotePage(
                 quoteData = QuoteDataWithCollectState(
-                    "落霞与孤鹜齐飞，秋水共长天一色",
-                    "《滕王阁序》",
-                    "王勃",
-                    true
+                    quote = QuoteData(
+                        quoteText = "落霞与孤鹜齐飞，秋水共长天一色",
+                        quoteSource = "《滕王阁序》",
+                        quoteAuthor = "王勃",
+                    ),
+                    collectState = true
                 ),
                 onCollectClick = {},
                 onShareCard = {}
@@ -435,24 +441,30 @@ private fun QuotePagePreview() {
     }
 }
 
-@Preview(name = "Detail Screen Light",
+@Preview(
+    name = "Quote Screen Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Detail Screen Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Quote Screen Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
-private fun DetailScreenPreview() {
+private fun QuoteScreenPreview() {
     QuoteLockTheme {
         Surface {
-            QuoteDetailScreen(
+            QuoteScreen(
                 quoteData = QuoteDataWithCollectState(
-                    "落霞与孤鹜齐飞，秋水共长天一色",
-                    "《滕王阁序》",
-                    "王勃",
-                    true
+                    quote = QuoteData(
+                        quoteText = "落霞与孤鹜齐飞，秋水共长天一色",
+                        quoteSource = "《滕王阁序》",
+                        quoteAuthor = "王勃",
+                    ),
+                    collectState = true
                 ),
-                uiState = QuoteDetailUiState(CardStyle()),
+                uiState = QuoteUiState(CardStyle()),
                 onCollectClick = {},
                 onStyle = {},
                 onBack = {}

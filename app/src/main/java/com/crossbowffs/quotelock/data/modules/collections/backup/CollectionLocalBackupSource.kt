@@ -11,6 +11,7 @@ import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollecti
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDao
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDatabase
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
+import com.crossbowffs.quotelock.data.modules.collections.database.collectionCsvReadStrategy
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.copyFileToDownloads
@@ -101,7 +102,10 @@ class CollectionLocalBackupSource internal constructor(
         val collections =
             context.contentResolver.openInputStream(fileUri)?.use {
                 CsvToBeanBuilder<QuoteCollectionEntity>(InputStreamReader(it))
-                    .withType(QuoteCollectionEntity::class.java).build().parse()
+                    .withType(QuoteCollectionEntity::class.java)
+                    .withMappingStrategy(collectionCsvReadStrategy)
+                    .build()
+                    .parse()
             } ?: throw Exception()
         if (collections.isNotEmpty()) {
             if (!merge) {

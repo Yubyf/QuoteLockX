@@ -29,7 +29,6 @@ class FreakuotesQuoteModule : QuoteModule {
         return true
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(Exception::class)
     override suspend fun getQuote(context: Context): QuoteData? {
         val html = "https://freakuotes.com/frase/aleatoria".downloadUrl()
@@ -51,7 +50,7 @@ class FreakuotesQuoteModule : QuoteModule {
             sourceRight.isEmpty() -> sourceLeft
             else -> "$sourceLeft, $sourceRight"
         }
-        return QuoteData(quoteText, quoteSource)
+        return QuoteData(quoteText, quoteSource, "freakuotes")
     }
 
     override val characterType: Int

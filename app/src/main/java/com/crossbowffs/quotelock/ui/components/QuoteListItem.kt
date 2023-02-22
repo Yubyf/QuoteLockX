@@ -140,19 +140,23 @@ fun QuoteListItem(
             }
     ) {
         val readableSource = entity.readableSource
-        Column(Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .wrapContentHeight()
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .wrapContentHeight()
         ) {
-            Text(text = entity.text,
+            Text(
+                text = entity.text,
                 fontSize = 20.sp,
                 textAlign = TextAlign.Start,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth())
+                modifier = Modifier.fillMaxWidth()
+            )
             if (readableSource.isNotBlank()) {
-                Text(text = readableSource,
+                Text(
+                    text = readableSource,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
@@ -160,7 +164,8 @@ fun QuoteListItem(
                     modifier = Modifier
                         .fillMaxWidth()
                         .alpha(ContentAlpha.high)
-                        .padding(top = 4.dp))
+                        .padding(top = 4.dp)
+                )
             }
         }
         DropdownMenu(
@@ -178,19 +183,21 @@ class QuoteListItemPreviewParameterProvider : PreviewParameterProvider<QuoteEnti
     override val values: Sequence<QuoteEntity> = sequenceOf(
         object : QuoteEntity {
             override val id: Int = 0
-            override val md5: String = ""
             override val text: String = "落霞与孤鹜齐飞，秋水共长天一色"
             override val source: String = "《滕王阁序》"
             override val author: String = "王勃"
+            override val uid: String = ""
+            override val provider: String = ""
 
             override fun equals(other: Any?): Boolean = false
         },
         object : QuoteEntity {
             override val id: Int = 0
-            override val md5: String = ""
             override val text: String = "落霞与孤鹜齐飞，秋水共长天一色"
             override val source: String = ""
             override val author: String? = null
+            override val uid: String = ""
+            override val provider: String = ""
 
             override fun equals(other: Any?): Boolean = false
         }

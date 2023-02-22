@@ -66,7 +66,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
         require(matchCode >= 2) { "Invalid delete URI: $uri" }
         val key = selection?.split("=")?.get(0)
         val value = selectionArgs?.get(0)
-        if (key.isNullOrBlank() || key != QuoteCollectionContract.MD5 || value.isNullOrBlank()) {
+        if (key.isNullOrBlank() || key != QuoteCollectionContract.UID || value.isNullOrBlank()) {
             return -1
         }
         return deleteCollectedQuote(value)
@@ -87,7 +87,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
                 text = it[QuoteCollectionContract.TEXT].toString(),
                 source = it[QuoteCollectionContract.SOURCE].toString(),
                 author = it[QuoteCollectionContract.AUTHOR].toString(),
-                md5 = it[QuoteCollectionContract.MD5].toString(),
+                uid = it[QuoteCollectionContract.UID].toString(),
             ))
         }
     }

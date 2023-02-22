@@ -29,30 +29,36 @@ object QuoteHistoryContract {
     const val DATABASE_NAME = "quote_histories.db"
 
     const val TABLE = "histories"
+
+    @Deprecated("Use [UID] instead")
     const val MD5 = QuoteEntityContract.MD5
     const val TEXT = QuoteEntityContract.TEXT
     const val SOURCE = QuoteEntityContract.SOURCE
     const val AUTHOR = QuoteEntityContract.AUTHOR
     const val ID = QuoteEntityContract.ID
+    const val UID = QuoteEntityContract.UID
+    const val PROVIDER = QuoteEntityContract.PROVIDER
 }
 
 
 @Entity(
     tableName = QuoteHistoryContract.TABLE,
-    indices = [Index(value = [QuoteHistoryContract.MD5], unique = true)]
+    indices = [Index(value = [QuoteHistoryContract.UID], unique = true)]
 )
 data class QuoteHistoryEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = QuoteHistoryContract.ID)
     override var id: Int? = null,
-    @ColumnInfo(name = QuoteHistoryContract.MD5)
-    override val md5: String,
     @ColumnInfo(name = QuoteHistoryContract.TEXT)
     override val text: String,
     @ColumnInfo(name = QuoteHistoryContract.SOURCE)
     override val source: String,
     @ColumnInfo(name = QuoteHistoryContract.AUTHOR)
     override val author: String = "",
+    @ColumnInfo(name = QuoteHistoryContract.PROVIDER)
+    override var provider: String,
+    @ColumnInfo(name = QuoteHistoryContract.UID)
+    override var uid: String,
 ) : QuoteEntity
 
 @Dao
@@ -134,6 +140,42 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                 database.execSQL("DROP TABLE tmp_table")
             }
         }
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE ${QuoteHistoryContract.TABLE}" +
+                            " ADD COLUMN ${QuoteHistoryContract.PROVIDER} TEXT DEFAULT '' NOT NULL"
+                )
+                database.execSQL(
+                    "ALTER TABLE ${QuoteHistoryContract.TABLE} RENAME TO tmp_table"
+                )
+                database.execSQL(
+                    "CREATE TABLE ${QuoteHistoryContract.TABLE}(" +
+                            "${QuoteHistoryContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "${QuoteHistoryContract.TEXT} TEXT NOT NULL, " +
+                            "${QuoteHistoryContract.SOURCE} TEXT NOT NULL, " +
+                            "${QuoteHistoryContract.UID} TEXT UNIQUE NOT NULL, " +
+                            "${QuoteHistoryContract.PROVIDER} TEXT NOT NULL, " +
+                            "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')"
+                )
+                database.execSQL(
+                    "CREATE UNIQUE INDEX index_" +
+                            "${"${QuoteHistoryContract.TABLE}_${QuoteHistoryContract.UID}"} " +
+                            "on ${QuoteHistoryContract.TABLE}(${QuoteHistoryContract.UID})"
+                )
+                database.execSQL(
+                    "INSERT OR REPLACE INTO ${QuoteHistoryContract.TABLE}(" +
+                            "${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
+                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.UID}, " +
+                            "${QuoteHistoryContract.AUTHOR}, ${QuoteHistoryContract.PROVIDER}) " +
+                            "SELECT ${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
+                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
+                            "${QuoteEntityContract.AUTHOR}, ${QuoteHistoryContract.PROVIDER} " +
+                            "FROM tmp_table"
+                )
+                database.execSQL("DROP TABLE tmp_table")
+            }
+        }
 
         fun getDatabase(context: Context): QuoteHistoryDatabase {
             // if the INSTANCE is not null, then return it,
@@ -144,7 +186,7 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                     QuoteHistoryDatabase::class.java,
                     DATABASE_NAME
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build()
                 INSTANCE = instance
                 // return instance

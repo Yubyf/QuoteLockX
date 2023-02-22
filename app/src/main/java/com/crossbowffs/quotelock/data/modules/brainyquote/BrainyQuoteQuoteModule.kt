@@ -2,6 +2,7 @@ package com.crossbowffs.quotelock.data.modules.brainyquote
 
 import android.content.Context
 import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuoteDestination
+import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys
 import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys.PREF_BRAINY_TYPE_STRING
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
@@ -28,7 +29,6 @@ class BrainyQuoteQuoteModule : QuoteModule {
         return true
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class)
     override suspend fun getQuote(context: Context): QuoteData {
         val dataStore =
@@ -38,10 +38,16 @@ class BrainyQuoteQuoteModule : QuoteModule {
         val url = "https://feeds.feedburner.com/brainyquote/QUOTE$type"
         val rssXml = url.downloadUrl()
         val document = Jsoup.parse(rssXml)
-        val quoteText = document.select("item > description").first()?.text().orEmpty()
+        val quoteText = document.select("item > description").first()?.text().orEmpty().let {
+            it.substring(1, it.length - 1)
+        }
         val quoteAuthor = document.select("item > title").first()?.text().orEmpty()
-        return QuoteData(quoteText = quoteText.substring(1, quoteText.length - 1), quoteSource = "",
-            quoteAuthor = quoteAuthor)
+        return QuoteData(
+            quoteText = quoteText,
+            quoteSource = "",
+            quoteAuthor = quoteAuthor,
+            provider = BrainyQuotePrefKeys.PREF_BRAINY
+        )
     }
 
     override val characterType: Int

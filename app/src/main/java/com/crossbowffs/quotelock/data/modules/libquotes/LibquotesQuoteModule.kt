@@ -31,7 +31,6 @@ class LibquotesQuoteModule : QuoteModule {
         return true
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class)
     override suspend fun getQuote(context: Context): QuoteData? {
         val html = "https://feeds.feedburner.com/libquotes/QuoteOfTheDay".downloadUrl()
@@ -42,7 +41,10 @@ class LibquotesQuoteModule : QuoteModule {
             val quoteText = it.select("description").text()
             val quoteAuthor = it.select("title").text()
             QuoteData(
-                quoteText = quoteText, quoteSource = "", quoteAuthor = quoteAuthor
+                quoteText = quoteText,
+                quoteSource = "",
+                quoteAuthor = quoteAuthor,
+                provider = "libquotes"
             )
         }
     }

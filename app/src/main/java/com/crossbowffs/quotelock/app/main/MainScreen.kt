@@ -57,14 +57,14 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.crossbowffs.quotelock.app.detail.QuoteDetailPage
-import com.crossbowffs.quotelock.app.detail.QuoteDetailUiState
-import com.crossbowffs.quotelock.app.detail.QuoteDetailViewModel
-import com.crossbowffs.quotelock.app.detail.style.CardStylePopup
-import com.crossbowffs.quotelock.app.detail.style.CardStyleUiState
-import com.crossbowffs.quotelock.app.detail.style.CardStyleViewModel
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.app.font.FontInfo
+import com.crossbowffs.quotelock.app.quote.QuotePage
+import com.crossbowffs.quotelock.app.quote.QuoteUiState
+import com.crossbowffs.quotelock.app.quote.QuoteViewModel
+import com.crossbowffs.quotelock.app.quote.style.CardStylePopup
+import com.crossbowffs.quotelock.app.quote.style.CardStyleUiState
+import com.crossbowffs.quotelock.app.quote.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.contextString
@@ -82,7 +82,7 @@ import kotlin.math.roundToInt
 fun MainRoute(
     modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = hiltViewModel(),
-    detailViewModel: QuoteDetailViewModel = hiltViewModel(),
+    quoteViewModel: QuoteViewModel = hiltViewModel(),
     cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
     onSettingsItemClick: () -> Unit,
     onLockscreenStylesItemClick: () -> Unit,
@@ -94,7 +94,7 @@ fun MainRoute(
     val mainUiEvent by mainViewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
     val mainUiState by mainViewModel.uiState
     val mainDialogUiState by mainViewModel.uiDialogState
-    val detailUiState by detailViewModel.uiState
+    val quoteUiState by quoteViewModel.uiState
     val cardStyleUiState by cardStyleViewModel.uiState
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -118,12 +118,12 @@ fun MainRoute(
         modifier = modifier,
         snackbarHostState = snackbarHostState,
         mainUiState = mainUiState,
-        detailUiState = detailUiState,
+        quoteUiState = quoteUiState,
         cardStyleUiState = cardStyleUiState,
         showStylePopup = cardStyleViewModel::showStylePopup,
         refreshQuote = mainViewModel::refreshQuote,
-        switchCollectionState = detailViewModel::switchCollectionState,
-        shareQuote = { detailViewModel.setSnapshotables(it); onShare() },
+        switchCollectionState = quoteViewModel::switchCollectionState,
+        shareQuote = { quoteViewModel.setSnapshotables(it); onShare() },
         onSettingsItemClick = onSettingsItemClick,
         onLockscreenStylesItemClick = onLockscreenStylesItemClick,
         onCollectionItemClick = onCollectionItemClick,
@@ -153,7 +153,7 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     mainUiState: MainUiState,
-    detailUiState: QuoteDetailUiState,
+    quoteUiState: QuoteUiState,
     cardStyleUiState: CardStyleUiState,
     showStylePopup: () -> Unit = {},
     refreshQuote: () -> Unit = {},
@@ -238,12 +238,12 @@ fun MainScreen(
             .padding(padding)
             .consumedWindowInsets(padding)
         ) {
-            QuoteDetailPage(
+            QuotePage(
                 modifier = Modifier
                     .fillMaxSize(),
                 quoteData = mainUiState.quoteData,
                 refreshing = mainUiState.refreshing,
-                cardStyle = detailUiState.cardStyle,
+                cardStyle = quoteUiState.cardStyle,
                 snapshotStates = snapshotStates,
                 onCollectClick = switchCollectionState,
                 onShareCard = if (!LocalInspectionMode.current

@@ -28,7 +28,6 @@ class FortuneQuoteModule : QuoteModule {
         return false
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class)
     override suspend fun getQuote(context: Context): QuoteData {
         val dataStore =
@@ -43,7 +42,7 @@ class FortuneQuoteModule : QuoteModule {
             database.dao().getRandomItem().firstOrNull()
         } else {
             database.dao().getRandomItemByCategory(type).firstOrNull()
-        }?.let { QuoteData(it.text, it.source) } ?: QuoteData()
+        }?.let { QuoteData(it.text, it.source, "", it.provider, it.uid) } ?: QuoteData()
     }
 
     override val characterType: Int

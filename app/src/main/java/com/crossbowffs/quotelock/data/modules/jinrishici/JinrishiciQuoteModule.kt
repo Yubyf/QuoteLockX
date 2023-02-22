@@ -38,7 +38,6 @@ class JinrishiciQuoteModule : QuoteModule {
         return true
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class, JSONException::class)
     override suspend fun getQuote(context: Context): QuoteData? {
         val dataStore =
@@ -70,6 +69,9 @@ class JinrishiciQuoteModule : QuoteModule {
             }
             val poetrySentenceData = poetrySentenceJsonObject.getJSONObject("data")
 
+            // Uid
+            val uid = poetrySentenceData.getString("id")
+
             // Content
             val quoteText = poetrySentenceData.getString("content")
             if (quoteText.isNullOrEmpty()) {
@@ -92,7 +94,7 @@ class JinrishiciQuoteModule : QuoteModule {
             if (!title.isNullOrEmpty()) {
                 quoteSource += "《$title》"
             }
-            QuoteData(quoteText, quoteSource, quoteAuthor)
+            QuoteData(quoteText, quoteSource, quoteAuthor, PREF_JINRISHICI, uid)
         } catch (e: NullPointerException) {
             Xlog.e(TAG, "Failed to get Jinrishici result.", e)
             null

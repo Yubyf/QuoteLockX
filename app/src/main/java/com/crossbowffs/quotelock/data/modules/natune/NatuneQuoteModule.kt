@@ -23,7 +23,6 @@ class NatuneQuoteModule : QuoteModule {
         return true
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(Exception::class)
     override suspend fun getQuote(context: Context): QuoteData {
         val html = "https://natune.net/zitate/Zufalls5".downloadUrl()
@@ -31,7 +30,12 @@ class NatuneQuoteModule : QuoteModule {
         val quoteLi = document.select(".quotes > li").first()
         val quoteText = quoteLi?.getElementsByClass("quote_text")?.first()?.text().orEmpty()
         val quoteAuthor = quoteLi?.getElementsByClass("quote_author")?.first()?.text().orEmpty()
-        return QuoteData(quoteText = quoteText, quoteSource = "", quoteAuthor = quoteAuthor)
+        return QuoteData(
+            quoteText = quoteText,
+            quoteSource = "",
+            quoteAuthor = quoteAuthor,
+            provider = "natune"
+        )
     }
 
     override val characterType: Int

@@ -1,4 +1,4 @@
-package com.crossbowffs.quotelock.app.detail.style
+package com.crossbowffs.quotelock.app.quote.style
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke

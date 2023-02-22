@@ -43,8 +43,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.crossbowffs.quotelock.app.detail.QuoteDetailUiState
-import com.crossbowffs.quotelock.app.detail.style.CardStyleUiState
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.app.font.FontManagementListUiState
 import com.crossbowffs.quotelock.app.font.FontManagementScreen
@@ -55,10 +53,13 @@ import com.crossbowffs.quotelock.app.lockscreen.styles.PreviewScreen
 import com.crossbowffs.quotelock.app.lockscreen.styles.PreviewUiState
 import com.crossbowffs.quotelock.app.main.MainScreen
 import com.crossbowffs.quotelock.app.main.MainUiState
+import com.crossbowffs.quotelock.app.quote.QuoteUiState
+import com.crossbowffs.quotelock.app.quote.style.CardStyleUiState
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.data.api.CardStyle
+import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteStyle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
@@ -70,10 +71,12 @@ private val SCREENSHOT_HEIGHT = 831.dp
 private val TITLE_HEIGHT = 142.dp
 
 private val PREF_QUOTE = QuoteDataWithCollectState(
-    "Knowledge is power.",
-    "",
-    "Francis Bacon",
-    false
+    quote = QuoteData(
+        quoteText = "Knowledge is power.",
+        quoteSource = "Francis Bacon",
+        quoteAuthor = "",
+    ),
+    collectState = false
 )
 private val PREF_CARD_STYLE = CardStyle(quoteSize = 23, sourceSize = 14)
 
@@ -225,9 +228,11 @@ fun MainScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
                 .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
                 MainScreen(
                     mainUiState = MainUiState(quoteData = PREF_QUOTE),
-                    detailUiState = QuoteDetailUiState(PREF_CARD_STYLE),
-                    cardStyleUiState = CardStyleUiState(fonts = emptyList(),
-                        cardStyle = CardStyle())
+                    quoteUiState = QuoteUiState(PREF_CARD_STYLE),
+                    cardStyleUiState = CardStyleUiState(
+                        fonts = emptyList(),
+                        cardStyle = CardStyle()
+                    )
                 )
             }
             Box(modifier = Modifier.height(TITLE_HEIGHT), contentAlignment = Alignment.Center) {
@@ -341,9 +346,11 @@ fun DynamicDarkScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
                         .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
                         MainScreen(
                             mainUiState = MainUiState(quoteData = PREF_QUOTE),
-                            detailUiState = QuoteDetailUiState(PREF_CARD_STYLE),
-                            cardStyleUiState = CardStyleUiState(fonts = emptyList(),
-                                cardStyle = CardStyle())
+                            quoteUiState = QuoteUiState(PREF_CARD_STYLE),
+                            cardStyleUiState = CardStyleUiState(
+                                fonts = emptyList(),
+                                cardStyle = CardStyle()
+                            )
                         )
                     }
                 }
@@ -356,9 +363,11 @@ fun DynamicDarkScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
                             .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
                             MainScreen(
                                 mainUiState = MainUiState(quoteData = PREF_QUOTE),
-                                detailUiState = QuoteDetailUiState(PREF_CARD_STYLE),
-                                cardStyleUiState = CardStyleUiState(fonts = emptyList(),
-                                    cardStyle = CardStyle())
+                                quoteUiState = QuoteUiState(PREF_CARD_STYLE),
+                                cardStyleUiState = CardStyleUiState(
+                                    fonts = emptyList(),
+                                    cardStyle = CardStyle()
+                                )
                             )
                         }
                     }

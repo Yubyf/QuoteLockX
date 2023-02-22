@@ -32,7 +32,6 @@ class WikiquoteQuoteModule : QuoteModule {
         return true
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(IOException::class)
     override suspend fun getQuote(context: Context): QuoteData? {
         val html = "https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5".downloadUrl()
@@ -47,7 +46,12 @@ class WikiquoteQuoteModule : QuoteModule {
         }
         val quoteText = quoteMatcher.group(1).orEmpty()
         val quoteAuthor = quoteMatcher.group(2).orEmpty()
-        return QuoteData(quoteText = quoteText, quoteSource = "", quoteAuthor = quoteAuthor)
+        return QuoteData(
+            quoteText = quoteText,
+            quoteSource = "",
+            quoteAuthor = quoteAuthor,
+            provider = "wikiquote"
+        )
     }
 
     override val characterType: Int

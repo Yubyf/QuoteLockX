@@ -6,14 +6,13 @@ import com.crossbowffs.quotelock.consts.PREF_QUOTES_COLLECTION_STATE
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_CONTENTS
 import com.crossbowffs.quotelock.consts.PREF_QUOTES_LAST_UPDATED
 import com.crossbowffs.quotelock.data.api.QuoteData
-import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.isQuoteJustForDisplay
+import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.di.QuotesDataStore
 import com.crossbowffs.quotelock.utils.Xlog
-import com.crossbowffs.quotelock.utils.md5
 import com.yubyf.datastore.DataStoreDelegate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
@@ -27,30 +26,29 @@ class QuoteLocalSource @Inject constructor(
     private val historyRepository: QuoteHistoryRepository,
 ) {
 
-    private suspend fun queryQuoteCollectionState(
-        text: String,
-        source: String,
-        author: String,
-    ): Boolean = collectionRepository.getByQuote(text, source, author) != null
+    private suspend fun queryQuoteCollectionState(uid: String): Boolean =
+        collectionRepository.getByUid(uid) != null
 
-    private suspend fun insertQuoteHistory(text: String, source: String, author: String) =
+    private suspend fun insertQuoteHistory(quote: QuoteData) = quote.run {
         historyRepository.insert(
             QuoteHistoryEntity(
-                md5 = ("$text$source$author").md5(),
-                text = text,
-                source = source,
-                author = author,
+                text = quoteText,
+                source = quoteSource,
+                author = quoteAuthor,
+                provider = provider,
+                uid = uid
             )
         )
+    }
 
     suspend fun handleDownloadedQuote(quote: QuoteData?) = quote?.run {
         Xlog.d(TAG, "Text: $quoteText")
         Xlog.d(TAG, "Source: $quoteSource")
         Xlog.d(TAG, "Author: $quoteAuthor")
         if (!isQuoteJustForDisplay(quoteText, quoteSource, quoteAuthor)) {
-            insertQuoteHistory(quoteText, quoteSource, quoteAuthor)
+            insertQuoteHistory(quote)
         }
-        val collectionState = queryQuoteCollectionState(quoteText, quoteSource, quoteAuthor)
+        val collectionState = queryQuoteCollectionState(quote.uid)
         quotesDataStore.bulkPut(
             mapOf(
                 PREF_QUOTES_CONTENTS to byteString,
@@ -70,11 +68,8 @@ class QuoteLocalSource @Inject constructor(
     fun getCurrentQuote() = runBlocking {
         val quoteDataByteString = quotesDataStore.getStringSuspend(PREF_QUOTES_CONTENTS, "")!!
         val quoteData = QuoteData.fromByteString(quoteDataByteString)
-        QuoteDataWithCollectState(
-            quoteData.quoteText,
-            quoteData.quoteSource,
-            quoteData.quoteAuthor,
-            quotesDataStore.getBooleanSuspend(PREF_QUOTES_COLLECTION_STATE, false),
+        quoteData.withCollectState(
+            quotesDataStore.getBooleanSuspend(PREF_QUOTES_COLLECTION_STATE, false)
         )
     }
 

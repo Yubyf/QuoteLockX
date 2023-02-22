@@ -185,7 +185,7 @@ private fun HistoryItemList(
 
 class HistoryPreviewParameterProvider : PreviewParameterProvider<List<QuoteHistoryEntity>> {
     override val values: Sequence<List<QuoteHistoryEntity>> = sequenceOf(List(20) {
-        QuoteHistoryEntity(it, "", "落霞与孤鹜齐飞，秋水共长天一色", "《滕王阁序》", "王勃")
+        QuoteHistoryEntity(it, "", "落霞与孤鹜齐飞，秋水共长天一色", "《滕王阁序》", "", "王勃")
     })
 }
 
