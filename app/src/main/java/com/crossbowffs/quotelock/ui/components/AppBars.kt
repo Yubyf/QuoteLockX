@@ -446,6 +446,25 @@ fun FontManagementAppBar(
     )
 }
 
+@Composable
+fun DetailTopBar(
+    onBackPressed: () -> Unit,
+) {
+    CenterAlignedTopAppBar(
+        title = { Text(text = stringResource(id = R.string.pref_detail_title)) },
+        navigationIcon = {
+            IconButton(onClick = onBackPressed) {
+                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+            }
+        },
+        actions = { },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
 @Preview(
     name = "Main App Bar Light",
     showBackground = true,
@@ -561,17 +580,17 @@ private fun HistoryTopAppBarPreview() {
 }
 
 @Preview(
-    name = "Detail App Bar Light",
+    name = "Quote App Bar Light",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO
 )
 @Preview(
-    name = "Detail App Bar Dark",
+    name = "Quote App Bar Dark",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
 @Composable
-private fun DetailTopAppBarPreview() {
+private fun QuoteTopAppBarPreview() {
     QuoteLockTheme {
         Surface {
             QuoteAppBar({}, {})
@@ -594,6 +613,25 @@ private fun SearchBarPreview() {
     QuoteLockTheme {
         Surface {
             SearchBar("Search Quotes", {}, {})
+        }
+    }
+}
+
+@Preview(
+    name = "Detail App Bar Light",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Detail App Bar Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun DetailTopAppBarPreview() {
+    QuoteLockTheme {
+        Surface {
+            DetailTopBar {}
         }
     }
 }

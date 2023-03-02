@@ -17,9 +17,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.crossbowffs.quotelock.data.api.QuoteEntity
 import com.crossbowffs.quotelock.data.api.QuoteEntityContract
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract.DATABASE_NAME
+import com.crossbowffs.quotelock.utils.decodeHex
+import com.crossbowffs.quotelock.utils.hexString
 import com.crossbowffs.quotelock.utils.md5
+import com.opencsv.bean.AbstractBeanField
 import com.opencsv.bean.CsvBindByName
-import com.opencsv.bean.HeaderColumnNameTranslateMappingStrategy
+import com.opencsv.bean.CsvBindByNames
+import com.opencsv.bean.CsvCustomBindByName
+import com.opencsv.bean.HeaderColumnNameMappingStrategy
 import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.flow.Flow
 import java.io.File
@@ -40,21 +45,22 @@ object QuoteCollectionContract {
     const val SOURCE = QuoteEntityContract.SOURCE
     const val AUTHOR = QuoteEntityContract.AUTHOR
     const val ID = QuoteEntityContract.ID
-    const val UID = QuoteEntityContract.UID
     const val PROVIDER = QuoteEntityContract.PROVIDER
+    const val UID = QuoteEntityContract.UID
+    const val EXTRA = QuoteEntityContract.EXTRA
 }
 
-internal val collectionCsvReadStrategy: HeaderColumnNameTranslateMappingStrategy<QuoteCollectionEntity> =
-    HeaderColumnNameTranslateMappingStrategy<QuoteCollectionEntity>().apply {
-        columnMapping = mapOf(
-            QuoteCollectionContract.ID to "id",
-            QuoteCollectionContract.TEXT to QuoteCollectionContract.TEXT,
-            QuoteCollectionContract.SOURCE to QuoteCollectionContract.SOURCE,
-            QuoteCollectionContract.AUTHOR to QuoteCollectionContract.AUTHOR,
-            QuoteCollectionContract.PROVIDER to QuoteCollectionContract.PROVIDER,
-            QuoteCollectionContract.UID to QuoteCollectionContract.UID,
-            QuoteCollectionContract.MD5 to QuoteCollectionContract.UID
-        )
+internal class QuoteCollectionHeaderColumnNameMappingStrategy :
+    HeaderColumnNameMappingStrategy<QuoteCollectionEntity>() {
+    override fun getColumnName(col: Int): String? = headerIndex.getByPosition(col)?.let {
+        if (it == QuoteCollectionContract.MD5.uppercase()) {
+            QuoteCollectionContract.UID.uppercase()
+        } else it
+    }
+}
+
+internal val collectionCsvStrategy: QuoteCollectionHeaderColumnNameMappingStrategy =
+    QuoteCollectionHeaderColumnNameMappingStrategy().apply {
         type = QuoteCollectionEntity::class.java
     }
 
@@ -79,9 +85,18 @@ data class QuoteCollectionEntity @JvmOverloads constructor(
     @CsvBindByName(column = QuoteCollectionContract.PROVIDER)
     @ColumnInfo(name = QuoteCollectionContract.PROVIDER)
     override var provider: String = "",
-    @CsvBindByName(column = QuoteCollectionContract.UID)
+    @CsvBindByNames(
+        CsvBindByName(column = QuoteCollectionContract.UID),
+        CsvBindByName(column = QuoteCollectionContract.MD5)
+    )
     @ColumnInfo(name = QuoteCollectionContract.UID)
     override var uid: String,
+    @CsvCustomBindByName(
+        column = QuoteCollectionContract.EXTRA,
+        converter = CsvByteArrayConverter::class
+    )
+    @ColumnInfo(name = QuoteCollectionContract.EXTRA, typeAffinity = ColumnInfo.BLOB)
+    override val extra: ByteArray? = null,
 ) : QuoteEntity {
     // Empty constructor for OpenCSV
     @Suppress("unused")
@@ -91,8 +106,46 @@ data class QuoteCollectionEntity @JvmOverloads constructor(
         source = "",
         author = "",
         provider = "",
-        uid = "".md5()
+        uid = "".md5(),
+        extra = null
     )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as QuoteCollectionEntity
+
+        if (id != other.id) return false
+        if (text != other.text) return false
+        if (source != other.source) return false
+        if (author != other.author) return false
+        if (provider != other.provider) return false
+        if (uid != other.uid) return false
+        if (extra != null) {
+            if (other.extra == null) return false
+            if (!extra.contentEquals(other.extra)) return false
+        } else if (other.extra != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id ?: 0
+        result = 31 * result + text.hashCode()
+        result = 31 * result + source.hashCode()
+        result = 31 * result + author.hashCode()
+        result = 31 * result + provider.hashCode()
+        result = 31 * result + uid.hashCode()
+        result = 31 * result + (extra?.contentHashCode() ?: 0)
+        return result
+    }
+}
+
+class CsvByteArrayConverter : AbstractBeanField<ByteArray?, String>() {
+    override fun convert(value: String): ByteArray? = value.takeIf { it.isNotBlank() }?.decodeHex()
+
+    override fun convertToWrite(value: Any?): String? = (value as? ByteArray)?.hexString()
 }
 
 @Dao
@@ -206,7 +259,8 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
                     "ALTER TABLE ${QuoteCollectionContract.TABLE}" +
-                            " ADD COLUMN ${QuoteCollectionContract.PROVIDER} TEXT DEFAULT '' NOT NULL"
+                            " ADD COLUMN ${QuoteCollectionContract.PROVIDER} TEXT DEFAULT '' NOT NULL," +
+                            " ADD COLUMN ${QuoteCollectionContract.EXTRA} BLOB DEFAULT NULL"
                 )
                 database.execSQL(
                     "ALTER TABLE ${QuoteCollectionContract.TABLE} RENAME TO tmp_table"
@@ -218,7 +272,8 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                             "${QuoteCollectionContract.SOURCE} TEXT NOT NULL, " +
                             "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '', " +
                             "${QuoteCollectionContract.PROVIDER} TEXT NOT NULL, " +
-                            "${QuoteCollectionContract.UID} TEXT UNIQUE NOT NULL)"
+                            "${QuoteCollectionContract.UID} TEXT UNIQUE NOT NULL, " +
+                            "${QuoteCollectionContract.EXTRA} BLOB DEFAULT NULL)"
                 )
                 database.execSQL(
                     "CREATE UNIQUE INDEX index_" +

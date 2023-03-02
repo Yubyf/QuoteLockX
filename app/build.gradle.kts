@@ -181,7 +181,8 @@ dependencies {
     }
 
     // Test
-    androidTestImplementation(libs.bundles.test)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.bundles.compose.test)
     debugImplementation(libs.compose.test.manifest)
 }

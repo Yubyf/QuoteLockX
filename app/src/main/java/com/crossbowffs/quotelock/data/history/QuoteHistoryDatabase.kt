@@ -38,6 +38,7 @@ object QuoteHistoryContract {
     const val ID = QuoteEntityContract.ID
     const val UID = QuoteEntityContract.UID
     const val PROVIDER = QuoteEntityContract.PROVIDER
+    const val EXTRA = QuoteEntityContract.EXTRA
 }
 
 
@@ -59,7 +60,40 @@ data class QuoteHistoryEntity(
     override var provider: String,
     @ColumnInfo(name = QuoteHistoryContract.UID)
     override var uid: String,
-) : QuoteEntity
+    @ColumnInfo(name = QuoteHistoryContract.EXTRA, typeAffinity = ColumnInfo.BLOB)
+    override val extra: ByteArray? = null,
+) : QuoteEntity {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as QuoteHistoryEntity
+
+        if (id != other.id) return false
+        if (text != other.text) return false
+        if (source != other.source) return false
+        if (author != other.author) return false
+        if (provider != other.provider) return false
+        if (uid != other.uid) return false
+        if (extra != null) {
+            if (other.extra == null) return false
+            if (!extra.contentEquals(other.extra)) return false
+        } else if (other.extra != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id ?: 0
+        result = 31 * result + text.hashCode()
+        result = 31 * result + source.hashCode()
+        result = 31 * result + author.hashCode()
+        result = 31 * result + provider.hashCode()
+        result = 31 * result + uid.hashCode()
+        result = 31 * result + (extra?.contentHashCode() ?: 0)
+        return result
+    }
+}
 
 @Dao
 interface QuoteHistoryDao {
@@ -144,7 +178,8 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
                     "ALTER TABLE ${QuoteHistoryContract.TABLE}" +
-                            " ADD COLUMN ${QuoteHistoryContract.PROVIDER} TEXT DEFAULT '' NOT NULL"
+                            " ADD COLUMN ${QuoteHistoryContract.PROVIDER} TEXT DEFAULT '' NOT NULL," +
+                            " ADD COLUMN ${QuoteHistoryContract.EXTRA} BLOB DEFAULT NULL"
                 )
                 database.execSQL(
                     "ALTER TABLE ${QuoteHistoryContract.TABLE} RENAME TO tmp_table"
@@ -154,9 +189,10 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                             "${QuoteHistoryContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             "${QuoteHistoryContract.TEXT} TEXT NOT NULL, " +
                             "${QuoteHistoryContract.SOURCE} TEXT NOT NULL, " +
-                            "${QuoteHistoryContract.UID} TEXT UNIQUE NOT NULL, " +
+                            "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '', " +
                             "${QuoteHistoryContract.PROVIDER} TEXT NOT NULL, " +
-                            "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')"
+                            "${QuoteHistoryContract.UID} TEXT UNIQUE NOT NULL, " +
+                            "${QuoteHistoryContract.EXTRA} BLOB DEFAULT NULL)"
                 )
                 database.execSQL(
                     "CREATE UNIQUE INDEX index_" +
@@ -170,7 +206,7 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                             "${QuoteHistoryContract.AUTHOR}, ${QuoteHistoryContract.PROVIDER}) " +
                             "SELECT ${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
                             "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
-                            "${QuoteEntityContract.AUTHOR}, ${QuoteHistoryContract.PROVIDER} " +
+                            "${QuoteHistoryContract.AUTHOR}, ${QuoteHistoryContract.PROVIDER} " +
                             "FROM tmp_table"
                 )
                 database.execSQL("DROP TABLE tmp_table")

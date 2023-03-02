@@ -66,6 +66,7 @@ import com.crossbowffs.quotelock.app.quote.style.CardStylePopup
 import com.crossbowffs.quotelock.app.quote.style.CardStyleUiState
 import com.crossbowffs.quotelock.app.quote.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.Urls
+import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.contextString
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
@@ -90,6 +91,7 @@ fun MainRoute(
     onHistoryItemClick: () -> Unit,
     onFontCustomize: () -> Unit,
     onShare: () -> Unit,
+    onDetail: (QuoteData) -> Unit,
 ) {
     val mainUiEvent by mainViewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
     val mainUiState by mainViewModel.uiState
@@ -124,6 +126,7 @@ fun MainRoute(
         refreshQuote = mainViewModel::refreshQuote,
         switchCollectionState = quoteViewModel::switchCollectionState,
         shareQuote = { quoteViewModel.setSnapshotables(it); onShare() },
+        onDetail = onDetail,
         onSettingsItemClick = onSettingsItemClick,
         onLockscreenStylesItemClick = onLockscreenStylesItemClick,
         onCollectionItemClick = onCollectionItemClick,
@@ -159,6 +162,7 @@ fun MainScreen(
     refreshQuote: () -> Unit = {},
     switchCollectionState: (QuoteDataWithCollectState) -> Unit = {},
     shareQuote: (Snapshotables) -> Unit = {},
+    onDetail: (QuoteData) -> Unit = {},
     onSettingsItemClick: () -> Unit = {},
     onLockscreenStylesItemClick: () -> Unit = {},
     onCollectionItemClick: () -> Unit = {},
@@ -252,7 +256,8 @@ fun MainScreen(
                         mainUiState.quoteData.quoteSource,
                         mainUiState.quoteData.quoteAuthor
                     )
-                ) shareQuote else null
+                ) shareQuote else null,
+                onDetailClick = onDetail
             )
             CardStylePopup(
                 popped = cardStyleUiState.show,

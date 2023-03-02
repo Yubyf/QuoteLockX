@@ -4,6 +4,7 @@ import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
+import com.crossbowffs.quotelock.data.modules.jinrishici.detail.JinrishiciDetailData
 import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
@@ -83,6 +84,32 @@ class JinrishiciQuoteModule : QuoteModule {
             val dynasty = originData.getString("dynasty")
             val author = originData.getString("author")
             val title = originData.getString("title")
+            val originContent = originData.getJSONArray("content").let {
+                mutableListOf<String>().apply {
+                    for (i in 0 until it.length()) {
+                        add(it.getString(i))
+                    }
+                }.toList()
+            }
+            val originTranslate = originData.runCatching {
+                getJSONArray("translate").let {
+                    mutableListOf<String>().apply {
+                        for (i in 0 until it.length()) {
+                            add(it.getString(i))
+                        }
+                    }.toList()
+                }
+            }.getOrNull()
+            val tags = poetrySentenceData.runCatching {
+                getJSONArray("matchTags").let {
+                    mutableListOf<String>().apply {
+                        for (i in 0 until it.length()) {
+                            add(it.getString(i))
+                        }
+                    }.toList()
+                }
+            }.getOrNull()
+
             var quoteSource = ""
             var quoteAuthor = ""
             if (!dynasty.isNullOrEmpty()) {
@@ -94,7 +121,15 @@ class JinrishiciQuoteModule : QuoteModule {
             if (!title.isNullOrEmpty()) {
                 quoteSource += "《$title》"
             }
-            QuoteData(quoteText, quoteSource, quoteAuthor, PREF_JINRISHICI, uid)
+            val detailData = JinrishiciDetailData(
+                title,
+                dynasty,
+                author,
+                originContent,
+                originTranslate,
+                tags
+            )
+            QuoteData(quoteText, quoteSource, quoteAuthor, PREF_JINRISHICI, uid, detailData.bytes)
         } catch (e: NullPointerException) {
             Xlog.e(TAG, "Failed to get Jinrishici result.", e)
             null

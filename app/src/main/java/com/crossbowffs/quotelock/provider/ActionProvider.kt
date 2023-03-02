@@ -12,6 +12,7 @@ import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollecti
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
 import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
 import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
+import com.crossbowffs.quotelock.utils.Xlog
 import com.yubyf.quotelockx.BuildConfig
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
@@ -83,12 +84,16 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
 
     private fun collectQuote(values: ContentValues?): Long? = values?.let {
         runBlocking {
-            collectionRepository.insert(QuoteCollectionEntity(
-                text = it[QuoteCollectionContract.TEXT].toString(),
-                source = it[QuoteCollectionContract.SOURCE].toString(),
-                author = it[QuoteCollectionContract.AUTHOR].toString(),
-                uid = it[QuoteCollectionContract.UID].toString(),
-            ))
+            Xlog.d("LockscreenHook", "Quote extra: ${it[QuoteCollectionContract.EXTRA]}")
+            collectionRepository.insert(
+                QuoteCollectionEntity(
+                    text = it[QuoteCollectionContract.TEXT].toString(),
+                    source = it[QuoteCollectionContract.SOURCE].toString(),
+                    author = it[QuoteCollectionContract.AUTHOR].toString(),
+                    uid = it[QuoteCollectionContract.UID].toString(),
+                    extra = it[QuoteCollectionContract.EXTRA] as? ByteArray
+                )
+            )
         }
     }
 

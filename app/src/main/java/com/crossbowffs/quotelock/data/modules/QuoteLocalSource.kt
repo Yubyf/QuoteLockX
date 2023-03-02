@@ -36,7 +36,8 @@ class QuoteLocalSource @Inject constructor(
                 source = quoteSource,
                 author = quoteAuthor,
                 provider = provider,
-                uid = uid
+                uid = uid,
+                extra = extra
             )
         )
     }

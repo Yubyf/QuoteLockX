@@ -21,6 +21,7 @@ object QuoteDestination : QuoteNavigationDestination {
 fun NavGraphBuilder.quoteGraph(
     onFontCustomize: () -> Unit,
     onShare: () -> Unit,
+    onDetail: (QuoteData) -> Unit,
     onBack: () -> Unit,
 ) {
     standalonePageComposable(
@@ -42,9 +43,10 @@ fun NavGraphBuilder.quoteGraph(
         QuoteRoute(
             quote = quote,
             initialCollectState = collectState?.toBooleanStrictOrNull(),
+            onFontCustomize = onFontCustomize,
             onShare = onShare,
-            onBack = onBack,
-            onFontCustomize = onFontCustomize
+            onDetail = onDetail,
+            onBack = onBack
         )
     }
 }

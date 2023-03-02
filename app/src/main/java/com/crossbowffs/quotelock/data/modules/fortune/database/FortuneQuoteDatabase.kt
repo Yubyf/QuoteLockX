@@ -53,6 +53,9 @@ data class FortuneQuoteEntity(
 ) : QuoteEntity {
     @Ignore
     override var provider: String = FortuneQuoteContract.TABLE
+
+    @Ignore
+    override val extra: ByteArray? = null
 }
 
 @Dao

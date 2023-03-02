@@ -11,7 +11,7 @@ import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollecti
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDao
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDatabase
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
-import com.crossbowffs.quotelock.data.modules.collections.database.collectionCsvReadStrategy
+import com.crossbowffs.quotelock.data.modules.collections.database.collectionCsvStrategy
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.copyFileToDownloads
@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileWriter
 import java.io.InputStreamReader
+
 
 /**
  * Reference: [Database-Backup-Restore](https://github.com/prof18/Database-Backup-Restore/blob/master/app/src/main/java/com/prof/dbtest/backup/LocalBackup.java)
@@ -63,7 +64,9 @@ class CollectionLocalBackupSource internal constructor(
         val collections = collectionDao.getAll()
         FileWriter(csvFile).use {
             val beanToCsv =
-                StatefulBeanToCsvBuilder<QuoteCollectionEntity>(it).build()
+                StatefulBeanToCsvBuilder<QuoteCollectionEntity>(it)
+                    .withMappingStrategy(collectionCsvStrategy)
+                    .build()
             beanToCsv.write(collections)
         }
         AsyncResult.Success(copyFileToDownloads(csvFile))
@@ -103,7 +106,7 @@ class CollectionLocalBackupSource internal constructor(
             context.contentResolver.openInputStream(fileUri)?.use {
                 CsvToBeanBuilder<QuoteCollectionEntity>(InputStreamReader(it))
                     .withType(QuoteCollectionEntity::class.java)
-                    .withMappingStrategy(collectionCsvReadStrategy)
+                    .withMappingStrategy(collectionCsvStrategy)
                     .build()
                     .parse()
             } ?: throw Exception()

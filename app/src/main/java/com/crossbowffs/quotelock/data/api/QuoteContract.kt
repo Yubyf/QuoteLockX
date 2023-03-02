@@ -21,6 +21,7 @@ object QuoteEntityContract {
     const val ID = BaseColumns._ID
     const val UID = "uid"
     const val PROVIDER = "provider"
+    const val EXTRA = "extra"
 }
 
 interface QuoteEntity {
@@ -30,6 +31,7 @@ interface QuoteEntity {
     val author: String?
     val provider: String
     val uid: String
+    val extra: ByteArray?
 
     override fun equals(other: Any?): Boolean
 }
@@ -65,4 +67,5 @@ fun Context.isQuoteGeneratedByApp(text: String, source: String?, author: String?
 fun isQuoteJustForDisplay(text: String, source: String?, author: String?) =
     App.instance.isQuoteGeneratedByApp(text, source, author)
 
-fun QuoteEntity.toQuoteData(): QuoteData = QuoteData(text, source, author.orEmpty(), provider, uid)
+fun QuoteEntity.toQuoteData(): QuoteData =
+    QuoteData(text, source, author.orEmpty(), provider, uid, extra)

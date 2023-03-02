@@ -1,5 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
-    ExperimentalAnimationGraphicsApi::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    ExperimentalAnimationGraphicsApi::class
+)
 
 package com.crossbowffs.quotelock.app.quote
 
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -74,6 +77,7 @@ import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
 import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
+import com.crossbowffs.quotelock.data.api.hasDetailData
 import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
 import com.crossbowffs.quotelock.data.api.typeface
 import com.crossbowffs.quotelock.data.api.withCollectState
@@ -102,6 +106,7 @@ fun QuoteRoute(
     cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
     onFontCustomize: () -> Unit,
     onShare: () -> Unit,
+    onDetail: (QuoteData) -> Unit,
     onBack: () -> Unit,
 ) {
     quoteViewModel.quoteData = quote
@@ -117,6 +122,7 @@ fun QuoteRoute(
         onCollectClick = quoteViewModel::switchCollectionState,
         onStyle = cardStyleViewModel::showStylePopup,
         onShare = { quoteViewModel.setSnapshotables(it); onShare() },
+        onDetail = onDetail,
         onBack = onBack
     ) {
         CardStylePopup(
@@ -146,6 +152,7 @@ fun QuoteScreen(
     onCollectClick: (QuoteDataWithCollectState) -> Unit,
     onStyle: () -> Unit,
     onShare: (Snapshotables) -> Unit = {},
+    onDetail: ((QuoteData) -> Unit)? = null,
     onBack: () -> Unit,
     popupContent: @Composable () -> Unit = {},
 ) {
@@ -167,16 +174,18 @@ fun QuoteScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { internalPadding ->
-        Box(modifier = modifier
-            .fillMaxSize()
-            .padding(internalPadding)
-            .consumedWindowInsets(internalPadding)
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(internalPadding)
+                .consumedWindowInsets(internalPadding)
         ) {
             QuotePage(
                 quoteData = quoteData,
                 cardStyle = uiState.cardStyle,
                 snapshotStates = snapshotStates,
                 onCollectClick = onCollectClick,
+                onDetailClick = onDetail
             )
             popupContent()
         }
@@ -192,6 +201,7 @@ fun QuotePage(
     snapshotStates: Snapshotables = Snapshotables(),
     onCollectClick: (QuoteDataWithCollectState) -> Unit,
     onShareCard: ((Snapshotables) -> Unit)? = null,
+    onDetailClick: ((QuoteData) -> Unit)? = null,
 ) {
     val extraPadding = 64.dp
     var containerHeight by remember {
@@ -216,7 +226,8 @@ fun QuotePage(
             if (LocalInspectionMode.current) false else LocalContext.current.isQuoteGeneratedByApp(
                 quoteData.quoteText,
                 quoteData.quoteSource,
-                quoteData.quoteAuthor)
+                quoteData.quoteAuthor
+            )
         QuoteCard(
             modifier = Modifier
                 .fillMaxWidth()
@@ -250,7 +261,10 @@ fun QuotePage(
             onCollectClick = if (!quoteGeneratedByApp) {
                 { onCollectClick(quoteData) }
             } else null,
-            onShareCard = onShareCard
+            onShareCard = onShareCard,
+            onDetailClick = if (quoteData.quote.hasDetailData) {
+                { onDetailClick?.invoke(quoteData.quote) }
+            } else null
         )
         if (LocalInspectionMode.current || !includeExtraPadding) {
             Spacer(modifier = Modifier.height(extraPadding))
@@ -279,6 +293,7 @@ fun QuoteCard(
     currentCollectState: Boolean = false,
     onCollectClick: (() -> Unit)? = null,
     onShareCard: ((Snapshotables) -> Unit)? = null,
+    onDetailClick: (() -> Unit)? = null,
 ) {
     val containerColor = QuoteLockTheme.quotelockColors.quoteCardSurface
     val contentColor = QuoteLockTheme.quotelockColors.quoteCardOnSurface
@@ -341,29 +356,52 @@ fun QuoteCard(
                 )
             }
         }
-        Row(modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 8.dp, end = 8.dp)) {
+        val haptic = LocalHapticFeedback.current
+        onDetailClick?.let {
+            IconButton(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(8.dp)
+                    .size(36.dp),
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    it()
+                }) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = "Detail",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 8.dp)
+        ) {
             val animStar =
                 AnimatedImageVector.animatedVectorResource(id = R.drawable.avd_star_unselected_to_selected)
             onCollectClick?.let {
-                val haptic = LocalHapticFeedback.current
                 IconButton(
                     modifier = Modifier.size(36.dp),
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         it()
                     }) {
-                    Icon(painter = rememberAnimatedVectorPainter(animStar, currentCollectState),
-                        contentDescription = "Collect")
+                    Icon(
+                        painter = rememberAnimatedVectorPainter(animStar, currentCollectState),
+                        contentDescription = "Collect"
+                    )
                 }
             }
             onShareCard?.let {
                 IconButton(modifier = Modifier.size(36.dp),
                     onClick = { onShareCard(snapshotStates) }) {
-                    Icon(Icons.Rounded.Share,
+                    Icon(
+                        Icons.Rounded.Share,
                         contentDescription = stringResource(id = R.string.quote_image_share_description),
-                        modifier = Modifier.size(20.dp))
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
@@ -391,12 +429,16 @@ class QuotePreviewParameterProvider : PreviewParameterProvider<QuoteDataWithColl
     )
 }
 
-@Preview(name = "Quote Card Light",
+@Preview(
+    name = "Quote Card Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Quote Card Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Quote Card Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun QuoteCardPreview(
     @PreviewParameter(QuotePreviewParameterProvider::class) quote: QuoteDataWithCollectState,
@@ -412,15 +454,18 @@ private fun QuoteCardPreview(
                 cardPadding = 36.dp,
                 minHeight = 240.dp,
                 onCollectClick = {},
-                onShareCard = {}
+                onShareCard = {},
+                onDetailClick = {}
             )
         }
     }
 }
 
-@Preview(name = "Quote Page Light",
+@Preview(
+    name = "Quote Page Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
 @Composable
 private fun QuotePagePreview() {
     QuoteLockTheme {

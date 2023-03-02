@@ -41,6 +41,9 @@ data class CustomQuoteEntity(
     @Ignore
     override val uid: String = ""
 
+    @Ignore
+    override val extra: ByteArray? = null
+
     @ColumnInfo(name = CustomQuoteContract.PROVIDER)
     override var provider: String = CustomQuoteContract.PROVIDER_VALUE
 }

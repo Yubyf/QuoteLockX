@@ -1,9 +1,15 @@
 package com.crossbowffs.quotelock.data.api
 
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
+import com.crossbowffs.quotelock.data.modules.jinrishici.JinrishiciQuoteModule
 import com.crossbowffs.quotelock.utils.decodeHex
 import com.crossbowffs.quotelock.utils.hexString
 import com.crossbowffs.quotelock.utils.md5
+import com.crossbowffs.quotelock.utils.readLvBytes
+import com.crossbowffs.quotelock.utils.readLvString
+import com.crossbowffs.quotelock.utils.writeLvBytes
+import com.crossbowffs.quotelock.utils.writeLvString
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 /**
@@ -14,6 +20,7 @@ import java.nio.ByteBuffer
  * @param quoteAuthor The second line (author part) of the quote. The parameters should not be `null`.
  * @param provider The provider of the quote. The parameters should not be `null`.
  * @param uid The unique ID of the quote. Default value is the MD5 hash of the quote text, source, author and provider.
+ * @param extra The extra data of the quote. Default value is `null`.
  */
 data class QuoteData(
     val quoteText: String = "",
@@ -21,6 +28,7 @@ data class QuoteData(
     val quoteAuthor: String = "",
     val provider: String = "",
     val uid: String = "$quoteText$quoteSource$quoteAuthor$provider".md5(),
+    val extra: ByteArray? = null,
 ) {
 
     val readableSource: String
@@ -31,61 +39,78 @@ data class QuoteData(
             .orEmpty()
 
     val byteString: String
-        get() {
-            val textBytes = quoteText.toByteArray()
-            val sourceBytes = quoteSource.toByteArray()
-            val authorBytes = quoteAuthor.toByteArray()
-            val providerBytes = provider.toByteArray()
-            val uidBytes = uid.toByteArray()
-            val bufferSize =
-                Int.SIZE_BYTES + textBytes.size + Int.SIZE_BYTES + sourceBytes.size +
-                        Int.SIZE_BYTES + authorBytes.size + Int.SIZE_BYTES + providerBytes.size +
-                        Int.SIZE_BYTES + uidBytes.size
-            val byteBuffer = ByteBuffer.allocate(bufferSize)
-                .putInt(textBytes.size)
-                .put(textBytes)
-                .putInt(sourceBytes.size)
-                .put(sourceBytes)
-                .putInt(authorBytes.size)
-                .put(authorBytes)
-                .putInt(providerBytes.size)
-                .put(providerBytes)
-                .putInt(uidBytes.size)
-                .put(uidBytes)
-            return byteBuffer.array().hexString()
+        get() = ByteArrayOutputStream().use { stream ->
+            stream.run {
+                writeLvString(quoteText)
+                writeLvString(quoteSource)
+                writeLvString(quoteAuthor)
+                writeLvString(provider)
+                writeLvString(uid)
+                extra?.let(::writeLvBytes)
+                toByteArray().hexString()
+            }
         }
 
     companion object {
-        fun fromByteString(byteString: String): QuoteData {
-            return byteString.decodeHex().runCatching {
-                val buffer = ByteBuffer.wrap(this)
-                val textBytes = ByteArray(buffer.int)
-                buffer.get(textBytes)
-                val sourceBytes = ByteArray(buffer.int)
-                buffer.get(sourceBytes)
-                val authorBytes = ByteArray(buffer.int)
-                buffer.get(authorBytes)
-                if (buffer.remaining() < Int.SIZE_BYTES) {
+        fun fromByteString(byteString: String): QuoteData = byteString.decodeHex().runCatching {
+            ByteBuffer.wrap(this).run {
+                val quoteText = readLvString().orEmpty()
+                val quoteSource = readLvString().orEmpty()
+                val quoteAuthor = readLvString().orEmpty()
+                if (remaining() < Int.SIZE_BYTES) {
                     QuoteData(
-                        quoteText = String(textBytes),
-                        quoteSource = String(sourceBytes),
-                        quoteAuthor = String(authorBytes),
+                        quoteText = quoteText,
+                        quoteSource = quoteSource,
+                        quoteAuthor = quoteAuthor,
                     )
                 } else {
-                    val providerBytes = ByteArray(buffer.int)
-                    buffer.get(providerBytes)
-                    val uidBytes = ByteArray(buffer.int)
-                    buffer.get(uidBytes)
+                    val provider = readLvString().orEmpty()
+                    val uid = readLvString().orEmpty()
+                    val extra = if (remaining() >= Int.SIZE_BYTES) {
+                        readLvBytes()
+                    } else {
+                        null
+                    }
                     QuoteData(
-                        quoteText = String(textBytes),
-                        quoteSource = String(sourceBytes),
-                        quoteAuthor = String(authorBytes),
-                        provider = String(providerBytes),
-                        uid = String(uidBytes),
+                        quoteText = quoteText,
+                        quoteSource = quoteSource,
+                        quoteAuthor = quoteAuthor,
+                        provider = provider,
+                        uid = uid,
+                        extra = extra
                     )
                 }
-            }.getOrDefault(QuoteData())
-        }
+            }
+        }.getOrDefault(QuoteData())
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as QuoteData
+
+        if (quoteText != other.quoteText) return false
+        if (quoteSource != other.quoteSource) return false
+        if (quoteAuthor != other.quoteAuthor) return false
+        if (provider != other.provider) return false
+        if (uid != other.uid) return false
+        if (extra != null) {
+            if (other.extra == null) return false
+            if (!extra.contentEquals(other.extra)) return false
+        } else if (other.extra != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = quoteText.hashCode()
+        result = 31 * result + quoteSource.hashCode()
+        result = 31 * result + quoteAuthor.hashCode()
+        result = 31 * result + provider.hashCode()
+        result = 31 * result + uid.hashCode()
+        result = 31 * result + (extra?.contentHashCode() ?: 0)
+        return result
     }
 }
 
@@ -115,3 +140,6 @@ fun QuoteData.withCollectState(state: Boolean? = null) = QuoteDataWithCollectSta
     quote = this,
     collectState = state
 )
+
+val QuoteData.hasDetailData: Boolean
+    get() = extra != null && provider == JinrishiciQuoteModule.PREF_JINRISHICI

@@ -26,6 +26,8 @@ import com.crossbowffs.quotelock.app.collections.navigateToCollection
 import com.crossbowffs.quotelock.app.configs.configGraphs
 import com.crossbowffs.quotelock.app.configs.custom.customQuoteGraph
 import com.crossbowffs.quotelock.app.configs.navigateToConfigScreen
+import com.crossbowffs.quotelock.app.detail.jinrishici.detailJinrishiciGraph
+import com.crossbowffs.quotelock.app.detail.navigateToDetail
 import com.crossbowffs.quotelock.app.font.fontManagementGraph
 import com.crossbowffs.quotelock.app.font.navigateToFontManagement
 import com.crossbowffs.quotelock.app.history.historyGraph
@@ -67,7 +69,8 @@ fun MainNavHost(
             onCollectionItemClicked = navController::navigateToCollection,
             onHistoryItemClicked = navController::navigateToHistory,
             onFontCustomize = navController::navigateToFontManagement,
-            onShare = navController::navigateToShare
+            onShare = navController::navigateToShare,
+            onDetail = navController::navigateToDetail
         )
         settingsGraph(
             onLanguageItemClicked = navController::navigateToLanguage,
@@ -98,12 +101,14 @@ fun MainNavHost(
         quoteGraph(
             onFontCustomize = navController::navigateToFontManagement,
             onShare = navController::navigateToShare,
+            onDetail = navController::navigateToDetail,
             onBack = navController::popBackStack
         )
         configGraphs(navController::popBackStack)
         fontManagementGraph(navController::popBackStack)
         aboutGraph(navController::popBackStack)
         shareGraph(navController::popBackStack)
+        detailJinrishiciGraph(navController::popBackStack)
     }
 }
 
@@ -115,13 +120,18 @@ fun NavGraphBuilder.standardPageComposable(
 ) {
     val animationDuration = 300
     val enterTransition: (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?) = {
-        slideIntoContainer(AnimatedContentScope.SlideDirection.Left,
-            animationSpec = tween(animationDuration))
+        slideIntoContainer(
+            AnimatedContentScope.SlideDirection.Left,
+            animationSpec = tween(animationDuration)
+        )
     }
     val exitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) = {
         when (initialState.destination.route) {
-            SettingsDestination.route -> slideOutOfContainer(AnimatedContentScope.SlideDirection.Left,
-                animationSpec = tween(animationDuration))
+            SettingsDestination.route -> slideOutOfContainer(
+                AnimatedContentScope.SlideDirection.Left,
+                animationSpec = tween(animationDuration)
+            )
+
             else -> SCALE_FADE_OUT_TRANSITION
         }
     }
@@ -135,8 +145,10 @@ fun NavGraphBuilder.standardPageComposable(
         }
     }
     val popExitTransition: (AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition?) = {
-        slideOutOfContainer(AnimatedContentScope.SlideDirection.Right,
-            animationSpec = tween(animationDuration))
+        slideOutOfContainer(
+            AnimatedContentScope.SlideDirection.Right,
+            animationSpec = tween(animationDuration)
+        )
     }
     composable(
         route = route,

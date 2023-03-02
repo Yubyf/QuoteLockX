@@ -41,7 +41,8 @@ class QuoteCollectionRepository internal constructor(
                 source = quoteData.quoteSource,
                 author = quoteData.quoteAuthor,
                 provider = quoteData.provider,
-                uid = quoteData.uid
+                uid = quoteData.uid,
+                extra = quoteData.extra
             )
         )
 

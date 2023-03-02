@@ -56,6 +56,12 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:visibility="gone" />
+
+        <View
+            android:id="@+id/extra_tag_placeholder"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
     </LinearLayout>
 
     <LinearLayout

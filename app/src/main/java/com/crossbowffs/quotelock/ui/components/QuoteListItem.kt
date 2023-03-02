@@ -188,6 +188,7 @@ class QuoteListItemPreviewParameterProvider : PreviewParameterProvider<QuoteEnti
             override val author: String = "王勃"
             override val uid: String = ""
             override val provider: String = ""
+            override val extra: ByteArray? = null
 
             override fun equals(other: Any?): Boolean = false
         },
@@ -198,6 +199,7 @@ class QuoteListItemPreviewParameterProvider : PreviewParameterProvider<QuoteEnti
             override val author: String? = null
             override val uid: String = ""
             override val provider: String = ""
+            override val extra: ByteArray? = null
 
             override fun equals(other: Any?): Boolean = false
         }

@@ -53,6 +53,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     private lateinit var mAuthorTagPlaceholder: View
     private lateinit var mProviderTagPlaceholder: View
     private lateinit var mUidTagPlaceholder: View
+    private lateinit var mExtraTagPlaceholder: View
     private lateinit var mActionContainer: LinearLayout
     private lateinit var mRefreshImageView: ImageView
     private lateinit var mCollectImageView: ImageView
@@ -144,11 +145,12 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         mActionContainer.layoutParams = params
         mQuoteTextView.text = text
         mSourceTextView.text = source
-        // Cache source, author, provider and UID information in placeholders.
+        // Cache source, author, provider, UID and extra information in placeholders.
         mSourceTagPlaceholder.tag = originalSource
         mAuthorTagPlaceholder.tag = author
         mProviderTagPlaceholder.tag = quoteData.provider
         mUidTagPlaceholder.tag = quoteData.uid
+        mExtraTagPlaceholder.tag = quoteData.extra
 
         // Use animation vector drawable to show collection state
         val stateSet = intArrayOf(android.R.attr.state_checked * if (collectionState) 1 else -1)
@@ -314,6 +316,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         val author = mAuthorTagPlaceholder.tag?.toString().orEmpty()
         val provider = mProviderTagPlaceholder.tag?.toString().orEmpty()
         val uid = mUidTagPlaceholder.tag?.toString().orEmpty()
+        val extra = mExtraTagPlaceholder.tag as? ByteArray
         val uri = ActionProvider.CONTENT_URI.buildUpon().appendPath("collect").build()
         val values = ContentValues(3)
         values.put(QuoteCollectionContract.TEXT, text)
@@ -321,6 +324,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         values.put(QuoteCollectionContract.AUTHOR, author)
         values.put(QuoteCollectionContract.PROVIDER, provider)
         values.put(QuoteCollectionContract.UID, uid)
+        values.put(QuoteCollectionContract.EXTRA, extra)
         val resolver = context.contentResolver
         val resultUri = resolver.insert(uri, values)
         if (resultUri?.lastPathSegment == "-1") {
@@ -502,6 +506,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                             sModuleRes.findViewById(view, RES_ID_PROVIDER_TAG_PLACEHOLDER)
                         mUidTagPlaceholder =
                             sModuleRes.findViewById(view, RES_ID_UID_TAG_PLACEHOLDER)
+                        mExtraTagPlaceholder =
+                            sModuleRes.findViewById(view, RES_ID_EXTRA_TAG_PLACEHOLDER)
                         mActionContainer =
                             sModuleRes.findViewById(view, RES_ID_ACTION_CONTAINER) as LinearLayout
                         mRefreshImageView =
@@ -687,6 +693,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         private const val RES_ID_AUTHOR_TAG_PLACEHOLDER = "author_tag_placeholder"
         private const val RES_ID_PROVIDER_TAG_PLACEHOLDER = "provider_tag_placeholder"
         private const val RES_ID_UID_TAG_PLACEHOLDER = "uid_tag_placeholder"
+        private const val RES_ID_EXTRA_TAG_PLACEHOLDER = "extra_tag_placeholder"
         private const val RES_ID_ACTION_CONTAINER = "action_container"
         private const val RES_ID_REFRESH_IMAGE_VIEW = "refresh_image_view"
         private const val RES_ID_COLLECT_IMAGE_VIEW = "collect_image_view"

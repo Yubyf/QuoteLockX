@@ -217,4 +217,5 @@
     <string name="quote_card_style_popup_hint">To set the lockscreen style, please go to \"More > Lockscreen Styles\"</string>
     <string name="quote_card_style_variable_font_weight">Variable Weight</string>
     <string name="quote_card_style_variable_font_slant">Variable Slant</string>
+    <string name="no_data">No data</string>
 </resources>
