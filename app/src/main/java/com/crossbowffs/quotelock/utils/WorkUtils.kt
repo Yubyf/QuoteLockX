@@ -101,7 +101,7 @@ object WorkUtils {
         val existingWorkPolicy =
             if (recreate) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP
         Xlog.d(TAG, "ExistingWorkPolicy - $existingWorkPolicy")
-        val delay = getUpdateDelay(context, refreshInterval)
+        val delay = getQuoteUpdateDelay(context, ensureQuoteRefreshInterval(refreshInterval))
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(getNetworkType(isRequireInternet, isUnmeteredNetworkOnly))
             .build()
@@ -120,14 +120,16 @@ object WorkUtils {
         Xlog.d(TAG, "Scheduled quote download work with delay: %d", delay)
     }
 
-    private fun getUpdateDelay(context: Context, refreshInterval: Int): Int {
+    private fun getQuoteUpdateDelay(context: Context, refreshInterval: Int): Int {
         // This compensates for the time since the last update in order
         // to ensure that the quote will be updated in a reasonable time
         // window. If the quote was updated >= refreshInterval time ago,
         // the update will be scheduled with zero delay.
         val currentTime = System.currentTimeMillis()
-        val quoteRepository = EntryPointAccessors.fromApplication(context.applicationContext,
-            QuoteProviderEntryPoint::class.java).quoteRepository()
+        val quoteRepository = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            QuoteProviderEntryPoint::class.java
+        ).quoteRepository()
         val lastUpdateTime = quoteRepository.getLastUpdateTime().takeIf { it > 0L } ?: currentTime
         Xlog.d(TAG, "Current time: %d", currentTime)
         Xlog.d(TAG, "Last update time: %d", lastUpdateTime)
@@ -146,7 +148,7 @@ object WorkUtils {
         return delay
     }
 
-    private fun getRefreshInterval(refreshInterval: Int): Int {
+    private fun ensureQuoteRefreshInterval(refreshInterval: Int): Int {
         return if (refreshInterval < 60) {
             Xlog.w(TAG, "Refresh period too short, clamping to 60 seconds")
             60
