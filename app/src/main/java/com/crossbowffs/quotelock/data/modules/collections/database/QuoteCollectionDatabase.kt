@@ -259,7 +259,10 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
                     "ALTER TABLE ${QuoteCollectionContract.TABLE}" +
-                            " ADD COLUMN ${QuoteCollectionContract.PROVIDER} TEXT DEFAULT '' NOT NULL," +
+                            " ADD COLUMN ${QuoteCollectionContract.PROVIDER} TEXT DEFAULT '' NOT NULL"
+                )
+                database.execSQL(
+                    "ALTER TABLE ${QuoteCollectionContract.TABLE}" +
                             " ADD COLUMN ${QuoteCollectionContract.EXTRA} BLOB DEFAULT NULL"
                 )
                 database.execSQL(
