@@ -1,25 +1,25 @@
 [versions]
 # Plugin
-android-plugin = "7.3.1"
-kotlin = "1.7.20"
+android-plugin = "7.4.2"
+kotlin = "1.8.10"
 hilt = "2.44.2"
 gradle-versions-plugin = "0.44.0"
 
 # AndroidX
 # See https://issuetracker.google.com/issues/243119645
-appcompat = "1.7.0-alpha01"
+appcompat = "1.7.0-alpha02"
 activity = "1.6.1"
-work = "2.7.1"
+work = "2.8.0"
 concurrent-futures = "1.1.0"
 # Fix the conflict between concurrent-futures and guava libs.
 listenable-future = "9999.0-empty-to-avoid-conflict-with-guava"
-room = "2.4.3"
+room = "2.5.0"
 
 # Compose
-compose-version = "1.3.2"
-compose-bom = "2022.12.00"
+compose-version = "1.4.3"
+compose-bom = "2023.01.00"
 compose-accompanist = "0.28.0"
-compose-lifecycle-viewmodel = "2.5.1"
+compose-lifecycle-viewmodel = "2.6.0"
 compose-navigation = "2.5.3"
 compose-hilt-navigation = "1.0.0"
 glance = "1.0.0-alpha05"
@@ -28,8 +28,8 @@ glance = "1.0.0-alpha05"
 coil = "2.2.2"
 
 # Google
-google-material = "1.7.0"
-google-play-services-auth = "20.4.0"
+google-material = "1.8.0"
+google-play-services-auth = "20.4.1"
 google-api-client = "2.1.2"
 google-api-services-drive = "v3-rev20221219-2.0.0"
 
