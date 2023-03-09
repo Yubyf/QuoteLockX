@@ -114,6 +114,9 @@ const val PREF_SHARE_IMAGE_MIME_TYPE = "image/png"
 const val PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX = 36F
 const val PREF_SHARE_IMAGE_WATERMARK_PADDING = PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX * 2F
 
+const val PREF_WIDGET_IMAGE_CHILD_PATH = "widget/"
+const val PREF_WIDGET_IMAGE_EXTENSION = ".png"
+
 val PREF_PUBLIC_RELATIVE_PATH by lazy {
     // Get english application name for the default export path
     App.instance.let {

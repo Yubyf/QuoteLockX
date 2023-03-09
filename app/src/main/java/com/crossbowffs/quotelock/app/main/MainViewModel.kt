@@ -11,6 +11,7 @@ import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.data.WidgetRepository
 import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
@@ -46,6 +47,7 @@ class MainViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val quoteRepository: QuoteRepository,
     configurationRepository: ConfigurationRepository,
+    widgetRepository: WidgetRepository,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
@@ -61,16 +63,20 @@ class MainViewModel @Inject constructor(
     init {
         // In case the user opens the app for the first time *after* rebooting,
         // we want to make sure the background work has been created.
-        WorkUtils.createQuoteDownloadWork(context,
+        WorkUtils.createQuoteDownloadWork(
+            context,
             configurationRepository.refreshInterval,
             configurationRepository.isRequireInternet,
             configurationRepository.isUnmeteredNetworkOnly,
-            false)
+            false
+        )
         if (!XposedUtils.isModuleEnabled) {
             _uiDialogState.value = MainDialogUiState.EnableModuleDialog
         } else if (XposedUtils.isModuleUpdated) {
             _uiDialogState.value = MainDialogUiState.ModuleUpdatedDialog
         }
+        // Trigger the initialization of the widget repository
+        widgetRepository.placeholder()
 
         viewModelScope.launch {
             quoteRepository.quoteDataFlow.onEach {

@@ -4,11 +4,15 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import androidx.compose.ui.unit.DpSize
+import androidx.glance.GlanceId
 import androidx.work.*
 import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
+import com.crossbowffs.quotelock.worker.GlanceWorker
 import com.crossbowffs.quotelock.worker.QuoteWorker
 import dagger.hilt.android.EntryPointAccessors
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 object WorkUtils {
     private val TAG = className<WorkUtils>()
@@ -26,6 +30,7 @@ object WorkUtils {
                 actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
                         || actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
                         || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+
                 else -> false
             }
         } else {
@@ -38,6 +43,7 @@ object WorkUtils {
                         ConnectivityManager.TYPE_MOBILE,
                         ConnectivityManager.TYPE_ETHERNET,
                         -> true
+
                         else -> false
                     }
                 }
@@ -68,12 +74,52 @@ object WorkUtils {
         // Check if we're on a metered connection and act according to the
         // user's preference.
         if (isUnmeteredNetworkOnly && manager?.isActiveNetworkMetered == true) {
-            Xlog.d(TAG,
-                "WorkUtils#shouldRefreshQuote: NO (can only update on unmetered connections)")
+            Xlog.d(
+                TAG,
+                "WorkUtils#shouldRefreshQuote: NO (can only update on unmetered connections)"
+            )
             return false
         }
         Xlog.d(TAG, "WorkUtils#shouldRefreshQuote: YES")
         return true
+    }
+
+    fun createWidgetUpdateWork(context: Context, glanceId: GlanceId, size: DpSize) {
+        Xlog.d(TAG, "WorkUtils#createWidgetUpdateWork called")
+        val workManager = WorkManager.getInstance(context)
+        val oneTimeWorkRequest = OneTimeWorkRequestBuilder<GlanceWorker>()
+            .addTag(glanceId.toString())
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setInputData(
+                workDataOf(
+                    "width" to size.width.value.dp2px().roundToInt(),
+                    "height" to size.height.value.dp2px().roundToInt(),
+                )
+            )
+            .build()
+        workManager.enqueueUniqueWork(
+            GlanceWorker.TAG + size.width + size.height,
+            ExistingWorkPolicy.REPLACE,
+            oneTimeWorkRequest
+        )
+
+        // Temporary workaround to avoid WM provider to disable itself and trigger an
+        // app widget update
+        val workaroundTag = "${GlanceWorker.TAG}-workaround"
+        val workaroundEnqueued =
+            workManager.getWorkInfosForUniqueWork(workaroundTag).get().firstOrNull() {
+                it.state == WorkInfo.State.ENQUEUED
+            } != null
+        if (!workaroundEnqueued) {
+            workManager.enqueueUniqueWork(
+                workaroundTag,
+                ExistingWorkPolicy.KEEP,
+                OneTimeWorkRequestBuilder<GlanceWorker>().apply {
+                    setInitialDelay(365, TimeUnit.DAYS)
+                }.build()
+            )
+        }
+        Xlog.d(TAG, "Scheduled widget update work.")
     }
 
     fun createQuoteDownloadWork(
@@ -110,13 +156,15 @@ object WorkUtils {
             .setBackoffCriteria(
                 BackoffPolicy.LINEAR, (
                         2 * 1000).toLong(),
-                TimeUnit.MILLISECONDS)
+                TimeUnit.MILLISECONDS
+            )
             .setConstraints(constraints)
             .build()
         workManager.enqueueUniqueWork(
             QuoteWorker.TAG,
             existingWorkPolicy,
-            oneTimeWorkRequest)
+            oneTimeWorkRequest
+        )
         Xlog.d(TAG, "Scheduled quote download work with delay: %d", delay)
     }
 

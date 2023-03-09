@@ -3,6 +3,7 @@ package com.crossbowffs.quotelock.di
 import android.accounts.AccountManager
 import android.content.Context
 import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.data.WidgetRepository
 import com.crossbowffs.quotelock.data.history.QuoteHistoryDatabase
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
@@ -138,4 +139,10 @@ interface QuoteProviderEntryPoint {
 @InstallIn(SingletonComponent::class)
 interface ConfigurationEntryPoint {
     fun configurationRepository(): ConfigurationRepository
+}
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface WidgetEntryPoint {
+    fun widgetRepository(): WidgetRepository
 }

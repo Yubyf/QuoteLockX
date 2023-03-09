@@ -4,4 +4,8 @@
     <external-cache-path
         name="share"
         path="share/" />
+
+    <external-cache-path
+        name="widget"
+        path="widget/" />
 </paths>

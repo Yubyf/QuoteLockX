@@ -192,4 +192,7 @@
     <string name="quote_card_style_variable_font_weight">可变字重</string>
     <string name="quote_card_style_variable_font_slant">可变倾斜</string>
     <string name="no_data">无数据</string>
+
+    <string name="quote_sample_text">落霞与孤鹜齐飞，秋水共长天一色</string>
+    <string name="quote_sample_source">―王勃《滕王阁序》</string>
 </resources>

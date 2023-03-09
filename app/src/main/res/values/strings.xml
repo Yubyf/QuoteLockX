@@ -218,4 +218,7 @@
     <string name="quote_card_style_variable_font_weight">Variable Weight</string>
     <string name="quote_card_style_variable_font_slant">Variable Slant</string>
     <string name="no_data">No data</string>
+
+    <string name="quote_sample_text">Knowledge is power.</string>
+    <string name="quote_sample_source">―Francis Bacon</string>
 </resources>

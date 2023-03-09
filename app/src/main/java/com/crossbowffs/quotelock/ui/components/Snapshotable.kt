@@ -288,76 +288,6 @@ private data class SnapshotTextLayout(
         includePad = false,
     )
 
-    @SuppressLint("WrongConstant")
-    private fun makeNewTextLayout(
-        text: String,
-        width: Int,
-        @ColorInt textColor: Int,
-        fontSize: Float,
-        fontStyle: Int = Typeface.NORMAL,
-        fontFamily: Typeface? = null,
-        alignment: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
-        direction: TextDirectionHeuristic = TextDirectionHeuristics.FIRSTSTRONG_LTR,
-        lineHeightMult: Float = 1F,
-        ellipsize: TextUtils.TruncateAt? = null,
-        ellipsizeWidth: Int = 0,
-        maxLines: Int = Int.MAX_VALUE,
-        includePad: Boolean = true,
-    ): Layout {
-        val paint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG).apply {
-            textSize = fontSize
-            color = textColor
-            // Set font typeface and style
-            // Copied from [TextView#setTypeface(Typeface, int)]
-            if (fontStyle > 0) {
-                typeface = if (fontFamily == null) {
-                    Typeface.defaultFromStyle(fontStyle)
-                } else {
-                    Typeface.create(fontFamily, fontStyle)
-                }
-                // now compute what (if any) algorithmic styling is needed
-                val typefaceStyle = typeface?.style ?: 0
-                val need: Int = fontStyle and typefaceStyle.inv()
-                isFakeBoldText = need and Typeface.BOLD != 0
-                textSkewX = if (need and Typeface.ITALIC != 0) -0.25f else 0F
-            } else {
-                isFakeBoldText = false
-                textSkewX = 0f
-                typeface = fontFamily
-            }
-        }
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            StaticLayout.Builder.obtain(text, 0, text.length,
-                paint, width)
-                .setAlignment(alignment)
-                .setTextDirection(direction)
-                .setLineSpacing(0F, lineHeightMult)
-                .setIncludePad(includePad)
-                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)
-                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE)
-                .apply {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        setJustificationMode(Layout.JUSTIFICATION_MODE_NONE)
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        setUseLineSpacingFromFallbacks(false)
-                    }
-                }
-                .setEllipsize(ellipsize)
-                .setEllipsizedWidth(ellipsizeWidth)
-                .setMaxLines(maxLines)
-                .build()
-        } else {
-            @Suppress("DEPRECATION")
-            StaticLayout(text, 0, text.length,
-                paint, width,
-                alignment,
-                lineHeightMult, 0F,
-                includePad,
-                ellipsize, ellipsizeWidth)
-        }
-    }
-
     override fun hashCode(): Int {
         var result = text.hashCode()
         result = 31 * result + width
@@ -389,6 +319,77 @@ private data class SnapshotTextLayout(
                 textAlign == other.textAlign &&
                 overflow == other.overflow &&
                 maxLines == other.maxLines
+    }
+}
+
+@SuppressLint("WrongConstant")
+fun makeNewTextLayout(
+    text: String,
+    width: Int,
+    @ColorInt textColor: Int,
+    fontSize: Float,
+    fontStyle: Int = Typeface.NORMAL,
+    fontFamily: Typeface? = null,
+    alignment: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
+    direction: TextDirectionHeuristic = TextDirectionHeuristics.FIRSTSTRONG_LTR,
+    lineHeightMult: Float = 1F,
+    ellipsize: TextUtils.TruncateAt? = null,
+    ellipsizeWidth: Int = 0,
+    maxLines: Int = Int.MAX_VALUE,
+    includePad: Boolean = true,
+): Layout {
+    val paint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG).apply {
+        textSize = fontSize
+        color = textColor
+        // Set font typeface and style
+        // Copied from [TextView#setTypeface(Typeface, int)]
+        if (fontStyle > 0) {
+            typeface = if (fontFamily == null) {
+                Typeface.defaultFromStyle(fontStyle)
+            } else {
+                Typeface.create(fontFamily, fontStyle)
+            }
+            // now compute what (if any) algorithmic styling is needed
+            val typefaceStyle = typeface?.style ?: 0
+            val need: Int = fontStyle and typefaceStyle.inv()
+            isFakeBoldText = need and Typeface.BOLD != 0
+            textSkewX = if (need and Typeface.ITALIC != 0) -0.25f else 0F
+        } else {
+            isFakeBoldText = false
+            textSkewX = 0f
+            typeface = fontFamily
+        }
+    }
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
+            .setAlignment(alignment)
+            .setTextDirection(direction)
+            .setLineSpacing(0F, lineHeightMult)
+            .setIncludePad(includePad)
+            .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)
+            .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE)
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    setJustificationMode(Layout.JUSTIFICATION_MODE_NONE)
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    setUseLineSpacingFromFallbacks(false)
+                }
+            }
+            .setEllipsize(ellipsize)
+            .setEllipsizedWidth(ellipsizeWidth)
+            .setMaxLines(maxLines)
+            .build()
+    } else {
+        @Suppress("DEPRECATION")
+        StaticLayout(
+            text, 0, text.length,
+            paint, width,
+            alignment,
+            lineHeightMult, 0F,
+            includePad,
+            ellipsize, ellipsizeWidth
+        )
     }
 }
 

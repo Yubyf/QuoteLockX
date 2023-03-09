@@ -22,6 +22,7 @@ compose-accompanist = "0.28.0"
 compose-lifecycle-viewmodel = "2.5.1"
 compose-navigation = "2.5.3"
 compose-hilt-navigation = "1.0.0"
+glance = "1.0.0-alpha05"
 
 # Coil
 coil = "2.2.2"
@@ -76,6 +77,7 @@ compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref 
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 compose-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "compose-lifecycle-viewmodel" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
+compose-glance = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
 
 # Compose bom
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
@@ -130,7 +132,8 @@ google = ["google-material", "google-play-services-auth", "google-api-client", "
 # Compose
 compose-standard = ["compose-compiler", "compose-activity", "compose-material3", "compose-animation",
     "compose-ui-tooling-preview", "compose-lifecycle-viewmodel", "compose-navigation",
-    "compose-animation-graphics", "compose-material-icons", "compose-material-icons-extended"]
+    "compose-animation-graphics", "compose-material-icons", "compose-material-icons-extended",
+    "compose-glance"]
 compose-test = ["compose-test", "compose-ui-test"]
 
 # Accompanist

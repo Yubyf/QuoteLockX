@@ -90,7 +90,18 @@ suspend fun Bitmap.toFile(file: File, dispatcher: CoroutineDispatcher = Dispatch
                 createNewFile()
             }
             val fos: OutputStream = FileOutputStream(this)
-            compress(Bitmap.CompressFormat.PNG, 90, fos)
+            compress(
+                when (extension.lowercase()) {
+                    "jpg",
+                    "jpeg",
+                    -> Bitmap.CompressFormat.JPEG
+
+                    "webp" -> Bitmap.CompressFormat.WEBP
+                    "png" -> Bitmap.CompressFormat.PNG
+                    else -> Bitmap.CompressFormat.PNG
+                },
+                90, fos
+            )
             fos.flush()
             fos.close()
             true
