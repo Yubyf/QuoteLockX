@@ -107,6 +107,7 @@ junit = { module = "junit:junit", version.ref = "junit" }
 androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-junit" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test" }
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test" }
+androidx-room-test = { module = "androidx.room:room-testing", version.ref = "room" }
 
 # Xposed
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
@@ -141,7 +142,7 @@ accompanist = ["accompanist-navigation-animation", "accompanist-systemuicontroll
     "accompanist-pager-indicators", "accompanist-placeholder-material"]
 
 # Test
-androidx-test = ["androidx-test-junit", "androidx-test-core", "androidx-test-rules"]
+androidx-test = ["androidx-test-junit", "androidx-test-core", "androidx-test-rules", "androidx-room-test"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }

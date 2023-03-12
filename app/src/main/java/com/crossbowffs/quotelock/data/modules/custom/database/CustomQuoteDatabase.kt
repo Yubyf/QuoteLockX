@@ -76,18 +76,20 @@ abstract class CustomQuoteDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: CustomQuoteDatabase? = null
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Empty implementation, because the schema isn't changing.
             }
         }
-        private val MIGRATION_2_3 = object : Migration(2, 3) {
+        val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE ${CustomQuoteContract.TABLE}" +
-                        " ADD COLUMN ${CustomQuoteContract.AUTHOR} TEXT NOT NULL DEFAULT ''")
+                database.execSQL(
+                    "ALTER TABLE ${CustomQuoteContract.TABLE}" +
+                            " ADD COLUMN ${QuoteEntityContract.AUTHOR_OLD} TEXT NOT NULL DEFAULT ''"
+                )
             }
         }
-        private val MIGRATION_3_4 = object : Migration(3, 4) {
+        val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
                     "ALTER TABLE ${CustomQuoteContract.TABLE} RENAME TO tmp_table"
@@ -110,7 +112,7 @@ abstract class CustomQuoteDatabase : RoomDatabase() {
                 database.execSQL("DROP TABLE tmp_table")
             }
         }
-        private val MIGRATION_4_5 = object : Migration(4, 5) {
+        val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
                     "ALTER TABLE ${CustomQuoteContract.TABLE}" +

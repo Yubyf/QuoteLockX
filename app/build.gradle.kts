@@ -68,9 +68,11 @@ android {
         resValue("string", "account_authority", "${applicationId}.collection.provider")
         resourceConfigurations += arrayOf("en", "zh-rCN", "zh-rTW")
 
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/build/schemas")
+        javaCompileOptions {
+            annotationProcessorOptions {
+                compilerArgumentProviders(
+                    RoomSchemaArgProvider(File(projectDir, "schemas"))
+                )
             }
         }
     }
@@ -138,6 +140,9 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.version.get()
     }
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
     namespace = Configs.namespace
 }
 
@@ -185,4 +190,14 @@ dependencies {
     androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.bundles.compose.test)
     debugImplementation(libs.compose.test.manifest)
+}
+
+class RoomSchemaArgProvider(
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val schemaDir: File,
+) : CommandLineArgumentProvider {
+
+    override fun asArguments(): Iterable<String> =
+        listOf("-Aroom.schemaLocation=${schemaDir.path}")
 }
