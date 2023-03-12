@@ -3,7 +3,6 @@
 package com.crossbowffs.quotelock.data.history
 
 import androidx.room.testing.MigrationTestHelper
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.crossbowffs.quotelock.data.SAMPLE_AUTHOR
@@ -31,8 +30,8 @@ class QuoteHistoryDatabaseMigrationTest {
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        QuoteHistoryDatabase::class.java.canonicalName,
-        FrameworkSQLiteOpenHelperFactory()
+        QuoteHistoryDatabase::class.java,
+        emptyList()
     )
 
     @Test
