@@ -90,19 +90,32 @@ abstract class CustomQuoteDatabase : RoomDatabase() {
         private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
-                    "ALTER TABLE ${CustomQuoteContract.TABLE} RENAME TO tmp_table")
-                database.execSQL("CREATE TABLE ${CustomQuoteContract.TABLE}(" +
-                        "${CustomQuoteContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "${CustomQuoteContract.TEXT} TEXT NOT NULL, " +
-                        "${CustomQuoteContract.SOURCE} TEXT NOT NULL, " +
-                        "${CustomQuoteContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')")
-                database.execSQL("INSERT OR REPLACE INTO ${CustomQuoteContract.TABLE}(" +
-                        "${CustomQuoteContract.ID}, ${CustomQuoteContract.TEXT}, " +
-                        "${CustomQuoteContract.SOURCE}, ${CustomQuoteContract.AUTHOR}) " +
-                        "SELECT ${CustomQuoteContract.ID}, ${CustomQuoteContract.TEXT}, " +
-                        "${CustomQuoteContract.SOURCE}, ${QuoteEntityContract.AUTHOR_OLD} " +
-                        "FROM tmp_table")
+                    "ALTER TABLE ${CustomQuoteContract.TABLE} RENAME TO tmp_table"
+                )
+                database.execSQL(
+                    "CREATE TABLE ${CustomQuoteContract.TABLE}(" +
+                            "${CustomQuoteContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "${CustomQuoteContract.TEXT} TEXT NOT NULL, " +
+                            "${CustomQuoteContract.SOURCE} TEXT NOT NULL, " +
+                            "${CustomQuoteContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')"
+                )
+                database.execSQL(
+                    "INSERT OR REPLACE INTO ${CustomQuoteContract.TABLE}(" +
+                            "${CustomQuoteContract.ID}, ${CustomQuoteContract.TEXT}, " +
+                            "${CustomQuoteContract.SOURCE}, ${CustomQuoteContract.AUTHOR}) " +
+                            "SELECT ${CustomQuoteContract.ID}, ${CustomQuoteContract.TEXT}, " +
+                            "${CustomQuoteContract.SOURCE}, ${QuoteEntityContract.AUTHOR_OLD} " +
+                            "FROM tmp_table"
+                )
                 database.execSQL("DROP TABLE tmp_table")
+            }
+        }
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE ${CustomQuoteContract.TABLE}" +
+                            " ADD COLUMN ${CustomQuoteContract.PROVIDER} TEXT DEFAULT ${CustomQuoteContract.PROVIDER_VALUE} NOT NULL"
+                )
             }
         }
 
@@ -115,7 +128,7 @@ abstract class CustomQuoteDatabase : RoomDatabase() {
                     CustomQuoteDatabase::class.java,
                     DATABASE_NAME
                 ).setJournalMode(JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build()
                 INSTANCE = instance
                 // return instance

@@ -58,7 +58,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("int", "MODULE_VERSION", "4")
-        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "4")
+        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "5")
         buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "5")
         buildConfigField("int", "QUOTE_HISTORIES_DB_VERSION", "5")
         buildConfigField("int", "FORTUNE_QUOTES_DB_VERSION", "5")
