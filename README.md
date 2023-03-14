@@ -28,8 +28,12 @@ LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) no
 - Imports custom fonts ([Magisk module](https://github.com/Yubyf/QuoteLockX-CustomFonts) needed for
   lockscreen layout).
 - Support for variable font weight and slant axis properties.
+- Support for quote detail pages for some providers (currently only supported by Jinrishici).
+- Support for widget.
 
 <img src="screenshots/variable_font_showcase.webp" width="300px" />
+
+<img src="screenshots/detail_page.png" width="300px" />
 
 ## Tips
 
@@ -70,11 +74,9 @@ the download service.
 
 ### Todo
 
-- [ ] Add support for custom importing of fortune cookies.
+- [ ] ~~Add support for custom importing of fortune cookies.~~
 
 ### In Progress
-
-- [ ] Advanced detail pages.
 
 ### Done
 
@@ -86,6 +88,8 @@ the download service.
 - [x] Completely redesigned the app.
 - [x] Add support for multi-classification selection of Hitokoto.
 - [x] Optimize for variable fonts.
+- [x] Advanced detail pages (currently only supported by Jinrishici).
+- [x] Add support for widget.
 
 ## License
 
