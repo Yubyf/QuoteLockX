@@ -53,8 +53,8 @@ jobs:
       - name: Set ENV
         id: vars
         run: |
-          echo ::set-output name=TAG::${GITHUB_REF#refs/*/}
-          echo ::set-output name=HASH::$(git rev-parse --short "$GITHUB_SHA")
+          echo TAG::${GITHUB_REF#refs/*/} >> $GITHUB_OUTPUT
+          echo HASH::$(git rev-parse --short "$GITHUB_SHA") >> $GITHUB_OUTPUT
 
       - name: Set Version Suffix
         uses: haya14busa/action-cond@v1
