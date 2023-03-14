@@ -2,8 +2,8 @@
 # Plugin
 android-plugin = "7.4.2"
 kotlin = "1.8.10"
-hilt = "2.44.2"
-gradle-versions-plugin = "0.44.0"
+hilt = "2.45"
+gradle-versions-plugin = "0.46.0"
 
 # AndroidX
 # See https://issuetracker.google.com/issues/243119645
@@ -30,8 +30,8 @@ coil = "2.2.2"
 # Google
 google-material = "1.8.0"
 google-play-services-auth = "20.4.1"
-google-api-client = "2.1.2"
-google-api-services-drive = "v3-rev20221219-2.0.0"
+google-api-client = "2.2.0"
+google-api-services-drive = "v3-rev20230212-2.0.0"
 
 # Test
 junit = "4.13.2"
@@ -44,7 +44,7 @@ androidx-test = "1.5.0"
 xposed = "82"
 
 remote-preferences = "0.9"
-jsoup = "1.15.3"
+jsoup = "1.15.4"
 datastore-preferences = "1.2.2"
 truetype-parser-light = "2.1.4"
 open-csv = "5.7.1"
