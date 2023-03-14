@@ -18,7 +18,12 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.*
 import androidx.test.platform.app.InstrumentationRegistry
-import com.crossbowffs.quotelock.app.screenshot.*
+import com.crossbowffs.quotelock.app.screenshot.DynamicDarkScreenshotScreen
+import com.crossbowffs.quotelock.app.screenshot.FontCustomizationScreenshotScreen
+import com.crossbowffs.quotelock.app.screenshot.LockscreenScreenshotScreen
+import com.crossbowffs.quotelock.app.screenshot.LockscreenStyleScreenshotScreen
+import com.crossbowffs.quotelock.app.screenshot.MainScreenshotScreen
+import com.crossbowffs.quotelock.app.screenshot.WidgetScreenshotScreen
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_EXTENSION
 import com.crossbowffs.quotelock.utils.toFile
 import kotlinx.coroutines.runBlocking
@@ -137,8 +142,10 @@ class ScreenshotTest {
                 val configuration =
                     LocalContext.current.resources.configuration.apply { setLocale(Locale.US) }
                 val localContext = LocalContext.current.createConfigurationContext(configuration)
-                CompositionLocalProvider(LocalContext provides localContext,
-                    LocalConfiguration provides configuration) {
+                CompositionLocalProvider(
+                    LocalContext provides localContext,
+                    LocalConfiguration provides configuration
+                ) {
                     DynamicDarkScreenshotScreen(fontFamily = titleFontFamily)
                 }
             }
@@ -149,19 +156,49 @@ class ScreenshotTest {
         }
     }
 
+    @Test
+    fun widgetScreenshotTest() {
+        composeTestRule.apply {
+            setContent {
+                val configuration =
+                    LocalContext.current.resources.configuration.apply { setLocale(Locale.US) }
+                val localContext = LocalContext.current.createConfigurationContext(configuration)
+                CompositionLocalProvider(
+                    LocalContext provides localContext,
+                    LocalConfiguration provides configuration
+                ) {
+                    // parse bitmap from assets
+                    val image = context.assets.open("android_13_wallpaper_1_ytechb.webp").use {
+                        BitmapFactory.decodeStream(it)
+                    }
+                    WidgetScreenshotScreen(
+                        background = image.asImageBitmap(),
+                        fontFamily = titleFontFamily
+                    )
+                }
+            }
+            runBlocking {
+                onRoot().captureToImage().asAndroidBitmap()
+                    .toFile(File(cachePath, widgetScreenshotName))
+            }
+        }
+    }
+
     companion object {
         private const val lockscreenScreenshotName = "lockscreen.png"
         private const val mainScreenshotName = "main_screen.png"
         private const val lockscreenStyleScreenshotName = "lockscreen_style_screen.png"
         private const val fontCustomizationScreenshotName = "font_customization_screen.png"
         private const val dynamicDarkScreenshotName = "dynamic_dark.png"
+        private const val widgetScreenshotName = "widget.png"
 
         private val screenshotNames = arrayOf(
             lockscreenScreenshotName,
             mainScreenshotName,
             lockscreenStyleScreenshotName,
             fontCustomizationScreenshotName,
-            dynamicDarkScreenshotName
+            dynamicDarkScreenshotName,
+            widgetScreenshotName
         )
 
         private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext

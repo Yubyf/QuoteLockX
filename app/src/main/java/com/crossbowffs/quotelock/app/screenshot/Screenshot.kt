@@ -377,6 +377,40 @@ fun DynamicDarkScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
     }
 }
 
+@TestOnly
+@Composable
+fun WidgetScreenshotScreen(
+    background: ImageBitmap? = null,
+    fontFamily: FontFamily = FontFamily.Default,
+) {
+    QuoteLockTheme(useDarkTheme = false, dynamicColor = false) {
+        Column(
+            modifier = Modifier
+                .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(24.dp)
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))
+            ) {
+                WidgetScreenshot(background)
+            }
+            Box(modifier = Modifier.height(TITLE_HEIGHT), contentAlignment = Alignment.Center) {
+                Text(
+                    text = "Widget",
+                    fontSize = 42.sp,
+                    fontFamily = fontFamily,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun LockscreenScreenshotTestPreview() {
@@ -405,4 +439,10 @@ fun FontListScreenshotTestPreview() {
 @Composable
 fun DynamicDarkScreenshotTestPreview() {
     DynamicDarkScreenshotScreen()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WidgetScreenshotTestPreview() {
+    WidgetScreenshotScreen()
 }
