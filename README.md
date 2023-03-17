@@ -8,9 +8,11 @@
 
 ![Screenshot](screenshots/screenshot.png)
 
-This new fork will be continuously maintained as the
-original [QuoteLock](https://github.com/apsun/QuoteLock) is no longer maintained and has been
-archived.
+Welcome to QuoteLockX, a fork of the original [QuoteLock](https://github.com/apsun/QuoteLock) module
+designed to display quotes on your lock screen for a little bit of inspiration and motivation
+throughout the day. This fork is continuously maintained as the
+original [QuoteLock]((https://github.com/apsun/QuoteLock)) is no longer actively maintained and has
+been archived.
 
 This module is available in
 LSPosed [Repository](https://modules.lsposed.org/module/com.yubyf.quotelockx) now.
