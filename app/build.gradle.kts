@@ -1,5 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
+import Configs.versionCode
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
@@ -118,11 +119,11 @@ android {
         abortOnError = false
     }
     compileOptions {
-        sourceCompatibility = Configs.sourceCompatibility
-        targetCompatibility = Configs.targetCompatibility
+        sourceCompatibility = Configs.javaVersion
+        targetCompatibility = Configs.javaVersion
     }
 
-    packagingOptions {
+    packaging {
         resources.excludes.run {
             add("META-INF/DEPENDENCIES")
             add("META-INF/LICENSE")
@@ -135,7 +136,7 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = Configs.jvmTarget
+        jvmTarget = Configs.javaVersion.toString()
     }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.version.get()
@@ -144,6 +145,10 @@ android {
         getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
     namespace = Configs.namespace
+}
+
+kotlin {
+    jvmToolchain(Configs.javaVersion.versionCode)
 }
 
 dependencies {

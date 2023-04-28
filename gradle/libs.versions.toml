@@ -1,6 +1,6 @@
 [versions]
 # Plugin
-android-plugin = "7.4.2"
+android-plugin = "8.0.0"
 kotlin = "1.8.10"
 hilt = "2.45"
 gradle-versions-plugin = "0.46.0"

@@ -7,9 +7,8 @@ object Configs {
 
     const val namespace = "com.yubyf.quotelockx"
 
-    // See https://github.com/gradle/gradle/issues/18935
-    const val jvmTarget = "1.8"
+    val javaVersion = JavaVersion.VERSION_11
 
-    val sourceCompatibility = JavaVersion.VERSION_1_8
-    val targetCompatibility = JavaVersion.VERSION_1_8
+    val JavaVersion.versionCode: Int
+        get() = ordinal + 1
 }
