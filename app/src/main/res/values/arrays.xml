@@ -48,6 +48,10 @@
         <item>16 pt</item>
         <item>24 pt</item>
         <item>32 pt</item>
+        <item>40 pt</item>
+        <item>48 pt</item>
+        <item>56 pt</item>
+        <item>64 pt</item>
     </string-array>
     <integer-array name="layout_quote_spacing_values" translatable="false">
         <item>0</item>
@@ -69,6 +73,10 @@
         <item>16</item>
         <item>24</item>
         <item>32</item>
+        <item>40</item>
+        <item>48</item>
+        <item>56</item>
+        <item>64</item>
     </integer-array>
 
     <string-array name="brainy_quote_type_entries" translatable="false">
