@@ -1,6 +1,7 @@
 package com.crossbowffs.quotelock.consts
 
 import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.crossbowffs.quotelock.app.App
@@ -11,6 +12,8 @@ import com.yubyf.quotelockx.R
 import java.util.Locale
 
 const val PREF_COMMON = "common"
+const val PREF_COMMON_NIGHT_MODE = "pref_common_night_mode"
+const val PREF_COMMON_NIGHT_MODE_DEFAULT = AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
 const val PREF_COMMON_DISPLAY_ON_AOD = "pref_common_display_on_aod"
 const val PREF_COMMON_REFRESH_RATE = "pref_common_refresh_rate"
 const val PREF_COMMON_REFRESH_RATE_DEFAULT = "900"

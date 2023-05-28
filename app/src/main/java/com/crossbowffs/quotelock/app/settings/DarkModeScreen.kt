@@ -12,10 +12,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.ui.components.ConfigsAppBar
 import com.crossbowffs.quotelock.ui.components.RadioButtonItemList
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
@@ -24,11 +26,14 @@ import com.yubyf.quotelockx.R
 @Composable
 fun DarkModeRoute(
     modifier: Modifier = Modifier,
+    viewModel: DarkModeViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
+    val uiState by viewModel.uiState
     DarkModeScreen(
         modifier = modifier,
-        selectedItem = AppCompatDelegate.getDefaultNightMode(),
+        uiState = uiState,
+        onDarkModeSelected = viewModel::setNightMode,
         onBack = onBack
     )
 }
@@ -36,7 +41,8 @@ fun DarkModeRoute(
 @Composable
 fun DarkModeScreen(
     modifier: Modifier = Modifier,
-    selectedItem: Int? = null,
+    uiState: DarkModeUiState,
+    onDarkModeSelected: (Int) -> Unit = {},
     onBack: () -> Unit = {},
 ) {
     Scaffold(
@@ -52,10 +58,8 @@ fun DarkModeScreen(
                 .fillMaxWidth(),
             entries = stringArrayResource(id = R.array.dark_mode_entries),
             entryValues = values.toTypedArray(),
-            selectedItemIndex = selectedItem?.let { values.indexOf(it).coerceAtLeast(0) } ?: 0,
-            onItemSelected = { _, item ->
-                AppCompatDelegate.setDefaultNightMode(item)
-            }
+            selectedItemIndex = values.indexOf(uiState.nightMode).coerceAtLeast(0),
+            onItemSelected = { _, item -> onDarkModeSelected(item) }
         )
     }
 }
@@ -74,7 +78,7 @@ fun DarkModeScreen(
 private fun DarkModeScreenPreview() {
     QuoteLockTheme {
         Surface {
-            DarkModeScreen()
+            DarkModeScreen(uiState = DarkModeUiState(AppCompatDelegate.MODE_NIGHT_NO))
         }
     }
 }

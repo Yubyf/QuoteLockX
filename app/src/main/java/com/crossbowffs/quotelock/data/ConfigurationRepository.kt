@@ -14,6 +14,8 @@ import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_STYLE_SOURCE
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_STYLE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_STYLE_TEXT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_STYLE_TEXT_DEFAULT
+import com.crossbowffs.quotelock.consts.PREF_COMMON_NIGHT_MODE
+import com.crossbowffs.quotelock.consts.PREF_COMMON_NIGHT_MODE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_PADDING_BOTTOM
 import com.crossbowffs.quotelock.consts.PREF_COMMON_PADDING_BOTTOM_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_PADDING_TOP
@@ -67,6 +69,8 @@ class ConfigurationRepository @Inject internal constructor(
             thisRef.commonDataStore.put(key, value)
         }
     }
+
+    var nightMode: Int by DataStoreValue(PREF_COMMON_NIGHT_MODE, PREF_COMMON_NIGHT_MODE_DEFAULT)
 
     var displayOnAod: Boolean by DataStoreValue(PREF_COMMON_DISPLAY_ON_AOD, false)
 
