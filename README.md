@@ -3,6 +3,7 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Yubyf/QuoteLockX)](https://github.com/Yubyf/QuoteLockX/releases/latest)
 [![LSPosed module](https://img.shields.io/badge/LSPosed-Module-red)](https://modules.lsposed.org/module/com.yubyf.quotelockx)
 [![Build](https://github.com/Yubyf/QuoteLockX/actions/workflows/build.yml/badge.svg)](https://github.com/Yubyf/QuoteLockX/actions/workflows/build.yml)
+![Supported platform](https://img.shields.io/badge/platform-near--AOSP%20%7C%20official%20MIUI%2014-red)
 ![GitHub top language](https://img.shields.io/github/languages/top/yubyf/QuoteLockX)
 [![License](https://img.shields.io/github/license/Yubyf/QuoteLockX)](https://github.com/Yubyf/QuoteLockX/blob/master/LICENSE.txt)
 
