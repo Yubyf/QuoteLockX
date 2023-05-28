@@ -1,6 +1,6 @@
 @file:OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalLayoutApi::class, ExperimentalPagerApi::class
+    ExperimentalFoundationApi::class, ExperimentalLayoutApi::class,
+    ExperimentalPagerApi::class
 )
 
 package com.crossbowffs.quotelock.app.font
@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,7 +34,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -202,7 +201,7 @@ fun FontManagementScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
-                .consumedWindowInsets(padding),
+                .consumeWindowInsets(padding),
         ) {
             TabRow(
                 selectedTabIndex = pagerState.currentPage,

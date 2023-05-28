@@ -1,7 +1,6 @@
 @file:OptIn(
-    ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class,
-    ExperimentalLayoutApi::class
+    ExperimentalLayoutApi::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class
 )
 
 package com.crossbowffs.quotelock.app.collections
@@ -24,7 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,7 +56,6 @@ import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -294,7 +292,7 @@ private fun QuoteCollectionScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
-                .consumedWindowInsets(padding)
+                .consumeWindowInsets(padding)
         ) {
             if (!searching) {
                 CollectionItemList(

@@ -1,7 +1,18 @@
 package com.crossbowffs.quotelock.data.modules.fortune.database
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.Index
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys.FORTUNE_QUOTE_MAX_LENGTH
@@ -22,8 +33,7 @@ object FortuneQuoteContract {
 
     const val TABLE = "fortune"
 
-    @Deprecated("Use [UID] instead")
-    const val MD5 = QuoteEntityContract.MD5
+    const val LEGACY_UID = QuoteEntityContract.LEGACY_UID
     const val TEXT = QuoteEntityContract.TEXT
     const val SOURCE = QuoteEntityContract.SOURCE
     const val AUTHOR = QuoteEntityContract.AUTHOR
@@ -118,7 +128,7 @@ abstract class FortuneQuoteDatabase : RoomDatabase() {
                             "${FortuneQuoteContract.CATEGORY}, ${FortuneQuoteContract.UID}) " +
                             "SELECT ${FortuneQuoteContract.ID}, ${FortuneQuoteContract.TEXT}, " +
                             "${FortuneQuoteContract.SOURCE}, ${FortuneQuoteContract.AUTHOR}, " +
-                            "${FortuneQuoteContract.CATEGORY}, ${FortuneQuoteContract.MD5} " +
+                            "${FortuneQuoteContract.CATEGORY}, ${FortuneQuoteContract.LEGACY_UID} " +
                             "FROM tmp_table"
                 )
                 database.execSQL("DROP TABLE tmp_table")

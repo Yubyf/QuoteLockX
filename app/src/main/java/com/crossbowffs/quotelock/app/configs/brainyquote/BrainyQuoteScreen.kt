@@ -1,12 +1,11 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalLayoutApi::class)
 
 package com.crossbowffs.quotelock.app.configs.brainyquote
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -51,7 +50,7 @@ fun BrainyQuoteScreen(
         RadioButtonItemList(
             modifier = modifier
                 .padding(padding)
-                .consumedWindowInsets(padding),
+                .consumeWindowInsets(padding),
             stretchToFill = true,
             entries = stringArrayResource(id = R.array.brainy_quote_type_entries),
             entryValues = stringArrayResource(id = R.array.brainy_quote_type_values),

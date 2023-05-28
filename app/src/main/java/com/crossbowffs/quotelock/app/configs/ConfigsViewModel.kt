@@ -5,8 +5,8 @@ import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys.PRE
 import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys.PREF_BRAINY_TYPE_STRING
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys.PREF_FORTUNE_CATEGORY_INT
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys.PREF_FORTUNE_CATEGORY_STRING
+import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_LEGACY_TYPE_INT
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPES_STRING
-import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_INT
 import com.crossbowffs.quotelock.di.BrainyDataStore
 import com.crossbowffs.quotelock.di.HitokotoDataStore
 import com.yubyf.datastore.DataStoreDelegate
@@ -22,7 +22,7 @@ class ConfigsViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun loadHitokotoTypeIndex() = runBlocking {
-        hitokotoDataStore.getIntSuspend(PREF_HITOKOTO_TYPE_INT, -1)
+        hitokotoDataStore.getIntSuspend(PREF_HITOKOTO_LEGACY_TYPE_INT, -1)
     }
 
     fun loadHitokotoTypesString() = runBlocking {

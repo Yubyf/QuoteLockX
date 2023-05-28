@@ -31,10 +31,8 @@ const val PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT = "18"
 const val PREF_COMMON_FONT_STYLE_TEXT = "pref_common_font_style_group_text"
 const val PREF_COMMON_FONT_STYLE_SOURCE = "pref_common_font_style_group_source"
 
-@Deprecated("Use PREF_COMMON_FONT_STYLE_TEXT and PREF_COMMON_FONT_STYLE_SOURCE instead")
 const val PREF_COMMON_FONT_LEGACY_FAMILY = "pref_common_font_family"
 
-@Deprecated("Use PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF and PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF instead")
 const val PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT = "system"
 const val PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF = "sans-serif"
 const val PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF = "serif"
@@ -87,8 +85,6 @@ const val PREF_CARD_STYLE_CARD_PADDING_MIN = 16
 const val PREF_CARD_STYLE_CARD_PADDING_MAX = 32
 const val PREF_CARD_STYLE_CARD_PADDING_STEP = 4
 
-@Deprecated("Use PREF_CARD_STYLE_FONT_STYLE_TEXT and PREF_CARD_STYLE_FONT_STYLE_SOURCE instead")
-const val PREF_CARD_STYLE_FONT_LEGACY_FAMILY = "pref_card_style_font_family"
 const val PREF_CARD_STYLE_FONT_STYLE_TEXT = "pref_card_style_font_style_group_text"
 const val PREF_CARD_STYLE_FONT_STYLE_SOURCE = "pref_card_style_font_style_group_source"
 val PREF_CARD_STYLE_FONT_WEIGHT_TEXT_DEFAULT = FontWeight.Normal

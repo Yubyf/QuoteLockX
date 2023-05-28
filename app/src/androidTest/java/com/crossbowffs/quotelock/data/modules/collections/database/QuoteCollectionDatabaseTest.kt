@@ -40,7 +40,7 @@ class QuoteCollectionDatabaseTest {
         var db = helper.createDatabase(TEST_DB, 2).apply {
             execSQL(
                 "INSERT INTO ${QuoteCollectionContract.TABLE} " +
-                        "(${QuoteCollectionContract.ID}, ${QuoteCollectionContract.MD5}, " +
+                        "(${QuoteCollectionContract.ID}, ${QuoteCollectionContract.LEGACY_UID}, " +
                         "${QuoteCollectionContract.TEXT}, ${QuoteCollectionContract.SOURCE}) " +
                         "VALUES ($SAMPLE_ID, '$SAMPLE_UID', '$SAMPLE_TEXT', '$SAMPLE_SOURCE')"
             )
@@ -61,7 +61,7 @@ class QuoteCollectionDatabaseTest {
                 cursor.columnNames,
                 arrayOf(
                     QuoteCollectionContract.ID,
-                    QuoteCollectionContract.MD5,
+                    QuoteCollectionContract.LEGACY_UID,
                     QuoteCollectionContract.TEXT,
                     QuoteCollectionContract.SOURCE,
                     QuoteEntityContract.AUTHOR_OLD
@@ -81,7 +81,7 @@ class QuoteCollectionDatabaseTest {
         var db = helper.createDatabase(TEST_DB, 3).apply {
             execSQL(
                 "INSERT INTO ${QuoteCollectionContract.TABLE} " +
-                        "(${QuoteCollectionContract.ID}, ${QuoteCollectionContract.MD5}, " +
+                        "(${QuoteCollectionContract.ID}, ${QuoteCollectionContract.LEGACY_UID}, " +
                         "${QuoteCollectionContract.TEXT}, ${QuoteCollectionContract.SOURCE}, " +
                         "${QuoteEntityContract.AUTHOR_OLD}) " +
                         "VALUES ($SAMPLE_ID, '$SAMPLE_UID', '$SAMPLE_TEXT', " +
@@ -106,7 +106,7 @@ class QuoteCollectionDatabaseTest {
                     QuoteCollectionContract.ID,
                     QuoteCollectionContract.TEXT,
                     QuoteCollectionContract.SOURCE,
-                    QuoteCollectionContract.MD5,
+                    QuoteCollectionContract.LEGACY_UID,
                     QuoteCollectionContract.AUTHOR
                 )
             )
@@ -124,7 +124,7 @@ class QuoteCollectionDatabaseTest {
         var db = helper.createDatabase(TEST_DB, 4).apply {
             execSQL(
                 "INSERT INTO ${QuoteCollectionContract.TABLE} " +
-                        "(${QuoteCollectionContract.ID}, ${QuoteCollectionContract.MD5}, " +
+                        "(${QuoteCollectionContract.ID}, ${QuoteCollectionContract.LEGACY_UID}, " +
                         "${QuoteCollectionContract.TEXT}, ${QuoteCollectionContract.SOURCE}, " +
                         "${QuoteCollectionContract.AUTHOR}) " +
                         "VALUES ($SAMPLE_ID, '$SAMPLE_UID', '$SAMPLE_TEXT', " +

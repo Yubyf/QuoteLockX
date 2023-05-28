@@ -38,7 +38,7 @@ class FortuneQuoteDatabaseTest {
         var db = helper.createDatabase(TEST_DB, 4).apply {
             execSQL(
                 "INSERT INTO ${FortuneQuoteContract.TABLE} " +
-                        "(${FortuneQuoteContract.ID}, ${FortuneQuoteContract.MD5}, " +
+                        "(${FortuneQuoteContract.ID}, ${FortuneQuoteContract.LEGACY_UID}, " +
                         "${FortuneQuoteContract.TEXT}, ${FortuneQuoteContract.SOURCE}, " +
                         "${FortuneQuoteContract.AUTHOR}, ${FortuneQuoteContract.CATEGORY}) " +
                         "VALUES ($SAMPLE_ID, '$SAMPLE_UID', '$SAMPLE_TEXT', '$SAMPLE_SOURCE', " +

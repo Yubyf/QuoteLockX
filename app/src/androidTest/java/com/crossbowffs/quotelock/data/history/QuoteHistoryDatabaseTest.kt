@@ -40,7 +40,7 @@ class QuoteHistoryDatabaseMigrationTest {
         var db = helper.createDatabase(TEST_DB, 2).apply {
             execSQL(
                 "INSERT INTO ${QuoteHistoryContract.TABLE} " +
-                        "(${QuoteHistoryContract.ID}, ${QuoteHistoryContract.MD5}, " +
+                        "(${QuoteHistoryContract.ID}, ${QuoteHistoryContract.LEGACY_UID}, " +
                         "${QuoteHistoryContract.TEXT}, ${QuoteHistoryContract.SOURCE}) " +
                         "VALUES (${SAMPLE_ID}, '${SAMPLE_UID}', '${SAMPLE_TEXT}', '${SAMPLE_SOURCE}')"
             )
@@ -61,7 +61,7 @@ class QuoteHistoryDatabaseMigrationTest {
                 cursor.columnNames,
                 arrayOf(
                     QuoteHistoryContract.ID,
-                    QuoteHistoryContract.MD5,
+                    QuoteHistoryContract.LEGACY_UID,
                     QuoteHistoryContract.TEXT,
                     QuoteHistoryContract.SOURCE,
                     QuoteEntityContract.AUTHOR_OLD
@@ -81,7 +81,7 @@ class QuoteHistoryDatabaseMigrationTest {
         var db = helper.createDatabase(TEST_DB, 3).apply {
             execSQL(
                 "INSERT INTO ${QuoteHistoryContract.TABLE} " +
-                        "(${QuoteHistoryContract.ID}, ${QuoteHistoryContract.MD5}, " +
+                        "(${QuoteHistoryContract.ID}, ${QuoteHistoryContract.LEGACY_UID}, " +
                         "${QuoteHistoryContract.TEXT}, ${QuoteHistoryContract.SOURCE}, " +
                         "${QuoteEntityContract.AUTHOR_OLD}) " +
                         "VALUES (${SAMPLE_ID}, '${SAMPLE_UID}', '${SAMPLE_TEXT}', " +
@@ -106,7 +106,7 @@ class QuoteHistoryDatabaseMigrationTest {
                     QuoteHistoryContract.ID,
                     QuoteHistoryContract.TEXT,
                     QuoteHistoryContract.SOURCE,
-                    QuoteHistoryContract.MD5,
+                    QuoteHistoryContract.LEGACY_UID,
                     QuoteHistoryContract.AUTHOR
                 )
             )
@@ -124,7 +124,7 @@ class QuoteHistoryDatabaseMigrationTest {
         var db = helper.createDatabase(TEST_DB, 4).apply {
             execSQL(
                 "INSERT INTO ${QuoteHistoryContract.TABLE} " +
-                        "(${QuoteHistoryContract.ID}, ${QuoteHistoryContract.MD5}, " +
+                        "(${QuoteHistoryContract.ID}, ${QuoteHistoryContract.LEGACY_UID}, " +
                         "${QuoteHistoryContract.TEXT}, ${QuoteHistoryContract.SOURCE}, " +
                         "${QuoteHistoryContract.AUTHOR}) " +
                         "VALUES (${SAMPLE_ID}, '${SAMPLE_UID}', '${SAMPLE_TEXT}', " +

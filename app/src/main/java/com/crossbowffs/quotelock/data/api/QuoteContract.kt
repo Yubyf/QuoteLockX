@@ -12,8 +12,7 @@ import java.util.Locale
  * @author Yubyf
  */
 object QuoteEntityContract {
-    @Deprecated("Use [UID] instead")
-    const val MD5 = "md5"
+    const val LEGACY_UID = "md5"
     const val TEXT = "text"
     const val SOURCE = "source"
     const val AUTHOR_OLD = "AUTHOR"

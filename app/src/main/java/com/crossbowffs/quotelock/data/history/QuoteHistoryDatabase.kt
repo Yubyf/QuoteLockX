@@ -30,8 +30,7 @@ object QuoteHistoryContract {
 
     const val TABLE = "histories"
 
-    @Deprecated("Use [UID] instead")
-    const val MD5 = QuoteEntityContract.MD5
+    const val LEGACY_UID = QuoteEntityContract.LEGACY_UID
     const val TEXT = QuoteEntityContract.TEXT
     const val SOURCE = QuoteEntityContract.SOURCE
     const val AUTHOR = QuoteEntityContract.AUTHOR
@@ -153,21 +152,21 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                             "${QuoteHistoryContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             "${QuoteHistoryContract.TEXT} TEXT NOT NULL, " +
                             "${QuoteHistoryContract.SOURCE} TEXT NOT NULL, " +
-                            "${QuoteHistoryContract.MD5} TEXT UNIQUE NOT NULL, " +
+                            "${QuoteHistoryContract.LEGACY_UID} TEXT UNIQUE NOT NULL, " +
                             "${QuoteHistoryContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')"
                 )
                 database.execSQL(
                     "CREATE UNIQUE INDEX index_" +
-                            "${"${QuoteHistoryContract.TABLE}_${QuoteHistoryContract.MD5}"} " +
-                            "on ${QuoteHistoryContract.TABLE}(${QuoteHistoryContract.MD5})"
+                            "${"${QuoteHistoryContract.TABLE}_${QuoteHistoryContract.LEGACY_UID}"} " +
+                            "on ${QuoteHistoryContract.TABLE}(${QuoteHistoryContract.LEGACY_UID})"
                 )
                 database.execSQL(
                     "INSERT OR REPLACE INTO ${QuoteHistoryContract.TABLE}(" +
                             "${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
-                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
+                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.LEGACY_UID}, " +
                             "${QuoteHistoryContract.AUTHOR}) " +
                             "SELECT ${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
-                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
+                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.LEGACY_UID}, " +
                             "${QuoteEntityContract.AUTHOR_OLD} " +
                             "FROM tmp_table"
                 )
@@ -208,7 +207,7 @@ abstract class QuoteHistoryDatabase : RoomDatabase() {
                             "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.UID}, " +
                             "${QuoteHistoryContract.AUTHOR}, ${QuoteHistoryContract.PROVIDER}) " +
                             "SELECT ${QuoteHistoryContract.ID}, ${QuoteHistoryContract.TEXT}, " +
-                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.MD5}, " +
+                            "${QuoteHistoryContract.SOURCE}, ${QuoteHistoryContract.LEGACY_UID}, " +
                             "${QuoteHistoryContract.AUTHOR}, ${QuoteHistoryContract.PROVIDER} " +
                             "FROM tmp_table"
                 )

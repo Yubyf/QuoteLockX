@@ -18,7 +18,7 @@ import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -240,7 +240,7 @@ fun MainScreen(
         Box(modifier = modifier
             .fillMaxSize()
             .padding(padding)
-            .consumedWindowInsets(padding)
+            .consumeWindowInsets(padding)
         ) {
             QuotePage(
                 modifier = Modifier

@@ -642,7 +642,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         sModuleRes = createInstance(sModulePath, resparam.res)
         if (PACKAGE_SYSTEM_UI == resparam.packageName && !::quotesGeneratedByApp.isInitialized) {
             // Load predefined quotes from app in all locales
-            val locale = resparam.res.configuration.locale
+            @Suppress("DEPRECATION") val locale = resparam.res.configuration.locale
             val locales = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 resparam.res.configuration.locales
             } else null

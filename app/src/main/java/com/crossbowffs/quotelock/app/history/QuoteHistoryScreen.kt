@@ -1,5 +1,4 @@
 @file:OptIn(
-    ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class,
     ExperimentalLayoutApi::class
 )
@@ -13,7 +12,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -125,7 +124,7 @@ fun QuoteHistoryScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
-                .consumedWindowInsets(padding)
+                .consumeWindowInsets(padding)
         ) {
             if (!searching) {
                 HistoryItemList(

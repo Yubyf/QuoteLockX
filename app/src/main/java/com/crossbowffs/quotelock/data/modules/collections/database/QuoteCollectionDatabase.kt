@@ -39,8 +39,7 @@ object QuoteCollectionContract {
 
     const val TABLE = "collections"
 
-    @Deprecated("Use [UID] instead")
-    const val MD5 = QuoteEntityContract.MD5
+    const val LEGACY_UID = QuoteEntityContract.LEGACY_UID
     const val TEXT = QuoteEntityContract.TEXT
     const val SOURCE = QuoteEntityContract.SOURCE
     const val AUTHOR = QuoteEntityContract.AUTHOR
@@ -53,7 +52,7 @@ object QuoteCollectionContract {
 internal class QuoteCollectionHeaderColumnNameMappingStrategy :
     HeaderColumnNameMappingStrategy<QuoteCollectionEntity>() {
     override fun getColumnName(col: Int): String? = headerIndex.getByPosition(col)?.let {
-        if (it == QuoteCollectionContract.MD5.uppercase()) {
+        if (it == QuoteCollectionContract.LEGACY_UID.uppercase()) {
             QuoteCollectionContract.UID.uppercase()
         } else it
     }
@@ -87,7 +86,7 @@ data class QuoteCollectionEntity @JvmOverloads constructor(
     override var provider: String = "",
     @CsvBindByNames(
         CsvBindByName(column = QuoteCollectionContract.UID),
-        CsvBindByName(column = QuoteCollectionContract.MD5)
+        CsvBindByName(column = QuoteCollectionContract.LEGACY_UID)
     )
     @ColumnInfo(name = QuoteCollectionContract.UID)
     override var uid: String,
@@ -234,21 +233,21 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                             "${QuoteCollectionContract.ID} INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             "${QuoteCollectionContract.TEXT} TEXT NOT NULL, " +
                             "${QuoteCollectionContract.SOURCE} TEXT NOT NULL, " +
-                            "${QuoteCollectionContract.MD5} TEXT UNIQUE NOT NULL, " +
+                            "${QuoteCollectionContract.LEGACY_UID} TEXT UNIQUE NOT NULL, " +
                             "${QuoteCollectionContract.AUTHOR} TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '')"
                 )
                 database.execSQL(
                     "CREATE UNIQUE INDEX index_" +
-                            "${"${QuoteCollectionContract.TABLE}_${QuoteCollectionContract.MD5}"} " +
-                            "on ${QuoteCollectionContract.TABLE}(${QuoteCollectionContract.MD5})"
+                            "${"${QuoteCollectionContract.TABLE}_${QuoteCollectionContract.LEGACY_UID}"} " +
+                            "on ${QuoteCollectionContract.TABLE}(${QuoteCollectionContract.LEGACY_UID})"
                 )
                 database.execSQL(
                     "INSERT OR REPLACE INTO ${QuoteCollectionContract.TABLE}(" +
                             "${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
-                            "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
+                            "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.LEGACY_UID}, " +
                             "${QuoteCollectionContract.AUTHOR}) " +
                             "SELECT ${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
-                            "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.MD5}, " +
+                            "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.LEGACY_UID}, " +
                             "${QuoteEntityContract.AUTHOR_OLD} " +
                             "FROM tmp_table"
                 )
@@ -290,7 +289,7 @@ abstract class QuoteCollectionDatabase : RoomDatabase() {
                             "${QuoteCollectionContract.PROVIDER}, ${QuoteCollectionContract.UID}) " +
                             "SELECT ${QuoteCollectionContract.ID}, ${QuoteCollectionContract.TEXT}, " +
                             "${QuoteCollectionContract.SOURCE}, ${QuoteCollectionContract.AUTHOR}, " +
-                            "${QuoteEntityContract.PROVIDER}, ${QuoteCollectionContract.MD5} " +
+                            "${QuoteEntityContract.PROVIDER}, ${QuoteCollectionContract.LEGACY_UID} " +
                             "FROM tmp_table"
                 )
                 database.execSQL("DROP TABLE tmp_table")

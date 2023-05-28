@@ -3,8 +3,8 @@ package com.crossbowffs.quotelock.data.modules.hitokoto
 import android.content.Context
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitkotoNavigation
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO
+import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_LEGACY_TYPE_STRING
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPES_STRING
-import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPE_STRING
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
@@ -37,7 +37,7 @@ class HitokotoQuoteModule : QuoteModule {
             EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(context.applicationContext)
                 .hitokotoDataStore()
         val types = dataStore.getStringSetSuspend(PREF_HITOKOTO_TYPES_STRING) ?: run {
-            dataStore.getStringSuspend(PREF_HITOKOTO_TYPE_STRING)?.let { setOf(it) }
+            dataStore.getStringSuspend(PREF_HITOKOTO_LEGACY_TYPE_STRING)?.let { setOf(it) }
         } ?: setOf("a")
         val url = "https://v1.hitokoto.cn/?${types.joinToString("&") { "c=$it" }}"
         val quoteJson = url.downloadUrl()
