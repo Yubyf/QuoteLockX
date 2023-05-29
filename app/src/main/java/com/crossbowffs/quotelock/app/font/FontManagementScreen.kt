@@ -1,7 +1,4 @@
-@file:OptIn(
-    ExperimentalFoundationApi::class, ExperimentalLayoutApi::class,
-    ExperimentalPagerApi::class
-)
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 
 package com.crossbowffs.quotelock.app.font
 
@@ -29,6 +26,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -75,9 +74,6 @@ import com.crossbowffs.quotelock.ui.components.DeletableFontListItem
 import com.crossbowffs.quotelock.ui.components.FontManagementAppBar
 import com.crossbowffs.quotelock.ui.components.LoadingDialog
 import com.crossbowffs.quotelock.ui.components.pagerTabIndicatorOffset
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 
@@ -162,7 +158,7 @@ fun FontManagementScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(initialTab)
+    val pagerState = rememberPagerState(initialPage = initialTab)
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = { FontManagementAppBar(onBack = onBack) },
@@ -233,7 +229,7 @@ fun FontManagementScreen(
             HorizontalPager(
                 modifier = modifier
                     .fillMaxSize(),
-                count = tabTitles.size,
+                pageCount = tabTitles.size,
                 state = pagerState
             ) { page ->
                 if (page == 0) {

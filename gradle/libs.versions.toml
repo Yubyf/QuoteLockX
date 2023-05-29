@@ -98,8 +98,6 @@ coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 # Accompanist
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "compose-accompanist" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "compose-accompanist" }
-accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "compose-accompanist" }
-accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "compose-accompanist" }
 accompanist-placeholder-material = { module = "com.google.accompanist:accompanist-placeholder-material", version.ref = "compose-accompanist" }
 
 # Test
@@ -138,8 +136,8 @@ compose-standard = ["compose-compiler", "compose-activity", "compose-material3",
 compose-test = ["compose-test", "compose-ui-test"]
 
 # Accompanist
-accompanist = ["accompanist-navigation-animation", "accompanist-systemuicontroller", "accompanist-pager",
-    "accompanist-pager-indicators", "accompanist-placeholder-material"]
+accompanist = ["accompanist-navigation-animation", "accompanist-systemuicontroller",
+    "accompanist-placeholder-material"]
 
 # Test
 androidx-test = ["androidx-test-junit", "androidx-test-core", "androidx-test-rules", "androidx-room-test"]

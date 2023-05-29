@@ -1,6 +1,8 @@
 package com.crossbowffs.quotelock.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TabPosition
 import androidx.compose.runtime.derivedStateOf
@@ -17,8 +19,6 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.lerp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.PagerState
 
 /**
  * [Reference](https://gist.github.com/dovahkiin98/85acb72ab0c4ddfc6b53413c955bcd10)
@@ -132,7 +132,7 @@ fun Modifier.verticalFadingEdge(
 /**
  * See [here](https://github.com/google/accompanist/issues/1076)
  */
-@ExperimentalPagerApi
+@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.pagerTabIndicatorOffset(
     pagerState: PagerState,
     tabPositions: List<TabPosition>,
@@ -146,7 +146,7 @@ fun Modifier.pagerTabIndicatorOffset(
         val currentTab = tabPositions[currentPage]
         val previousTab = tabPositions.getOrNull(currentPage - 1)
         val nextTab = tabPositions.getOrNull(currentPage + 1)
-        val fraction = pagerState.currentPageOffset
+        val fraction = pagerState.currentPageOffsetFraction
         val indicatorWidth = if (fraction > 0 && nextTab != null) {
             lerp(currentTab.width, nextTab.width, fraction).roundToPx()
         } else if (fraction < 0 && previousTab != null) {
