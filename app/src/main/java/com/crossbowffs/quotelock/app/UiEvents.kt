@@ -19,9 +19,7 @@ data class SnackBarEvent(
 
         if (message != other.message) return false
         if (duration != other.duration) return false
-        if (actionText != other.actionText) return false
-
-        return true
+        return actionText == other.actionText
     }
 
     override fun hashCode(): Int {

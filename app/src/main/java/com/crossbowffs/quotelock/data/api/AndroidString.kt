@@ -16,9 +16,7 @@ sealed class AndroidString {
             other as StringRes
 
             if (stringRes != other.stringRes) return false
-            if (!args.contentEquals(other.args)) return false
-
-            return true
+            return args.contentEquals(other.args)
         }
 
         override fun hashCode(): Int {

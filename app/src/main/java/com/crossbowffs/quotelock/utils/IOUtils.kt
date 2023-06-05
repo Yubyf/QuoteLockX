@@ -24,7 +24,7 @@ fun InputStream.readString(
         while (true) {
             val count = reader.read(buffer, 0, bufferSize)
             if (count < 0) break
-            sb.append(buffer, 0, count)
+            sb.appendRange(buffer, 0, count)
         }
     }
     return sb.toString()

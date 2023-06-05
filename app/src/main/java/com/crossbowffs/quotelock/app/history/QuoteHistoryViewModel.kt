@@ -79,7 +79,7 @@ class QuoteHistoryViewModel @Inject constructor(
         }
         _uiListState.value = _uiListState.value.copy(searchKeyword = keyword)
         viewModelScope.launch {
-            historyRepository.search(keyword.trim()).collect() {
+            historyRepository.search(keyword.trim()).collect {
                 _uiListState.value = _uiListState.value.copy(searchedItems = it)
             }
         }

@@ -148,7 +148,7 @@ class QuoteCollectionViewModel @Inject constructor(
         }
         _uiListState.value = _uiListState.value.copy(searchKeyword = keyword)
         viewModelScope.launch {
-            collectionRepository.search(keyword.trim()).collect() {
+            collectionRepository.search(keyword.trim()).collect {
                 _uiListState.value = _uiListState.value.copy(searchedItems = it)
             }
         }
