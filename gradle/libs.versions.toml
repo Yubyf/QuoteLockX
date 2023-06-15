@@ -27,6 +27,9 @@ glance = "1.0.0-alpha05"
 # Coil
 coil = "2.4.0"
 
+# Ktor
+ktor = "2.3.1"
+
 # Google
 google-material = "1.9.0"
 google-play-services-auth = "20.5.0"
@@ -95,6 +98,12 @@ compose-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
 # Accompanist
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "compose-accompanist" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "compose-accompanist" }
@@ -139,6 +148,9 @@ compose-test = ["compose-test", "compose-ui-test"]
 accompanist = ["accompanist-navigation-animation", "accompanist-systemuicontroller",
     "accompanist-placeholder-material"]
 
+ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-client-logging", "ktor-client-content-negotiation",
+    "ktor-serialization-json"]
+
 # Test
 androidx-test = ["androidx-test-junit", "androidx-test-core", "androidx-test-rules", "androidx-room-test"]
 
@@ -148,3 +160,4 @@ android-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 android-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 gradle-versions-plugin = { id = "com.github.ben-manes.versions", version.ref = "gradle-versions-plugin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

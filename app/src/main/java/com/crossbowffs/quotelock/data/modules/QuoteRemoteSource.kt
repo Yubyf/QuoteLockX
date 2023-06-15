@@ -31,8 +31,10 @@ class QuoteRemoteSource @Inject constructor(
     }
 
     private suspend fun Context.fetchQuote(): QuoteData? {
-        val moduleName: String = commonDataStore.getStringSuspend(PREF_COMMON_QUOTE_MODULE,
-            PREF_COMMON_QUOTE_MODULE_DEFAULT)!!
+        val moduleName: String = commonDataStore.getStringSuspend(
+            PREF_COMMON_QUOTE_MODULE,
+            PREF_COMMON_QUOTE_MODULE_DEFAULT
+        )!!
 
         Xlog.d(TAG, "Attempting to download new quote...")
         val module: QuoteModule = try {
@@ -42,7 +44,11 @@ class QuoteRemoteSource @Inject constructor(
             return null
         }
         Xlog.d(TAG, "Provider: ${module.getDisplayName(this)}")
-        return runCatching { module.getQuote(this@fetchQuote) }.onFailure {
+        return runCatching {
+            module.run {
+                this@fetchQuote.getQuote()
+            }
+        }.onFailure {
             Xlog.e(TAG, "Quote download failed", it)
         }.getOrNull()
     }

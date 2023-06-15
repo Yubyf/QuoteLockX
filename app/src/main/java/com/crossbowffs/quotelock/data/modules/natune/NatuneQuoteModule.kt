@@ -4,9 +4,9 @@ import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_LATIN
-import com.crossbowffs.quotelock.utils.downloadUrl
+import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
+import com.crossbowffs.quotelock.utils.fetchXml
 import com.yubyf.quotelockx.R
-import org.jsoup.Jsoup
 
 class NatuneQuoteModule : QuoteModule {
     override fun getDisplayName(context: Context): String {
@@ -24,9 +24,8 @@ class NatuneQuoteModule : QuoteModule {
     }
 
     @Throws(Exception::class)
-    override suspend fun getQuote(context: Context): QuoteData {
-        val html = "https://natune.net/zitate/Zufalls5".downloadUrl()
-        val document = Jsoup.parse(html)
+    override suspend fun Context.getQuote(): QuoteData {
+        val document = httpClient.fetchXml("https://natune.net/zitate/Zufalls5")
         val quoteLi = document.select(".quotes > li").first()
         val quoteText = quoteLi?.getElementsByClass("quote_text")?.first()?.text().orEmpty()
         val quoteAuthor = quoteLi?.getElementsByClass("quote_author")?.first()?.text().orEmpty()

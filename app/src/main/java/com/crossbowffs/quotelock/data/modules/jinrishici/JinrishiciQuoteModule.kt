@@ -4,15 +4,18 @@ import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
+import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
 import com.crossbowffs.quotelock.data.modules.jinrishici.detail.JinrishiciDetailData
 import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
-import com.crossbowffs.quotelock.utils.downloadUrl
+import com.crossbowffs.quotelock.utils.fetchJson
+import com.crossbowffs.quotelock.utils.prefix
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.json.JSONException
-import org.json.JSONObject
 import java.io.IOException
 
 class JinrishiciQuoteModule : QuoteModule {
@@ -40,18 +43,17 @@ class JinrishiciQuoteModule : QuoteModule {
     }
 
     @Throws(IOException::class, JSONException::class)
-    override suspend fun getQuote(context: Context): QuoteData? {
+    override suspend fun Context.getQuote(): QuoteData? {
         val dataStore =
-            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(context.applicationContext)
+            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(applicationContext)
                 .jinrishiciDataStore()
         return try {
             var token = dataStore.getStringSuspend(PREF_JINRISHICI_TOKEN, null)
             if (token.isNullOrBlank()) {
-                val tokenJson = PREF_JINRISHICI_TOKEN_URL.downloadUrl()
-                Xlog.d(TAG, "tokenJson $tokenJson")
-                val tokenJsonObject = JSONObject(tokenJson)
-                token = tokenJsonObject.getString("data")
-                if (token.isNullOrEmpty()) {
+                val tokenResponse = httpClient.fetchJson<TokenResponse>(PREF_JINRISHICI_TOKEN_URL)
+                Xlog.d(TAG, "token response $tokenResponse")
+                token = tokenResponse.data
+                if (token.isEmpty()) {
                     Xlog.e(TAG, "Failed to get Jinrishici token.")
                     return null
                 } else {
@@ -59,68 +61,40 @@ class JinrishiciQuoteModule : QuoteModule {
                 }
             }
             val headers = mapOf<String, String?>("X-User-Token" to token)
-            val poetrySentenceJson = PREF_JINRISHICI_SENTENCE_URL.downloadUrl(headers)
-            Xlog.d(TAG, "poetrySentenceJson $poetrySentenceJson")
-            val poetrySentenceJsonObject = JSONObject(poetrySentenceJson)
-            val status = poetrySentenceJsonObject.getString("status")
+            val sentence =
+                httpClient.fetchJson<SentenceResponse>(PREF_JINRISHICI_SENTENCE_URL, headers)
+            Xlog.d(TAG, "poetry sentence $sentence")
+            val status = sentence.status
             if (status != "success") {
-                val errorCode = poetrySentenceJsonObject.getString("errcode")
-                Xlog.e(TAG, "Failed to get Jinrishici result, error code - $errorCode")
+                Xlog.e(TAG, "Failed to get Jinrishici result, error code - ${sentence.errCode}")
                 return null
             }
-            val poetrySentenceData = poetrySentenceJsonObject.getJSONObject("data")
+            val sentenceData = sentence.data
 
             // Uid
-            val uid = poetrySentenceData.getString("id")
+            val uid = sentenceData.id
 
             // Content
-            val quoteText = poetrySentenceData.getString("content")
-            if (quoteText.isNullOrEmpty()) {
+            val quoteText = sentenceData.content
+            if (quoteText.isEmpty()) {
                 return null
             }
 
             // Source
-            val originData = poetrySentenceData.getJSONObject("origin")
-            val dynasty = originData.getString("dynasty")
-            val author = originData.getString("author")
-            val title = originData.getString("title")
-            val originContent = originData.getJSONArray("content").let {
-                mutableListOf<String>().apply {
-                    for (i in 0 until it.length()) {
-                        add(it.getString(i))
-                    }
-                }.toList()
-            }
-            val originTranslate = originData.runCatching {
-                getJSONArray("translate").let {
-                    mutableListOf<String>().apply {
-                        for (i in 0 until it.length()) {
-                            add(it.getString(i))
-                        }
-                    }.toList()
-                }
-            }.getOrNull()
-            val tags = poetrySentenceData.runCatching {
-                getJSONArray("matchTags").let {
-                    mutableListOf<String>().apply {
-                        for (i in 0 until it.length()) {
-                            add(it.getString(i))
-                        }
-                    }.toList()
-                }
-            }.getOrNull()
+            val originData = sentenceData.origin
+            val dynasty = originData.dynasty
+            val author = originData.author
+            val title = originData.title
+            val originContent = originData.content
+            val originTranslate = originData.translate
+            val tags = sentenceData.matchTags
 
-            var quoteSource = ""
-            var quoteAuthor = ""
-            if (!dynasty.isNullOrEmpty()) {
-                quoteAuthor += dynasty
-            }
-            if (!author.isNullOrEmpty()) {
-                quoteAuthor += "·$author"
-            }
-            if (!title.isNullOrEmpty()) {
-                quoteSource += "《$title》"
-            }
+            val quoteSource = title.takeIf { it.isNotEmpty() }?.prefix("《")?.plus("》").orEmpty()
+            val quoteAuthor =
+                // Dynasty
+                dynasty.takeIf { it.isNotEmpty() }.orEmpty()
+                    // Author
+                    .plus(author.takeIf { it.isNotEmpty() }?.prefix("·").orEmpty())
             val detailData = JinrishiciDetailData(
                 title,
                 dynasty,
@@ -138,4 +112,47 @@ class JinrishiciQuoteModule : QuoteModule {
 
     override val characterType: Int
         get() = CHARACTER_TYPE_CJK
+
+    @Serializable
+    data class TokenResponse(
+        override val status: String,
+        override val data: String,
+        @SerialName("errcode")
+        override val errCode: String? = null,
+    ) : JinrishiciResponse<String>
+
+    @Serializable
+    data class SentenceResponse(
+        override val status: String,
+        override val data: SentenceData,
+        @SerialName("errcode")
+        override val errCode: String? = null,
+    ) : JinrishiciResponse<SentenceData>
+
+    @Serializable
+    data class SentenceData(
+        val id: String,
+        val content: String,
+        val popularity: Int,
+        val origin: OriginData,
+        val matchTags: List<String>,
+        val recommendedReason: String,
+        val cacheAt: String,
+    )
+
+    @Serializable
+    data class OriginData(
+        val title: String,
+        val dynasty: String,
+        val author: String,
+        val content: List<String>,
+        val translate: List<String>? = emptyList(),
+    )
+
+    interface JinrishiciResponse<T> {
+        val status: String
+        val data: T?
+
+        val errCode: String?
+    }
 }

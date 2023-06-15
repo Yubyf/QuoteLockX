@@ -2,6 +2,9 @@ package com.crossbowffs.quotelock.data.api
 
 import android.content.Context
 import androidx.annotation.IntDef
+import com.crossbowffs.quotelock.di.NetModuleEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import io.ktor.client.HttpClient
 
 /**
  * Provides an API for querying the information of a
@@ -44,12 +47,16 @@ interface QuoteModule {
      * May return `null` or throw an exception in the case of an error.
      */
     @Throws(Exception::class)
-    suspend fun getQuote(context: Context): QuoteData?
+    suspend fun Context.getQuote(): QuoteData?
 
     companion object {
         const val CHARACTER_TYPE_DEFAULT = 0
         const val CHARACTER_TYPE_LATIN = 1
         const val CHARACTER_TYPE_CJK = 2
+
+        internal val Context.httpClient: HttpClient
+            get() = EntryPointAccessors.fromApplication<NetModuleEntryPoint>(applicationContext)
+                .httpClient()
     }
 
     @Retention(AnnotationRetention.SOURCE)

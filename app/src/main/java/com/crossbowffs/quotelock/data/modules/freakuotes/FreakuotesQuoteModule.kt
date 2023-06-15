@@ -3,11 +3,11 @@ package com.crossbowffs.quotelock.data.modules.freakuotes
 import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
+import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
-import com.crossbowffs.quotelock.utils.downloadUrl
+import com.crossbowffs.quotelock.utils.fetchXml
 import com.yubyf.quotelockx.R
-import org.jsoup.Jsoup
 
 class FreakuotesQuoteModule : QuoteModule {
 
@@ -30,9 +30,8 @@ class FreakuotesQuoteModule : QuoteModule {
     }
 
     @Throws(Exception::class)
-    override suspend fun getQuote(context: Context): QuoteData? {
-        val html = "https://freakuotes.com/frase/aleatoria".downloadUrl()
-        val document = Jsoup.parse(html)
+    override suspend fun Context.getQuote(): QuoteData? {
+        val document = httpClient.fetchXml("https://freakuotes.com/frase/aleatoria")
         val quoteContainer = document.select(".quote-container > blockquote").first()
         val quoteText = quoteContainer?.getElementsByTag("p")?.text().orEmpty()
         if (quoteText.isEmpty()) {

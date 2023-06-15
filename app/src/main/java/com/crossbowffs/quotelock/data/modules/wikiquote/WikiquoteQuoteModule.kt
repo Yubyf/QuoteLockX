@@ -4,11 +4,11 @@ import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
+import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
-import com.crossbowffs.quotelock.utils.downloadUrl
+import com.crossbowffs.quotelock.utils.fetchXml
 import com.yubyf.quotelockx.R
-import org.jsoup.Jsoup
 import java.io.IOException
 import java.util.regex.Pattern
 
@@ -33,9 +33,9 @@ class WikiquoteQuoteModule : QuoteModule {
     }
 
     @Throws(IOException::class)
-    override suspend fun getQuote(context: Context): QuoteData? {
-        val html = "https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5".downloadUrl()
-        val document = Jsoup.parse(html)
+    override suspend fun Context.getQuote(): QuoteData? {
+        val document =
+            httpClient.fetchXml("https://zh.m.wikiquote.org/zh-cn/Wikiquote:%E9%A6%96%E9%A1%B5")
         val quoteAllText = document.select("#mp-everyday-quote").text()
         Xlog.d(TAG, "Downloaded text: %s", quoteAllText)
         val quoteMatcher =

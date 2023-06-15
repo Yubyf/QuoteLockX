@@ -7,11 +7,11 @@ import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys.PRE
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_LATIN
+import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
 import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
-import com.crossbowffs.quotelock.utils.downloadUrl
+import com.crossbowffs.quotelock.utils.fetchXml
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.EntryPointAccessors
-import org.jsoup.Jsoup
 import java.io.IOException
 
 class BrainyQuoteQuoteModule : QuoteModule {
@@ -30,14 +30,13 @@ class BrainyQuoteQuoteModule : QuoteModule {
     }
 
     @Throws(IOException::class)
-    override suspend fun getQuote(context: Context): QuoteData {
+    override suspend fun Context.getQuote(): QuoteData {
         val dataStore =
-            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(context.applicationContext)
+            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(applicationContext)
                 .brainyDataStore()
         val type = dataStore.getStringSuspend(PREF_BRAINY_TYPE_STRING, "BR")
         val url = "https://feeds.feedburner.com/brainyquote/QUOTE$type"
-        val rssXml = url.downloadUrl()
-        val document = Jsoup.parse(rssXml)
+        val document = httpClient.fetchXml(url)
         val quoteText = document.select("item > description").first()?.text().orEmpty().let {
             it.substring(1, it.length - 1)
         }

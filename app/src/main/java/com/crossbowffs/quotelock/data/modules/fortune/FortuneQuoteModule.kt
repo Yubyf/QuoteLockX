@@ -29,15 +29,18 @@ class FortuneQuoteModule : QuoteModule {
     }
 
     @Throws(IOException::class)
-    override suspend fun getQuote(context: Context): QuoteData {
+    override suspend fun Context.getQuote(): QuoteData {
         val dataStore =
-            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(context.applicationContext)
+            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(applicationContext)
                 .fortuneDataStore()
         val database = EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(
-            context.applicationContext).fortuneDatabase()
+            applicationContext
+        ).fortuneDatabase()
         val type =
-            dataStore.getStringSuspend(FortunePrefKeys.PREF_FORTUNE_CATEGORY_STRING,
-                PREF_FORTUNE_DEFAULT_CATEGORY)!!
+            dataStore.getStringSuspend(
+                FortunePrefKeys.PREF_FORTUNE_CATEGORY_STRING,
+                PREF_FORTUNE_DEFAULT_CATEGORY
+            )!!
         return if (type == PREF_FORTUNE_DEFAULT_CATEGORY) {
             database.dao().getRandomItem().firstOrNull()
         } else {

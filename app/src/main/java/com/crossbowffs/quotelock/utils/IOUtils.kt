@@ -3,15 +3,26 @@
 package com.crossbowffs.quotelock.utils
 
 import android.graphics.Bitmap
-import com.crossbowffs.quotelock.consts.Urls
-import com.yubyf.quotelockx.BuildConfig
+import android.os.Build
+import androidx.annotation.FloatRange
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.call.body
+import io.ktor.client.plugins.onDownload
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentLength
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.copyAndClose
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
+import org.jsoup.nodes.Document
 import java.io.*
-import java.net.HttpURLConnection
-import java.net.URL
 
 @Throws(IOException::class)
 fun InputStream.readString(
@@ -31,27 +42,60 @@ fun InputStream.readString(
 }
 
 @Throws(IOException::class)
-suspend fun String.downloadUrl(
+suspend inline fun <reified T> HttpClient.fetchJson(
+    url: String,
     headers: Map<String, String?>? = null,
-): String = runInterruptible(Dispatchers.IO) {
-    val ua = "QuoteLockX/${BuildConfig.VERSION_NAME} (+${Urls.GITHUB_QUOTELOCK})"
-    val connection = URL(this@downloadUrl).openConnection() as HttpURLConnection
-    try {
-        connection.connectTimeout = 3000
-        connection.readTimeout = 3000
-        connection.setRequestProperty("User-Agent", ua)
-        headers?.run {
-            forEach { (key, value) -> connection.addRequestProperty(key, value) }
+): T = fetchAny(url, headers) { }
+
+@Throws(IOException::class)
+suspend fun HttpClient.fetchXml(
+    url: String,
+    headers: Map<String, String?>? = null,
+): Document = fetchAny<Document>(url, headers) { }
+
+@Throws(IOException::class)
+suspend inline fun <reified T> HttpClient.fetchAny(
+    url: String,
+    headers: Map<String, String?>? = null,
+    crossinline block: HttpClientConfig<*>.() -> Unit,
+): T = run {
+    val response = config {
+        block()
+    }.get(url) {
+        headers {
+            headers?.forEach { (key, value) -> append(key, value!!) }
         }
-        val responseCode = connection.responseCode
-        if (connection.responseCode == 200) {
-            connection.inputStream.readString()
-        } else {
-            throw IOException("Server returned non-200 status code: $responseCode")
-        }
-    } finally {
-        connection.disconnect()
     }
+    if (response.status == HttpStatusCode.OK) {
+        response.body<T>()
+    } else {
+        throw IOException("Server returned non-200 status code: ${response.status.description}")
+    }
+}
+
+@Throws(IOException::class)
+suspend fun HttpClient.fetchFile(
+    url: String,
+    headers: Map<String, String>? = null,
+    file: File,
+): Flow<DownloadState> = callbackFlow {
+    send(DownloadState.Start)
+    val response = get(url) {
+        headers {
+            headers?.forEach { (key, value) -> append(key, value) }
+        }
+        onDownload { bytesSentTotal, contentLength ->
+            send(DownloadState.Downloading(bytesSentTotal.toFloat() / contentLength.toFloat()))
+        }
+    }
+    response.contentLength()
+    if (response.status == HttpStatusCode.OK) {
+        response.bodyAsChannel().copyAndClose(file.writeChannel())
+    } else {
+        throw IOException("Server returned non-200 status code: ${response.status.description}")
+    }
+    send(DownloadState.End)
+    close()
 }
 
 @Throws(IOException::class)
@@ -96,7 +140,13 @@ suspend fun Bitmap.toFile(file: File, dispatcher: CoroutineDispatcher = Dispatch
                     "jpeg",
                     -> Bitmap.CompressFormat.JPEG
 
-                    "webp" -> Bitmap.CompressFormat.WEBP
+                    "webp" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        Bitmap.CompressFormat.WEBP_LOSSY
+                    } else {
+                        @Suppress("DEPRECATION")
+                        Bitmap.CompressFormat.WEBP
+                    }
+
                     "png" -> Bitmap.CompressFormat.PNG
                     else -> Bitmap.CompressFormat.PNG
                 },
@@ -107,3 +157,9 @@ suspend fun Bitmap.toFile(file: File, dispatcher: CoroutineDispatcher = Dispatch
             true
         }.getOrDefault(false)
     }
+
+sealed class DownloadState {
+    object Start : DownloadState()
+    data class Downloading(@FloatRange(0.0, 1.0) val progress: Float) : DownloadState()
+    object End : DownloadState()
+}

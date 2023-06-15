@@ -26,14 +26,15 @@ class CustomQuoteModule : QuoteModule {
     }
 
     @Throws(Exception::class)
-    override suspend fun getQuote(context: Context): QuoteData {
+    override suspend fun Context.getQuote(): QuoteData {
         val repository = EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(
-            context.applicationContext).customQuoteRepository()
+            applicationContext
+        ).customQuoteRepository()
         return repository.getRandomItem()?.let {
             QuoteData(quoteText = it.text, quoteSource = it.source, provider = it.provider)
         } ?: QuoteData(
-            quoteText = context.getString(R.string.module_custom_setup_line1),
-            quoteSource = context.getString(R.string.module_custom_setup_line2),
+            quoteText = getString(R.string.module_custom_setup_line1),
+            quoteSource = getString(R.string.module_custom_setup_line2),
             provider = CustomQuoteContract.PROVIDER_VALUE,
         )
     }

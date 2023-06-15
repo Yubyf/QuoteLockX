@@ -28,14 +28,15 @@ class CollectionsQuoteModule : QuoteModule {
     }
 
     @Throws(Exception::class)
-    override suspend fun getQuote(context: Context): QuoteData {
+    override suspend fun Context.getQuote(): QuoteData {
         val repository = EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(
-            context.applicationContext).collectionRepository()
+            applicationContext
+        ).collectionRepository()
         return repository.getRandomItem()?.let {
             QuoteData(it.text, it.source, it.author, it.provider, it.uid)
         } ?: QuoteData(
-            context.getString(R.string.module_collections_setup_line1),
-            context.getString(R.string.module_collections_setup_line2)
+            getString(R.string.module_collections_setup_line1),
+            getString(R.string.module_collections_setup_line2)
         )
     }
 

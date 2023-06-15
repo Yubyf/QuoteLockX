@@ -8,6 +8,7 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.android.kotlin)
+    alias(libs.plugins.serialization)
     alias(libs.plugins.kapt)
     alias(libs.plugins.android.hilt)
 }
@@ -178,6 +179,7 @@ dependencies {
     implementation(libs.bundles.compose.standard)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.coil)
+    implementation(libs.bundles.ktor)
 
     // Accompanist
     implementation(libs.bundles.accompanist)
