@@ -5,6 +5,8 @@ package com.crossbowffs.quotelock.app.about
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -52,6 +54,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -59,7 +64,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -68,12 +78,18 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.crossbowffs.quotelock.consts.Urls
+import com.crossbowffs.quotelock.data.version.UpdateInfo
 import com.crossbowffs.quotelock.ui.components.AboutAppBar
 import com.crossbowffs.quotelock.ui.components.ContentAlpha
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
+import com.crossbowffs.quotelock.utils.DownloadState
+import com.crossbowffs.quotelock.utils.DownloadState.Start.progress
+import com.crossbowffs.quotelock.utils.installApk
 import com.yubyf.quotelockx.BuildConfig
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
+
+private val ItemHeight = 56.dp
 
 @Composable
 fun AboutRoute(
@@ -82,13 +98,24 @@ fun AboutRoute(
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState
-    AboutScreen(modifier = modifier, uiState = uiState, onBack = onBack)
+    val context = LocalContext.current
+    AboutScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onDownload = viewModel::fetchUpdateFile,
+        onPaused = viewModel::pauseDownload,
+        onInstall = context::installApk,
+        onBack = onBack
+    )
 }
 
 @Composable
 fun AboutScreen(
     modifier: Modifier = Modifier,
     uiState: AboutUiState,
+    onDownload: (UpdateInfo.RemoteUpdate) -> Unit = {},
+    onPaused: () -> Unit = {},
+    onInstall: (String) -> Unit = {},
     onBack: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -108,11 +135,13 @@ fun AboutScreen(
                         ),
                         shape = MaterialTheme.shapes.extraSmall
                     ) {
-                        Text(text = snackbarData.visuals.message,
+                        Text(
+                            text = snackbarData.visuals.message,
                             modifier = Modifier
                                 .padding(8.dp)
                                 .alpha(ContentAlpha.high),
-                            fontSize = MaterialTheme.typography.labelLarge.fontSize)
+                            fontSize = MaterialTheme.typography.labelLarge.fontSize
+                        )
                     }
                 }
             )
@@ -120,10 +149,11 @@ fun AboutScreen(
         topBar = { AboutAppBar(onBack = onBack) }
     ) { padding ->
         val scrollState = rememberScrollState()
-        Column(modifier = modifier
-            .fillMaxSize()
-            .padding(padding)
-            .verticalScroll(state = scrollState)
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(state = scrollState)
         ) {
             val easterMessage = stringResource(id = R.string.easter_egg)
             Spacer(modifier = Modifier.height(32.dp))
@@ -136,10 +166,15 @@ fun AboutScreen(
                 }
             }
             Spacer(modifier = Modifier.height(64.dp))
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
             ) {
+                if (uiState.updateInfo != UpdateInfo.NoUpdate) {
+                    NewVersion(uiState.updateInfo, onDownload, onPaused, onInstall)
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
                 Repo()
                 Spacer(modifier = Modifier.height(24.dp))
                 Developers(stringResource(id = R.string.about_developers), uiState.developers)
@@ -160,24 +195,30 @@ fun Logo(modifier: Modifier = Modifier, onEasterEgg: () -> Unit = {}) {
     var logoTapCount by remember { mutableStateOf(0) }
     var logoTapTimestamp by remember { mutableStateOf(0L) }
     val haptic = LocalHapticFeedback.current
-    Column(modifier = modifier
-        .clickable(interactionSource = remember { MutableInteractionSource() },
-            indication = null) {
-            if (System.currentTimeMillis() - logoTapTimestamp < 500) logoTapCount++
-            else logoTapCount = 1
-            logoTapTimestamp = System.currentTimeMillis()
-            if (logoTapCount == 7) {
-                logoTapCount = 0
-                logoTapTimestamp = 0L
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                onEasterEgg()
-            }
-        },
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(model = R.drawable.ic_quotelockx,
+    Column(
+        modifier = modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                if (System.currentTimeMillis() - logoTapTimestamp < 500) logoTapCount++
+                else logoTapCount = 1
+                logoTapTimestamp = System.currentTimeMillis()
+                if (logoTapCount == 7) {
+                    logoTapCount = 0
+                    logoTapTimestamp = 0L
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onEasterEgg()
+                }
+            },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AsyncImage(
+            model = R.drawable.ic_quotelockx,
             contentDescription = "Logo",
-            modifier = Modifier.size(64.dp))
-        Spacer(modifier = Modifier.height(4.dp))
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = stringResource(id = R.string.quotelockx),
             fontSize = MaterialTheme.typography.headlineSmall.fontSize,
@@ -192,17 +233,155 @@ fun Logo(modifier: Modifier = Modifier, onEasterEgg: () -> Unit = {}) {
     }
 }
 
+@OptIn(ExperimentalTextApi::class)
+@Composable
+fun NewVersion(
+    updateInfo: UpdateInfo,
+    onDownload: (UpdateInfo.RemoteUpdate) -> Unit = {},
+    onPaused: () -> Unit = {},
+    onInstall: (String) -> Unit = {},
+) {
+    @Composable
+    fun DownloadProgress(text: String, progress: Int, showProgress: Boolean = true) {
+        val progressColor = MaterialTheme.colorScheme.primary
+        val textColor = MaterialTheme.colorScheme.primary
+        val textMeasurer = rememberTextMeasurer()
+        val progressText = "$text ${if (showProgress) " $progress%" else ""}"
+        val fontSize = MaterialTheme.typography.titleMedium.fontSize
+        val textSize = textMeasurer.measure(
+            progressText,
+            TextStyle(fontSize = fontSize, fontWeight = FontWeight.Bold)
+        )
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(ItemHeight)
+        ) {
+            with(drawContext.canvas.nativeCanvas) {
+                val checkPoint = saveLayer(null, null)
+                drawText(
+                    textMeasurer = textMeasurer,
+                    text = progressText,
+                    style = TextStyle(
+                        fontSize = fontSize,
+                        color = textColor,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    topLeft = Offset(
+                        x = size.width / 2 - textSize.size.width / 2,
+                        y = size.height / 2 - textSize.size.height / 2
+                    )
+                )
+                drawRect(
+                    color = progressColor,
+                    size = size.copy(width = size.width * (progress / 100F)),
+                    blendMode = BlendMode.SrcOut
+                )
+                restoreToCount(checkPoint)
+            }
+        }
+    }
+
+    AboutCard(emphasize = true, onClick = {
+        when (updateInfo) {
+            is UpdateInfo.LocalUpdate -> {
+                onInstall(updateInfo.url)
+            }
+
+            is UpdateInfo.RemoteUpdate -> {
+                if (updateInfo.downloadState is DownloadState.Downloading) {
+                    onPaused()
+                } else {
+                    onDownload(updateInfo)
+                }
+            }
+
+            else -> {}
+        }
+    }) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .height(ItemHeight),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                updateInfo is UpdateInfo.LocalUpdate -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.about_install_new_version),
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+
+                updateInfo is UpdateInfo.RemoteUpdate &&
+                        (updateInfo.downloadState != DownloadState.Idle
+                                && updateInfo.downloadState != DownloadState.End) -> {
+                    DownloadProgress(
+                        when (updateInfo.downloadState) {
+                            is DownloadState.Pause -> stringResource(id = R.string.about_download_paused)
+                            is DownloadState.Error -> stringResource(id = R.string.about_download_error)
+                            else -> stringResource(id = R.string.about_downloading)
+                        },
+                        (updateInfo.downloadState.progress * 100).toInt(),
+                        updateInfo.downloadState !is DownloadState.Pause
+                                && updateInfo.downloadState !is DownloadState.Error
+                    )
+                }
+
+                else -> {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp, bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = stringResource(R.string.about_new_version),
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.weight(1F))
+                        Text(
+                            text = updateInfo.versionName,
+                            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.alpha(ContentAlpha.medium)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun Repo() {
     val context = LocalContext.current
     AboutCard(onClick = {
-        context.startActivity(Intent(Intent.ACTION_VIEW,
-            Uri.parse(Urls.GITHUB_QUOTELOCK)))
+        context.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(Urls.GITHUB_QUOTELOCK)
+            )
+        )
     }) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 56.dp)
+                .heightIn(min = ItemHeight)
                 .padding(top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -228,9 +407,10 @@ fun Developers(title: String, developers: List<Developer>) {
     AboutCard {
         val placeholder = painterResource(id = R.mipmap.ic_github_identicon)
         val context = LocalContext.current
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp, bottom = 8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 8.dp)
         ) {
             Text(
                 text = title,
@@ -242,22 +422,28 @@ fun Developers(title: String, developers: List<Developer>) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(ItemHeight)
                         .clickable(enabled = developer.profileLink != null) {
-                            context.startActivity(Intent(Intent.ACTION_VIEW,
-                                developer.profileLink))
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    developer.profileLink
+                                )
+                            )
                         },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(modifier = Modifier.width(16.dp))
-                    AsyncImage(model = developer.avatarUrl,
+                    AsyncImage(
+                        model = developer.avatarUrl,
                         contentDescription = developer.name,
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape),
                         placeholder = placeholder,
                         error = placeholder,
-                        fallback = placeholder)
+                        fallback = placeholder
+                    )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = developer.name,
@@ -286,10 +472,12 @@ fun Developers(title: String, developers: List<Developer>) {
                     }
                 }
                 if (index != developers.lastIndex) {
-                    Divider(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp),
-                        thickness = Dp.Hairline)
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp),
+                        thickness = Dp.Hairline
+                    )
                 }
             }
         }
@@ -300,9 +488,10 @@ fun Developers(title: String, developers: List<Developer>) {
 private fun QuoteProviders(providers: List<QuoteProvider>) {
     AboutCard {
         val context = LocalContext.current
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp, bottom = 8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 8.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.about_quote_providers),
@@ -314,18 +503,24 @@ private fun QuoteProviders(providers: List<QuoteProvider>) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(ItemHeight)
                         .clickable(enabled = provider.link != null) {
-                            context.startActivity(Intent(Intent.ACTION_VIEW,
-                                provider.link))
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    provider.link
+                                )
+                            )
                         },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(modifier = Modifier.width(16.dp))
-                    AsyncImage(model = provider.logoRes,
+                    AsyncImage(
+                        model = provider.logoRes,
                         contentDescription = provider.name,
                         modifier = Modifier
-                            .size(32.dp))
+                            .size(32.dp)
+                    )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = provider.name,
@@ -333,10 +528,12 @@ private fun QuoteProviders(providers: List<QuoteProvider>) {
                     )
                 }
                 if (index != providers.lastIndex) {
-                    Divider(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp),
-                        thickness = Dp.Hairline)
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp),
+                        thickness = Dp.Hairline
+                    )
                 }
             }
         }
@@ -352,7 +549,7 @@ fun Libraries(libraries: List<Library>) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 56.dp)
+                .heightIn(min = ItemHeight)
                 .padding(top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -385,10 +582,12 @@ fun Libraries(libraries: List<Library>) {
             title = { Text(text = stringResource(id = R.string.pref_about_libraries)) },
             text = {
                 val context = LocalContext.current
-                Column(modifier = Modifier
-                    // Make the item fill the max width in the Dialog
-                    // to ensure the ripple effect can be fully rendered
-                    .requiredWidth(with(LocalDensity.current) { containerWidth.toDp() })) {
+                Column(
+                    modifier = Modifier
+                        // Make the item fill the max width in the Dialog
+                        // to ensure the ripple effect can be fully rendered
+                        .requiredWidth(with(LocalDensity.current) { containerWidth.toDp() })
+                ) {
                     Divider(modifier = Modifier.fillMaxWidth(), thickness = Dp.Hairline)
                     libraries.forEach { provider ->
                         Row(
@@ -418,22 +617,40 @@ fun Libraries(libraries: List<Library>) {
 }
 
 @Composable
-private fun AboutCard(onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
+private fun AboutCard(
+    emphasize: Boolean = false,
+    onClick: (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val containerColor = if (emphasize) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+    val contentColor = if (emphasize) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     onClick?.let {
-        Card(onClick = it,
+        Card(
+            onClick = it,
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(0.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+                containerColor = containerColor,
+                contentColor = contentColor
+            ),
             shape = MaterialTheme.shapes.small,
             content = content
         )
-    } ?: Card(modifier = Modifier.fillMaxWidth(),
+    } ?: Card(
+        modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(0.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+            containerColor = containerColor,
+            contentColor = contentColor
+        ),
         shape = MaterialTheme.shapes.small,
         content = content
     )
@@ -455,6 +672,11 @@ private fun CollectionScreenPreview() {
         Surface {
             AboutScreen(
                 uiState = AboutUiState(
+                    updateInfo = UpdateInfo.LocalUpdate(
+                        versionName = "3.2.0",
+                        versionCode = 28,
+                        url = ""
+                    ),
                     developers = developers,
                     translators = translators,
                     quoteProviders = providers,

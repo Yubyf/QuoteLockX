@@ -8,4 +8,8 @@
     <external-cache-path
         name="widget"
         path="widget/" />
+
+    <external-files-path
+        name="Download"
+        path="Download/" />
 </paths>

@@ -63,6 +63,13 @@ const val PREF_QUOTES_COLLECTION_STATE = "pref_quotes_collection_state"
 const val PREF_QUOTES_LAST_UPDATED = "pref_quotes_last_updated"
 const val PREF_BOOT_NOTIFY_FLAG = "boot_notify_flag"
 
+const val PREF_VERSION_UPDATE = "version_update"
+const val PREF_VERSION_DOWNLOAD_APK_VERSION_CODE = "pref_version_download_apk_version_code"
+const val PREF_VERSION_DOWNLOAD_APK_VERSION_NAME = "pref_version_download_apk_version_name"
+const val PREF_VERSION_DOWNLOAD_APK_PATH = "pref_version_download_apk_path"
+const val PREF_VERSION_DOWNLOAD_APK_TOTAL_SIZE = "pref_version_download_apk_total_size"
+const val PREF_VERSION_DOWNLOAD_APK_RANGE_IDENTIFIER = "pref_version_download_apk_range_identifier"
+
 const val PREF_CARD_STYLE = "card_style"
 const val PREF_CARD_STYLE_FONT_SIZE_TEXT = "pref_card_style_font_size_text"
 const val PREF_CARD_STYLE_FONT_SIZE_TEXT_DEFAULT = 36

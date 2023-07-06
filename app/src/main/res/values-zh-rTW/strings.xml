@@ -103,6 +103,11 @@
     <string name="about_translators">翻譯者</string>
     <string name="about_quote_providers">格言提供服務</string>
     <string name="pref_about_libraries">第三方庫</string>
+    <string name="about_new_version">新版本可用</string>
+    <string name="about_downloading">正在下載…</string>
+    <string name="about_download_paused">下載已暫停 - </string>
+    <string name="about_download_error">下載錯誤，請重試</string>
+    <string name="about_install_new_version">安裝新版本</string>
 
     <!-- Provider-specific strings -->
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>

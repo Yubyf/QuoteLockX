@@ -4,16 +4,22 @@ package com.crossbowffs.quotelock.app.settings
 
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -21,13 +27,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
@@ -121,10 +132,11 @@ fun SettingsScreen(
             snackBarShown()
         }
         val scrollState = rememberScrollState()
-        Column(modifier = modifier
-            .fillMaxSize()
-            .padding(padding)
-            .verticalScroll(state = scrollState)
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(state = scrollState)
         ) {
             val currentLanguage = AppCompatDelegate.getApplicationLocales()[0]?.toLanguageTag()
             PreferenceItem(
@@ -203,11 +215,42 @@ fun SettingsScreen(
             )
             PreferenceItem(
                 title = stringResource(id = R.string.pref_clear_cache),
-                info = uiState.cacheSize,
+                info = {
+                    Text(
+                        text = uiState.cacheSize,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.End,
+                        maxLines = 1,
+                        modifier = Modifier.alpha(0.6F)
+                    )
+                },
                 onClick = onClearCacheItemClicked
             )
             PreferenceItem(
                 titleRes = R.string.about,
+                info = if (uiState.showUpdate) {
+                    {
+                        Box(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .background(
+                                    MaterialTheme.colorScheme.primary,
+                                    RoundedCornerShape(50)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.new_version_bubble),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                } else null,
                 onClick = onAboutItemClicked
             )
         }
@@ -284,7 +327,8 @@ private fun SettingsScreenPreview() {
                     unmeteredOnly = true,
                     moduleData = null,
                     updateInfo = AndroidString.StringText(""),
-                    cacheSize = "0.0 MB"
+                    cacheSize = "0.0 MB",
+                    showUpdate = true
                 ),
                 uiEvent = emptySnackBarEvent,
                 snackBarShown = {},

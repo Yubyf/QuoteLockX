@@ -7,6 +7,7 @@ import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE
 import com.crossbowffs.quotelock.consts.PREF_COMMON
 import com.crossbowffs.quotelock.consts.PREF_QUOTES
+import com.crossbowffs.quotelock.consts.PREF_VERSION_UPDATE
 import com.crossbowffs.quotelock.data.modules.jinrishici.JinrishiciQuoteModule
 import com.yubyf.datastore.DataStoreDelegate
 import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
@@ -21,6 +22,10 @@ import javax.inject.Singleton
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class CommonDataStore
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class VersionDataStore
 
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
@@ -55,6 +60,12 @@ object DataStoreModules {
     @Provides
     fun provideCommonDataStore(@ApplicationContext context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(PREF_COMMON, migrate = true)
+
+    @Singleton
+    @VersionDataStore
+    @Provides
+    fun provideVersionDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+        context.getDataStoreDelegate(PREF_VERSION_UPDATE, migrate = true)
 
     @Singleton
     @QuotesDataStore

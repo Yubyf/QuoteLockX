@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -84,7 +85,7 @@ fun BasePreferenceItem(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
-    info: String? = null,
+    info: @Composable (RowScope.() -> Unit)? = null,
     checked: Boolean = false,
     enabled: Boolean = true,
     onClick: () -> Unit = {},
@@ -93,11 +94,13 @@ fun BasePreferenceItem(
     var checkedState by remember { mutableStateOf(checked) }
     Box(contentAlignment = Alignment.CenterStart,
         modifier = modifier
-            .heightIn(min = if (summary.isNullOrBlank()) {
-                PREFERENCE_SINGLE_LINE_ITEM_HEIGHT
-            } else {
-                PREFERENCE_DUAL_LINE_ITEM_HEIGHT
-            })
+            .heightIn(
+                min = if (summary.isNullOrBlank()) {
+                    PREFERENCE_SINGLE_LINE_ITEM_HEIGHT
+                } else {
+                    PREFERENCE_DUAL_LINE_ITEM_HEIGHT
+                }
+            )
             .clickable(enabled = enabled) {
                 if (onSwitchChange != null) {
                     checkedState = !checkedState
@@ -121,7 +124,8 @@ fun BasePreferenceItem(
                     .weight(1f, true),
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(text = title,
+                Text(
+                    text = title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Start,
@@ -129,7 +133,8 @@ fun BasePreferenceItem(
                     modifier = Modifier.fillMaxWidth()
                 )
                 if (!summary.isNullOrBlank()) {
-                    Text(text = summary,
+                    Text(
+                        text = summary,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Normal,
                         textAlign = TextAlign.Start,
@@ -141,7 +146,7 @@ fun BasePreferenceItem(
                     )
                 }
             }
-            if (info.isNullOrBlank()) {
+            if (info == null) {
                 onSwitchChange?.let {
                     Switch(
                         checked = checkedState,
@@ -150,13 +155,7 @@ fun BasePreferenceItem(
                     )
                 }
             } else {
-                Text(text = info,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Normal,
-                    textAlign = TextAlign.End,
-                    maxLines = 1,
-                    modifier = Modifier.alpha(if (enabled) 0.6F else ContentAlpha.medium)
-                )
+                info.invoke(this)
             }
         }
     }
@@ -167,7 +166,7 @@ fun PreferenceItem(
     modifier: Modifier = Modifier,
     @StringRes titleRes: Int,
     @StringRes summaryRes: Int? = null,
-    @StringRes infoRes: Int? = null,
+    info: @Composable (RowScope.() -> Unit)? = null,
     enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
@@ -175,7 +174,7 @@ fun PreferenceItem(
         modifier = modifier,
         title = stringResource(id = titleRes),
         summary = summaryRes?.let { stringResource(id = summaryRes) },
-        info = infoRes?.let { stringResource(id = infoRes) },
+        info = info,
         enabled = enabled,
         onClick = onClick,
     )
@@ -186,7 +185,7 @@ fun PreferenceItem(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
-    info: String? = null,
+    info: @Composable (RowScope.() -> Unit)? = null,
     enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
@@ -238,21 +237,36 @@ fun SwitchablePreferenceItem(
     )
 }
 
-@Preview(name = "Preference Item Light",
+@Preview(
+    name = "Preference Item Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Preference Item Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Preference Item Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 fun PreferenceItemPreview() {
     QuoteLockTheme {
         Surface {
             Column {
                 PreferenceTitle(title = "Title")
-                PreferenceItem(title = "Standard Item",
+                PreferenceItem(
+                    title = "Standard Item",
                     summary = "Summary here",
-                    info = "Info here") {}
+                    info = {
+                        Text(
+                            text = "Info here",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Normal,
+                            textAlign = TextAlign.End,
+                            maxLines = 1,
+                            modifier = Modifier.alpha(0.6F)
+                        )
+                    }
+                ) {}
                 PreferenceItem(title = "Single Line Item") {}
                 SwitchablePreferenceItem(title = "Switchable Item", summary = "Summary here") {}
             }

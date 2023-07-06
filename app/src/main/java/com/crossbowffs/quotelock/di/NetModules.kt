@@ -64,7 +64,8 @@ object NetModules {
             }
 
             install(ContentNegotiation) {
-                json(json)
+                json(json, ContentType.Application.Json)
+                json(json, ContentType.Text.Plain)
                 register(ContentType.Text.Html, jsoupConverter)
                 register(ContentType.Text.Xml, jsoupConverter)
             }
@@ -79,8 +80,8 @@ object NetModules {
             }
 
             install(HttpTimeout) {
-                connectTimeoutMillis = 3000
-                socketTimeoutMillis = 3000
+                connectTimeoutMillis = 5000
+                socketTimeoutMillis = 5000
             }
 
             install(UserAgent) {

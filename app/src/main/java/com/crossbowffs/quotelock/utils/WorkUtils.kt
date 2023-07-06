@@ -8,16 +8,19 @@ import androidx.compose.ui.unit.DpSize
 import androidx.glance.GlanceId
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
 import com.crossbowffs.quotelock.worker.GlanceWorker
 import com.crossbowffs.quotelock.worker.QuoteWorker
+import com.crossbowffs.quotelock.worker.VersionWorker
 import dagger.hilt.android.EntryPointAccessors
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -90,6 +93,33 @@ object WorkUtils {
         }
         Xlog.d(TAG, "WorkUtils#shouldRefreshQuote: YES")
         return true
+    }
+
+    fun createVersionCheckWork(context: Context) {
+        Xlog.d(TAG, "WorkUtils#createVersionCheckWork called")
+        val workManager = WorkManager.getInstance(context)
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    setRequiresBatteryNotLow(true)
+                }
+            }
+            .build()
+        val request = PeriodicWorkRequestBuilder<VersionWorker>(12, TimeUnit.HOURS)
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR, (
+                        2 * 1000).toLong(),
+                TimeUnit.MILLISECONDS
+            )
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueueUniquePeriodicWork(
+            VersionWorker.TAG,
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+            request
+        )
+        Xlog.d(TAG, "Scheduled version check work")
     }
 
     fun createWidgetUpdateWork(context: Context, glanceId: GlanceId, size: DpSize) {

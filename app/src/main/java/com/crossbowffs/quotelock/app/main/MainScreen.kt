@@ -16,11 +16,14 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ManageSearch
 import androidx.compose.material.icons.rounded.MoreVert
@@ -36,6 +39,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -50,6 +54,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
@@ -79,10 +84,11 @@ import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+
 @Composable
 fun MainRoute(
     modifier: Modifier = Modifier,
-    mainViewModel: MainViewModel = hiltViewModel(),
+    mainScreenViewModel: MainScreenViewModel = hiltViewModel(),
     quoteViewModel: QuoteViewModel = hiltViewModel(),
     cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
     onSettingsItemClick: () -> Unit,
@@ -93,15 +99,16 @@ fun MainRoute(
     onShare: () -> Unit,
     onDetail: (QuoteData) -> Unit,
 ) {
-    val mainUiEvent by mainViewModel.uiEvent.collectAsState(initial = emptySnackBarEvent)
-    val mainUiState by mainViewModel.uiState
-    val mainDialogUiState by mainViewModel.uiDialogState
+    val mainUiMessageEvent by mainScreenViewModel.uiMessageEvent.collectAsState(initial = emptySnackBarEvent)
+    val mainUiState by mainScreenViewModel.uiState
+    val mainDialogUiState by mainScreenViewModel.uiDialogState
     val quoteUiState by quoteViewModel.uiState
     val cardStyleUiState by cardStyleViewModel.uiState
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    mainUiEvent.let { event ->
+
+    mainUiMessageEvent.let { event ->
         event.message?.let { message ->
             scope.launch {
                 snackbarHostState.currentSnackbarData?.takeIf {
@@ -113,7 +120,7 @@ fun MainRoute(
                     actionLabel = event.actionText.contextString(context)
                 )
             }
-            mainViewModel.snackBarShown()
+            mainScreenViewModel.snackBarShown()
         }
     }
     MainScreen(
@@ -123,7 +130,7 @@ fun MainRoute(
         quoteUiState = quoteUiState,
         cardStyleUiState = cardStyleUiState,
         showStylePopup = cardStyleViewModel::showStylePopup,
-        refreshQuote = mainViewModel::refreshQuote,
+        refreshQuote = mainScreenViewModel::refreshQuote,
         switchCollectionState = quoteViewModel::switchCollectionState,
         shareQuote = { quoteViewModel.setSnapshotables(it); onShare() },
         onDetail = onDetail,
@@ -145,9 +152,9 @@ fun MainRoute(
     )
     MainDialogs(
         uiDialogState = mainDialogUiState,
-        onStartXposedPage = { with(mainViewModel) { context.startXposedPage(it) } },
-        onStartBrowserActivity = { with(mainViewModel) { context.startBrowserActivity(it) } },
-        onDialogDismiss = mainViewModel::cancelDialog
+        onStartXposedPage = { with(mainScreenViewModel) { context.startXposedPage(it) } },
+        onStartBrowserActivity = { with(mainScreenViewModel) { context.startBrowserActivity(it) } },
+        onDialogDismiss = mainScreenViewModel::cancelDialog
     )
 }
 
@@ -187,23 +194,27 @@ fun MainScreen(
         LaunchedEffect(Unit) {
             scope.launch {
                 rotationAnimation.snapTo(0F)
-                rotationAnimation.animateTo(targetValue = 360F,
+                rotationAnimation.animateTo(
+                    targetValue = 360F,
                     animationSpec = repeatable(
                         animation = tween(500, easing = LinearEasing),
                         iterations = AnimationConstants.DefaultDurationMillis,
                         repeatMode = RepeatMode.Restart
-                    ))
+                    )
+                )
             }
         }
     } else if (!mainUiState.refreshing && rotationAnimation.isRunning) {
         LaunchedEffect(Unit) {
             scope.launch {
                 rotationAnimation.stop()
-                rotationAnimation.animateTo(targetValue = 360F,
+                rotationAnimation.animateTo(
+                    targetValue = 360F,
                     animationSpec = TweenSpec(
                         ((360F - rotationAnimation.value) / 360 * 500).roundToInt(),
                         easing = LinearEasing
-                    ))
+                    )
+                )
             }
         }
     }
@@ -212,6 +223,7 @@ fun MainScreen(
         topBar = {
             MainAppBar(onStyle = showStylePopup) {
                 MainDropdownMenu(
+                    showUpdate = mainUiState.showUpdate,
                     onSettingsItemClick = onSettingsItemClick,
                     onLockscreenStylesItemClick = onLockscreenStylesItemClick,
                     onCollectionItemClick = onCollectionItemClick,
@@ -223,9 +235,11 @@ fun MainScreen(
             ExtendedFloatingActionButton(
                 text = { Text(text = stringResource(id = R.string.refresh_quote)) },
                 icon = {
-                    Icon(Icons.Rounded.Refresh,
+                    Icon(
+                        Icons.Rounded.Refresh,
                         contentDescription = stringResource(id = R.string.refresh_quote),
-                        modifier = Modifier.rotate(rotation))
+                        modifier = Modifier.rotate(rotation)
+                    )
                 },
                 shape = FloatingActionButtonDefaults.largeShape,
                 onClick = {
@@ -237,10 +251,11 @@ fun MainScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
-        Box(modifier = modifier
-            .fillMaxSize()
-            .padding(padding)
-            .consumeWindowInsets(padding)
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
+                .consumeWindowInsets(padding)
         ) {
             QuotePage(
                 modifier = Modifier
@@ -281,6 +296,7 @@ fun MainScreen(
 
 @Composable
 fun MainDropdownMenu(
+    showUpdate: Boolean = false,
     onSettingsItemClick: () -> Unit,
     onLockscreenStylesItemClick: () -> Unit,
     onCollectionItemClick: () -> Unit,
@@ -294,10 +310,27 @@ fun MainDropdownMenu(
         content = { _, closeMenu ->
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Rounded.Settings,
-                        contentDescription = stringResource(id = R.string.settings))
+                    Icon(
+                        Icons.Rounded.Settings,
+                        contentDescription = stringResource(id = R.string.settings)
+                    )
                 },
-                text = { Text(text = stringResource(id = R.string.settings)) },
+                text = {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text(text = stringResource(id = R.string.settings))
+                        if (showUpdate) {
+                            Box(
+                                modifier = Modifier
+                                    .size(5.dp)
+                                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                    .align(Alignment.CenterEnd)
+                            )
+                        }
+                    }
+                },
                 onClick = {
                     closeMenu()
                     onSettingsItemClick()
@@ -305,8 +338,10 @@ fun MainDropdownMenu(
             )
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Rounded.Style,
-                        contentDescription = stringResource(id = R.string.lockscreen_styles))
+                    Icon(
+                        Icons.Rounded.Style,
+                        contentDescription = stringResource(id = R.string.lockscreen_styles)
+                    )
                 },
                 text = { Text(text = stringResource(id = R.string.lockscreen_styles)) },
                 onClick = {
@@ -316,8 +351,10 @@ fun MainDropdownMenu(
             )
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Rounded.Star,
-                        contentDescription = stringResource(id = R.string.quote_collections_screen_label))
+                    Icon(
+                        Icons.Rounded.Star,
+                        contentDescription = stringResource(id = R.string.quote_collections_screen_label)
+                    )
                 },
                 text = { Text(text = stringResource(id = R.string.quote_collections_screen_label)) },
                 onClick = {
@@ -327,8 +364,10 @@ fun MainDropdownMenu(
             )
             DropdownMenuItem(
                 leadingIcon = {
-                    Icon(Icons.Rounded.ManageSearch,
-                        contentDescription = stringResource(id = R.string.quote_histories_screen_label))
+                    Icon(
+                        Icons.Rounded.ManageSearch,
+                        contentDescription = stringResource(id = R.string.quote_histories_screen_label)
+                    )
                 },
                 text = { Text(text = stringResource(id = R.string.quote_histories_screen_label)) },
                 onClick = {
@@ -380,6 +419,7 @@ fun MainDialogs(
                 }
             )
         }
+
         MainDialogUiState.ModuleUpdatedDialog -> {
             AlertDialog(
                 onDismissRequest = onDialogDismiss,
@@ -403,6 +443,7 @@ fun MainDialogs(
                 }
             )
         }
+
         MainDialogUiState.None -> {}
     }
     var showBatteryOptimizationDialog by remember {

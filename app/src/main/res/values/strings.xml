@@ -20,6 +20,7 @@
     <string name="style">Style</string>
     <string name="preview">Preview</string>
     <string name="about">About</string>
+    <string name="new_version_bubble" translatable="false">New</string>
     <string name="close">Close</string>
     <string name="search">Search</string>
     <string name="data_retention">Data Retention</string>
@@ -108,6 +109,11 @@
     <string name="about_quote_providers">Quote providers</string>
     <string name="pref_about_github" translatable="false">GitHub</string>
     <string name="pref_about_libraries">Libraries</string>
+    <string name="about_new_version">New Version Available</string>
+    <string name="about_downloading">Downloading…</string>
+    <string name="about_download_paused">Download paused</string>
+    <string name="about_download_error">Download error, please retry</string>
+    <string name="about_install_new_version">Install New Version</string>
 
     <!-- Provider-specific strings -->
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>

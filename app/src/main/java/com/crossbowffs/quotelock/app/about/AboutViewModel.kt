@@ -1,9 +1,12 @@
 package com.crossbowffs.quotelock.app.about
 
+import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_DEVELOPER_APSUN_AVATAR_URL
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_DEVELOPER_APSUN_NAME
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_DEVELOPER_APSUN_PROFILE_URL
@@ -30,14 +33,21 @@ import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDER_JINRIS
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDER_LIBQUOTES
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDER_NATUNE
 import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDER_WIKIQUOTE
+import com.crossbowffs.quotelock.data.version.UpdateInfo
+import com.crossbowffs.quotelock.data.version.VersionRepository
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import java.io.File
 import javax.inject.Inject
 
 /**
  * UI state for the about screen.
  */
 data class AboutUiState(
+    val updateInfo: UpdateInfo,
     val developers: List<Developer>,
     val translators: List<Developer>,
     val quoteProviders: List<QuoteProvider>,
@@ -155,18 +165,41 @@ val libraries = listOf(
  * @author Yubyf
  */
 @HiltViewModel
-class AboutViewModel @Inject constructor() : ViewModel() {
+class AboutViewModel @Inject constructor(
+    @ApplicationContext context: Context,
+    private val versionRepository: VersionRepository,
+) : ViewModel() {
 
-    val uiState: State<AboutUiState>
+    private val _uiState = mutableStateOf(
+        AboutUiState(
+            updateInfo = versionRepository.updateInfoFlow.value,
+            developers = developers,
+            translators = translators,
+            quoteProviders = providers,
+            libraries = libraries
+        )
+    )
+    val uiState: State<AboutUiState> = _uiState
+
+    private val downloadDir: File =
+        context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.apply {
+            if (!exists()) {
+                mkdirs()
+            }
+        }
 
     init {
-        uiState = mutableStateOf(
-            AboutUiState(
-                developers = developers,
-                translators = translators,
-                quoteProviders = providers,
-                libraries = libraries
-            )
+        versionRepository.updateInfoFlow.onEach {
+            _uiState.value = _uiState.value.copy(updateInfo = it)
+        }.launchIn(viewModelScope)
+    }
+
+    fun fetchUpdateFile(updateInfo: UpdateInfo.RemoteUpdate) {
+        versionRepository.fetchUpdateFile(
+            updateInfo,
+            File(downloadDir, updateInfo.versionName + ".apk")
         )
     }
+
+    fun pauseDownload() = versionRepository.pauseDownload()
 }

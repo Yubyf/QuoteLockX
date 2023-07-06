@@ -3,11 +3,14 @@ package com.crossbowffs.quotelock.app.main
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.core.util.Consumer
 import com.crossbowffs.quotelock.app.quote.QuoteDestination
@@ -17,6 +20,7 @@ import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.ui.navigation.MainNavHost
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
+import com.crossbowffs.quotelock.utils.installApk
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +31,8 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var configurationRepository: ConfigurationRepository
+
+    private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +77,15 @@ class MainActivity : AppCompatActivity() {
                     onDispose { removeOnNewIntentListener(listener) }
                 }
                 MainNavHost(navController = navController)
+
+                val mainUiInstallEvent by mainActivityViewModel.uiInstallEvent.collectAsState(
+                    initial = null
+                )
+
+                mainUiInstallEvent?.let { path ->
+                    this@MainActivity.installApk(path)
+                    mainActivityViewModel.installEventConsumed()
+                }
             }
         }
     }

@@ -10,17 +10,15 @@ import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
-import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.WidgetRepository
 import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
-import com.crossbowffs.quotelock.utils.WorkUtils
+import com.crossbowffs.quotelock.data.version.VersionRepository
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.XposedUtils.startXposedActivity
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -29,7 +27,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class MainUiState(val quoteData: QuoteDataWithCollectState, val refreshing: Boolean = false)
+data class MainUiState(
+    val quoteData: QuoteDataWithCollectState,
+    val refreshing: Boolean = false,
+    val showUpdate: Boolean = false,
+)
 
 sealed class MainDialogUiState {
     object EnableModuleDialog : MainDialogUiState()
@@ -43,15 +45,14 @@ sealed class MainDialogUiState {
  * @author Yubyf
  */
 @HiltViewModel
-class MainViewModel @Inject constructor(
-    @ApplicationContext context: Context,
+class MainScreenViewModel @Inject constructor(
     private val quoteRepository: QuoteRepository,
-    configurationRepository: ConfigurationRepository,
     widgetRepository: WidgetRepository,
+    versionRepository: VersionRepository,
 ) : ViewModel() {
 
-    private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
+    private val _uiMessageEvent = MutableSharedFlow<SnackBarEvent>()
+    val uiMessageEvent = _uiMessageEvent.asSharedFlow()
 
     private val _uiState =
         mutableStateOf(MainUiState(quoteRepository.getCurrentQuote()))
@@ -60,16 +61,10 @@ class MainViewModel @Inject constructor(
     private val _uiDialogState = mutableStateOf<MainDialogUiState>(MainDialogUiState.None)
     val uiDialogState: State<MainDialogUiState> = _uiDialogState
 
+    private val _uiInstallEvent = MutableSharedFlow<String?>()
+    val uiInstallEvent = _uiInstallEvent.asSharedFlow()
+
     init {
-        // In case the user opens the app for the first time *after* rebooting,
-        // we want to make sure the background work has been created.
-        WorkUtils.createQuoteDownloadWork(
-            context,
-            configurationRepository.refreshInterval,
-            configurationRepository.isRequireInternet,
-            configurationRepository.isUnmeteredNetworkOnly,
-            false
-        )
         if (!XposedUtils.isModuleEnabled) {
             _uiDialogState.value = MainDialogUiState.EnableModuleDialog
         } else if (XposedUtils.isModuleUpdated) {
@@ -78,11 +73,12 @@ class MainViewModel @Inject constructor(
         // Trigger the initialization of the widget repository
         widgetRepository.placeholder()
 
-        viewModelScope.launch {
-            quoteRepository.quoteDataFlow.onEach {
-                _uiState.value = _uiState.value.copy(quoteData = it)
-            }.launchIn(this)
-        }
+        quoteRepository.quoteDataFlow.onEach {
+            _uiState.value = _uiState.value.copy(quoteData = it)
+        }.launchIn(viewModelScope)
+        versionRepository.updateInfoFlow.onEach {
+            _uiState.value = _uiState.value.copy(showUpdate = it.hasUpdate)
+        }.launchIn(viewModelScope)
         refreshQuote()
     }
 
@@ -94,23 +90,31 @@ class MainViewModel @Inject constructor(
             null
         }
         _uiState.value = _uiState.value.copy(refreshing = false)
-        _uiEvent.emit(SnackBarEvent(
-            message = AndroidString.StringRes(
-                if (quote == null) R.string.quote_download_failed else R.string.quote_download_success
+        _uiMessageEvent.emit(
+            SnackBarEvent(
+                message = AndroidString.StringRes(
+                    if (quote == null) R.string.quote_download_failed else R.string.quote_download_success
+                )
             )
-        ))
+        )
     }
 
     fun snackBarShown() = viewModelScope.launch {
-        _uiEvent.emit(emptySnackBarEvent)
+        _uiMessageEvent.emit(emptySnackBarEvent)
+    }
+
+    fun installEventConsumed() = viewModelScope.launch {
+        _uiInstallEvent.emit(null)
     }
 
     fun Context.startXposedPage(section: String) {
         if (!startXposedActivity(section)) {
             viewModelScope.launch {
-                _uiEvent.emit(SnackBarEvent(
-                    message = AndroidString.StringRes(R.string.xposed_not_installed)
-                ))
+                _uiMessageEvent.emit(
+                    SnackBarEvent(
+                        message = AndroidString.StringRes(R.string.xposed_not_installed)
+                    )
+                )
             }
             startBrowserActivity(Urls.XPOSED_FORUM)
         }

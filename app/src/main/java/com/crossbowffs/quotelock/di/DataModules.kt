@@ -14,6 +14,7 @@ import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollecti
 import com.crossbowffs.quotelock.data.modules.custom.CustomQuoteRepository
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteDatabase
 import com.crossbowffs.quotelock.data.modules.fortune.database.FortuneQuoteDatabase
+import com.crossbowffs.quotelock.data.version.VersionRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.EntryPoint
@@ -145,4 +146,10 @@ interface ConfigurationEntryPoint {
 @InstallIn(SingletonComponent::class)
 interface WidgetEntryPoint {
     fun widgetRepository(): WidgetRepository
+}
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface VersionEntryPoint {
+    fun versionRepository(): VersionRepository
 }

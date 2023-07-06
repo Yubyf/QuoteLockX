@@ -16,6 +16,7 @@ import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.modules.ModuleNotFoundException
 import com.crossbowffs.quotelock.data.modules.Modules
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
+import com.crossbowffs.quotelock.data.version.VersionRepository
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.findProcessAndKill
@@ -44,6 +45,7 @@ data class SettingsUiState(
     val moduleData: QuoteModuleData?,
     val updateInfo: AndroidString,
     val cacheSize: String,
+    val showUpdate: Boolean,
 )
 
 /**
@@ -75,6 +77,7 @@ class SettingsViewModel @Inject constructor(
     private val configurationRepository: ConfigurationRepository,
     private val quoteRepository: QuoteRepository,
     private val shareRepository: ShareRepository,
+    private val versionRepository: VersionRepository,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<SnackBarEvent>()
@@ -90,7 +93,8 @@ class SettingsViewModel @Inject constructor(
             AndroidString.StringRes(
                 R.string.pref_refresh_info_summary, arrayOf("-")
             ),
-            cacheSize = "…"
+            cacheSize = "…",
+            showUpdate = false,
         )
     )
     val uiState: State<SettingsUiState> = _uiState
@@ -136,6 +140,11 @@ class SettingsViewModel @Inject constructor(
             shareRepository.cacheSizeFlow.onEach {
                 _uiState.value = _uiState.value.copy(
                     cacheSize = if (it < 0) "…" else humanReadableByteCountBin(it),
+                )
+            }.launchIn(this)
+            versionRepository.updateInfoFlow.onEach {
+                _uiState.value = _uiState.value.copy(
+                    showUpdate = it.hasUpdate,
                 )
             }.launchIn(this)
             updateCurrentModule()
