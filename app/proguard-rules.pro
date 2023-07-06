@@ -34,3 +34,5 @@
 # Do not keep Log4JLogger class since the dependency org.apache.log4j.Priority is not available here.
 # Keep the alternative log implementation Jdk14Logger so that the OpenCSV process can continue
 -keep class org.apache.commons.logging.impl.Jdk14Logger {*;}
+
+-dontwarn org.slf4j.impl.StaticLoggerBinder
