@@ -578,7 +578,7 @@ fun AlertDialog(
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
-    neutralButton: @Composable (() -> Unit),
+    neutralButton: @Composable () -> Unit,
     dismissButton: @Composable (() -> Unit)? = null,
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = null,

@@ -1,8 +1,6 @@
 package com.crossbowffs.quotelock.app.about
 
-import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -37,10 +35,8 @@ import com.crossbowffs.quotelock.data.version.UpdateInfo
 import com.crossbowffs.quotelock.data.version.VersionRepository
 import com.yubyf.quotelockx.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.io.File
 import javax.inject.Inject
 
 /**
@@ -166,7 +162,6 @@ val libraries = listOf(
  */
 @HiltViewModel
 class AboutViewModel @Inject constructor(
-    @ApplicationContext context: Context,
     private val versionRepository: VersionRepository,
 ) : ViewModel() {
 
@@ -181,13 +176,6 @@ class AboutViewModel @Inject constructor(
     )
     val uiState: State<AboutUiState> = _uiState
 
-    private val downloadDir: File =
-        context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.apply {
-            if (!exists()) {
-                mkdirs()
-            }
-        }
-
     init {
         versionRepository.updateInfoFlow.onEach {
             _uiState.value = _uiState.value.copy(updateInfo = it)
@@ -195,10 +183,7 @@ class AboutViewModel @Inject constructor(
     }
 
     fun fetchUpdateFile(updateInfo: UpdateInfo.RemoteUpdate) {
-        versionRepository.fetchUpdateFile(
-            updateInfo,
-            File(downloadDir, updateInfo.versionName + ".apk")
-        )
+        versionRepository.fetchUpdateFile(updateInfo)
     }
 
     fun pauseDownload() = versionRepository.pauseDownload()

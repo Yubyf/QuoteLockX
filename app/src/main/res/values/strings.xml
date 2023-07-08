@@ -10,6 +10,7 @@
     <string name="delete">Delete</string>
     <string name="enable">Enable</string>
     <string name="download">Download</string>
+    <string name="install">Install</string>
     <string name="reboot">Reboot</string>
     <string name="ignore">Ignore</string>
     <string name="save">Save</string>

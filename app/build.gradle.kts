@@ -181,6 +181,8 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.bundles.ktor)
 
+    implementation(libs.markwon.core)
+
     // Accompanist
     implementation(libs.bundles.accompanist)
 

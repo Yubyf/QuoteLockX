@@ -5,6 +5,8 @@ package com.crossbowffs.quotelock.app.about
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.text.method.LinkMovementMethod
+import android.widget.TextView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -74,6 +77,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -87,6 +91,8 @@ import com.crossbowffs.quotelock.utils.DownloadState.Start.progress
 import com.crossbowffs.quotelock.utils.installApk
 import com.yubyf.quotelockx.BuildConfig
 import com.yubyf.quotelockx.R
+import io.noties.markwon.Markwon
+import io.noties.markwon.utils.NoCopySpannableFactory
 import kotlinx.coroutines.launch
 
 private val ItemHeight = 56.dp
@@ -283,21 +289,31 @@ fun NewVersion(
         }
     }
 
+    var showChangelogDialog by remember { mutableStateOf(false) }
+
     AboutCard(emphasize = true, onClick = {
         when (updateInfo) {
-            is UpdateInfo.LocalUpdate -> {
-                onInstall(updateInfo.url)
-            }
+            is UpdateInfo.NoUpdate -> {}
 
             is UpdateInfo.RemoteUpdate -> {
-                if (updateInfo.downloadState is DownloadState.Downloading) {
-                    onPaused()
-                } else {
-                    onDownload(updateInfo)
+                when (updateInfo.downloadState) {
+                    is DownloadState.Idle -> {
+                        if (updateInfo.changelog.isNotBlank()) {
+                            showChangelogDialog = true
+                        }
+                    }
+
+                    is DownloadState.Downloading -> onPaused()
+
+                    else -> onDownload(updateInfo)
                 }
             }
 
-            else -> {}
+            else -> {
+                if (updateInfo.changelog.isNotBlank()) {
+                    showChangelogDialog = true
+                }
+            }
         }
     }) {
         Box(
@@ -364,6 +380,50 @@ fun NewVersion(
                 }
             }
         }
+    }
+
+    if (showChangelogDialog && updateInfo !is UpdateInfo.NoUpdate && updateInfo.changelog.isNotBlank()) {
+        val markwon = Markwon.create(LocalContext.current);
+        val scrollState = rememberScrollState()
+        AlertDialog(
+            onDismissRequest = { showChangelogDialog = false },
+            text = {
+                AndroidView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .verticalScroll(scrollState),
+                    factory = { context ->
+                        TextView(context).apply {
+                            movementMethod = LinkMovementMethod.getInstance()
+                            setSpannableFactory(NoCopySpannableFactory.getInstance())
+                            markwon.setMarkdown(this, updateInfo.changelog)
+                        }
+                    })
+            },
+            confirmButton = {
+                val pendingInstall = updateInfo is UpdateInfo.LocalUpdate
+                TextButton(onClick = {
+                    showChangelogDialog = false
+                    if (pendingInstall) {
+                        onInstall(updateInfo.url)
+                    } else {
+                        onDownload(updateInfo as UpdateInfo.RemoteUpdate)
+                    }
+                }) {
+                    Text(
+                        text = stringResource(
+                            id = if (pendingInstall) R.string.install else R.string.download
+                        )
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showChangelogDialog = false }) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+            }
+        )
     }
 }
 

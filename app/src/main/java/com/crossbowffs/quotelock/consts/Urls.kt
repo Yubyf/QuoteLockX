@@ -9,5 +9,5 @@ object Urls {
         "https://github.com/Yubyf/QuoteLockX-CustomFonts/releases/latest"
 
     const val VERSION_JSON_URL =
-        "https://raw.githubusercontent.com/Yubyf/QuoteLockX-Files/master/release.json"
+        "https://yubyf.github.io/QuoteLockX-Files/release.json"
 }

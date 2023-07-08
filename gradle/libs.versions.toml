@@ -30,6 +30,9 @@ coil = "2.4.0"
 # Ktor
 ktor = "2.3.1"
 
+# Markwon
+markwon = "4.6.2"
+
 # Google
 google-material = "1.9.0"
 google-play-services-auth = "20.5.0"
@@ -103,6 +106,8 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
 
 # Accompanist
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "compose-accompanist" }

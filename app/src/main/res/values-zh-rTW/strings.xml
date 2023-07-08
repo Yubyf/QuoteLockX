@@ -8,6 +8,7 @@
     <string name="edit">編輯</string>
     <string name="delete">刪除</string>
     <string name="enable">啟用</string>
+    <string name="install">安裝</string>
     <string name="reboot">重啟</string>
     <string name="ignore">忽略</string>
     <string name="save">儲存</string>

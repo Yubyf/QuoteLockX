@@ -6,6 +6,7 @@
     <string name="edit">编辑</string>
     <string name="delete">删除</string>
     <string name="enable">启用</string>
+    <string name="install">安装</string>
     <string name="reboot">重启</string>
     <string name="ignore">忽略</string>
     <string name="save">保存</string>

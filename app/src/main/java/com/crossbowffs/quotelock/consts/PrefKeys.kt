@@ -123,6 +123,9 @@ const val PREF_SHARE_IMAGE_WATERMARK_PADDING = PREF_SHARE_IMAGE_WATERMARK_TEXT_S
 const val PREF_WIDGET_IMAGE_CHILD_PATH = "widget/"
 const val PREF_WIDGET_IMAGE_EXTENSION = ".png"
 
+const val PREF_DOWNLOAD_APK_EXTENSION = ".apk"
+const val PREF_DOWNLOAD_CHANGELOG_EXTENSION = ".md"
+
 val PREF_PUBLIC_RELATIVE_PATH by lazy {
     // Get english application name for the default export path
     App.instance.let {

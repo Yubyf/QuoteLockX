@@ -45,6 +45,12 @@ fun InputStream.readString(
 }
 
 @Throws(IOException::class)
+suspend fun HttpClient.fetchString(
+    url: String,
+    headers: Map<String, String?>? = null,
+): String = fetchAny(url, headers) { }
+
+@Throws(IOException::class)
 suspend inline fun <reified T> HttpClient.fetchJson(
     url: String,
     headers: Map<String, String?>? = null,
