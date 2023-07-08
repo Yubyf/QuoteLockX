@@ -61,10 +61,6 @@ sealed class SettingsDialogUiState {
         val currentInterval: Int,
     ) : SettingsDialogUiState()
 
-    data class LanguageDialog(
-        val currentLanguage: String?,
-    ) : SettingsDialogUiState()
-
     object None : SettingsDialogUiState()
 }
 
@@ -182,11 +178,6 @@ class SettingsViewModel @Inject constructor(
     fun loadRefreshInterval() {
         _uiDialogState.value =
             SettingsDialogUiState.RefreshIntervalDialog(configurationRepository.refreshInterval)
-    }
-
-    fun loadLanguage(currentLanguage: String?) {
-        _uiDialogState.value =
-            SettingsDialogUiState.LanguageDialog(currentLanguage)
     }
 
     fun switchUnmeteredOnly(checked: Boolean) {

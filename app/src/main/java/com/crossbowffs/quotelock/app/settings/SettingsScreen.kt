@@ -39,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
@@ -284,21 +283,6 @@ fun SettingsDialogs(
             entryValues = integerArrayResource(id = R.array.refresh_interval_values).toTypedArray(),
             selectedItem = uiDialogState.currentInterval,
             onItemSelected = onRefreshIntervalSelected,
-            onDismiss = onDialogDismiss
-        )
-    }
-
-    is SettingsDialogUiState.LanguageDialog -> {
-        ListPreferenceDialog(
-            title = stringResource(id = R.string.pref_language_title),
-            entries = arrayOf(stringResource(id = R.string.pref_language_system))
-                    + stringArrayResource(id = R.array.lang_entries),
-            entryValues = arrayOf<String?>(null) + stringArrayResource(id = R.array.lang_values),
-            selectedItem = uiDialogState.currentLanguage,
-            onItemSelected = {
-                val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(it)
-                AppCompatDelegate.setApplicationLocales(appLocale)
-            },
             onDismiss = onDialogDismiss
         )
     }
