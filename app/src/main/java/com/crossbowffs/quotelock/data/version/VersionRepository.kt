@@ -95,21 +95,21 @@ class VersionRepository @Inject internal constructor(
     }.getOrNull()?.takeIf { it.changelog.isNotBlank() }?.let {
         val changelogFile = File(downloadDir, it.versionName + PREF_DOWNLOAD_CHANGELOG_EXTENSION)
         val changelogContent = if (!changelogFile.exists()) {
-            versionRemoteSource.fetchChangelog(it.changelog).also {
-                changelogFile.writeText(it)
+            versionRemoteSource.fetchChangelog(it.changelog).also { changelog ->
+                changelogFile.writeText(changelog)
             }
         } else changelogFile.readText()
-        _updateInfoFlow.update {
-            when (it) {
+        _updateInfoFlow.update { updateInfo ->
+            when (updateInfo) {
                 is UpdateInfo.RemoteUpdate -> {
-                    it.copy(changelog = changelogContent)
+                    updateInfo.copy(changelog = changelogContent)
                 }
 
                 is UpdateInfo.LocalUpdate -> {
-                    it.copy(changelog = changelogContent)
+                    updateInfo.copy(changelog = changelogContent)
                 }
 
-                else -> it
+                else -> updateInfo
             }
         }
     }
