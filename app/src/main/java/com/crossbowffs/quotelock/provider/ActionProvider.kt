@@ -90,6 +90,7 @@ class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) :
                     text = it[QuoteCollectionContract.TEXT].toString(),
                     source = it[QuoteCollectionContract.SOURCE].toString(),
                     author = it[QuoteCollectionContract.AUTHOR].toString(),
+                    provider = it[QuoteCollectionContract.PROVIDER].toString(),
                     uid = it[QuoteCollectionContract.UID].toString(),
                     extra = it[QuoteCollectionContract.EXTRA] as? ByteArray
                 )
