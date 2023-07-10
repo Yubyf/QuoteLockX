@@ -8,12 +8,15 @@ import android.text.Layout
 import android.text.TextUtils
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.content.FileProvider
 import androidx.core.graphics.withTranslation
 import androidx.datastore.preferences.core.MutablePreferences
+import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.app.widget.QuoteGlanceWidget
+import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
 import com.crossbowffs.quotelock.consts.PREF_WIDGET_IMAGE_CHILD_PATH
 import com.crossbowffs.quotelock.consts.PREF_WIDGET_IMAGE_EXTENSION
 import com.crossbowffs.quotelock.data.api.QuoteData
@@ -22,7 +25,8 @@ import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.di.IoDispatcher
 import com.crossbowffs.quotelock.ui.components.makeNewTextLayout
 import com.crossbowffs.quotelock.ui.theme.LightQuoteLockColors
-import com.crossbowffs.quotelock.utils.WorkUtils
+import com.crossbowffs.quotelock.utils.Xlog
+import com.crossbowffs.quotelock.utils.dp2px
 import com.crossbowffs.quotelock.utils.md5
 import com.crossbowffs.quotelock.utils.toFile
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -51,13 +55,7 @@ class WidgetRepository @Inject internal constructor(
             val manager = GlanceAppWidgetManager(context)
             val glanceIds = manager.getGlanceIds(QuoteGlanceWidget::class.java)
             glanceIds.forEach { glanceId ->
-                // Clear the state to show loading screen
-                updateAppWidgetState(context, glanceId, MutablePreferences::clear)
-                QuoteGlanceWidget().update(context, glanceId)
-
-                GlanceAppWidgetManager(context).getAppWidgetSizes(glanceId).forEach { size ->
-                    WorkUtils.createWidgetUpdateWork(context, glanceId, size)
-                }
+                updateGlanceState(glanceId)
             }
         }.launchIn(CoroutineScope(dispatcher))
     }
@@ -66,7 +64,34 @@ class WidgetRepository @Inject internal constructor(
         /* no-op */
     }
 
-    suspend fun getWidgetImage(width: Int, height: Int): Triple<String, Boolean, File> =
+    suspend fun updateGlanceState(glanceId: GlanceId) {
+        // Clear the state to show loading screen
+        updateAppWidgetState(context, glanceId, MutablePreferences::clear)
+        QuoteGlanceWidget().update(context, glanceId)
+
+        GlanceAppWidgetManager(context).getAppWidgetSizes(glanceId).forEach { size ->
+            val quoteWithImageUri = getWidgetImage(
+                size.width.value.dp2px().roundToInt(),
+                size.height.value.dp2px().roundToInt()
+            ).let { (quote, collected, file) ->
+                Triple(
+                    quote, collected, FileProvider.getUriForFile(
+                        context.applicationContext, PREF_SHARE_FILE_AUTHORITY,
+                        file
+                    ).toString()
+                )
+            }
+            updateAppWidgetState(context, glanceId) { prefs ->
+                prefs[QuoteGlanceWidget.quoteContentKey] = quoteWithImageUri.first
+                prefs[QuoteGlanceWidget.quoteCollectionStateKey] = quoteWithImageUri.second
+                prefs[QuoteGlanceWidget.getImageKey(size)] = quoteWithImageUri.third
+            }
+        }
+        QuoteGlanceWidget().update(context, glanceId)
+        Xlog.d("QuoteGlanceWidget", "QuoteGlanceWidget update $glanceId")
+    }
+
+    private suspend fun getWidgetImage(width: Int, height: Int): Triple<String, Boolean, File> =
         withContext(dispatcher) {
             val currentQuote = quoteRepository.getCurrentQuote()
             val typeface = cardStyleRepository.quoteFontStyle.typeface

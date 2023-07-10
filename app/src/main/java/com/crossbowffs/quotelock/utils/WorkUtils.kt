@@ -4,26 +4,19 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.compose.ui.unit.DpSize
-import androidx.glance.GlanceId
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
-import com.crossbowffs.quotelock.worker.GlanceWorker
 import com.crossbowffs.quotelock.worker.QuoteWorker
 import com.crossbowffs.quotelock.worker.VersionWorker
 import dagger.hilt.android.EntryPointAccessors
 import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 object WorkUtils {
     private val TAG = className<WorkUtils>()
@@ -120,44 +113,6 @@ object WorkUtils {
             request
         )
         Xlog.d(TAG, "Scheduled version check work")
-    }
-
-    fun createWidgetUpdateWork(context: Context, glanceId: GlanceId, size: DpSize) {
-        Xlog.d(TAG, "WorkUtils#createWidgetUpdateWork called")
-        val workManager = WorkManager.getInstance(context)
-        val oneTimeWorkRequest = OneTimeWorkRequestBuilder<GlanceWorker>()
-            .addTag(glanceId.toString())
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .setInputData(
-                workDataOf(
-                    "width" to size.width.value.dp2px().roundToInt(),
-                    "height" to size.height.value.dp2px().roundToInt(),
-                )
-            )
-            .build()
-        workManager.enqueueUniqueWork(
-            GlanceWorker.TAG + size.width + size.height,
-            ExistingWorkPolicy.REPLACE,
-            oneTimeWorkRequest
-        )
-
-        // Temporary workaround to avoid WM provider to disable itself and trigger an
-        // app widget update
-        val workaroundTag = "${GlanceWorker.TAG}-workaround"
-        val workaroundEnqueued =
-            workManager.getWorkInfosForUniqueWork(workaroundTag).get().firstOrNull {
-                it.state == WorkInfo.State.ENQUEUED
-            } != null
-        if (!workaroundEnqueued) {
-            workManager.enqueueUniqueWork(
-                workaroundTag,
-                ExistingWorkPolicy.KEEP,
-                OneTimeWorkRequestBuilder<GlanceWorker>().apply {
-                    setInitialDelay(365, TimeUnit.DAYS)
-                }.build()
-            )
-        }
-        Xlog.d(TAG, "Scheduled widget update work.")
     }
 
     fun createQuoteDownloadWork(

@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
-import com.crossbowffs.quotelock.data.WidgetRepository
 import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
@@ -47,7 +46,6 @@ sealed class MainDialogUiState {
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
     private val quoteRepository: QuoteRepository,
-    widgetRepository: WidgetRepository,
     versionRepository: VersionRepository,
 ) : ViewModel() {
 
@@ -61,17 +59,12 @@ class MainScreenViewModel @Inject constructor(
     private val _uiDialogState = mutableStateOf<MainDialogUiState>(MainDialogUiState.None)
     val uiDialogState: State<MainDialogUiState> = _uiDialogState
 
-    private val _uiInstallEvent = MutableSharedFlow<String?>()
-    val uiInstallEvent = _uiInstallEvent.asSharedFlow()
-
     init {
         if (!XposedUtils.isModuleEnabled) {
             _uiDialogState.value = MainDialogUiState.EnableModuleDialog
         } else if (XposedUtils.isModuleUpdated) {
             _uiDialogState.value = MainDialogUiState.ModuleUpdatedDialog
         }
-        // Trigger the initialization of the widget repository
-        widgetRepository.placeholder()
 
         quoteRepository.quoteDataFlow.onEach {
             _uiState.value = _uiState.value.copy(quoteData = it)
@@ -101,10 +94,6 @@ class MainScreenViewModel @Inject constructor(
 
     fun snackBarShown() = viewModelScope.launch {
         _uiMessageEvent.emit(emptySnackBarEvent)
-    }
-
-    fun installEventConsumed() = viewModelScope.launch {
-        _uiInstallEvent.emit(null)
     }
 
     fun Context.startXposedPage(section: String) {

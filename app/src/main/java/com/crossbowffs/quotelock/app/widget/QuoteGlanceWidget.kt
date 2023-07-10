@@ -3,8 +3,11 @@ package com.crossbowffs.quotelock.app.widget
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.ResolveInfoFlags
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.DpSize
 import androidx.core.net.toUri
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -25,6 +28,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.ImageProvider
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.appWidgetBackground
+import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
@@ -34,11 +38,12 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.unit.ColorProvider
 import com.crossbowffs.quotelock.app.main.MainActivity
 import com.crossbowffs.quotelock.app.quote.QuoteDestination
+import com.crossbowffs.quotelock.di.WidgetEntryPoint
 import com.crossbowffs.quotelock.ui.theme.LightMaterialColors
 import com.crossbowffs.quotelock.ui.theme.quote_card_theme_light_surface
-import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.dp2px
-import com.crossbowffs.quotelock.worker.GlanceWorker
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 class QuoteGlanceWidget : GlanceAppWidget() {
@@ -46,10 +51,10 @@ class QuoteGlanceWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     @Composable
-    override fun Content() {
+    fun Content() {
         val context = LocalContext.current
         val size = LocalSize.current
-        val imageUri = currentState(getImageKey(size))
+        val glanceId = LocalGlanceId.current
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -57,12 +62,21 @@ class QuoteGlanceWidget : GlanceAppWidget() {
                 .background(quote_card_theme_light_surface),
             contentAlignment = Alignment.Center
         ) {
+            val imageUri = currentState(getImageKey(size))
             if (imageUri != null) {
                 // Find the current launcher everytime to ensure it has read permissions
-                val resolveInfo = context.packageManager.resolveActivity(
-                    Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_HOME) },
-                    PackageManager.MATCH_DEFAULT_ONLY
-                )
+                val resolveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    context.packageManager.resolveActivity(
+                        Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_HOME) },
+                        ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    context.packageManager.resolveActivity(
+                        Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_HOME) },
+                        PackageManager.MATCH_DEFAULT_ONLY
+                    )
+                }
                 val launcherName = resolveInfo?.activityInfo?.packageName
                 if (launcherName != null) {
                     context.grantUriPermission(
@@ -91,11 +105,16 @@ class QuoteGlanceWidget : GlanceAppWidget() {
                     color = ColorProvider(LightMaterialColors.primary)
                 )
 
-                // Enqueue the worker after the composition is completed using the glanceId as
-                // tag so we can cancel all jobs in case the widget instance is deleted
-                val glanceId = LocalGlanceId.current
+                // Update the glance state to trigger a refresh
+                val widgetRepository = EntryPointAccessors.fromApplication(
+                    context.applicationContext,
+                    WidgetEntryPoint::class.java
+                ).widgetRepository()
+                val scope = rememberCoroutineScope()
                 SideEffect {
-                    WorkUtils.createWidgetUpdateWork(context, glanceId, size)
+                    scope.launch {
+                        widgetRepository.updateGlanceState(glanceId)
+                    }
                 }
             }
         }
@@ -106,7 +125,12 @@ class QuoteGlanceWidget : GlanceAppWidget() {
      */
     override suspend fun onDelete(context: Context, glanceId: GlanceId) {
         super.onDelete(context, glanceId)
-        GlanceWorker.cancel(context, glanceId)
+    }
+
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        provideContent {
+            Content()
+        }
     }
 
     companion object {
@@ -116,7 +140,7 @@ class QuoteGlanceWidget : GlanceAppWidget() {
                 size.height.value.dp2px().roundToInt()
             )
 
-        fun getImageKey(width: Int, height: Int) = stringPreferencesKey(
+        private fun getImageKey(width: Int, height: Int) = stringPreferencesKey(
             "uri-$width-$height"
         )
 
