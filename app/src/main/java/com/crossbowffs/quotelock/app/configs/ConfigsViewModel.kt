@@ -8,6 +8,7 @@ import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys.PREF_FORTUN
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_LEGACY_TYPE_INT
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPES_STRING
 import com.crossbowffs.quotelock.di.BrainyDataStore
+import com.crossbowffs.quotelock.di.FortuneDataStore
 import com.crossbowffs.quotelock.di.HitokotoDataStore
 import com.yubyf.datastore.DataStoreDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,7 @@ import javax.inject.Inject
 class ConfigsViewModel @Inject constructor(
     @HitokotoDataStore private val hitokotoDataStore: DataStoreDelegate,
     @BrainyDataStore private val brainyDataStore: DataStoreDelegate,
-    @BrainyDataStore private val fortuneDataStore: DataStoreDelegate,
+    @FortuneDataStore private val fortuneDataStore: DataStoreDelegate,
 ) : ViewModel() {
 
     fun loadHitokotoTypeIndex() = runBlocking {
