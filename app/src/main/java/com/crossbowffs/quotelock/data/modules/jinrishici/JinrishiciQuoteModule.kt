@@ -62,7 +62,10 @@ class JinrishiciQuoteModule : QuoteModule {
             }
             val headers = mapOf<String, String?>("X-User-Token" to token)
             val sentence =
-                httpClient.fetchJson<SentenceResponse>(PREF_JINRISHICI_SENTENCE_URL, headers)
+                httpClient.fetchJson<SentenceResponse>(
+                    PREF_JINRISHICI_SENTENCE_URL,
+                    headers = headers
+                )
             Xlog.d(TAG, "poetry sentence $sentence")
             val status = sentence.status
             if (status != "success") {

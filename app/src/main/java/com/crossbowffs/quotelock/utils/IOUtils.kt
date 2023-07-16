@@ -9,14 +9,19 @@ import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
-import io.ktor.client.request.get
 import io.ktor.client.request.head
 import io.ktor.client.request.headers
 import io.ktor.client.request.prepareGet
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.appendPathSegments
 import io.ktor.http.contentLength
+import io.ktor.http.contentType
 import io.ktor.http.etag
 import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.CoroutineDispatcher
@@ -45,42 +50,123 @@ fun InputStream.readString(
 }
 
 @Throws(IOException::class)
+suspend inline fun <reified T> HttpClient.fetchCustom(
+    url: String,
+    path: String? = null,
+    method: HttpMethod = HttpMethod.Get,
+    headers: Map<String, String?>? = null,
+    queries: Map<String, String>? = null,
+    body: Any? = null,
+    converter: (String) -> T,
+): T =
+    converter(
+        fetchString(
+            url = url,
+            path = path,
+            method = method,
+            headers = headers,
+            queries = queries,
+            body = body
+        )
+    )
+
+@Throws(IOException::class)
 suspend fun HttpClient.fetchString(
     url: String,
+    path: String? = null,
+    method: HttpMethod = HttpMethod.Get,
     headers: Map<String, String?>? = null,
-): String = fetchAny(url, headers) { }
+    queries: Map<String, String>? = null,
+    body: Any? = null,
+): String = fetchAny(
+    url = url,
+    path = path,
+    method = method,
+    headers = headers,
+    queries = queries,
+    body = body
+) { }
 
 @Throws(IOException::class)
 suspend inline fun <reified T> HttpClient.fetchJson(
     url: String,
+    path: String? = null,
+    method: HttpMethod = HttpMethod.Get,
     headers: Map<String, String?>? = null,
-): T = fetchAny(url, headers) { }
+    queries: Map<String, String>? = null,
+    body: Any? = null,
+): T = fetchAny(
+    url = url,
+    path = path,
+    method = method,
+    headers = headers,
+    queries = queries,
+    body = body
+) { }
 
 @Throws(IOException::class)
 suspend fun HttpClient.fetchXml(
     url: String,
+    path: String? = null,
+    method: HttpMethod = HttpMethod.Get,
     headers: Map<String, String?>? = null,
-): Document = fetchAny<Document>(url, headers) { }
+    queries: Map<String, String>? = null,
+    body: Any? = null,
+): Document =
+    fetchAny<Document>(
+        url = url,
+        path = path,
+        method = method,
+        headers = headers,
+        queries = queries,
+        body = body
+    ) { }
 
 @Throws(IOException::class)
 suspend inline fun <reified T> HttpClient.fetchAny(
     url: String,
+    path: String? = null,
+    method: HttpMethod = HttpMethod.Get,
     headers: Map<String, String?>? = null,
+    queries: Map<String, String>? = null,
+    body: Any? = null,
     crossinline block: HttpClientConfig<*>.() -> Unit,
 ): T = run {
     val response = config {
         block()
-    }.get(url) {
-        headers {
-            headers?.forEach { (key, value) -> append(key, value!!) }
+    }.request(url) {
+        path?.let {
+            url {
+                appendPathSegments(path.split("/"))
+            }
+        }
+        queries?.let { query ->
+            url {
+                query.forEach { (key, value) -> parameters.append(key, value) }
+            }
+        }
+        this.method = method
+        headers?.let {
+            headers {
+                it.forEach { (key, value) -> append(key, value!!) }
+            }
+        }
+        body?.let {
+            contentType(ContentType.Application.Json)
+            setBody(it)
         }
     }
     if (response.status == HttpStatusCode.OK) {
         response.body<T>()
     } else {
-        throw IOException("Server returned non-200 status code: ${response.status.description}")
+        throw HttpException(
+            response.status,
+            "Server returned non-200 status code: ${response.status.description}"
+        )
     }
 }
+
+class HttpException(val status: HttpStatusCode, message: String) : IOException(message)
 
 @Throws(IOException::class)
 suspend fun HttpClient.fetchFile(

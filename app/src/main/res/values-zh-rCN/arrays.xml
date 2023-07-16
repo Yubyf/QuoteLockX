@@ -29,6 +29,11 @@
         <item>抖机灵</item>
     </string-array>
 
+    <string-array name="openai_quote_type">
+        <item>AI 生成</item>
+        <item>现有</item>
+    </string-array>
+
     <string-array name="font_tabs">
         <item>应用内</item>
         <item>系统</item>

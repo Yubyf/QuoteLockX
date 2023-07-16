@@ -115,6 +115,7 @@
     <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
     <string name="module_jinrishici_name">Jinrishici 今日詩詞 (中文)</string>
     <string name="module_fortune_name">Fortune-mod (多語言)</string>
+    <string name="module_openai_name">OpenAI (多語言)</string>
     <string name="module_custom_name">自定義</string>
     <string name="module_collections_name">收藏</string>
 
@@ -137,6 +138,20 @@
 
     <!-- Fortune -->
     <string name="module_fortune_config_label">Fortune-mod 設定</string>
+
+    <!-- OpenAI -->
+    <string name="module_openai_config_label">OpenAI 設定</string>
+    <string name="module_openai_quote_language">語言</string>
+    <string name="module_openai_api_model">API 模型</string>
+    <string name="module_openai_quote_type">格言類型</string>
+    <string name="module_openai_api_key_hint">生成 API Key</string>
+    <string name="module_openai_api_host">API 域名</string>
+    <string name="module_openai_api_validate">驗證</string>
+    <string name="module_openai_usage">已用 $%.2f, 限額 $%.2f</string>
+    <string name="module_openai_not_support_region">OpenAI 在您的 IP 所在地區不受支持</string>
+    <string name="module_openai_api_key_not_set">OpenAI API key 未設置</string>
+    <string name="module_openai_api_key_invalid">OpenAI API Key 無效</string>
+    <string name="module_openai_api_connect_error">OpenAI API 連接錯誤</string>
 
     <!-- Quotes collections -->
     <string name="quote_collections_screen_label">收藏</string>

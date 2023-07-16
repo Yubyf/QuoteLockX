@@ -4,6 +4,7 @@ import android.content.Context
 import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys
+import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE
 import com.crossbowffs.quotelock.consts.PREF_COMMON
 import com.crossbowffs.quotelock.consts.PREF_QUOTES
@@ -50,6 +51,10 @@ annotation class HitokotoDataStore
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class JinrishiciDataStore
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class OpenAIDataStore
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -102,4 +107,10 @@ object DataStoreModules {
     @Provides
     fun provideJinrishiciDataStore(@ApplicationContext context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(JinrishiciQuoteModule.PREF_JINRISHICI, migrate = true)
+
+    @Singleton
+    @OpenAIDataStore
+    @Provides
+    fun provideOpenAIDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+        context.getDataStoreDelegate(OpenAIPrefKeys.PREF_OPENAI, migrate = true)
 }

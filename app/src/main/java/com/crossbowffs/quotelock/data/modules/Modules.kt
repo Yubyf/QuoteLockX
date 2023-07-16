@@ -10,6 +10,7 @@ import com.crossbowffs.quotelock.data.modules.hitokoto.HitokotoQuoteModule
 import com.crossbowffs.quotelock.data.modules.jinrishici.JinrishiciQuoteModule
 import com.crossbowffs.quotelock.data.modules.libquotes.LibquotesQuoteModule
 import com.crossbowffs.quotelock.data.modules.natune.NatuneQuoteModule
+import com.crossbowffs.quotelock.data.modules.openai.OpenAIQuoteModule
 import com.crossbowffs.quotelock.data.modules.wikiquote.WikiquoteQuoteModule
 
 object Modules {
@@ -24,6 +25,7 @@ object Modules {
         addLocalModule(BrainyQuoteQuoteModule())
         addLocalModule(LibquotesQuoteModule())
         addLocalModule(FortuneQuoteModule())
+        addLocalModule(OpenAIQuoteModule())
         addLocalModule(CustomQuoteModule())
         addLocalModule(CollectionsQuoteModule())
     }

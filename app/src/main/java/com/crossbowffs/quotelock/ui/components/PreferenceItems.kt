@@ -31,10 +31,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 
-private val PREFERENCE_ITEM_HORIZONTAL_PADDING = 24.dp
-private val PREFERENCE_TITLE_ITEM_HEIGHT = 48.dp
-private val PREFERENCE_DUAL_LINE_ITEM_HEIGHT = 72.dp
-private val PREFERENCE_SINGLE_LINE_ITEM_HEIGHT = 56.dp
+internal val PREFERENCE_ITEM_HORIZONTAL_PADDING = 24.dp
+internal val PREFERENCE_TITLE_ITEM_HEIGHT = 48.dp
+internal val PREFERENCE_DUAL_LINE_ITEM_HEIGHT = 72.dp
+internal val PREFERENCE_SINGLE_LINE_ITEM_HEIGHT = 56.dp
 
 @Composable
 fun PreferenceTitle(@StringRes titleRes: Int) {
@@ -66,7 +66,7 @@ fun BasePreferenceItem(
     @StringRes summaryRes: Int? = null,
     checked: Boolean = false,
     enabled: Boolean = true,
-    onClick: () -> Unit = {},
+    onClick: (() -> Unit)? = null,
     onSwitchChange: ((Boolean) -> Unit)? = null,
 ) {
     BasePreferenceItem(
@@ -88,7 +88,7 @@ fun BasePreferenceItem(
     info: @Composable (RowScope.() -> Unit)? = null,
     checked: Boolean = false,
     enabled: Boolean = true,
-    onClick: () -> Unit = {},
+    onClick: (() -> Unit)? = null,
     onSwitchChange: ((Boolean) -> Unit)? = null,
 ) {
     var checkedState by remember { mutableStateOf(checked) }
@@ -101,12 +101,12 @@ fun BasePreferenceItem(
                     PREFERENCE_DUAL_LINE_ITEM_HEIGHT
                 }
             )
-            .clickable(enabled = enabled) {
+            .clickable(enabled = enabled && !(onClick == null && onSwitchChange == null)) {
                 if (onSwitchChange != null) {
                     checkedState = !checkedState
                     onSwitchChange.invoke(checkedState)
                 } else {
-                    onClick()
+                    onClick?.invoke()
                 }
             }
             .alpha(if (enabled) 1F else ContentAlpha.disabled)
@@ -114,13 +114,14 @@ fun BasePreferenceItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = PREFERENCE_ITEM_HORIZONTAL_PADDING, vertical = 8.dp),
+                .padding(horizontal = PREFERENCE_ITEM_HORIZONTAL_PADDING),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
+                    .padding(vertical = 8.dp)
                     .weight(1f, true),
                 verticalArrangement = Arrangement.Center
             ) {
@@ -168,7 +169,7 @@ fun PreferenceItem(
     @StringRes summaryRes: Int? = null,
     info: @Composable (RowScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    onClick: () -> Unit = {},
+    onClick: (() -> Unit)? = null,
 ) {
     PreferenceItem(
         modifier = modifier,
@@ -187,7 +188,7 @@ fun PreferenceItem(
     summary: String? = null,
     info: @Composable (RowScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    onClick: () -> Unit = {},
+    onClick: (() -> Unit)? = null,
 ) {
     BasePreferenceItem(
         modifier = modifier,

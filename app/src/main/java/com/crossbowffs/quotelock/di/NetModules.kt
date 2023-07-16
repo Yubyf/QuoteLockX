@@ -60,6 +60,7 @@ object NetModules {
                 config {
                     followRedirects(true)
                     followSslRedirects(true)
+                    cache(null)
                 }
             }
 

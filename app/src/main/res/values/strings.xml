@@ -125,6 +125,7 @@
     <string name="module_brainy_name" translatable="false">BrainyQuote (English)</string>
     <string name="module_fortune_name">Fortune-mod (multilingual)</string>
     <string name="module_libquotes_name" translatable="false">Libquotes QotD (English)</string>
+    <string name="module_openai_name">OpenAI (multilingual)</string>
     <string name="module_custom_name">Custom</string>
     <string name="module_collections_name">Collections</string>
 
@@ -147,6 +148,21 @@
 
     <!-- Fortune -->
     <string name="module_fortune_config_label">Fortune-mod setup</string>
+
+    <!-- OpenAI -->
+    <string name="module_openai_config_label">OpenAI setup</string>
+    <string name="module_openai_quote_language">Language</string>
+    <string name="module_openai_api_model">API Model</string>
+    <string name="module_openai_quote_type">Quote Type</string>
+    <string name="module_openai_api_key" translatable="false">API Key</string>
+    <string name="module_openai_api_key_hint">Generate API Key</string>
+    <string name="module_openai_api_host">API Host</string>
+    <string name="module_openai_api_validate">VALIDATE</string>
+    <string name="module_openai_usage">Usage $%.2f, Limit $%.2f</string>
+    <string name="module_openai_not_support_region">OpenAI is not supported in your IP\'s region</string>
+    <string name="module_openai_api_key_not_set">OpenAI API key not set</string>
+    <string name="module_openai_api_key_invalid">Invalid OpenAI API key</string>
+    <string name="module_openai_api_connect_error">OpenAI API connect error</string>
 
     <!-- Quotes collections -->
     <string name="quote_collections_screen_label">Collections</string>

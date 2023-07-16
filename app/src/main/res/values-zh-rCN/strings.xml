@@ -111,6 +111,7 @@
     <string name="module_jinrishici_name">今日诗词 (中文)</string>
     <string name="module_wikiquote_name">维基每日一句(中文)</string>
     <string name="module_fortune_name">Fortune-mod (多语言)</string>
+    <string name="module_openai_name">OpenAI (多语言)</string>
     <string name="module_custom_name">自定义</string>
     <string name="module_collections_name">收藏</string>
     <string name="module_custom_setup_line1">未设置自定义格言</string>
@@ -164,6 +165,19 @@
     <string name="data_conflict_solution_hint">请选择解决方案：</string>
     <string name="merge">合并</string>
     <string name="replace">替换</string>
+
+    <string name="module_openai_config_label">OpenAI 设置</string>
+    <string name="module_openai_quote_language">语言</string>
+    <string name="module_openai_api_model">API 模型</string>
+    <string name="module_openai_quote_type">格言类型</string>
+    <string name="module_openai_api_key_hint">生成 API Key</string>
+    <string name="module_openai_api_host">API 域名</string>
+    <string name="module_openai_api_validate">验证</string>
+    <string name="module_openai_usage">已用 $%.2f, 限额 $%.2f</string>
+    <string name="module_openai_not_support_region">OpenAI 在您的 IP 所在地区不受支持</string>
+    <string name="module_openai_api_key_not_set">OpenAI API key 未设置</string>
+    <string name="module_openai_api_key_invalid">OpenAI API Key 无效</string>
+    <string name="module_openai_api_connect_error">OpenAI API 连接错误</string>
 
     <string name="pref_font_family_custom">自定义</string>
     <string name="quote_fonts_management_screen_label">自定义字体</string>
