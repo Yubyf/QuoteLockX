@@ -1,5 +1,7 @@
 package com.crossbowffs.quotelock.app.about
 
+import com.yubyf.quotelockx.R
+
 object AboutPrefs {
 
     const val PREF_DEVELOPER_YUBYF_NAME = "Yubyf"
@@ -18,22 +20,81 @@ object AboutPrefs {
         "https://avatars.githubusercontent.com/u/1701912?v=4"
     const val PREF_DEVELOPER_JIA_BIN_PROFILE_URL = "https://github.com/cracky5322"
 
-    val PREF_QUOTE_PROVIDER_HITOKOTO = "Hitokoto" to "https://hitokoto.cn/"
-    val PREF_QUOTE_PROVIDER_WIKIQUOTE = "Wikiquote QotD" to "https://www.wikiquote.org/"
-    val PREF_QUOTE_PROVIDER_JINRISHICI = "Jinrishici 今日诗词" to "https://www.jinrishici.com/"
-    val PREF_QUOTE_PROVIDER_FREAKUOTES = "Freakuotes" to "https://freakuotes.com/"
-    val PREF_QUOTE_PROVIDER_NATUNE = "Natune.net" to "https://natune.net/zitate/"
-    val PREF_QUOTE_PROVIDER_BRAINYQUOTE = "BrainyQuote" to "https://www.brainyquote.com/"
-    val PREF_QUOTE_PROVIDER_LIBQUOTES = "Lib Quotes" to "https://libquotes.com/"
-    val PREF_QUOTE_PROVIDER_FORTUNE_MOD = "Fortune-mod" to "https://github.com/shlomif/fortune-mod/"
+    val PREF_QUOTE_PROVIDER_HITOKOTO =
+        Triple("Hitokoto", "https://hitokoto.cn/", R.mipmap.ic_logo_hitokoto)
+    val PREF_QUOTE_PROVIDER_WIKIQUOTE = Triple(
+        "Wikiquote QotD",
+        "https://www.wikiquote.org/",
+        R.mipmap.ic_logo_wikiquote
+    )
+    val PREF_QUOTE_PROVIDER_JINRISHICI = Triple(
+        "Jinrishici 今日诗词",
+        "https://www.jinrishici.com/",
+        R.mipmap.ic_logo_jinrishici
+    )
+    val PREF_QUOTE_PROVIDER_FREAKUOTES = Triple(
+        "Freakuotes",
+        "https://freakuotes.com/",
+        R.mipmap.ic_logo_freakuotes
+    )
+    val PREF_QUOTE_PROVIDER_NATUNE = Triple(
+        "Natune.net",
+        "https://natune.net/zitate/",
+        R.mipmap.ic_logo_natune
+    )
+    val PREF_QUOTE_PROVIDER_BRAINYQUOTE = Triple(
+        "BrainyQuote",
+        "https://www.brainyquote.com/",
+        R.mipmap.ic_logo_brainyquote
+    )
+    val PREF_QUOTE_PROVIDER_LIBQUOTES = Triple(
+        "Lib Quotes",
+        "https://libquotes.com/",
+        R.drawable.ic_logo_libquotes
+    )
+    val PREF_QUOTE_PROVIDER_FORTUNE_MOD = Triple(
+        "Fortune-mod",
+        "https://github.com/shlomif/fortune-mod/",
+        null
+    )
+    val PREF_QUOTE_PROVIDER_OPEN_AI = Triple(
+        "OpenAI",
+        "https://openai.com/",
+        R.drawable.ic_logo_openai
+    )
+    val PREF_QUOTE_PROVIDERS = listOf(
+        PREF_QUOTE_PROVIDER_HITOKOTO,
+        PREF_QUOTE_PROVIDER_WIKIQUOTE,
+        PREF_QUOTE_PROVIDER_JINRISHICI,
+        PREF_QUOTE_PROVIDER_FREAKUOTES,
+        PREF_QUOTE_PROVIDER_NATUNE,
+        PREF_QUOTE_PROVIDER_BRAINYQUOTE,
+        PREF_QUOTE_PROVIDER_LIBQUOTES,
+        PREF_QUOTE_PROVIDER_FORTUNE_MOD,
+        PREF_QUOTE_PROVIDER_OPEN_AI
+    )
 
-    val PREF_LIBRARY_JSOUP = "Jsoup" to "https://jsoup.org/"
-    val PREF_LIBRARY_REMOTE_PREFERENCES =
+    private val PREF_LIBRARY_JSOUP = "Jsoup" to "https://jsoup.org/"
+    private val PREF_LIBRARY_REMOTE_PREFERENCES =
         "RemotePreferences" to "https://github.com/apsun/RemotePreferences"
-    val PREF_LIBRARY_DATASTORE_PREFERENCES =
+    private val PREF_LIBRARY_DATASTORE_PREFERENCES =
         "DataStorePreferences" to "https://github.com/Yubyf/DataStorePreferences"
-    val PREF_LIBRARY_COIL = "Coil" to "https://coil-kt.github.io/coil"
-    val PREF_LIBRARY_OPENCVS = "Opencsv" to "http://opencsv.sourceforge.net/"
-    val PREF_LIBRARY_TRUE_TYPE_PARSER_LIGHT =
+    private val PREF_LIBRARY_COIL = "Coil" to "https://coil-kt.github.io/coil"
+    private val PREF_LIBRARY_OPENCVS = "Opencsv" to "http://opencsv.sourceforge.net/"
+    private val PREF_LIBRARY_TRUE_TYPE_PARSER_LIGHT =
         "TrueTypeParser-Light" to "https://github.com/Yubyf/TrueTypeParser-Light/"
+    private val PREF_LIBRARY_KTOR =
+        "Ktor" to "https://ktor.io/"
+    private val PREF_LIBRARY_MARKWON =
+        "Markwon" to "https://noties.io/Markwon/"
+    val PREF_LIBRARIES = listOf(
+        PREF_LIBRARY_JSOUP,
+        PREF_LIBRARY_REMOTE_PREFERENCES,
+        PREF_LIBRARY_DATASTORE_PREFERENCES,
+        PREF_LIBRARY_COIL,
+        PREF_LIBRARY_OPENCVS,
+        PREF_LIBRARY_TRUE_TYPE_PARSER_LIGHT,
+        PREF_LIBRARY_KTOR,
+        PREF_LIBRARY_MARKWON
+    )
 }
