@@ -30,7 +30,7 @@
     </string-array>
 
     <string-array name="openai_quote_type">
-        <item>AI 生成</item>
+        <item>AI 創作</item>
         <item>現有</item>
     </string-array>
 

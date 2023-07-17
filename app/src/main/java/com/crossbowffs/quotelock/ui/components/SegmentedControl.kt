@@ -24,7 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -61,6 +63,7 @@ fun SegmentedControl(
     val selectContentColor =
         if (color.isSpecified) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
     val hasIcon = items.any { it is SegmentedItemWithIcon<*> }
+    val haptic = LocalHapticFeedback.current
     Row(
         modifier = modifier
     ) {
@@ -85,6 +88,7 @@ fun SegmentedControl(
                     }
                 },
                 onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     selectedIndex = index
                     onItemSelection(selectedIndex)
                 },
