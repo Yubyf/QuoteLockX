@@ -43,6 +43,7 @@ data class SettingsUiState(
     val displayOnAod: Boolean,
     val unmeteredOnly: Boolean,
     val moduleData: QuoteModuleData?,
+    val currentInterval: Int?,
     val updateInfo: AndroidString,
     val cacheSize: String,
     val showUpdate: Boolean,
@@ -86,6 +87,7 @@ class SettingsViewModel @Inject constructor(
             configurationRepository.displayOnAod,
             configurationRepository.isUnmeteredNetworkOnly,
             null,
+            configurationRepository.refreshInterval,
             AndroidString.StringRes(
                 R.string.pref_refresh_info_summary, arrayOf("-")
             ),
@@ -110,6 +112,9 @@ class SettingsViewModel @Inject constructor(
                 onSelectedModuleChanged()
             }.launchIn(this)
             configurationRepository.quoteRefreshRateNotifyFlow.onEach {
+                _uiState.value = _uiState.value.copy(
+                    currentInterval = configurationRepository.refreshInterval,
+                )
                 WorkUtils.createQuoteDownloadWork(
                     context,
                     configurationRepository.refreshInterval,

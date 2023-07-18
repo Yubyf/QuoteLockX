@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.AndroidString
+import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.contextString
 import com.crossbowffs.quotelock.ui.components.ListPreferenceDialog
 import com.crossbowffs.quotelock.ui.components.PreferenceItem
@@ -164,8 +165,9 @@ fun SettingsScreen(
                 )
             }
             PreferenceItem(
-                titleRes = R.string.pref_quote_module_title,
-                summaryRes = R.string.pref_quote_module_summary,
+                title = stringResource(id = R.string.pref_quote_module_title),
+                summary = uiState.moduleData?.displayName
+                    ?: stringResource(id = R.string.pref_quote_module_summary_alt),
                 onClick = onModuleProviderItemClicked
             )
             val providerConfigSupported = uiState.moduleData?.configRoute != null
@@ -183,11 +185,14 @@ fun SettingsScreen(
             // This is kind of a lazy solution, but it's better than nothing.
             val refreshIntervalSupported = uiState.moduleData?.minimumRefreshInterval == 0
             val refreshIntervalSummary = if (refreshIntervalSupported)
-                R.string.pref_refresh_interval_summary
-            else R.string.pref_refresh_interval_summary_alt
+                integerArrayResource(id = R.array.refresh_interval_values)
+                    .zip(stringArrayResource(id = R.array.refresh_interval_entries))
+                    .find { it.first == uiState.currentInterval }?.second
+                    ?: stringResource(R.string.pref_refresh_interval_summary)
+            else stringResource(R.string.pref_refresh_interval_summary_alt)
             PreferenceItem(
-                titleRes = R.string.pref_refresh_interval_title,
-                summaryRes = refreshIntervalSummary,
+                title = stringResource(R.string.pref_refresh_interval_title),
+                summary = refreshIntervalSummary,
                 enabled = refreshIntervalSupported,
                 onClick = onRefreshIntervalItemClicked
             )
@@ -309,7 +314,13 @@ private fun SettingsScreenPreview() {
                     enableAod = true,
                     displayOnAod = true,
                     unmeteredOnly = true,
-                    moduleData = null,
+                    moduleData = QuoteModuleData(
+                        displayName = "Test Module",
+                        configRoute = null,
+                        minimumRefreshInterval = 0,
+                        requiresInternetConnectivity = true
+                    ),
+                    currentInterval = 1800,
                     updateInfo = AndroidString.StringText(""),
                     cacheSize = "0.0 MB",
                     showUpdate = true

@@ -78,7 +78,7 @@
     <string name="pref_quote_module_title">格言提供服務</string>
     <string name="pref_display_on_aod_title">[ALPHA] 在息屏介面顯示</string>
     <string name="pref_display_on_aod_summary">注意：僅在 一加 7Pro OOS11 OB4 上測試透過！</string>
-    <string name="pref_quote_module_summary">選擇一個格言提供源</string>
+    <string name="pref_quote_module_summary_alt">選擇一個格言提供源</string>
     <string name="pref_module_preferences_title">格言提供服務選項</string>
     <string name="pref_module_preferences_summary">管理格言提供服務的選項</string>
     <string name="pref_module_preferences_summary_alt">所選提供服務沒有單獨的選項設定</string>
@@ -87,7 +87,7 @@
     <string name="pref_quote_title">格言</string>
     <string name="pref_detail_title">詳情</string>
     <string name="pref_restart_system_ui_title">重啟 System UI</string>
-    <string name="pref_debug_restart_system_ui_summary">[需要 ROOT] 重新掛鉤鎖屏介面</string>
+    <string name="pref_debug_restart_system_ui_summary">[ROOT] 重新掛鉤鎖屏介面</string>
     <string name="pref_clear_cache">清除緩存</string>
     <string name="refresh_quote">刷新</string>
     <string name="quote_download_failed">格言下載失敗</string>

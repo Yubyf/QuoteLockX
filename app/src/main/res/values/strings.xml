@@ -82,7 +82,7 @@
     <string name="pref_quote_module_title">Quote provider</string>
     <string name="pref_display_on_aod_title">[ALPHA]Display on AOD</string>
     <string name="pref_display_on_aod_summary">NOTE: Only tested on OP7Pro OOS11 OB4!</string>
-    <string name="pref_quote_module_summary">Select a quote source</string>
+    <string name="pref_quote_module_summary_alt">Select a quote source</string>
     <string name="pref_module_preferences_title">Quote provider preferences</string>
     <string name="pref_module_preferences_summary">Manage provider-specific settings</string>
     <string name="pref_module_preferences_summary_alt">No preferences for selected provider</string>
@@ -91,7 +91,7 @@
     <string name="pref_quote_title">Quote</string>
     <string name="pref_detail_title">Detail</string>
     <string name="pref_restart_system_ui_title">Restart System UI</string>
-    <string name="pref_debug_restart_system_ui_summary">[ROOT needed] Re-hook lockscreen</string>
+    <string name="pref_debug_restart_system_ui_summary">[ROOT] Re-hook lockscreen</string>
     <string name="pref_clear_cache">Clear Cache</string>
     <string name="refresh_quote">Refresh</string>
     <string name="quote_download_failed">Failed to download quote</string>
