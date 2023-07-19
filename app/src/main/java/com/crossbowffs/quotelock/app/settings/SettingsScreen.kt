@@ -13,8 +13,14 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.PlainTooltipState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -45,11 +51,13 @@ import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.contextString
+import com.crossbowffs.quotelock.ui.components.ContentAlpha
 import com.crossbowffs.quotelock.ui.components.ListPreferenceDialog
 import com.crossbowffs.quotelock.ui.components.PreferenceItem
 import com.crossbowffs.quotelock.ui.components.SettingsAppBar
 import com.crossbowffs.quotelock.ui.components.SwitchablePreferenceItem
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
+import com.crossbowffs.quotelock.utils.isStringMatchesResource
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
 
@@ -164,10 +172,35 @@ fun SettingsScreen(
                     onSwitchChange = onDisplayOnAodChanged
                 )
             }
+            val tooltipState = remember { PlainTooltipState() }
             PreferenceItem(
                 title = stringResource(id = R.string.pref_quote_module_title),
                 summary = uiState.moduleData?.displayName
                     ?: stringResource(id = R.string.pref_quote_module_summary_alt),
+                info = uiState.moduleData?.displayName?.takeIf {
+                    LocalContext.current.isStringMatchesResource(it, R.string.module_openai_name)
+                }?.let {
+                    {
+                        PlainTooltipBox(
+                            tooltip = {
+                                Text(text = stringResource(R.string.module_openai_expenditure_tooltips))
+                            },
+                            tooltipState = tooltipState
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    scope.launch { tooltipState.show() }
+                                },
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Info,
+                                    contentDescription = "Quote provider hint",
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.medium)
+                                )
+                            }
+                        }
+                    }
+                },
                 onClick = onModuleProviderItemClicked
             )
             val providerConfigSupported = uiState.moduleData?.configRoute != null

@@ -43,7 +43,7 @@ import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteViewData
 import com.crossbowffs.quotelock.data.api.composeFontFamily
-import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
+import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByConfiguration
 import com.crossbowffs.quotelock.ui.components.PreferenceTitle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
@@ -71,9 +71,11 @@ fun PreviewScreen(
             .wrapContentHeight()
     ) {
         val quoteGeneratedByApp =
-            LocalContext.current.isQuoteGeneratedByApp(uiState.quoteData.quoteText,
+            LocalContext.current.isQuoteGeneratedByConfiguration(
+                uiState.quoteData.quoteText,
                 uiState.quoteData.quoteSource,
-                uiState.quoteData.quoteAuthor)
+                uiState.quoteData.quoteAuthor
+            )
         PreferenceTitle(titleRes = R.string.preview)
         QuoteLayout(
             modifier = Modifier

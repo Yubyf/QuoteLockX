@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 
 package com.crossbowffs.quotelock.app.configs.openai
 
@@ -36,10 +36,13 @@ import androidx.compose.material.icons.rounded.MonetizationOn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.PlainTooltipState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -81,6 +84,7 @@ import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_API_HOST_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_API_KEY_PREFIX
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_API_KEY_SUPPORT_LINK
+import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_TYPE_SYSTEM_GENERATED
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_PASSWORD_MASK
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.AsyncResult
@@ -247,15 +251,28 @@ fun OpenAIScreen(
                 }) {
                 modelExpanded = !modelExpanded
             }
+            val tooltipState = remember { PlainTooltipState() }
             PreferenceItem(
                 title = stringResource(id = R.string.module_openai_quote_type),
                 info = {
                     val quoteTypes = stringArrayResource(id = R.array.openai_quote_type)
-                    SegmentedControl(
-                        items = quoteTypes.map { SegmentedLabelItem(label = it) },
-                        selectedItemIndex = configs.quoteType,
-                        onItemSelection = onQuoteTypeChanged
-                    )
+                    PlainTooltipBox(
+                        tooltip = {
+                            Text(text = stringResource(R.string.module_openai_incorrect_content_tooltips))
+                        },
+                        tooltipState = tooltipState
+                    ) {
+                        SegmentedControl(
+                            items = quoteTypes.map { SegmentedLabelItem(label = it) },
+                            selectedItemIndex = configs.quoteType,
+                            onItemSelection = {
+                                if (it == PREF_OPENAI_QUOTE_TYPE_SYSTEM_GENERATED) {
+                                    scope.launch { tooltipState.show() }
+                                }
+                                onQuoteTypeChanged(it)
+                            }
+                        )
+                    }
                 })
             PreferenceTitle(R.string.module_openai_api_key)
             var textApiKey by rememberSaveable { mutableStateOf(configs.apiKey.orEmpty()) }

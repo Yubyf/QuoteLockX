@@ -147,16 +147,12 @@ fun BasePreferenceItem(
                     )
                 }
             }
-            if (info == null) {
-                onSwitchChange?.let {
-                    Switch(
-                        checked = checkedState,
-                        // React switch changes by onClick in parent component
-                        onCheckedChange = null,
-                    )
-                }
-            } else {
-                info.invoke(this)
+            info?.let { it(this) } ?: onSwitchChange?.let {
+                Switch(
+                    checked = checkedState,
+                    // React switch changes by onClick in parent component
+                    onCheckedChange = null,
+                )
             }
         }
     }

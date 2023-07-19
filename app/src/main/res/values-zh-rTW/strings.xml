@@ -152,6 +152,8 @@
     <string name="module_openai_api_key_not_set">OpenAI API key 未設置</string>
     <string name="module_openai_api_key_invalid">OpenAI API Key 無效</string>
     <string name="module_openai_api_connect_error">OpenAI API 連接錯誤</string>
+    <string name="module_openai_expenditure_tooltips">使用 OpenAI 服務可能會產生一定的費用</string>
+    <string name="module_openai_incorrect_content_tooltips">GPT 有時會提供帶有錯誤來源的格言</string>
 
     <!-- Quotes collections -->
     <string name="quote_collections_screen_label">收藏</string>

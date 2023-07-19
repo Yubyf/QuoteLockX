@@ -1,12 +1,11 @@
 package com.crossbowffs.quotelock.data.api
 
 import android.content.Context
-import android.content.res.Configuration
 import android.provider.BaseColumns
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
+import com.crossbowffs.quotelock.utils.isStringMatchesResource
 import com.yubyf.quotelockx.R
-import java.util.Locale
 
 /**
  * @author Yubyf
@@ -49,22 +48,24 @@ fun buildReadableSource(source: String?, author: String?, withPrefix: Boolean = 
             }
     }.orEmpty()
 
-fun Context.isQuoteGeneratedByApp(text: String, source: String?, author: String?): Boolean {
+fun Context.isQuoteGeneratedByConfiguration(
+    text: String,
+    source: String?,
+    author: String?,
+): Boolean {
     if (source.isNullOrBlank() && author.isNullOrBlank()) return false
-    val configuration = Configuration(resources.configuration)
-    return sequenceOf(Locale.ENGLISH, Locale.SIMPLIFIED_CHINESE, Locale.TRADITIONAL_CHINESE).map {
-        configuration.setLocale(it)
-        createConfigurationContext(configuration).resources.let { resources ->
-            text == resources.getString(R.string.module_custom_setup_line1)
-                    && source == resources.getString(R.string.module_custom_setup_line2)
-                    || (text == resources.getString(R.string.module_collections_setup_line1)
-                    && source == resources.getString(R.string.module_collections_setup_line2))
-        }
-    }.reduce { acc, b -> acc || b }
+    return sequenceOf(
+        R.string.module_custom_setup_line1,
+        R.string.module_collections_setup_line1
+    ).any { isStringMatchesResource(text, it) }
+            && sequenceOf(
+        R.string.module_custom_setup_line2,
+        R.string.module_collections_setup_line2
+    ).any { isStringMatchesResource(source, it) }
 }
 
 fun isQuoteJustForDisplay(text: String, source: String?, author: String?) =
-    App.instance.isQuoteGeneratedByApp(text, source, author)
+    App.instance.isQuoteGeneratedByConfiguration(text, source, author)
 
 fun QuoteEntity.toQuoteData(): QuoteData =
     QuoteData(text, source, author.orEmpty(), provider, uid, extra)

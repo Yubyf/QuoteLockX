@@ -74,7 +74,7 @@ import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.hasDetailData
-import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
+import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByConfiguration
 import com.crossbowffs.quotelock.data.api.typeface
 import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.ui.components.QuoteAppBar
@@ -219,7 +219,7 @@ fun QuotePage(
         verticalArrangement = Arrangement.Center
     ) {
         val quoteGeneratedByApp =
-            if (LocalInspectionMode.current) false else LocalContext.current.isQuoteGeneratedByApp(
+            if (LocalInspectionMode.current) false else LocalContext.current.isQuoteGeneratedByConfiguration(
                 quoteData.quoteText,
                 quoteData.quoteSource,
                 quoteData.quoteAuthor

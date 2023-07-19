@@ -74,7 +74,7 @@ import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.contextString
-import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByApp
+import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByConfiguration
 import com.crossbowffs.quotelock.ui.components.AlertDialog
 import com.crossbowffs.quotelock.ui.components.MainAppBar
 import com.crossbowffs.quotelock.ui.components.Snapshotables
@@ -266,7 +266,7 @@ fun MainScreen(
                 snapshotStates = snapshotStates,
                 onCollectClick = switchCollectionState,
                 onShareCard = if (!LocalInspectionMode.current
-                    && !LocalContext.current.isQuoteGeneratedByApp(
+                    && !LocalContext.current.isQuoteGeneratedByConfiguration(
                         mainUiState.quoteData.quoteText,
                         mainUiState.quoteData.quoteSource,
                         mainUiState.quoteData.quoteAuthor

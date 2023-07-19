@@ -43,7 +43,7 @@ import java.util.*
 class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     IXposedHookLoadPackage, OnSharedPreferenceChangeListener {
 
-    private lateinit var quotesGeneratedByApp: Set<String>
+    private lateinit var quotesGeneratedByConfiguration: Set<String>
 
     private var mLayoutTranslation = -(16f + 32f + 16f + 32f + 16f)
     private lateinit var mQuoteContainer: LinearLayout
@@ -68,8 +68,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     private val typefaceCache = HashMap<String, Typeface>()
 
     private fun isQuoteGeneratedByApp(text: String?, source: String?, author: String?): Boolean =
-        text.isNullOrBlank() || quotesGeneratedByApp.contains(text)
-                || quotesGeneratedByApp.contains(source) || quotesGeneratedByApp.contains(author)
+        text.isNullOrBlank() || quotesGeneratedByConfiguration.contains(text)
+                || quotesGeneratedByConfiguration.contains(source) || quotesGeneratedByConfiguration.contains(
+            author
+        )
 
     private fun loadTypeface(
         style: TextFontStyle,
@@ -640,13 +642,13 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     @Throws(Throwable::class)
     override fun handleInitPackageResources(resparam: InitPackageResourcesParam) {
         sModuleRes = createInstance(sModulePath, resparam.res)
-        if (PACKAGE_SYSTEM_UI == resparam.packageName && !::quotesGeneratedByApp.isInitialized) {
+        if (PACKAGE_SYSTEM_UI == resparam.packageName && !::quotesGeneratedByConfiguration.isInitialized) {
             // Load predefined quotes from app in all locales
             @Suppress("DEPRECATION") val locale = resparam.res.configuration.locale
             val locales = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 resparam.res.configuration.locales
             } else null
-            quotesGeneratedByApp = arrayOf(
+            quotesGeneratedByConfiguration = arrayOf(
                 Locale.ENGLISH,
                 Locale.SIMPLIFIED_CHINESE,
                 Locale.TRADITIONAL_CHINESE
