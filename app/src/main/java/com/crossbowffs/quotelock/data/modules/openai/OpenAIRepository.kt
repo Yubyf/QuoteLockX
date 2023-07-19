@@ -13,9 +13,11 @@ import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_L
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_LANGUAGE_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_MODEL
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_MODEL_DEFAULT
+import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_SYSTEM_PROMPTS
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_SYSTEM_PROMPT_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_TYPE
+import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_TYPE_AI_GENERATED
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_TYPE_DEFAULT
 import com.crossbowffs.quotelock.data.api.OpenAIAccount
 import com.crossbowffs.quotelock.data.api.OpenAIConfigs
@@ -178,18 +180,29 @@ class OpenAIRepository @Inject internal constructor(
         }
     }
 
-    suspend fun requestQuote() = chatByApi(
-        messages = listOf(
-            OpenAIChatMessage.system(
-                PREF_OPENAI_QUOTE_SYSTEM_PROMPTS[quoteType]
-                    ?: PREF_OPENAI_QUOTE_SYSTEM_PROMPT_DEFAULT
+    suspend fun requestQuote(): OpenAIQuote? {
+        val quoteType = quoteType
+        val language = language
+        return chatByApi(
+            messages = listOf(
+                OpenAIChatMessage.system(
+                    PREF_OPENAI_QUOTE_SYSTEM_PROMPTS[quoteType]
+                        ?: PREF_OPENAI_QUOTE_SYSTEM_PROMPT_DEFAULT
+                ),
+                OpenAIChatMessage.user(language)
             ),
-            OpenAIChatMessage.user(language)
-        ),
-        maxTokens = 2000
-    )?.let {
-        val quoteJson = it.choices.firstOrNull()?.message?.content
-        quoteJson?.let<String, OpenAIQuote>(json::decodeFromString)
+            maxTokens = 2000
+        )?.let { response ->
+            val quoteJson = response.choices.firstOrNull()?.message?.content
+            quoteJson?.let<String, OpenAIQuote>(json::decodeFromString).let {
+                if (quoteType == PREF_OPENAI_QUOTE_TYPE_AI_GENERATED) {
+                    it?.copy(
+                        source = PREF_OPENAI_QUOTE_SOURCE_DEFAULT,
+                        category = PREF_OPENAI_QUOTE_SOURCE_DEFAULT
+                    )
+                } else it
+            }
+        }
     }
 
     @Throws(IOException::class)

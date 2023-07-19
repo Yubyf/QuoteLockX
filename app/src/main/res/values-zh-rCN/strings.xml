@@ -180,6 +180,8 @@
     <string name="module_openai_api_connect_error">OpenAI API 连接错误</string>
     <string name="module_openai_expenditure_tooltips">使用 OpenAI 服务可能会产生一定的费用</string>
     <string name="module_openai_incorrect_content_tooltips">GPT 有时会提供带有错误来源的格言</string>
+    <string name="module_openai_setup_line1">@string/module_openai_api_key_not_set</string>
+    <string name="module_openai_setup_line2">请打开 OpenAI 设置</string>
 
     <string name="pref_font_family_custom">自定义</string>
     <string name="quote_fonts_management_screen_label">自定义字体</string>

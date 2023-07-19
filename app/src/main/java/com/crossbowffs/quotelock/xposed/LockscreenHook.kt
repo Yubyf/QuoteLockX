@@ -661,7 +661,9 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                         getString(RES_STRING_CUSTOM_SETUP_1),
                         getString(RES_STRING_CUSTOM_SETUP_2),
                         getString(RES_STRING_COLLECTIONS_SETUP_1),
-                        getString(RES_STRING_COLLECTIONS_SETUP_2)
+                        getString(RES_STRING_COLLECTIONS_SETUP_2),
+                        getString(RES_STRING_OPENAI_SETUP_1),
+                        getString(RES_STRING_OPENAI_SETUP_2)
                     )
                 }
             }.toSet()
@@ -688,6 +690,8 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
         private const val RES_STRING_CUSTOM_SETUP_2 = "module_custom_setup_line2"
         private const val RES_STRING_COLLECTIONS_SETUP_1 = "module_collections_setup_line1"
         private const val RES_STRING_COLLECTIONS_SETUP_2 = "module_collections_setup_line2"
+        private const val RES_STRING_OPENAI_SETUP_1 = "module_openai_setup_line1"
+        private const val RES_STRING_OPENAI_SETUP_2 = "module_openai_setup_line2"
         private const val RES_ID_QUOTE_CONTAINER = "quote_container"
         private const val RES_ID_QUOTE_TEXTVIEW = "quote_textview"
         private const val RES_ID_SOURCE_TEXTVIEW = "source_textview"

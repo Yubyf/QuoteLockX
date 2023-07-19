@@ -32,6 +32,13 @@ class OpenAIQuoteModule : QuoteModule {
         val openAIRepository =
             EntryPointAccessors.fromApplication<OpenAIEntryPoint>(applicationContext)
                 .openAIRepository()
+        if (openAIRepository.apiKey.isNullOrBlank()) {
+            return QuoteData(
+                quoteText = getString(R.string.module_openai_setup_line1),
+                quoteSource = getString(R.string.module_openai_setup_line2),
+                provider = PREF_OPENAI,
+            )
+        }
         val openAIQuote = openAIRepository.requestQuote()
         return openAIQuote.let {
             QuoteData(

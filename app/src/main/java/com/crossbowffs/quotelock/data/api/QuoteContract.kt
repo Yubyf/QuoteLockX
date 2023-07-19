@@ -56,11 +56,13 @@ fun Context.isQuoteGeneratedByConfiguration(
     if (source.isNullOrBlank() && author.isNullOrBlank()) return false
     return sequenceOf(
         R.string.module_custom_setup_line1,
-        R.string.module_collections_setup_line1
+        R.string.module_collections_setup_line1,
+        R.string.module_openai_setup_line1
     ).any { isStringMatchesResource(text, it) }
             && sequenceOf(
         R.string.module_custom_setup_line2,
-        R.string.module_collections_setup_line2
+        R.string.module_collections_setup_line2,
+        R.string.module_openai_setup_line2
     ).any { isStringMatchesResource(source, it) }
 }
 
