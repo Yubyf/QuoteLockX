@@ -109,7 +109,7 @@
 
     <string name="module_hitokoto_name">一言 (中文)</string>
     <string name="module_jinrishici_name">今日诗词 (中文)</string>
-    <string name="module_wikiquote_name">维基每日一句(中文)</string>
+    <string name="module_wikiquote_name">维基每日一句(多语言)</string>
     <string name="module_fortune_name">Fortune-mod (多语言)</string>
     <string name="module_openai_name">OpenAI (多语言)</string>
     <string name="module_custom_name">自定义</string>
@@ -165,6 +165,8 @@
     <string name="data_conflict_solution_hint">请选择解决方案：</string>
     <string name="merge">合并</string>
     <string name="replace">替换</string>
+
+    <string name="module_wiki_quote_config_label">Wikiquote 设置</string>
 
     <string name="module_openai_config_label">OpenAI 设置</string>
     <string name="module_openai_quote_language">语言</string>

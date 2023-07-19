@@ -112,7 +112,7 @@
 
     <!-- Provider-specific strings -->
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
-    <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
+    <string name="module_wikiquote_name">Wikiquote QotD (多語言)</string>
     <string name="module_jinrishici_name">Jinrishici 今日詩詞 (中文)</string>
     <string name="module_fortune_name">Fortune-mod (多語言)</string>
     <string name="module_openai_name">OpenAI (多語言)</string>
@@ -132,6 +132,9 @@
 
     <!-- BrainyQuote -->
     <string name="module_brainy_config_label">BrainyQuote 設定</string>
+
+    <!-- WikiQuote -->
+    <string name="module_wiki_quote_config_label">Wikiquote 設定</string>
 
     <!-- Hitokoto -->
     <string name="module_hitokoto_config_label">一言設定</string>

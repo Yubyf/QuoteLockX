@@ -5,6 +5,7 @@ import com.crossbowffs.quotelock.app.configs.brainyquote.BrainyQuotePrefKeys
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys
+import com.crossbowffs.quotelock.app.configs.wikiquote.WikiquotePrefKeys
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE
 import com.crossbowffs.quotelock.consts.PREF_COMMON
 import com.crossbowffs.quotelock.consts.PREF_QUOTES
@@ -39,6 +40,10 @@ annotation class CardStyleDataStore
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class BrainyDataStore
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class WikiquoteDataStore
 
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
@@ -89,6 +94,12 @@ object DataStoreModules {
     @Provides
     fun provideBrainyDataStore(@ApplicationContext context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(BrainyQuotePrefKeys.PREF_BRAINY, migrate = true)
+
+    @Singleton
+    @WikiquoteDataStore
+    @Provides
+    fun provideWikiquoteDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+        context.getDataStoreDelegate(WikiquotePrefKeys.PREF_WIKIQUOTE, migrate = true)
 
     @Singleton
     @FortuneDataStore

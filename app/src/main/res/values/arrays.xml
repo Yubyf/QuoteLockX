@@ -94,6 +94,19 @@
         <item>NA</item>
     </string-array>
 
+    <string-array name="wikiquote_langs" translatable="false">
+        <item>English</item>
+        <item>中文</item>
+        <item>日本语</item>
+        <item>Deutsch</item>
+        <item>Español</item>
+        <item>Français</item>
+        <item>Italiano</item>
+        <item>Português</item>
+        <item>Русский</item>
+        <item>Esperanto</item>
+    </string-array>
+
     <string-array name="hitokoto_type_entries">
         <item>Anime</item>
         <item>Comic</item>

@@ -15,6 +15,7 @@ import com.crossbowffs.quotelock.data.modules.custom.CustomQuoteRepository
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteDatabase
 import com.crossbowffs.quotelock.data.modules.fortune.database.FortuneQuoteDatabase
 import com.crossbowffs.quotelock.data.modules.openai.OpenAIRepository
+import com.crossbowffs.quotelock.data.modules.wikiquote.WikiquoteRepository
 import com.crossbowffs.quotelock.data.version.VersionRepository
 import dagger.Module
 import dagger.Provides
@@ -141,6 +142,12 @@ interface QuoteProviderEntryPoint {
 @InstallIn(SingletonComponent::class)
 interface ConfigurationEntryPoint {
     fun configurationRepository(): ConfigurationRepository
+}
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface WikiquoteEntryPoint {
+    fun wikiquoteRepository(): WikiquoteRepository
 }
 
 @EntryPoint

@@ -25,7 +25,7 @@ object AboutPrefs {
     val PREF_QUOTE_PROVIDER_WIKIQUOTE = Triple(
         "Wikiquote QotD",
         "https://www.wikiquote.org/",
-        R.mipmap.ic_logo_wikiquote
+        R.drawable.ic_logo_wikiquote
     )
     val PREF_QUOTE_PROVIDER_JINRISHICI = Triple(
         "Jinrishici 今日诗词",

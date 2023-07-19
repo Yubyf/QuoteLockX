@@ -118,7 +118,7 @@
 
     <!-- Provider-specific strings -->
     <string name="module_hitokoto_name">Hitokoto 一言 (中文)</string>
-    <string name="module_wikiquote_name">Wikiquote QotD (中文)</string>
+    <string name="module_wikiquote_name">Wikiquote QotD (multilingual)</string>
     <string name="module_jinrishici_name">Jinrishici 今日诗词 (中文)</string>
     <string name="module_freakuotes_name" translatable="false">Freakuotes (Español)</string>
     <string name="module_natune_name" translatable="false">Natune.net (Deutsch)</string>
@@ -142,6 +142,9 @@
 
     <!-- BrainyQuote -->
     <string name="module_brainy_config_label">BrainyQuote setup</string>
+
+    <!-- WikiQuote -->
+    <string name="module_wiki_quote_config_label">Wikiquote setup</string>
 
     <!-- Hitokoto -->
     <string name="module_hitokoto_config_label">Hitokoto setup</string>
