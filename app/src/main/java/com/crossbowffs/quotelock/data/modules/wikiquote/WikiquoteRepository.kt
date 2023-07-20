@@ -199,15 +199,13 @@ class WikiquoteRepository @Inject internal constructor(
         httpClient.fetchXml(PREF_WIKIQUOTE_RUSSIAN_URL)
             .getElementById("main-quote")
             ?.getElementsByTag("table")?.firstOrNull()
-            ?.text()?.also { Xlog.d(TAG, "Downloaded text: %s", it) }
+            ?.getElementsByTag("tbody")?.firstOrNull()
+            ?.getElementsByTag("tr")?.firstOrNull()
+            ?.child(1)?.also { Xlog.d(TAG, "Downloaded text: %s", it.text()) }
             ?.let {
-                Pattern.compile("(.*?)\\s*\\u00AB(.*?)\\u00BB")
-                    .matcher(it).takeIf { matcher -> matcher.matches() }
-                    ?.let { matcher ->
-                        Triple(matcher.group(1).orEmpty(), matcher.group(2).orEmpty(), "")
-                    } ?: run {
-                    Xlog.e(TAG, "Failed to parse quote")
-                    null
+                it.getElementsByTag("cite").firstOrNull()?.text()?.trim()?.let { quote ->
+                    val author = it.getElementsByTag("div").lastOrNull()?.text()?.trim()
+                    Triple(quote, author.orEmpty(), "")
                 }
             }
 
