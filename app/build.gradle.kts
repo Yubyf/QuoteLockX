@@ -57,7 +57,7 @@ android {
 
         targetSdk = Configs.targetSdk
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.crossbowffs.quotelock.CustomTestRunner"
 
         buildConfigField("int", "MODULE_VERSION", "4")
         buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "5")
@@ -171,6 +171,7 @@ dependencies {
     // Hilt
     implementation(libs.bundles.hilt)
     kapt(libs.hilt.compiler)
+    kaptAndroidTest(libs.hilt.compiler)
 
     // Jetpack Compose
     val composeBom = platform(libs.androidx.compose.bom)

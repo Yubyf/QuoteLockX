@@ -120,6 +120,7 @@ androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "andro
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test" }
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test" }
 androidx-room-test = { module = "androidx.room:room-testing", version.ref = "room" }
+hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 
 # Xposed
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
@@ -157,7 +158,8 @@ ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-client-logging", "ktor-c
     "ktor-serialization-json"]
 
 # Test
-androidx-test = ["androidx-test-junit", "androidx-test-core", "androidx-test-rules", "androidx-room-test"]
+androidx-test = ["androidx-test-junit", "androidx-test-core", "androidx-test-rules", "androidx-room-test",
+    "hilt-android-testing"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }

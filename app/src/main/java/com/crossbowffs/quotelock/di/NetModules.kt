@@ -47,9 +47,7 @@ object NetModules {
             charset: Charset,
             typeInfo: TypeInfo,
             content: ByteReadChannel,
-        ): Any? {
-            return Jsoup.parse(content.toInputStream(), charset.name(), "")
-        }
+        ): Any? = Jsoup.parse(content.toInputStream(), charset.name(), "")
     }
 
     @Singleton
@@ -94,4 +92,9 @@ object NetModules {
                 accept(ContentType.Application.Json)
             }
         }
+
+    val httpClient = provideHttpClient(
+        provideJson(),
+        provideJsoupConverter()
+    )
 }

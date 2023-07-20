@@ -2,8 +2,7 @@ package com.crossbowffs.quotelock.data.api
 
 import android.content.Context
 import androidx.annotation.IntDef
-import com.crossbowffs.quotelock.di.NetModuleEntryPoint
-import dagger.hilt.android.EntryPointAccessors
+import com.crossbowffs.quotelock.di.NetModules
 import io.ktor.client.HttpClient
 
 /**
@@ -54,9 +53,7 @@ interface QuoteModule {
         const val CHARACTER_TYPE_LATIN = 1
         const val CHARACTER_TYPE_CJK = 2
 
-        internal val Context.httpClient: HttpClient
-            get() = EntryPointAccessors.fromApplication<NetModuleEntryPoint>(applicationContext)
-                .httpClient()
+        internal val httpClient: HttpClient = NetModules.httpClient
     }
 
     @Retention(AnnotationRetention.SOURCE)
