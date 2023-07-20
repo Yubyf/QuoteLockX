@@ -48,6 +48,8 @@ Long press on the quotes to show refresh and collect buttons:
 
 **Only near-AOSP Android ROMs are supported!** This is due to the heavy lockscreen modifications
 made by different OEMs.
+(This app is also compatible with the official MIUI14 on default lockscreen confirmed by community
+members.)
 
 **After installing, please open the app at least once** to allow the quote downloader service to run
 in the background.
@@ -63,13 +65,14 @@ the download service.
 ## Providers
 
 - [Hitokoto CN (中文)](http://hitokoto.cn/)
-- [Wikiquote QotD (中文)](https://www.wikiquote.org/)
+- [Wikiquote QotD (multilingual)](https://www.wikiquote.org/)
 - [Jinrishici 今日诗词 (中文)](https://www.jinrishici.com/)
 - [Freakuotes (Español)](https://freakuotes.com/)
 - [Natune.net (Deutsch)](https://natune.net/zitate/)
 - [BrainyQuote (English)](https://www.brainyquote.com/)
 - [Lib Quotes (English)](https://libquotes.com/)
 - [Fortune-mod (multilingual)](https://github.com/shlomif/fortune-mod/)
+- [OpenAI (multilingual)](https://openai.com/)
 - Custom (write your own!)
 - Collections (your favorites)
 
@@ -77,7 +80,7 @@ the download service.
 
 ### Todo
 
-- [ ] ~~Add support for custom importing of fortune cookies.~~
+- [ ] Show on status bar.
 
 ### In Progress
 
@@ -93,6 +96,7 @@ the download service.
 - [x] Optimize for variable fonts.
 - [x] Advanced detail pages (currently only supported by Jinrishici).
 - [x] Add support for widget.
+- [x] Add support for in-app upgrades.
 
 ## License
 
