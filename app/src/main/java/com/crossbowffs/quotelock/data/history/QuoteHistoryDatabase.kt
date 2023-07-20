@@ -18,12 +18,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.crossbowffs.quotelock.data.api.QuoteEntity
 import com.crossbowffs.quotelock.data.api.QuoteEntityContract
 import com.crossbowffs.quotelock.data.history.QuoteHistoryContract.DATABASE_NAME
-import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.flow.Flow
 
 /**
  * @author Yubyf
  */
+
+const val QUOTE_HISTORIES_DB_VERSION = 5
 
 object QuoteHistoryContract {
     const val DATABASE_NAME = "quote_histories.db"
@@ -122,7 +123,7 @@ interface QuoteHistoryDao {
     suspend fun deleteAll()
 }
 
-@Database(entities = [QuoteHistoryEntity::class], version = BuildConfig.QUOTE_HISTORIES_DB_VERSION)
+@Database(entities = [QuoteHistoryEntity::class], version = QUOTE_HISTORIES_DB_VERSION)
 abstract class QuoteHistoryDatabase : RoomDatabase() {
     abstract fun dao(): QuoteHistoryDao
 

@@ -1,18 +1,30 @@
 package com.crossbowffs.quotelock.data.modules.custom.database
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.Update
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.crossbowffs.quotelock.data.api.QuoteEntity
 import com.crossbowffs.quotelock.data.api.QuoteEntityContract
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteContract.DATABASE_NAME
-import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.flow.Flow
 
 /**
  * @author Yubyf
  */
+
+const val CUSTOM_QUOTES_DB_VERSION = 5
 
 object CustomQuoteContract {
     const val DATABASE_NAME = "custom_quotes.db"
@@ -69,7 +81,7 @@ interface CustomQuoteDao {
     suspend fun delete(id: Long): Int
 }
 
-@Database(entities = [CustomQuoteEntity::class], version = BuildConfig.CUSTOM_QUOTES_DB_VERSION)
+@Database(entities = [CustomQuoteEntity::class], version = CUSTOM_QUOTES_DB_VERSION)
 abstract class CustomQuoteDatabase : RoomDatabase() {
     abstract fun dao(): CustomQuoteDao
 

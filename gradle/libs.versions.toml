@@ -4,6 +4,7 @@ android-plugin = "8.0.1"
 kotlin = "1.8.21"
 hilt = "2.46.1"
 gradle-versions-plugin = "0.46.0"
+ksp = "1.8.22-1.0.11"
 
 # AndroidX
 # See https://issuetracker.google.com/issues/243119645
@@ -165,6 +166,7 @@ androidx-test = ["androidx-test-junit", "androidx-test-core", "androidx-test-rul
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
 android-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 android-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 gradle-versions-plugin = { id = "com.github.ben-manes.versions", version.ref = "gradle-versions-plugin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

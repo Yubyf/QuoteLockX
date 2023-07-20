@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.android.kotlin)
     alias(libs.plugins.serialization)
     alias(libs.plugins.kapt)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.android.hilt)
 }
 
@@ -60,22 +61,14 @@ android {
         testInstrumentationRunner = "com.crossbowffs.quotelock.CustomTestRunner"
 
         buildConfigField("int", "MODULE_VERSION", "4")
-        buildConfigField("int", "CUSTOM_QUOTES_DB_VERSION", "5")
-        buildConfigField("int", "QUOTE_COLLECTIONS_DB_VERSION", "5")
-        buildConfigField("int", "QUOTE_HISTORIES_DB_VERSION", "5")
-        buildConfigField("int", "FORTUNE_QUOTES_DB_VERSION", "5")
         buildConfigField("String", "LOG_TAG", "\"QuoteLockX\"")
 
         resValue("string", "account_type", "${applicationId}.account")
         resValue("string", "account_authority", "${applicationId}.collection.provider")
         resourceConfigurations += arrayOf("en", "zh-rCN", "zh-rTW")
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                compilerArgumentProviders(
-                    RoomSchemaArgProvider(File(projectDir, "schemas"))
-                )
-            }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 
@@ -166,7 +159,7 @@ dependencies {
 
     // Room
     implementation(libs.bundles.androidx.room)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     // Hilt
     implementation(libs.bundles.hilt)
@@ -200,14 +193,4 @@ dependencies {
     androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.bundles.compose.test)
     debugImplementation(libs.compose.test.manifest)
-}
-
-class RoomSchemaArgProvider(
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    val schemaDir: File,
-) : CommandLineArgumentProvider {
-
-    override fun asArguments(): Iterable<String> =
-        listOf("-Aroom.schemaLocation=${schemaDir.path}")
 }

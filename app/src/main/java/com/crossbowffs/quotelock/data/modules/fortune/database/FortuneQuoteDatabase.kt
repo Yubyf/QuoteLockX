@@ -20,13 +20,14 @@ import com.crossbowffs.quotelock.data.api.QuoteEntity
 import com.crossbowffs.quotelock.data.api.QuoteEntityContract
 import com.crossbowffs.quotelock.data.modules.fortune.database.FortuneQuoteContract.DATABASE_NAME
 import com.crossbowffs.quotelock.utils.md5String
-import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 /**
  * @author Yubyf
  */
+
+const val FORTUNE_QUOTES_DB_VERSION = 5
 
 object FortuneQuoteContract {
     const val DATABASE_NAME = "fortune_quotes.db"
@@ -92,7 +93,7 @@ interface FortuneQuoteDao {
     fun count(): Flow<Int>
 }
 
-@Database(entities = [FortuneQuoteEntity::class], version = BuildConfig.FORTUNE_QUOTES_DB_VERSION)
+@Database(entities = [FortuneQuoteEntity::class], version = FORTUNE_QUOTES_DB_VERSION)
 abstract class FortuneQuoteDatabase : RoomDatabase() {
     abstract fun dao(): FortuneQuoteDao
 

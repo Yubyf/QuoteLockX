@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.kotlin).apply(false)
     alias(libs.plugins.serialization).apply(false)
     alias(libs.plugins.kapt).apply(false)
+    alias(libs.plugins.ksp).apply(false)
     alias(libs.plugins.android.hilt).apply(false)
     alias(libs.plugins.gradle.versions.plugin)
 }

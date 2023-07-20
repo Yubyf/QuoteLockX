@@ -33,6 +33,8 @@ import java.io.File
  * @author Yubyf
  */
 
+const val QUOTE_COLLECTIONS_DB_VERSION = 5
+
 object QuoteCollectionContract {
     const val AUTHORITY = BuildConfig.APPLICATION_ID + ".collection.provider"
     const val DATABASE_NAME = "quote_collections.db"
@@ -202,7 +204,7 @@ interface QuoteCollectionDao {
 
 @Database(
     entities = [QuoteCollectionEntity::class],
-    version = BuildConfig.QUOTE_COLLECTIONS_DB_VERSION
+    version = QUOTE_COLLECTIONS_DB_VERSION
 )
 abstract class QuoteCollectionDatabase : RoomDatabase() {
     abstract fun dao(): QuoteCollectionDao
