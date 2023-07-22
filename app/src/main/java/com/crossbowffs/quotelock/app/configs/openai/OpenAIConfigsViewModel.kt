@@ -9,10 +9,10 @@ import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.data.api.AndroidString
-import com.crossbowffs.quotelock.data.api.OpenAIAccount
 import com.crossbowffs.quotelock.data.api.OpenAIConfigs
 import com.crossbowffs.quotelock.data.modules.openai.OpenAIException
 import com.crossbowffs.quotelock.data.modules.openai.OpenAIRepository
+import com.crossbowffs.quotelock.data.modules.openai.OpenAIUsage
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.prefix
 import com.yubyf.quotelockx.R
@@ -30,7 +30,7 @@ import javax.inject.Inject
 data class OpenAIUiState(
     val openAIConfigs: OpenAIConfigs = OpenAIConfigs(),
     val validateResult: AsyncResult<Unit>? = null,
-    val openAIAccount: OpenAIAccount? = null,
+    val openAIUsage: OpenAIUsage? = null,
 )
 
 @HiltViewModel
@@ -55,12 +55,11 @@ class OpenAIConfigsViewModel @Inject constructor(
                     openAIConfigs = it,
                 )
             }.launchIn(this)
-            openAIRepository.openAIAccountFlow.onEach {
+            openAIRepository.openAIUsageFlow.onEach {
                 _uiState.value = _uiState.value.copy(
-                    openAIAccount = it,
+                    openAIUsage = it,
                 )
             }.launchIn(this)
-            runCatching { openAIRepository.fetchAccountInfo() }
         }
     }
 
@@ -80,7 +79,7 @@ class OpenAIConfigsViewModel @Inject constructor(
         if (openAIRepository.apiKey != apiKey) {
             openAIRepository.apiKey = apiKey
             _uiState.value = _uiState.value.copy(
-                openAIAccount = null,
+                openAIUsage = null,
             )
             viewModelScope.launch {
                 runCatching { openAIRepository.fetchAccountInfo() }

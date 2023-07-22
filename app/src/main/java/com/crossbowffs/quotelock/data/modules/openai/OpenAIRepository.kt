@@ -8,7 +8,6 @@ import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_A
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_API_KEY
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_CHAT_API_PATH
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_CHAT_SUB_PATH
-import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_CHAT_USAGE_PATH
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_LANGUAGE
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_LANGUAGE_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_MODEL
@@ -19,19 +18,15 @@ import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_Q
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_TYPE
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_TYPE_AI_GENERATED
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_TYPE_DEFAULT
-import com.crossbowffs.quotelock.data.api.OpenAIAccount
 import com.crossbowffs.quotelock.data.api.OpenAIConfigs
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIChatInput
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIChatMessage
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIChatResponse
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIQuote
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAISubscriptionResponse
-import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIUsageResponse
 import com.crossbowffs.quotelock.data.modules.openai.geo.OpenAITraceResponse
 import com.crossbowffs.quotelock.data.modules.openai.geo.SUPPORTED_COUNTRY_CODES
 import com.crossbowffs.quotelock.data.modules.openai.geo.parseTraceResponse
-import com.crossbowffs.quotelock.di.IoDispatcher
-import com.crossbowffs.quotelock.di.OpenAIDataStore
 import com.crossbowffs.quotelock.utils.HttpException
 import com.crossbowffs.quotelock.utils.fetchCustom
 import com.crossbowffs.quotelock.utils.fetchJson
@@ -45,25 +40,33 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+data class OpenAIUsage(
+    val apiKey: String,
+    val totalTokens: Int,
+    val usages: List<Pair<String, Int>>,
+)
+
 @Singleton
 class OpenAIRepository @Inject internal constructor(
-    @OpenAIDataStore private val openaiDataStore: DataStoreDelegate,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+    private val openaiDataStore: DataStoreDelegate,
+    private val openAIUsageDao: OpenAIUsageDao,
+    dispatcher: CoroutineDispatcher,
     private val httpClient: HttpClient,
     private val json: Json,
 ) {
@@ -97,8 +100,8 @@ class OpenAIRepository @Inject internal constructor(
     private val _openAIConfigsFlow = MutableStateFlow(openAIConfigs)
     val openAIConfigsFlow = _openAIConfigsFlow.asStateFlow()
 
-    private val _openAIAccountFlow = MutableStateFlow<OpenAIAccount?>(null)
-    val openAIAccountFlow = _openAIAccountFlow.asStateFlow()
+    private val _openAIUsageFlow = MutableStateFlow<OpenAIUsage?>(null)
+    val openAIUsageFlow = _openAIUsageFlow.asStateFlow()
 
     init {
         openaiDataStore.collectIn(CoroutineScope(dispatcher)) { preferences, key ->
@@ -149,6 +152,34 @@ class OpenAIRepository @Inject internal constructor(
                 else -> {}
             }
         }
+        openAIConfigsFlow.onEach { configs ->
+            configs.apiKey?.let { apiKey ->
+                val startDate =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        LocalDate.now()
+                            .withDayOfMonth(1)
+                            .atStartOfDay(ZoneOffset.systemDefault())
+                            .toInstant()
+                            .toEpochMilli()
+                    } else {
+                        Calendar.getInstance(TimeZone.getDefault()).apply {
+                            time = Date()
+                            val year = get(Calendar.YEAR)
+                            val month = get(Calendar.MONTH)
+                            set(year, month, 1, 0, 0)
+                        }.timeInMillis
+                    }
+                openAIUsageDao.getUsageByApiKeyStream(apiKey, startDate).onEach { usages ->
+                    usages.groupBy(OpenAIUsageEntity::model).mapValues { (_, usageEntities) ->
+                        usageEntities.sumOf { it.tokens }
+                    }.toList().let { usage ->
+                        _openAIUsageFlow.update {
+                            OpenAIUsage(apiKey, usage.sumOf { it.second }, usage)
+                        }
+                    }
+                }.launchIn(CoroutineScope(dispatcher))
+            }
+        }.launchIn(CoroutineScope(dispatcher))
     }
 
     private suspend fun checkOpenAIAvailable(): Boolean {
@@ -161,29 +192,15 @@ class OpenAIRepository @Inject internal constructor(
 
     suspend fun fetchAccountInfo() {
         val apiKey = requireApiKey()
-        if (_openAIAccountFlow.value?.apiKey != apiKey) {
-            _openAIAccountFlow.update { null }
-        }
-        val sub = getSubscription(apiKey)
-        val usage = getUsageOfCurrentMonth(apiKey)
-        if (sub == null || usage == null) {
-            throw OpenAIException.ConnectException
-        }
-        _openAIAccountFlow.update {
-            OpenAIAccount(
-                apiKey,
-                sub.hasPaymentMethod,
-                sub.softLimitUsd,
-                sub.hardLimitUsd,
-                usage.totalUsage / 100,
-            )
-        }
+        getSubscription(apiKey) ?: throw OpenAIException.ConnectException
     }
 
     suspend fun requestQuote(): OpenAIQuote? {
         val quoteType = quoteType
         val language = language
+        val apiKey = requireApiKey()
         return chatByApi(
+            apiKey = apiKey,
             messages = listOf(
                 OpenAIChatMessage.system(
                     PREF_OPENAI_QUOTE_SYSTEM_PROMPTS[quoteType]
@@ -193,6 +210,12 @@ class OpenAIRepository @Inject internal constructor(
             ),
             maxTokens = 2000
         )?.let { response ->
+            OpenAIUsageEntity(
+                apiKey = apiKey,
+                model = response.model,
+                tokens = response.usage.totalTokens,
+                timestamp = response.created
+            ).let { openAIUsageDao.insert(it) }
             val quoteJson = response.choices.firstOrNull()?.message?.content
             quoteJson?.let<String, OpenAIQuote>(json::decodeFromString).let {
                 if (quoteType == PREF_OPENAI_QUOTE_TYPE_AI_GENERATED) {
@@ -219,43 +242,11 @@ class OpenAIRepository @Inject internal constructor(
         }
 
     @Throws(IOException::class)
-    private suspend fun getUsageOfCurrentMonth(apiKey: String): OpenAIUsageResponse? =
-        requestOpenAI { host ->
-            val startData =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Date.from(
-                        LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault())
-                            .toInstant()
-                    )
-                } else {
-                    Calendar.getInstance().apply {
-                        time = Date()
-                        val year = get(Calendar.YEAR)
-                        val month = get(Calendar.MONTH)
-                        set(year, month, 1)
-                    }.time
-                }
-
-            httpClient.fetchJson<OpenAIUsageResponse>(
-                url = host,
-                path = PREF_OPENAI_CHAT_USAGE_PATH,
-                method = HttpMethod.Get,
-                headers = mapOf(
-                    HttpHeaders.Authorization to "Bearer $apiKey"
-                ),
-                queries = mapOf(
-                    "start_date" to PREF_DATE_FORMATTER.format(startData),
-                    "end_date" to PREF_DATE_FORMATTER.format(Date())
-                )
-            )
-        }
-
-    @Throws(IOException::class)
     private suspend fun chatByApi(
+        apiKey: String,
         messages: List<OpenAIChatMessage>,
         maxTokens: Int,
     ): OpenAIChatResponse? = requestOpenAI { host ->
-        val apiKey = requireApiKey()
         httpClient.fetchJson<OpenAIChatResponse>(
             url = host,
             path = PREF_OPENAI_CHAT_API_PATH,
@@ -304,8 +295,6 @@ class OpenAIRepository @Inject internal constructor(
     companion object {
         private const val TAG = "OpenAIConfigRepository"
         private const val OPENAI_TRACE_URL = "https://chat.openai.com/cdn-cgi/trace"
-
-        private val PREF_DATE_FORMATTER = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
     }
 }
 

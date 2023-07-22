@@ -150,7 +150,7 @@
     <string name="module_openai_api_key_hint">生成 API Key</string>
     <string name="module_openai_api_host">API 域名</string>
     <string name="module_openai_api_validate">驗證</string>
-    <string name="module_openai_usage">已用 $%1$.2f, 限額 $%2$.2f</string>
+    <string name="module_openai_token_usage">Token 用量: %d</string>
     <string name="module_openai_not_support_region">OpenAI 在您的 IP 所在地區不受支持</string>
     <string name="module_openai_api_key_not_set">OpenAI API key 未設置</string>
     <string name="module_openai_api_key_invalid">OpenAI API Key 無效</string>

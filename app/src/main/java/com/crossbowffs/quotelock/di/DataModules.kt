@@ -15,16 +15,20 @@ import com.crossbowffs.quotelock.data.modules.custom.CustomQuoteRepository
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteDatabase
 import com.crossbowffs.quotelock.data.modules.fortune.database.FortuneQuoteDatabase
 import com.crossbowffs.quotelock.data.modules.openai.OpenAIRepository
+import com.crossbowffs.quotelock.data.modules.openai.OpenAIUsageDatabase
 import com.crossbowffs.quotelock.data.modules.wikiquote.WikiquoteRepository
 import com.crossbowffs.quotelock.data.version.VersionRepository
+import com.yubyf.datastore.DataStoreDelegate
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -87,6 +91,24 @@ object RepositoryModules {
     ): CustomQuoteRepository {
         return CustomQuoteRepository(database.dao(), dispatcher)
     }
+
+    @Singleton
+    @Provides
+    fun provideOpenAIUsageRepository(
+        @OpenAIDataStore openaiDataStore: DataStoreDelegate,
+        openAIUsageDatabase: OpenAIUsageDatabase,
+        @IoDispatcher dispatcher: CoroutineDispatcher,
+        httpClient: HttpClient,
+        json: Json,
+    ): OpenAIRepository {
+        return OpenAIRepository(
+            openaiDataStore,
+            openAIUsageDatabase.dao(),
+            dispatcher,
+            httpClient,
+            json
+        )
+    }
 }
 
 @Module
@@ -129,6 +151,12 @@ object DatabaseModules {
     @Provides
     fun provideFortuneQuoteDatabase(@ApplicationContext context: Context): FortuneQuoteDatabase {
         return FortuneQuoteDatabase.getDatabase(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideOpenAIUsageDatabase(@ApplicationContext context: Context): OpenAIUsageDatabase {
+        return OpenAIUsageDatabase.getDatabase(context)
     }
 }
 

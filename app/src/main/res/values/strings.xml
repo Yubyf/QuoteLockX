@@ -161,7 +161,7 @@
     <string name="module_openai_api_key_hint">Generate API Key</string>
     <string name="module_openai_api_host">API Host</string>
     <string name="module_openai_api_validate">VALIDATE</string>
-    <string name="module_openai_usage">Usage $%1$.2f, Limit $%2$.2f</string>
+    <string name="module_openai_token_usage">Token usage: %d</string>
     <string name="module_openai_not_support_region">OpenAI is not supported in your IP\'s region</string>
     <string name="module_openai_api_key_not_set">OpenAI API key not set</string>
     <string name="module_openai_api_key_invalid">Invalid OpenAI API key</string>

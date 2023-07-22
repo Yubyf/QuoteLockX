@@ -32,7 +32,7 @@ import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropUp
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.MonetizationOn
+import androidx.compose.material.icons.rounded.Token
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -325,7 +325,7 @@ fun OpenAIScreen(
                     placeholder = {
                         Text(
                             PREF_OPENAI_API_KEY_PREFIX.plus(
-                                "*".toString().repeat(20)
+                                "*".repeat(20)
                             ),
                             color = hintColor
                         )
@@ -379,27 +379,56 @@ fun OpenAIScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                uiState.openAIAccount?.takeIf { it.apiKey == configs.apiKey }?.let { account ->
-                    Row(
-                        modifier = Modifier
-                            .padding(start = PREFERENCE_ITEM_HORIZONTAL_PADDING, top = 24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.MonetizationOn,
-                            modifier = Modifier.size(16.dp),
-                            contentDescription = null
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(
-                                id = R.string.module_openai_usage,
-                                account.usageUsd,
-                                account.hardLimitUsd
-                            ),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Normal
-                        )
+                uiState.openAIUsage?.takeIf { it.apiKey == configs.apiKey }?.let { usage ->
+                    Column {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        val usageTooltipState: PlainTooltipState = remember { PlainTooltipState() }
+                        PlainTooltipBox(
+                            tooltip = {
+                                val modelColumns = usage.usages.map { it.first }
+                                val tokenColumns = usage.usages.map { it.second }
+                                Row {
+                                    Column {
+                                        modelColumns.forEach {
+                                            Text(
+                                                text = it,
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        tokenColumns.forEach {
+                                            Text(
+                                                text = it.toString(),
+                                            )
+                                        }
+                                    }
+                                }
+                            },
+                            tooltipState = usageTooltipState
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .padding(start = PREFERENCE_ITEM_HORIZONTAL_PADDING)
+                                    .clip(RoundedCornerShape(10))
+                                    .clickable { scope.launch { usageTooltipState.show() } },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Token,
+                                    modifier = Modifier.size(16.dp),
+                                    contentDescription = null
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.module_openai_token_usage, usage.totalTokens
+                                    ),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Normal
+                                )
+                            }
+                        }
                     }
                 } ?: Spacer(modifier = Modifier.weight(1f, true))
                 val haptic = LocalHapticFeedback.current
