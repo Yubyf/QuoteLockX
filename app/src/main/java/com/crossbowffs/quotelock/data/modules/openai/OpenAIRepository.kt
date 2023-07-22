@@ -38,6 +38,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -100,6 +101,7 @@ class OpenAIRepository @Inject internal constructor(
     private val _openAIConfigsFlow = MutableStateFlow(openAIConfigs)
     val openAIConfigsFlow = _openAIConfigsFlow.asStateFlow()
 
+    private var openAIUsageJob: Job? = null
     private val _openAIUsageFlow = MutableStateFlow<OpenAIUsage?>(null)
     val openAIUsageFlow = _openAIUsageFlow.asStateFlow()
 
@@ -169,15 +171,17 @@ class OpenAIRepository @Inject internal constructor(
                             set(year, month, 1, 0, 0)
                         }.timeInMillis
                     }
-                openAIUsageDao.getUsageByApiKeyStream(apiKey, startDate).onEach { usages ->
-                    usages.groupBy(OpenAIUsageEntity::model).mapValues { (_, usageEntities) ->
-                        usageEntities.sumOf { it.tokens }
-                    }.toList().let { usage ->
-                        _openAIUsageFlow.update {
-                            OpenAIUsage(apiKey, usage.sumOf { it.second }, usage)
+                openAIUsageJob?.cancel()
+                openAIUsageJob =
+                    openAIUsageDao.getUsageByApiKeyStream(apiKey, startDate).onEach { usages ->
+                        usages.groupBy(OpenAIUsageEntity::model).mapValues { (_, usageEntities) ->
+                            usageEntities.sumOf { it.tokens }
+                        }.toList().let { usage ->
+                            _openAIUsageFlow.update {
+                                OpenAIUsage(apiKey, usage.sumOf { it.second }, usage)
+                            }
                         }
-                    }
-                }.launchIn(CoroutineScope(dispatcher))
+                    }.launchIn(CoroutineScope(dispatcher))
             }
         }.launchIn(CoroutineScope(dispatcher))
     }
