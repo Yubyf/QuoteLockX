@@ -6,8 +6,8 @@ object Configs {
     const val targetSdk = 33
 
     const val namespace = "com.yubyf.quotelockx"
-    const val versionCode = 28
-    const val versionName = "3.2.0"
+    const val versionCode = 29
+    const val versionName = "3.2.1"
 
     val javaVersion = JavaVersion.VERSION_11
 
