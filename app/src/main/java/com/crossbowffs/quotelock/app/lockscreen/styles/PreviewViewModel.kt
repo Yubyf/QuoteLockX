@@ -6,12 +6,11 @@ import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.api.QuoteStyle
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 /**
  * UI state for the preview screen in the settings page.
@@ -21,8 +20,8 @@ data class PreviewUiState(val quoteData: QuoteDataWithCollectState, val quoteSty
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class PreviewViewModel @Inject constructor(
+@KoinViewModel
+class PreviewViewModel(
     configurationRepository: ConfigurationRepository,
     quoteRepository: QuoteRepository,
 ) : ViewModel() {

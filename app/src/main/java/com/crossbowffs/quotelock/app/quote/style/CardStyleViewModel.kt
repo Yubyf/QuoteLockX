@@ -9,12 +9,11 @@ import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.data.CardStyleRepository
 import com.crossbowffs.quotelock.data.api.CardStyle
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 import java.io.File
-import javax.inject.Inject
 
 /**
  * UI state for the quote card style popup.
@@ -25,8 +24,8 @@ data class CardStyleUiState(
     val cardStyle: CardStyle,
 )
 
-@HiltViewModel
-class CardStyleViewModel @Inject constructor(
+@KoinViewModel
+class CardStyleViewModel(
     private val cardStyleRepository: CardStyleRepository,
 ) : ViewModel() {
 

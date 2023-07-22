@@ -13,115 +13,70 @@ import com.crossbowffs.quotelock.consts.PREF_VERSION_UPDATE
 import com.crossbowffs.quotelock.data.modules.jinrishici.JinrishiciQuoteModule
 import com.yubyf.datastore.DataStoreDelegate
 import com.yubyf.datastore.DataStoreDelegate.Companion.getDataStoreDelegate
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Qualifier
-import javax.inject.Singleton
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class CommonDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class VersionDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class QuotesDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class CardStyleDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class BrainyDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class WikiquoteDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class FortuneDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class HitokotoDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class JinrishiciDataStore
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class OpenAIDataStore
+const val COMMON_DATA_STORE = "COMMON_DATA_STORE"
+const val VERSION_DATA_STORE = "VERSION_DATA_STORE"
+const val QUOTES_DATA_STORE = "QUOTES_DATA_STORE"
+const val CARD_STYLE_DATA_STORE = "CARD_STYLE_DATA_STORE"
+const val BRAINY_DATA_STORE = "BRAINY_DATA_STORE"
+const val WIKIQUOTE_DATA_STORE = "WIKIQUOTE_DATA_STORE"
+const val FORTUNE_DATA_STORE = "FORTUNE_DATA_STORE"
+const val HITOKOTO_DATA_STORE = "HITOKOTO_DATA_STORE"
+const val JINRISHICI_DATA_STORE = "JINRISHICI_DATA_STORE"
+const val OPENAI_DATA_STORE = "OPENAI_DATA_STORE"
 
 @Module
-@InstallIn(SingletonComponent::class)
-object DataStoreModules {
-
-    @Singleton
-    @CommonDataStore
-    @Provides
-    fun provideCommonDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+class DataStoreModules {
+    @Single
+    @Named(COMMON_DATA_STORE)
+    fun provideCommonDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(PREF_COMMON, migrate = true)
 
-    @Singleton
-    @VersionDataStore
-    @Provides
-    fun provideVersionDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(VERSION_DATA_STORE)
+    fun provideVersionDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(PREF_VERSION_UPDATE, migrate = true)
 
-    @Singleton
-    @QuotesDataStore
-    @Provides
-    fun provideQuotesDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(QUOTES_DATA_STORE)
+    fun provideQuotesDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(PREF_QUOTES, migrate = true)
 
-    @Singleton
-    @CardStyleDataStore
-    @Provides
-    fun provideCardStyleDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(CARD_STYLE_DATA_STORE)
+    fun provideCardStyleDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(PREF_CARD_STYLE, migrate = true)
 
-    @Singleton
-    @BrainyDataStore
-    @Provides
-    fun provideBrainyDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(BRAINY_DATA_STORE)
+    fun provideBrainyDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(BrainyQuotePrefKeys.PREF_BRAINY, migrate = true)
 
-    @Singleton
-    @WikiquoteDataStore
-    @Provides
-    fun provideWikiquoteDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(WIKIQUOTE_DATA_STORE)
+    fun provideWikiquoteDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(WikiquotePrefKeys.PREF_WIKIQUOTE, migrate = true)
 
-    @Singleton
-    @FortuneDataStore
-    @Provides
-    fun provideFortuneDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(FORTUNE_DATA_STORE)
+    fun provideFortuneDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(FortunePrefKeys.PREF_FORTUNE, migrate = true)
 
-    @Singleton
-    @HitokotoDataStore
-    @Provides
-    fun provideHitokotoDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(HITOKOTO_DATA_STORE)
+    fun provideHitokotoDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(HitokotoPrefKeys.PREF_HITOKOTO, migrate = true)
 
-    @Singleton
-    @JinrishiciDataStore
-    @Provides
-    fun provideJinrishiciDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(JINRISHICI_DATA_STORE)
+    fun provideJinrishiciDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(JinrishiciQuoteModule.PREF_JINRISHICI, migrate = true)
 
-    @Singleton
-    @OpenAIDataStore
-    @Provides
-    fun provideOpenAIDataStore(@ApplicationContext context: Context): DataStoreDelegate =
+    @Single
+    @Named(OPENAI_DATA_STORE)
+    fun provideOpenAIDataStore(context: Context): DataStoreDelegate =
         context.getDataStoreDelegate(OpenAIPrefKeys.PREF_OPENAI, migrate = true)
 }

@@ -12,17 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.configs.ConfigsViewModel
 import com.crossbowffs.quotelock.ui.components.ConfigsAppBar
 import com.crossbowffs.quotelock.ui.components.RadioButtonItemList
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 @Composable
 fun BrainyQuoteRoute(
     modifier: Modifier = Modifier,
-    viewModel: ConfigsViewModel = hiltViewModel(),
+    viewModel: ConfigsViewModel = koinNavViewModel(),
     onBack: () -> Unit,
 ) {
     BrainyQuoteScreen(
@@ -67,9 +67,11 @@ fun BrainyQuoteScreen(
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
-@Preview(name = "Brainy Quote Screen Dark",
+@Preview(
+    name = "Brainy Quote Screen Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun BrainyQuoteScreenPreview() {
     QuoteLockTheme {

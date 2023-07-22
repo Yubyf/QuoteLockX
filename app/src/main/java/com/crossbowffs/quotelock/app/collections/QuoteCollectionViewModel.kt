@@ -18,7 +18,6 @@ import com.crossbowffs.quotelock.data.exceptionMessage
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
@@ -26,10 +25,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
 
 @Retention(AnnotationRetention.SOURCE)
 annotation class LocalBackupType {
@@ -71,8 +70,8 @@ data class QuoteCollectionListUiState(
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class QuoteCollectionViewModel @Inject constructor(
+@KoinViewModel
+class QuoteCollectionViewModel(
     private val collectionRepository: QuoteCollectionRepository,
     private val googleAccountManager: GoogleAccountManager,
     private val syncAccountManager: SyncAccountManager,

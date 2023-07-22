@@ -5,17 +5,17 @@ import com.crossbowffs.quotelock.consts.PREF_VERSION_DOWNLOAD_APK_RANGE_IDENTIFI
 import com.crossbowffs.quotelock.consts.PREF_VERSION_DOWNLOAD_APK_TOTAL_SIZE
 import com.crossbowffs.quotelock.consts.PREF_VERSION_DOWNLOAD_APK_VERSION_CODE
 import com.crossbowffs.quotelock.consts.PREF_VERSION_DOWNLOAD_APK_VERSION_NAME
-import com.crossbowffs.quotelock.di.VersionDataStore
+import com.crossbowffs.quotelock.di.VERSION_DATA_STORE
 import com.crossbowffs.quotelock.utils.ResumableFile
 import com.yubyf.datastore.DataStoreDelegate
 import kotlinx.coroutines.runBlocking
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class VersionLocalSource @Inject constructor(
-    @VersionDataStore private val versionDataStore: DataStoreDelegate,
+@Single
+class VersionLocalSource(
+    @Named(VERSION_DATA_STORE) private val versionDataStore: DataStoreDelegate,
 ) {
     fun getDownloadedApk(): ResumableApkFile? = runBlocking {
         val versionCode = versionDataStore.getIntSuspend(PREF_VERSION_DOWNLOAD_APK_VERSION_CODE, -1)

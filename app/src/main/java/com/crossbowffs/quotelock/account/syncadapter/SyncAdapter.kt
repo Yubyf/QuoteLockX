@@ -15,18 +15,16 @@ import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.getDatabaseInfo
 import com.yubyf.quotelockx.BuildConfig
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 /**
  * @author Yubyf
  * @date 2021/6/20.
  */
 class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
-    AbstractThreadedSyncAdapter(mContext, autoInitialize) {
+    AbstractThreadedSyncAdapter(mContext, autoInitialize), KoinComponent {
 
     private val mAccountManager: AccountManager = AccountManager.get(mContext)
 
@@ -40,8 +38,7 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
             syncResult.stats.numAuthExceptions++
             return
         }
-        val repository = EntryPointAccessors.fromApplication(
-            mContext.applicationContext, SyncAdapterEntryPoint::class.java).collectionRepository()
+        val repository: QuoteCollectionRepository = get()
         val action = checkBackupOrRestore(account)
         val result = when {
             action == null -> {
@@ -49,14 +46,17 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
                 syncResult.delayUntil = (System.currentTimeMillis() / 1000) + 5 * 60
                 return
             }
+
             action == 0 -> {
                 Xlog.d(TAG, "Database not changed, no need to sync")
                 return
             }
+
             action < 0 -> {
                 Xlog.d(TAG, "Performing remote restore...")
                 runBlocking { repository.gDriveRestoreSync() }
             }
+
             else -> {
                 Xlog.d(TAG, "Performing remote backup...")
                 runBlocking { repository.gDriveBackupSync() }
@@ -86,8 +86,10 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
         val databaseInfo = mContext.getDatabaseInfo(QuoteCollectionContract.DATABASE_NAME)
         return if (serverMarker.isNullOrEmpty() || syncTimestamp < 0 || databaseInfo.first.isNullOrEmpty()
         ) {
-            Xlog.d(TAG,
-                "First sync or local database is not created, need to perform remote restore")
+            Xlog.d(
+                TAG,
+                "First sync or local database is not created, need to perform remote restore"
+            )
             null
         } else {
             when {
@@ -102,12 +104,6 @@ class SyncAdapter(private val mContext: Context, autoInitialize: Boolean) :
         private val TAG = className<SyncAdapter>()
         const val SYNC_MARKER_KEY = BuildConfig.APPLICATION_ID + ".sync.marker"
         const val SYNC_TIMESTAMP_KEY = BuildConfig.APPLICATION_ID + ".sync.timestamp"
-    }
-
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface SyncAdapterEntryPoint {
-        fun collectionRepository(): QuoteCollectionRepository
     }
 }
 

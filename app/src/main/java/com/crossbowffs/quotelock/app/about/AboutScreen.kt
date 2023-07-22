@@ -79,7 +79,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.data.version.UpdateInfo
@@ -94,13 +93,14 @@ import com.yubyf.quotelockx.R
 import io.noties.markwon.Markwon
 import io.noties.markwon.utils.NoCopySpannableFactory
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 private val ItemHeight = 56.dp
 
 @Composable
 fun AboutRoute(
     modifier: Modifier = Modifier,
-    viewModel: AboutViewModel = hiltViewModel(),
+    viewModel: AboutViewModel = koinNavViewModel(),
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState

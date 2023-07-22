@@ -12,12 +12,11 @@ import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.exceptionMessage
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 import java.io.File
-import javax.inject.Inject
 
 /**
  * UI state for the font management list screen.
@@ -42,8 +41,8 @@ sealed class FontManagementDialogUiState {
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class FontManagementViewModel @Inject constructor(
+@KoinViewModel
+class FontManagementViewModel(
     private val fontImporter: FontImporter,
 ) : ViewModel() {
 

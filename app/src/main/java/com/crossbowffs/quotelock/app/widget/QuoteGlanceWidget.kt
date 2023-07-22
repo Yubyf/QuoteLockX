@@ -38,15 +38,16 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.unit.ColorProvider
 import com.crossbowffs.quotelock.app.main.MainActivity
 import com.crossbowffs.quotelock.app.quote.QuoteDestination
-import com.crossbowffs.quotelock.di.WidgetEntryPoint
+import com.crossbowffs.quotelock.data.WidgetRepository
 import com.crossbowffs.quotelock.ui.theme.LightMaterialColors
 import com.crossbowffs.quotelock.ui.theme.quote_card_theme_light_surface
 import com.crossbowffs.quotelock.utils.dp2px
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import kotlin.math.roundToInt
 
-class QuoteGlanceWidget : GlanceAppWidget() {
+class QuoteGlanceWidget : GlanceAppWidget(), KoinComponent {
 
     override val sizeMode: SizeMode = SizeMode.Exact
 
@@ -106,10 +107,7 @@ class QuoteGlanceWidget : GlanceAppWidget() {
                 )
 
                 // Update the glance state to trigger a refresh
-                val widgetRepository = EntryPointAccessors.fromApplication(
-                    context.applicationContext,
-                    WidgetEntryPoint::class.java
-                ).widgetRepository()
+                val widgetRepository: WidgetRepository = get()
                 val scope = rememberCoroutineScope()
                 SideEffect {
                     scope.launch {

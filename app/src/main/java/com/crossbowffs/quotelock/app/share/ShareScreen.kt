@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.consts.PREF_SHARE_FILE_AUTHORITY
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_MIME_TYPE
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_WATERMARK_PADDING
@@ -64,6 +63,7 @@ import com.crossbowffs.quotelock.ui.components.ShareAppBar
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.navigation.koinNavViewModel
 import java.io.File
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -71,7 +71,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ShareRoute(
     modifier: Modifier = Modifier,
-    viewModel: ShareViewModel = hiltViewModel(),
+    viewModel: ShareViewModel = koinNavViewModel(),
     onBack: () -> Unit,
 ) {
     val uiState: ShareUiState by viewModel.uiState

@@ -3,10 +3,6 @@ package com.crossbowffs.quotelock.di
 import com.crossbowffs.quotelock.consts.Urls
 import com.crossbowffs.quotelock.utils.Xlog
 import com.yubyf.quotelockx.BuildConfig
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
@@ -27,31 +23,27 @@ import io.ktor.utils.io.charsets.Charset
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.serialization.json.Json
 import org.jsoup.Jsoup
-import javax.inject.Singleton
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
 @Module
-@InstallIn(SingletonComponent::class)
-object NetModules {
-
-    @Singleton
-    @Provides
+class NetModules {
+    @Single
     fun provideJson(): Json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
     }
 
-    @Singleton
-    @Provides
+    @Single
     fun provideJsoupConverter(): ContentConverter = object : ContentConverter {
         override suspend fun deserialize(
             charset: Charset,
             typeInfo: TypeInfo,
             content: ByteReadChannel,
-        ): Any? = Jsoup.parse(content.toInputStream(), charset.name(), "")
+        ): Any = Jsoup.parse(content.toInputStream(), charset.name(), "")
     }
 
-    @Singleton
-    @Provides
+    @Single
     fun provideHttpClient(json: Json, jsoupConverter: ContentConverter): HttpClient =
         HttpClient(OkHttp) {
             engine {
@@ -92,9 +84,4 @@ object NetModules {
                 accept(ContentType.Application.Json)
             }
         }
-
-    val httpClient = provideHttpClient(
-        provideJson(),
-        provideJsoupConverter()
-    )
 }

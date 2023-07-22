@@ -1,13 +1,17 @@
 package com.crossbowffs.quotelock.data.history
 
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
+@Single
 class QuoteHistoryRepository internal constructor(
     private val historyDao: QuoteHistoryDao,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
     fun getAll(): Flow<List<QuoteHistoryEntity>> = historyDao.getAllStream()

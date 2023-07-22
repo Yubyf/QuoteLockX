@@ -11,17 +11,17 @@ import com.crossbowffs.quotelock.data.api.withCollectState
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
-import com.crossbowffs.quotelock.di.QuotesDataStore
+import com.crossbowffs.quotelock.di.QUOTES_DATA_STORE
 import com.crossbowffs.quotelock.utils.Xlog
 import com.yubyf.datastore.DataStoreDelegate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
-@Singleton
-class QuoteLocalSource @Inject constructor(
-    @QuotesDataStore private val quotesDataStore: DataStoreDelegate,
+@Single
+class QuoteLocalSource(
+    @Named(QUOTES_DATA_STORE) private val quotesDataStore: DataStoreDelegate,
     private val collectionRepository: QuoteCollectionRepository,
     private val historyRepository: QuoteHistoryRepository,
 ) {

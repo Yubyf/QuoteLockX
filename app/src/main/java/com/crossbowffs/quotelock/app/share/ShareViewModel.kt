@@ -11,12 +11,11 @@ import com.crossbowffs.quotelock.data.ShareRepository
 import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.ui.components.Snapshotables
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 import java.io.File
-import javax.inject.Inject
 
 /**
  * UI event for the share screen.
@@ -34,8 +33,8 @@ data class ShareUiState(val snapshot: Snapshotables?)
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class ShareViewModel @Inject constructor(
+@KoinViewModel
+class ShareViewModel(
     private val shareRepository: ShareRepository,
 ) : ViewModel() {
 

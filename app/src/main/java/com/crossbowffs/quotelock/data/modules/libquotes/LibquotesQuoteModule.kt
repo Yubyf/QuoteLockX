@@ -4,7 +4,6 @@ import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
-import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.fetchXml
@@ -33,7 +32,7 @@ class LibquotesQuoteModule : QuoteModule {
 
     @Throws(IOException::class)
     override suspend fun Context.getQuote(): QuoteData? {
-        val document = httpClient.fetchXml("https://feeds.feedburner.com/libquotes/QuoteOfTheDay")
+        val document = httpClient().fetchXml("https://feeds.feedburner.com/libquotes/QuoteOfTheDay")
         val qotdItem = document.select("item").first()
         return qotdItem?.let {
             Xlog.d(TAG, "Downloaded qotd: ${it.text()}")

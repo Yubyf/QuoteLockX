@@ -5,14 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.data.modules.wikiquote.WikiquoteRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
-@HiltViewModel
-class WikiquoteViewModel @Inject constructor(
+@KoinViewModel
+class WikiquoteViewModel(
     private val wikiquoteRepository: WikiquoteRepository,
 ) : ViewModel() {
 

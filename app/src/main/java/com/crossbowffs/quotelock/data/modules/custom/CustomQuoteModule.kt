@@ -6,9 +6,8 @@ import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAULT
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteContract
-import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.EntryPointAccessors
+import org.koin.core.component.get
 
 class CustomQuoteModule : QuoteModule {
     override fun getDisplayName(context: Context): String {
@@ -27,9 +26,7 @@ class CustomQuoteModule : QuoteModule {
 
     @Throws(Exception::class)
     override suspend fun Context.getQuote(): QuoteData {
-        val repository = EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(
-            applicationContext
-        ).customQuoteRepository()
+        val repository: CustomQuoteRepository = get()
         return repository.getRandomItem()?.let {
             QuoteData(quoteText = it.text, quoteSource = it.source, provider = it.provider)
         } ?: QuoteData(

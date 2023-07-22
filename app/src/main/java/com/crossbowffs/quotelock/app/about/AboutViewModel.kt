@@ -22,10 +22,9 @@ import com.crossbowffs.quotelock.app.about.AboutPrefs.PREF_QUOTE_PROVIDERS
 import com.crossbowffs.quotelock.data.version.UpdateInfo
 import com.crossbowffs.quotelock.data.version.VersionRepository
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 /**
  * UI state for the about screen.
@@ -107,8 +106,8 @@ val libraries = PREF_LIBRARIES.map(Library.Companion::from)
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class AboutViewModel @Inject constructor(
+@KoinViewModel
+class AboutViewModel(
     private val versionRepository: VersionRepository,
 ) : ViewModel() {
 

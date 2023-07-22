@@ -2,196 +2,66 @@ package com.crossbowffs.quotelock.di
 
 import android.accounts.AccountManager
 import android.content.Context
-import com.crossbowffs.quotelock.data.ConfigurationRepository
-import com.crossbowffs.quotelock.data.WidgetRepository
+import com.crossbowffs.quotelock.data.history.QuoteHistoryDao
 import com.crossbowffs.quotelock.data.history.QuoteHistoryDatabase
-import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
-import com.crossbowffs.quotelock.data.modules.QuoteRepository
-import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
-import com.crossbowffs.quotelock.data.modules.collections.backup.CollectionLocalBackupSource
-import com.crossbowffs.quotelock.data.modules.collections.backup.CollectionRemoteSyncSource
+import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDao
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDatabase
-import com.crossbowffs.quotelock.data.modules.custom.CustomQuoteRepository
+import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteDao
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteDatabase
+import com.crossbowffs.quotelock.data.modules.fortune.database.FortuneQuoteDao
 import com.crossbowffs.quotelock.data.modules.fortune.database.FortuneQuoteDatabase
-import com.crossbowffs.quotelock.data.modules.openai.OpenAIRepository
+import com.crossbowffs.quotelock.data.modules.openai.OpenAIUsageDao
 import com.crossbowffs.quotelock.data.modules.openai.OpenAIUsageDatabase
-import com.crossbowffs.quotelock.data.modules.wikiquote.WikiquoteRepository
-import com.crossbowffs.quotelock.data.version.VersionRepository
-import com.yubyf.datastore.DataStoreDelegate
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.json.Json
-import javax.inject.Qualifier
-import javax.inject.Singleton
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class IoDispatcher
+const val PACKAGE_SCOPE = "com.crossbowffs.quotelock"
+
+const val DISPATCHER_IO = "DISPATCHER_IO"
+
+@Module(
+    [
+        CoroutineModule::class, DatabaseModules::class, DataStoreModules::class, NetModules::class,
+    ]
+)
+@ComponentScan(PACKAGE_SCOPE)
+class DataModule {
+
+    @Single
+    fun provideAccountManager(context: Context): AccountManager = AccountManager.get(context)
+}
 
 @Module
-@InstallIn(SingletonComponent::class)
-object CoroutineModule {
+class CoroutineModule {
 
-    @Provides
-    @IoDispatcher
+    @Single
+    @Named(DISPATCHER_IO)
     fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
 }
 
 @Module
-@InstallIn(SingletonComponent::class)
-object SyncModule {
+class DatabaseModules {
+    @Single
+    fun provideQuoteHistoryDao(context: Context): QuoteHistoryDao =
+        QuoteHistoryDatabase.getDatabase(context).dao()
 
-    @Singleton
-    @Provides
-    fun provideAccountManager(
-        @ApplicationContext context: Context,
-    ): AccountManager = AccountManager.get(context)
-}
+    @Single
+    fun provideQuoteCollectionDao(context: Context): QuoteCollectionDao =
+        QuoteCollectionDatabase.getDatabase(context).dao()
 
-@Module
-@InstallIn(SingletonComponent::class)
-object RepositoryModules {
+    @Single
+    fun provideCustomQuoteDao(context: Context): CustomQuoteDao =
+        CustomQuoteDatabase.getDatabase(context).dao()
 
-    @Singleton
-    @Provides
-    fun provideQuoteHistoryRepository(
-        database: QuoteHistoryDatabase,
-        @IoDispatcher dispatcher: CoroutineDispatcher,
-    ): QuoteHistoryRepository {
-        return QuoteHistoryRepository(database.dao(), dispatcher)
-    }
+    @Single
+    fun provideFortuneQuoteDao(context: Context): FortuneQuoteDao =
+        FortuneQuoteDatabase.getDatabase(context).dao()
 
-    @Singleton
-    @Provides
-    fun provideQuoteCollectionRepository(
-        database: QuoteCollectionDatabase,
-        localBackupSource: CollectionLocalBackupSource,
-        remoteSyncSource: CollectionRemoteSyncSource,
-        @IoDispatcher dispatcher: CoroutineDispatcher,
-    ): QuoteCollectionRepository {
-        return QuoteCollectionRepository(database.dao(),
-            localBackupSource,
-            remoteSyncSource,
-            dispatcher)
-    }
-
-    @Singleton
-    @Provides
-    fun provideCustomQuoteRepository(
-        database: CustomQuoteDatabase,
-        @IoDispatcher dispatcher: CoroutineDispatcher,
-    ): CustomQuoteRepository {
-        return CustomQuoteRepository(database.dao(), dispatcher)
-    }
-
-    @Singleton
-    @Provides
-    fun provideOpenAIUsageRepository(
-        @OpenAIDataStore openaiDataStore: DataStoreDelegate,
-        openAIUsageDatabase: OpenAIUsageDatabase,
-        @IoDispatcher dispatcher: CoroutineDispatcher,
-        httpClient: HttpClient,
-        json: Json,
-    ): OpenAIRepository {
-        return OpenAIRepository(
-            openaiDataStore,
-            openAIUsageDatabase.dao(),
-            dispatcher,
-            httpClient,
-            json
-        )
-    }
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-object DataSourceModules {
-
-    @Singleton
-    @Provides
-    fun provideCollectionLocalBackupSource(
-        @ApplicationContext context: Context,
-        database: QuoteCollectionDatabase,
-    ): CollectionLocalBackupSource {
-        return CollectionLocalBackupSource(context, database.dao())
-    }
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-object DatabaseModules {
-
-    @Singleton
-    @Provides
-    fun provideQuoteHistoryDatabase(@ApplicationContext context: Context): QuoteHistoryDatabase {
-        return QuoteHistoryDatabase.getDatabase(context)
-    }
-
-    @Singleton
-    @Provides
-    fun provideQuoteCollectionDatabase(@ApplicationContext context: Context): QuoteCollectionDatabase {
-        return QuoteCollectionDatabase.getDatabase(context)
-    }
-
-    @Singleton
-    @Provides
-    fun provideCustomQuoteDatabase(@ApplicationContext context: Context): CustomQuoteDatabase {
-        return CustomQuoteDatabase.getDatabase(context)
-    }
-
-    @Singleton
-    @Provides
-    fun provideFortuneQuoteDatabase(@ApplicationContext context: Context): FortuneQuoteDatabase {
-        return FortuneQuoteDatabase.getDatabase(context)
-    }
-
-    @Singleton
-    @Provides
-    fun provideOpenAIUsageDatabase(@ApplicationContext context: Context): OpenAIUsageDatabase {
-        return OpenAIUsageDatabase.getDatabase(context)
-    }
-}
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface QuoteProviderEntryPoint {
-    fun quoteRepository(): QuoteRepository
-}
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface ConfigurationEntryPoint {
-    fun configurationRepository(): ConfigurationRepository
-}
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface WikiquoteEntryPoint {
-    fun wikiquoteRepository(): WikiquoteRepository
-}
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface OpenAIEntryPoint {
-    fun openAIRepository(): OpenAIRepository
-}
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface WidgetEntryPoint {
-    fun widgetRepository(): WidgetRepository
-}
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface VersionEntryPoint {
-    fun versionRepository(): VersionRepository
+    @Single
+    fun provideOpenAIUsageDao(context: Context): OpenAIUsageDao =
+        OpenAIUsageDatabase.getDatabase(context).dao()
 }

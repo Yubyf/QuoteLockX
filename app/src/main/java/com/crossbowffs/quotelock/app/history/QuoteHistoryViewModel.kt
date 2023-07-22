@@ -10,13 +10,12 @@ import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.history.QuoteHistoryEntity
 import com.crossbowffs.quotelock.data.history.QuoteHistoryRepository
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 /**
  * UI state for the quote history list screen.
@@ -31,8 +30,8 @@ data class QuoteHistoryListUiState(
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class QuoteHistoryViewModel @Inject constructor(
+@KoinViewModel
+class QuoteHistoryViewModel(
     private val historyRepository: QuoteHistoryRepository,
 ) : ViewModel() {
 

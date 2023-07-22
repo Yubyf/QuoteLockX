@@ -18,7 +18,7 @@ import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_FRAME_WIDTH
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_NAME_PREFIX
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_WATERMARK_PADDING
 import com.crossbowffs.quotelock.consts.PREF_SHARE_IMAGE_WATERMARK_TEXT_SIZE_PX
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.ui.components.Snapshotables
 import com.crossbowffs.quotelock.utils.dp2px
 import com.crossbowffs.quotelock.utils.toFile
@@ -26,18 +26,18 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.roundToInt
 
-@Singleton
-class ShareRepository @Inject internal constructor(
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+@Single
+class ShareRepository(
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
     private val legacyShareFileDir =
         File(App.instance.getExternalFilesDir(null), PREF_SHARE_IMAGE_CHILD_PATH)

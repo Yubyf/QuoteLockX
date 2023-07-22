@@ -86,7 +86,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
@@ -107,11 +106,12 @@ import com.crossbowffs.quotelock.ui.components.TopAppBarDropdownMenu
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 @Composable
 fun QuoteCollectionRoute(
     modifier: Modifier = Modifier,
-    viewModel: QuoteCollectionViewModel = hiltViewModel(),
+    viewModel: QuoteCollectionViewModel = koinNavViewModel(),
     onItemClick: (QuoteDataWithCollectState) -> Unit,
     onBack: () -> Unit,
 ) {

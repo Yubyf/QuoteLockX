@@ -16,16 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.ui.components.ConfigsAppBar
 import com.crossbowffs.quotelock.ui.components.RadioButtonItemList
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 @Composable
 fun DarkModeRoute(
     modifier: Modifier = Modifier,
-    viewModel: DarkModeViewModel = hiltViewModel(),
+    viewModel: DarkModeViewModel = koinNavViewModel(),
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState

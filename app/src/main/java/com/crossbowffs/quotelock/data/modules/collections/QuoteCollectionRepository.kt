@@ -7,16 +7,20 @@ import com.crossbowffs.quotelock.data.modules.collections.backup.CollectionRemot
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionDao
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
+@Single
 class QuoteCollectionRepository internal constructor(
     private val collectionDao: QuoteCollectionDao,
     private val localBackupSource: CollectionLocalBackupSource,
     private val remoteSyncSource: CollectionRemoteSyncSource,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
     //region Data list

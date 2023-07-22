@@ -5,12 +5,11 @@ import android.os.Environment
 import com.crossbowffs.quotelock.consts.PREF_DOWNLOAD_APK_EXTENSION
 import com.crossbowffs.quotelock.consts.PREF_DOWNLOAD_CHANGELOG_EXTENSION
 import com.crossbowffs.quotelock.data.api.AndroidUpdateInfo
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.utils.DownloadState
 import com.crossbowffs.quotelock.utils.DownloadState.Start.progress
 import com.crossbowffs.quotelock.utils.Xlog
 import com.yubyf.quotelockx.BuildConfig
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -21,9 +20,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 sealed class UpdateInfo(
     open val versionCode: Int = -1,
@@ -52,12 +51,12 @@ sealed class UpdateInfo(
         get() = this !is NoUpdate
 }
 
-@Singleton
-class VersionRepository @Inject internal constructor(
-    @ApplicationContext context: Context,
+@Single
+class VersionRepository(
+    context: Context,
     private val versionRemoteSource: VersionRemoteSource,
     private val versionLocalSource: VersionLocalSource,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
 
     private val downloadDir: File =

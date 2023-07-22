@@ -2,14 +2,18 @@ package com.crossbowffs.quotelock.data.modules.custom
 
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteDao
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteEntity
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
+@Single
 class CustomQuoteRepository internal constructor(
     private val customQuoteDao: CustomQuoteDao,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
     fun getAll(): Flow<List<CustomQuoteEntity>> = customQuoteDao.getAllStream()

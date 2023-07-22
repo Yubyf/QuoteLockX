@@ -3,7 +3,6 @@ package com.crossbowffs.quotelock.data.modules.freakuotes
 import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
-import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.fetchXml
@@ -31,7 +30,7 @@ class FreakuotesQuoteModule : QuoteModule {
 
     @Throws(Exception::class)
     override suspend fun Context.getQuote(): QuoteData? {
-        val document = httpClient.fetchXml("https://freakuotes.com/frase/aleatoria")
+        val document = httpClient().fetchXml("https://freakuotes.com/frase/aleatoria")
         val quoteContainer = document.select(".quote-container > blockquote").first()
         val quoteText = quoteContainer?.getElementsByTag("p")?.text().orEmpty()
         if (quoteText.isEmpty()) {
@@ -45,6 +44,7 @@ class FreakuotesQuoteModule : QuoteModule {
                 Xlog.w(TAG, "Quote source not found")
                 ""
             }
+
             sourceLeft.isEmpty() -> sourceRight
             sourceRight.isEmpty() -> sourceLeft
             else -> "$sourceLeft, $sourceRight"

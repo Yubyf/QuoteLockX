@@ -61,7 +61,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.quote.QuotePage
@@ -82,15 +81,16 @@ import com.crossbowffs.quotelock.ui.components.TopAppBarDropdownMenu
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.navigation.koinNavViewModel
 import kotlin.math.roundToInt
 
 
 @Composable
 fun MainRoute(
     modifier: Modifier = Modifier,
-    mainScreenViewModel: MainScreenViewModel = hiltViewModel(),
-    quoteViewModel: QuoteViewModel = hiltViewModel(),
-    cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
+    mainScreenViewModel: MainScreenViewModel = koinNavViewModel(),
+    quoteViewModel: QuoteViewModel = koinNavViewModel(),
+    cardStyleViewModel: CardStyleViewModel = koinNavViewModel(),
     onSettingsItemClick: () -> Unit,
     onLockscreenStylesItemClick: () -> Unit,
     onCollectionItemClick: () -> Unit,

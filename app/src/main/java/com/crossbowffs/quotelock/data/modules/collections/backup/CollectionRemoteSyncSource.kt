@@ -21,7 +21,7 @@ import androidx.core.util.Pair
 import com.crossbowffs.quotelock.account.google.GoogleAccountManager
 import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.data.api.AndroidString
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.toFile
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -33,29 +33,28 @@ import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import java.io.*
 import java.security.DigestInputStream
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * @author Yubyf
  */
-@Singleton
-class CollectionRemoteSyncSource @Inject internal constructor(
-    @ApplicationContext private val context: Context,
+@Single(createdAtStart = true)
+class CollectionRemoteSyncSource(
+    private val context: Context,
     private val localBackupSource: CollectionLocalBackupSource,
     private val googleAccountManager: GoogleAccountManager,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
     val cloudFileTimestampFlow = MutableStateFlow(0L)
 

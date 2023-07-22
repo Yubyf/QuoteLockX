@@ -9,10 +9,9 @@ import com.crossbowffs.quotelock.app.font.FontInfo
 import com.crossbowffs.quotelock.app.font.FontManager
 import com.crossbowffs.quotelock.data.ConfigurationRepository
 import com.crossbowffs.quotelock.data.api.TextFontStyle
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 import java.io.File
-import javax.inject.Inject
 
 /**
  * UI state for the lockscreen styles screen.
@@ -64,8 +63,8 @@ sealed class LockscreenStylesDialogUiState {
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class LockscreenStylesViewModel @Inject constructor(
+@KoinViewModel
+class LockscreenStylesViewModel(
     private val configurationRepository: ConfigurationRepository,
 ) : ViewModel() {
 

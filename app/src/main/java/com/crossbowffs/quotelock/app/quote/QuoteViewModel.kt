@@ -11,11 +11,10 @@ import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteDataWithCollectState
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.ui.components.Snapshotables
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 /**
  * UI state for the quote screen.
@@ -28,8 +27,8 @@ data class QuoteUiState(
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class QuoteViewModel @Inject constructor(
+@KoinViewModel
+class QuoteViewModel(
     cardStyleRepository: CardStyleRepository,
     private val collectionRepository: QuoteCollectionRepository,
     private val shareRepository: ShareRepository,

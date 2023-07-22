@@ -12,18 +12,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.configs.ConfigsViewModel
 import com.crossbowffs.quotelock.ui.components.ConfigsAppBar
 import com.crossbowffs.quotelock.ui.components.MultiSelectItemList
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 
 @Composable
 fun HitokotoRoute(
     modifier: Modifier = Modifier,
-    viewModel: ConfigsViewModel = hiltViewModel(),
+    viewModel: ConfigsViewModel = koinNavViewModel(),
     onBack: () -> Unit,
 ) {
     val entryValues = stringArrayResource(id = R.array.hitokoto_type_values)
@@ -75,9 +75,11 @@ fun HitokotoScreen(
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
-@Preview(name = "Hitokoto Screen Dark",
+@Preview(
+    name = "Hitokoto Screen Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun HitokotoScreenPreview() {
     QuoteLockTheme {

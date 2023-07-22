@@ -29,19 +29,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.data.api.composeFontFamily
 import com.crossbowffs.quotelock.data.modules.jinrishici.detail.JinrishiciDetailData
 import com.crossbowffs.quotelock.ui.components.DetailTopBar
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 @Composable
 fun DetailJinrishiciRoute(
     modifier: Modifier = Modifier,
     detailData: JinrishiciDetailData?,
-    viewModel: DetailJinrishiciViewModel = hiltViewModel(),
+    viewModel: DetailJinrishiciViewModel = koinNavViewModel(),
     onBack: () -> Unit,
 ) {
     val cardStyle = viewModel.uiState.value.cardStyle

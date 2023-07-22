@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_COMMON_FONT_SIZE_TEXT_DEFAULT
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_SOURCE_PREFIX
@@ -47,12 +46,13 @@ import com.crossbowffs.quotelock.data.api.isQuoteGeneratedByConfiguration
 import com.crossbowffs.quotelock.ui.components.PreferenceTitle
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 
 @Composable
 fun PreviewRoute(
     modifier: Modifier = Modifier,
-    viewModel: PreviewViewModel = hiltViewModel(),
+    viewModel: PreviewViewModel = koinNavViewModel(),
     onPreviewClick: (QuoteDataWithCollectState) -> Unit,
 ) {
     val uiState: PreviewUiState by viewModel.uiState.collectAsState()
@@ -128,10 +128,13 @@ fun QuoteLayout(
         enabled = enabled,
         onClick = onClick
     ) {
-        Column(modifier = Modifier.padding(start = 8.dp,
-            top = paddingTop,
-            end = 8.dp,
-            bottom = paddingBottom),
+        Column(
+            modifier = Modifier.padding(
+                start = 8.dp,
+                top = paddingTop,
+                end = 8.dp,
+                bottom = paddingBottom
+            ),
             horizontalAlignment = Alignment.End
         ) {
             val localTextStyle = LocalTextStyle.current
@@ -168,17 +171,24 @@ fun QuoteLayout(
 
 class QuotePreviewParameterProvider : PreviewParameterProvider<QuoteViewData> {
     override val values: Sequence<QuoteViewData> = sequenceOf(
-        QuoteViewData("落霞与孤鹜齐飞，秋水共长天一色", "${PREF_QUOTE_SOURCE_PREFIX}王勃 《滕王阁序》"),
+        QuoteViewData(
+            "落霞与孤鹜齐飞，秋水共长天一色",
+            "${PREF_QUOTE_SOURCE_PREFIX}王勃 《滕王阁序》"
+        ),
         QuoteViewData("Knowledge is power.", "${PREF_QUOTE_SOURCE_PREFIX}Francis Bacon"),
     )
 }
 
-@Preview(name = "Quote Layout Light",
+@Preview(
+    name = "Quote Layout Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Quote Layout Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Quote Layout Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun QuoteLayoutPreview(
     @PreviewParameter(QuotePreviewParameterProvider::class) quote: QuoteViewData,

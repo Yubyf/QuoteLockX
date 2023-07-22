@@ -11,8 +11,7 @@ import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
-import com.crossbowffs.quotelock.di.IoDispatcher
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,16 +20,16 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
-@Singleton
-class QuoteRepository @Inject internal constructor(
-    @ApplicationContext private val context: Context,
+@Single
+class QuoteRepository(
+    private val context: Context,
     private val quoteRemoteSource: QuoteRemoteSource,
     private val quoteLocalSource: QuoteLocalSource,
     private val collectionRepository: QuoteCollectionRepository,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
 
     private val _quoteDataFlow = MutableStateFlow(getCurrentQuote())

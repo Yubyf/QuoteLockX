@@ -6,16 +6,15 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.crossbowffs.quotelock.data.ConfigurationRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 data class DarkModeUiState(@NightMode val nightMode: Int)
 
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class DarkModeViewModel @Inject constructor(
+@KoinViewModel
+class DarkModeViewModel(
     private val configurationRepository: ConfigurationRepository,
 ) : ViewModel() {
 

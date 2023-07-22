@@ -12,13 +12,14 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
+import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.worker.QuoteWorker
 import com.crossbowffs.quotelock.worker.VersionWorker
-import dagger.hilt.android.EntryPointAccessors
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import java.util.concurrent.TimeUnit
 
-object WorkUtils {
+object WorkUtils : KoinComponent {
     private val TAG = className<WorkUtils>()
 
     /** Reference: https://stackoverflow.com/a/53532456/4985530 */
@@ -167,10 +168,7 @@ object WorkUtils {
         // window. If the quote was updated >= refreshInterval time ago,
         // the update will be scheduled with zero delay.
         val currentTime = System.currentTimeMillis()
-        val quoteRepository = EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            QuoteProviderEntryPoint::class.java
-        ).quoteRepository()
+        val quoteRepository: QuoteRepository = get()
         val lastUpdateTime = quoteRepository.getLastUpdateTime().takeIf { it > 0L } ?: currentTime
         Xlog.d(TAG, "Current time: %d", currentTime)
         Xlog.d(TAG, "Last update time: %d", lastUpdateTime)

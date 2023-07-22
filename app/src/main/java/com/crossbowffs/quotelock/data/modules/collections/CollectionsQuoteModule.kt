@@ -5,9 +5,8 @@ import com.crossbowffs.quotelock.app.collections.CollectionDestination
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAULT
-import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.EntryPointAccessors
+import org.koin.core.component.get
 
 /**
  * @author Yubyf
@@ -29,9 +28,7 @@ class CollectionsQuoteModule : QuoteModule {
 
     @Throws(Exception::class)
     override suspend fun Context.getQuote(): QuoteData {
-        val repository = EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(
-            applicationContext
-        ).collectionRepository()
+        val repository: QuoteCollectionRepository = get()
         return repository.getRandomItem()?.let {
             QuoteData(it.text, it.source, it.author, it.provider, it.uid)
         } ?: QuoteData(

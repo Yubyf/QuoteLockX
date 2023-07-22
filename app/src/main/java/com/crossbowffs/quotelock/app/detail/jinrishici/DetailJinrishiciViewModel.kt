@@ -6,17 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crossbowffs.quotelock.data.CardStyleRepository
 import com.crossbowffs.quotelock.data.api.CardStyle
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 data class DetailJinrishiciUiState(
     val cardStyle: CardStyle,
 )
 
-@HiltViewModel
-class DetailJinrishiciViewModel @Inject constructor(
+@KoinViewModel
+class DetailJinrishiciViewModel(
     cardStyleRepository: CardStyleRepository,
 ) : ViewModel() {
 

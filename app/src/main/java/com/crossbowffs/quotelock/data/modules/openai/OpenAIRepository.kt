@@ -27,6 +27,8 @@ import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAISubscriptionResp
 import com.crossbowffs.quotelock.data.modules.openai.geo.OpenAITraceResponse
 import com.crossbowffs.quotelock.data.modules.openai.geo.SUPPORTED_COUNTRY_CODES
 import com.crossbowffs.quotelock.data.modules.openai.geo.parseTraceResponse
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
+import com.crossbowffs.quotelock.di.OPENAI_DATA_STORE
 import com.crossbowffs.quotelock.utils.HttpException
 import com.crossbowffs.quotelock.utils.fetchCustom
 import com.crossbowffs.quotelock.utils.fetchJson
@@ -46,14 +48,14 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import java.io.IOException
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -63,11 +65,11 @@ data class OpenAIUsage(
     val usages: List<Pair<String, Int>>,
 )
 
-@Singleton
-class OpenAIRepository @Inject internal constructor(
-    private val openaiDataStore: DataStoreDelegate,
+@Single
+class OpenAIRepository(
+    @Named(OPENAI_DATA_STORE) private val openaiDataStore: DataStoreDelegate,
     private val openAIUsageDao: OpenAIUsageDao,
-    dispatcher: CoroutineDispatcher,
+    @Named(DISPATCHER_IO) dispatcher: CoroutineDispatcher,
     private val httpClient: HttpClient,
     private val json: Json,
 ) {

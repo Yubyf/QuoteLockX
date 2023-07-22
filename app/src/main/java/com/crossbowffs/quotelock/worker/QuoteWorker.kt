@@ -5,34 +5,37 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
-import com.crossbowffs.quotelock.di.ConfigurationEntryPoint
-import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
+import com.crossbowffs.quotelock.data.ConfigurationRepository
+import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.google.common.util.concurrent.ListenableFuture
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 /**
  * @author Yubyf
  */
-class QuoteWorker(context: Context, workerParams: WorkerParameters) :
-    ListenableWorker(context, workerParams) {
-
-    private val quoteRepository = EntryPointAccessors.fromApplication(context.applicationContext,
-        QuoteProviderEntryPoint::class.java).quoteRepository()
-    private val configurationRepository =
-        EntryPointAccessors.fromApplication(context.applicationContext,
-            ConfigurationEntryPoint::class.java).configurationRepository()
+class QuoteWorker(
+    context: Context,
+    workerParams: WorkerParameters,
+    private val quoteRepository: QuoteRepository,
+    private val configurationRepository: ConfigurationRepository,
+) : ListenableWorker(context, workerParams) {
 
     private var mUpdaterJob: Job? = null
     override fun startWork(): ListenableFuture<Result> {
         return CallbackToFutureAdapter.getFuture { completer: Completer<Result> ->
             Xlog.d(TAG, "Quote downloader work started")
-            if (!WorkUtils.shouldRefreshQuote(applicationContext,
+            if (!WorkUtils.shouldRefreshQuote(
+                    applicationContext,
                     configurationRepository.isRequireInternet,
-                    configurationRepository.isUnmeteredNetworkOnly)
+                    configurationRepository.isUnmeteredNetworkOnly
+                )
             ) {
                 Xlog.d(TAG, "Should not refresh quote now, ignoring")
                 completer.setCancelled()
@@ -51,11 +54,13 @@ class QuoteWorker(context: Context, workerParams: WorkerParameters) :
                 // will schedule the next update immediately after this one.
                 completer.set(if (quote == null) Result.retry() else Result.success())
                 if (quote != null) {
-                    WorkUtils.createQuoteDownloadWork(applicationContext,
+                    WorkUtils.createQuoteDownloadWork(
+                        applicationContext,
                         configurationRepository.refreshInterval,
                         configurationRepository.isRequireInternet,
                         configurationRepository.isUnmeteredNetworkOnly,
-                        true)
+                        true
+                    )
                 }
                 mUpdaterJob = null
             }

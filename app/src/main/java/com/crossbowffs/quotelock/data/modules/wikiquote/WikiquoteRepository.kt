@@ -13,8 +13,8 @@ import com.crossbowffs.quotelock.app.configs.wikiquote.WikiquotePrefKeys.PREF_WI
 import com.crossbowffs.quotelock.app.configs.wikiquote.WikiquotePrefKeys.PREF_WIKIQUOTE_PORTUGUESE_URL
 import com.crossbowffs.quotelock.app.configs.wikiquote.WikiquotePrefKeys.PREF_WIKIQUOTE_RUSSIAN_URL
 import com.crossbowffs.quotelock.app.configs.wikiquote.WikiquotePrefKeys.PREF_WIKIQUOTE_SPANISH_URL
-import com.crossbowffs.quotelock.di.IoDispatcher
-import com.crossbowffs.quotelock.di.WikiquoteDataStore
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
+import com.crossbowffs.quotelock.di.WIKIQUOTE_DATA_STORE
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.fetchXml
 import com.yubyf.datastore.DataStoreDelegate
@@ -27,14 +27,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import java.util.regex.Pattern
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class WikiquoteRepository @Inject internal constructor(
-    @WikiquoteDataStore private val wikiquoteDataStore: DataStoreDelegate,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+@Single
+class WikiquoteRepository(
+    @Named(WIKIQUOTE_DATA_STORE) private val wikiquoteDataStore: DataStoreDelegate,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
     private val httpClient: HttpClient,
 ) {
 

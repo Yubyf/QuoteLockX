@@ -21,6 +21,7 @@ import com.opencsv.bean.StatefulBeanToCsvBuilder
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Single
 import java.io.File
 import java.io.FileWriter
 import java.io.InputStreamReader
@@ -29,6 +30,7 @@ import java.io.InputStreamReader
 /**
  * Reference: [Database-Backup-Restore](https://github.com/prof18/Database-Backup-Restore/blob/master/app/src/main/java/com/prof/dbtest/backup/LocalBackup.java)
  */
+@Single
 class CollectionLocalBackupSource internal constructor(
     private val context: Context,
     private val collectionDao: QuoteCollectionDao,

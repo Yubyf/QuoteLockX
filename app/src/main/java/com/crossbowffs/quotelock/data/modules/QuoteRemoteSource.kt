@@ -5,22 +5,21 @@ import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_MODULE
 import com.crossbowffs.quotelock.consts.PREF_COMMON_QUOTE_MODULE_DEFAULT
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
-import com.crossbowffs.quotelock.di.CommonDataStore
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.COMMON_DATA_STORE
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.utils.Xlog
 import com.yubyf.datastore.DataStoreDelegate
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
-@Singleton
-class QuoteRemoteSource @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @CommonDataStore private val commonDataStore: DataStoreDelegate,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+@Single
+class QuoteRemoteSource(
+    private val context: Context,
+    @Named(COMMON_DATA_STORE) private val commonDataStore: DataStoreDelegate,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
 
     @Throws(CancellationException::class)

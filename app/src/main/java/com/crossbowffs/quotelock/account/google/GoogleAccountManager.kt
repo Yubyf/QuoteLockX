@@ -4,14 +4,14 @@ import android.content.Context
 import android.content.Intent
 import com.crossbowffs.quotelock.data.api.GoogleAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
+import org.koin.core.annotation.Single
 
 /**
  * @author Yubyf
  */
-class GoogleAccountManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+@Single
+class GoogleAccountManager(
+    private val context: Context,
 ) {
 
     fun checkGooglePlayService(): Boolean {

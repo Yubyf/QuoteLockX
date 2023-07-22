@@ -7,10 +7,13 @@ import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys.PREF_FORTUN
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAULT
-import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
+import com.crossbowffs.quotelock.data.modules.fortune.database.FortuneQuoteDatabase
+import com.crossbowffs.quotelock.di.FORTUNE_DATA_STORE
+import com.yubyf.datastore.DataStoreDelegate
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.firstOrNull
+import org.koin.core.component.get
+import org.koin.core.qualifier.named
 import java.io.IOException
 
 class FortuneQuoteModule : QuoteModule {
@@ -30,12 +33,8 @@ class FortuneQuoteModule : QuoteModule {
 
     @Throws(IOException::class)
     override suspend fun Context.getQuote(): QuoteData {
-        val dataStore =
-            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(applicationContext)
-                .fortuneDataStore()
-        val database = EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(
-            applicationContext
-        ).fortuneDatabase()
+        val dataStore: DataStoreDelegate = get(named(FORTUNE_DATA_STORE))
+        val database: FortuneQuoteDatabase = get()
         val type =
             dataStore.getStringSuspend(
                 FortunePrefKeys.PREF_FORTUNE_CATEGORY_STRING,

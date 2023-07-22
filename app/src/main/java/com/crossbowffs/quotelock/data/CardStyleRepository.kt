@@ -16,8 +16,8 @@ import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING
 import com.crossbowffs.quotelock.consts.PREF_CARD_STYLE_LINE_SPACING_DEFAULT
 import com.crossbowffs.quotelock.data.api.CardStyle
 import com.crossbowffs.quotelock.data.api.TextFontStyle
-import com.crossbowffs.quotelock.di.CardStyleDataStore
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.CARD_STYLE_DATA_STORE
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.utils.getValueByDefault
 import com.yubyf.datastore.DataStoreDelegate
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,15 +26,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-@Singleton
-class CardStyleRepository @Inject internal constructor(
-    @CardStyleDataStore private val cardStyleDataStore: DataStoreDelegate,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+@Single
+class CardStyleRepository(
+    @Named(CARD_STYLE_DATA_STORE) private val cardStyleDataStore: DataStoreDelegate,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
 
     class DataStoreValue<T>(private val key: String, private val default: T) :

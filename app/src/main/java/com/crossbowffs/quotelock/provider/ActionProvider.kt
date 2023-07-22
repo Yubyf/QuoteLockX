@@ -10,29 +10,23 @@ import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionEntity
-import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
-import com.crossbowffs.quotelock.di.QuoteProviderEntryPoint
 import com.crossbowffs.quotelock.utils.Xlog
 import com.yubyf.quotelockx.BuildConfig
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) : ContentProvider() {
+class ActionProvider @JvmOverloads constructor(authority: String? = AUTHORITY) : ContentProvider(),
+    KoinComponent {
 
     private val mUriMatcher: UriMatcher = UriMatcher(UriMatcher.NO_MATCH)
 
-    private val quoteRepository: QuoteRepository by lazy {
-        EntryPointAccessors.fromApplication(context!!.applicationContext,
-            QuoteProviderEntryPoint::class.java).quoteRepository()
-    }
+    private val quoteRepository: QuoteRepository by inject()
 
-    private val collectionRepository: QuoteCollectionRepository by lazy {
-        EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(context!!.applicationContext)
-            .collectionRepository()
-    }
+    private val collectionRepository: QuoteCollectionRepository by inject()
 
     override fun onCreate(): Boolean {
         return true

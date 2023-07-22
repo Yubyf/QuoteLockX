@@ -9,14 +9,13 @@ import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.modules.custom.CustomQuoteRepository
 import com.crossbowffs.quotelock.data.modules.custom.database.CustomQuoteEntity
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 /**
  * UI state for the custom quote list screen.
@@ -26,8 +25,8 @@ data class CustomQuoteListUiState(val items: List<CustomQuoteEntity>)
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class CustomQuoteViewModel @Inject constructor(
+@KoinViewModel
+class CustomQuoteViewModel(
     private val customQuoteRepository: CustomQuoteRepository,
 ) : ViewModel() {
 

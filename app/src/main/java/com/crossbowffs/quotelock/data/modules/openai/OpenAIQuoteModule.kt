@@ -6,10 +6,9 @@ import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_DEFAULT
-import com.crossbowffs.quotelock.di.OpenAIEntryPoint
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.EntryPointAccessors
 import org.json.JSONException
+import org.koin.core.component.get
 import java.io.IOException
 
 class OpenAIQuoteModule : QuoteModule {
@@ -29,9 +28,7 @@ class OpenAIQuoteModule : QuoteModule {
 
     @Throws(IOException::class, JSONException::class)
     override suspend fun Context.getQuote(): QuoteData {
-        val openAIRepository =
-            EntryPointAccessors.fromApplication<OpenAIEntryPoint>(applicationContext)
-                .openAIRepository()
+        val openAIRepository: OpenAIRepository = get()
         if (openAIRepository.apiKey.isNullOrBlank()) {
             return QuoteData(
                 quoteText = getString(R.string.module_openai_setup_line1),

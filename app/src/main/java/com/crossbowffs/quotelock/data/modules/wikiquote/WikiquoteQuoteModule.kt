@@ -6,10 +6,9 @@ import com.crossbowffs.quotelock.app.configs.wikiquote.WikiquotePrefKeys.PREF_WI
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
-import com.crossbowffs.quotelock.di.WikiquoteEntryPoint
 import com.crossbowffs.quotelock.utils.className
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.EntryPointAccessors
+import org.koin.core.component.get
 import java.io.IOException
 
 class WikiquoteQuoteModule : QuoteModule {
@@ -34,9 +33,7 @@ class WikiquoteQuoteModule : QuoteModule {
 
     @Throws(IOException::class)
     override suspend fun Context.getQuote(): QuoteData? {
-        val wikiquoteRepository =
-            EntryPointAccessors.fromApplication<WikiquoteEntryPoint>(applicationContext)
-                .wikiquoteRepository()
+        val wikiquoteRepository: WikiquoteRepository = get()
         return wikiquoteRepository.fetchWikiquote()?.let {
             QuoteData(
                 quoteText = it.first,

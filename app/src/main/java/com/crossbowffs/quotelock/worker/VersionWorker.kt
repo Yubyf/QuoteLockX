@@ -3,21 +3,17 @@ package com.crossbowffs.quotelock.worker
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.crossbowffs.quotelock.di.VersionEntryPoint
+import com.crossbowffs.quotelock.data.version.VersionRepository
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
-import dagger.hilt.android.EntryPointAccessors
 
 /**
  * @author Yubyf
  */
-class VersionWorker(context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
-
-    private val versionRepository = EntryPointAccessors.fromApplication(
-        context.applicationContext,
-        VersionEntryPoint::class.java
-    ).versionRepository()
+class VersionWorker(
+    context: Context, workerParams: WorkerParameters,
+    private val versionRepository: VersionRepository,
+) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
         return runCatching {

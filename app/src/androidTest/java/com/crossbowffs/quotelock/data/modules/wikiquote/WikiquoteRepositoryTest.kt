@@ -1,34 +1,18 @@
 package com.crossbowffs.quotelock.data.modules.wikiquote
 
-import android.content.Context
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.crossbowffs.quotelock.utils.Xlog
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import javax.inject.Inject
+import org.junit.runner.RunWith
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-@HiltAndroidTest
-class WikiquoteRepositoryTest {
+@RunWith(AndroidJUnit4::class)
+class WikiquoteRepositoryTest : KoinComponent {
 
-    @get:Rule
-    var hiltRule = HiltAndroidRule(this)
-
-    @Inject
-    @ApplicationContext
-    lateinit var context: Context
-
-    @Inject
-    lateinit var repository: WikiquoteRepository
-
-    @Before
-    fun init() {
-        hiltRule.inject()
-    }
+    private val repository: WikiquoteRepository by inject()
 
     @Test
     fun testRequestAllQuotes() {

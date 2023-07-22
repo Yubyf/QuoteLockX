@@ -9,9 +9,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.android.kotlin)
     alias(libs.plugins.serialization)
-    alias(libs.plugins.kapt)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.android.hilt)
 }
 
 //region Keystore
@@ -161,10 +159,9 @@ dependencies {
     implementation(libs.bundles.androidx.room)
     ksp(libs.androidx.room.compiler)
 
-    // Hilt
-    implementation(libs.bundles.hilt)
-    kapt(libs.hilt.compiler)
-    kaptAndroidTest(libs.hilt.compiler)
+    // Koin
+    implementation(libs.bundles.koin)
+    ksp(libs.koin.ksp.compiler)
 
     // Jetpack Compose
     val composeBom = platform(libs.androidx.compose.bom)
@@ -190,7 +187,9 @@ dependencies {
 
     // Test
     testImplementation(libs.junit)
+    testImplementation(libs.bundles.koin.test)
     androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.bundles.compose.test)
+    androidTestImplementation(libs.koin.android.test)
     debugImplementation(libs.compose.test.manifest)
 }

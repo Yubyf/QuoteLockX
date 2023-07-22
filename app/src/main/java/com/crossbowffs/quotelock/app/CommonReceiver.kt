@@ -8,16 +8,14 @@ import com.crossbowffs.quotelock.data.modules.QuoteRepository
 import com.crossbowffs.quotelock.utils.WorkUtils
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-@AndroidEntryPoint
-class CommonReceiver : BroadcastReceiver() {
-    @Inject
-    lateinit var quoteRepository: QuoteRepository
+class CommonReceiver : BroadcastReceiver(), KoinComponent {
 
-    @Inject
-    lateinit var configurationRepository: ConfigurationRepository
+    private val quoteRepository: QuoteRepository by inject()
+
+    private val configurationRepository: ConfigurationRepository by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
@@ -25,11 +23,13 @@ class CommonReceiver : BroadcastReceiver() {
         if (Intent.ACTION_BOOT_COMPLETED == action) {
             // Notify LockscreenHook to show current quotes after booting.
             quoteRepository.notifyBooted()
-            WorkUtils.createQuoteDownloadWork(context,
+            WorkUtils.createQuoteDownloadWork(
+                context,
                 configurationRepository.refreshInterval,
                 configurationRepository.isRequireInternet,
                 configurationRepository.isUnmeteredNetworkOnly,
-                false)
+                false
+            )
         }
     }
 

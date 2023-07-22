@@ -8,21 +8,19 @@ import com.crossbowffs.quotelock.data.WidgetRepository
 import com.crossbowffs.quotelock.data.version.UpdateInfo
 import com.crossbowffs.quotelock.data.version.VersionRepository
 import com.crossbowffs.quotelock.utils.WorkUtils
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class MainActivityViewModel @Inject constructor(
-    @ApplicationContext context: Context,
+@KoinViewModel
+class MainActivityViewModel(
+    context: Context,
     configurationRepository: ConfigurationRepository,
     widgetRepository: WidgetRepository,
     versionRepository: VersionRepository,

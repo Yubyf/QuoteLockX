@@ -64,7 +64,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.consts.Urls
@@ -76,11 +75,12 @@ import com.crossbowffs.quotelock.ui.components.LoadingDialog
 import com.crossbowffs.quotelock.ui.components.pagerTabIndicatorOffset
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 @Composable
 fun FontManagementRoute(
     modifier: Modifier = Modifier,
-    viewModel: FontManagementViewModel = hiltViewModel(),
+    viewModel: FontManagementViewModel = koinNavViewModel(),
     initialTab: Int = 0,
     onBack: () -> Unit,
 ) {

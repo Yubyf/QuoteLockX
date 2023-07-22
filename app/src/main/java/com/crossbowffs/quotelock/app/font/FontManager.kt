@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.crossbowffs.quotelock.app.App
 import com.crossbowffs.quotelock.data.AsyncResult
 import com.crossbowffs.quotelock.data.api.AndroidString
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.getFontVariationSettings
@@ -21,15 +21,14 @@ import com.crossbowffs.quotelock.utils.toFile
 import com.yubyf.quotelockx.R
 import com.yubyf.truetypeparser.TTFFile
 import com.yubyf.truetypeparser.get
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import java.io.File
 import java.io.IOException
 import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.roundToInt
 
 /**
@@ -243,10 +242,10 @@ object FontManager {
     }
 }
 
-@Singleton
-class FontImporter @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+@Single
+class FontImporter(
+    private val context: Context,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
     private fun Context.getFontNameFromUri(fileUri: Uri) =
         contentResolver.query(

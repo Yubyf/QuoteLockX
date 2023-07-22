@@ -2,8 +2,9 @@ package com.crossbowffs.quotelock.data.api
 
 import android.content.Context
 import androidx.annotation.IntDef
-import com.crossbowffs.quotelock.di.NetModules
 import io.ktor.client.HttpClient
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 /**
  * Provides an API for querying the information of a
@@ -12,7 +13,9 @@ import io.ktor.client.HttpClient
  * should return immediately, since they will be called on the
  * UI thread.
  */
-interface QuoteModule {
+interface QuoteModule : KoinComponent {
+    fun httpClient(): HttpClient = get()
+
     /**
      * Gets the user-friendly name of the quote provider that this module uses.
      * Must not return `null`.
@@ -52,8 +55,6 @@ interface QuoteModule {
         const val CHARACTER_TYPE_DEFAULT = 0
         const val CHARACTER_TYPE_LATIN = 1
         const val CHARACTER_TYPE_CJK = 2
-
-        internal val httpClient: HttpClient = NetModules.httpClient
     }
 
     @Retention(AnnotationRetention.SOURCE)

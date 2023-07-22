@@ -45,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.AndroidString
@@ -60,11 +59,12 @@ import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.crossbowffs.quotelock.utils.isStringMatchesResource
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 @Composable
 fun SettingsRoute(
     modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel = hiltViewModel(),
+    viewModel: SettingsViewModel = koinNavViewModel(),
     onLanguageItemClicked: () -> Unit,
     onDarkModeItemClicked: () -> Unit,
     onModuleConfigItemClicked: (String) -> Unit,

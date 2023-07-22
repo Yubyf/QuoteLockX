@@ -79,7 +79,6 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_API_HOST_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_API_KEY_PREFIX
@@ -101,12 +100,13 @@ import com.crossbowffs.quotelock.ui.components.SegmentedLabelItem
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import com.yubyf.quotelockx.R
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 
 @Composable
 fun OpenAIRoute(
     modifier: Modifier = Modifier,
-    viewModel: OpenAIConfigsViewModel = hiltViewModel(),
+    viewModel: OpenAIConfigsViewModel = koinNavViewModel(),
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState

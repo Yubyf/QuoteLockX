@@ -34,8 +34,8 @@ import com.crossbowffs.quotelock.data.api.QuoteConfigs
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.QuoteStyle
 import com.crossbowffs.quotelock.data.api.TextFontStyle
-import com.crossbowffs.quotelock.di.CommonDataStore
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.COMMON_DATA_STORE
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.utils.getValueByDefault
 import com.yubyf.datastore.DataStoreDelegate
 import kotlinx.coroutines.CoroutineDispatcher
@@ -46,15 +46,15 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-@Singleton
-class ConfigurationRepository @Inject internal constructor(
-    @CommonDataStore private val commonDataStore: DataStoreDelegate,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+@Single
+class ConfigurationRepository(
+    @Named(COMMON_DATA_STORE) private val commonDataStore: DataStoreDelegate,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
 
     class DataStoreValue<T>(private val key: String, private val default: T) :

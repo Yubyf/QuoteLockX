@@ -66,7 +66,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.quote.style.CardStylePopup
 import com.crossbowffs.quotelock.app.quote.style.CardStyleViewModel
 import com.crossbowffs.quotelock.consts.PREF_QUOTE_CARD_ELEVATION_DP
@@ -90,6 +89,7 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
 import com.yubyf.quotelockx.R
+import org.koin.androidx.compose.navigation.koinNavViewModel
 import kotlin.math.roundToInt
 
 
@@ -98,8 +98,8 @@ fun QuoteRoute(
     modifier: Modifier = Modifier,
     quote: QuoteData,
     initialCollectState: Boolean? = null,
-    quoteViewModel: QuoteViewModel = hiltViewModel(),
-    cardStyleViewModel: CardStyleViewModel = hiltViewModel(),
+    quoteViewModel: QuoteViewModel = koinNavViewModel(),
+    cardStyleViewModel: CardStyleViewModel = koinNavViewModel(),
     onFontCustomize: () -> Unit,
     onShare: () -> Unit,
     onDetail: (QuoteData) -> Unit,

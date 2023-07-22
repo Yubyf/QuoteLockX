@@ -22,30 +22,29 @@ import com.crossbowffs.quotelock.consts.PREF_WIDGET_IMAGE_EXTENSION
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.typeface
 import com.crossbowffs.quotelock.data.modules.QuoteRepository
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.ui.components.makeNewTextLayout
 import com.crossbowffs.quotelock.ui.theme.LightQuoteLockColors
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.dp2px
 import com.crossbowffs.quotelock.utils.md5
 import com.crossbowffs.quotelock.utils.toFile
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.roundToInt
 
-@Singleton
-class WidgetRepository @Inject internal constructor(
-    @ApplicationContext private val context: Context,
+@Single
+class WidgetRepository(
+    private val context: Context,
     private val quoteRepository: QuoteRepository,
     private val cardStyleRepository: CardStyleRepository,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
     private val cacheFileDir =
         File(App.instance.externalCacheDir, PREF_WIDGET_IMAGE_CHILD_PATH)

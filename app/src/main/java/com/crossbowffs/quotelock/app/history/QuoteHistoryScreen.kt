@@ -37,7 +37,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
 import com.crossbowffs.quotelock.data.api.QuoteData
@@ -51,11 +50,12 @@ import com.crossbowffs.quotelock.ui.components.HistoryAppBar
 import com.crossbowffs.quotelock.ui.components.SearchBar
 import com.crossbowffs.quotelock.ui.theme.QuoteLockTheme
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 @Composable
 fun QuoteHistoryRoute(
     modifier: Modifier = Modifier,
-    viewModel: QuoteHistoryViewModel = hiltViewModel(),
+    viewModel: QuoteHistoryViewModel = koinNavViewModel(),
     onItemClick: (QuoteDataWithCollectState) -> Unit,
     onBack: () -> Unit,
 ) {

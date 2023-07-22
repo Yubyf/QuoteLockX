@@ -16,13 +16,12 @@ import com.crossbowffs.quotelock.data.modules.openai.OpenAIUsage
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.prefix
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 /**
  * UI state for the OpenAI setup screen.
@@ -33,8 +32,8 @@ data class OpenAIUiState(
     val openAIUsage: OpenAIUsage? = null,
 )
 
-@HiltViewModel
-class OpenAIConfigsViewModel @Inject constructor(
+@KoinViewModel
+class OpenAIConfigsViewModel(
     private val openAIRepository: OpenAIRepository,
 ) : ViewModel() {
 
@@ -49,6 +48,7 @@ class OpenAIConfigsViewModel @Inject constructor(
     val uiEvent = _uiEvent.asSharedFlow()
 
     init {
+        Xlog.d(TAG, "Init OpenAIConfigsViewModel")
         viewModelScope.launch {
             openAIRepository.openAIConfigsFlow.onEach {
                 _uiState.value = _uiState.value.copy(

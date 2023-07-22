@@ -4,18 +4,19 @@ import android.content.Context
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
-import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
 import com.crossbowffs.quotelock.data.modules.jinrishici.detail.JinrishiciDetailData
-import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
+import com.crossbowffs.quotelock.di.JINRISHICI_DATA_STORE
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.crossbowffs.quotelock.utils.fetchJson
 import com.crossbowffs.quotelock.utils.prefix
+import com.yubyf.datastore.DataStoreDelegate
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.json.JSONException
+import org.koin.core.component.get
+import org.koin.core.qualifier.named
 import java.io.IOException
 
 class JinrishiciQuoteModule : QuoteModule {
@@ -44,13 +45,11 @@ class JinrishiciQuoteModule : QuoteModule {
 
     @Throws(IOException::class, JSONException::class)
     override suspend fun Context.getQuote(): QuoteData? {
-        val dataStore =
-            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(applicationContext)
-                .jinrishiciDataStore()
+        val dataStore: DataStoreDelegate = get(named(JINRISHICI_DATA_STORE))
         return try {
             var token = dataStore.getStringSuspend(PREF_JINRISHICI_TOKEN, null)
             if (token.isNullOrBlank()) {
-                val tokenResponse = httpClient.fetchJson<TokenResponse>(PREF_JINRISHICI_TOKEN_URL)
+                val tokenResponse = httpClient().fetchJson<TokenResponse>(PREF_JINRISHICI_TOKEN_URL)
                 Xlog.d(TAG, "token response $tokenResponse")
                 token = tokenResponse.data
                 if (token.isEmpty()) {
@@ -62,7 +61,7 @@ class JinrishiciQuoteModule : QuoteModule {
             }
             val headers = mapOf<String, String?>("X-User-Token" to token)
             val sentence =
-                httpClient.fetchJson<SentenceResponse>(
+                httpClient().fetchJson<SentenceResponse>(
                     PREF_JINRISHICI_SENTENCE_URL,
                     headers = headers
                 )

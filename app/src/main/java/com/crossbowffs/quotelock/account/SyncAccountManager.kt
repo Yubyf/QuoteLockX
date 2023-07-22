@@ -10,24 +10,29 @@ import com.crossbowffs.quotelock.account.syncadapter.getSyncTimestamp
 import com.crossbowffs.quotelock.account.syncadapter.setServerSyncMarker
 import com.crossbowffs.quotelock.data.modules.collections.QuoteCollectionRepository
 import com.crossbowffs.quotelock.data.modules.collections.database.QuoteCollectionContract
-import com.crossbowffs.quotelock.di.IoDispatcher
+import com.crossbowffs.quotelock.di.DISPATCHER_IO
 import com.crossbowffs.quotelock.utils.Xlog
 import com.crossbowffs.quotelock.utils.className
 import com.yubyf.quotelockx.BuildConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
 /**
  * @author Yubyf
  * @date 2021/6/20.
  */
-class SyncAccountManager @Inject constructor(
+@Single(createdAtStart = true)
+class SyncAccountManager(
     private val accountManager: AccountManager,
     private val collectionRepository: QuoteCollectionRepository,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+    @Named(DISPATCHER_IO) private val dispatcher: CoroutineDispatcher,
 ) {
+
+    private val accountType: String
+        get() = BuildConfig.APPLICATION_ID + ".account"
 
     fun initialize() {
         CoroutineScope(dispatcher).launch {
@@ -38,7 +43,8 @@ class SyncAccountManager @Inject constructor(
                  * changeUri is null.
                  */
                 Xlog.d(TAG, "Data on change, requesting sync...")
-                ContentResolver.requestSync(currentSyncAccount,
+                ContentResolver.requestSync(
+                    currentSyncAccount,
                     QuoteCollectionContract.AUTHORITY, Bundle()
                 )
             }
@@ -57,7 +63,7 @@ class SyncAccountManager @Inject constructor(
                 clearAccountUserData(account)
             }
         } else {
-            account = Account(name, ACCOUNT_TYPE)
+            account = Account(name, accountType)
             accountManager.addAccountExplicitly(account, null, null)
             Xlog.d(TAG, "Added account of name $name")
             clearAccountUserData(account)
@@ -110,11 +116,10 @@ class SyncAccountManager @Inject constructor(
     }
 
     private val currentSyncAccount: Account?
-        get() = accountManager.getAccountsByType(ACCOUNT_TYPE)
+        get() = accountManager.getAccountsByType(accountType)
             .run { if (isNotEmpty()) this[0] else null }
 
     companion object {
         private val TAG = className<SyncAccountManager>()
-        private const val ACCOUNT_TYPE = BuildConfig.APPLICATION_ID + ".account"
     }
 }

@@ -8,14 +8,15 @@ import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITO
 import com.crossbowffs.quotelock.data.api.QuoteData
 import com.crossbowffs.quotelock.data.api.QuoteModule
 import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.CHARACTER_TYPE_CJK
-import com.crossbowffs.quotelock.data.api.QuoteModule.Companion.httpClient
-import com.crossbowffs.quotelock.di.QuoteModuleEntryPoint
+import com.crossbowffs.quotelock.di.HITOKOTO_DATA_STORE
 import com.crossbowffs.quotelock.utils.fetchJson
+import com.yubyf.datastore.DataStoreDelegate
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.json.JSONException
+import org.koin.core.component.get
+import org.koin.core.qualifier.named
 import java.io.IOException
 
 class HitokotoQuoteModule : QuoteModule {
@@ -35,14 +36,12 @@ class HitokotoQuoteModule : QuoteModule {
 
     @Throws(IOException::class, JSONException::class)
     override suspend fun Context.getQuote(): QuoteData {
-        val dataStore =
-            EntryPointAccessors.fromApplication<QuoteModuleEntryPoint>(applicationContext)
-                .hitokotoDataStore()
+        val dataStore: DataStoreDelegate = get(qualifier = named(HITOKOTO_DATA_STORE))
         val types = dataStore.getStringSetSuspend(PREF_HITOKOTO_TYPES_STRING) ?: run {
             dataStore.getStringSuspend(PREF_HITOKOTO_LEGACY_TYPE_STRING)?.let { setOf(it) }
         } ?: setOf("a")
         val url = "https://v1.hitokoto.cn/?${types.joinToString("&") { "c=$it" }}"
-        val hitokotoResponse = httpClient.fetchJson<HitokotoResponse>(url)
+        val hitokotoResponse = httpClient().fetchJson<HitokotoResponse>(url)
         return QuoteData(
             quoteText = hitokotoResponse.hitokoto,
             quoteSource = hitokotoResponse.from.orEmpty(),

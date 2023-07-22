@@ -23,17 +23,15 @@ import com.crossbowffs.quotelock.utils.findProcessAndKill
 import com.crossbowffs.quotelock.utils.humanReadableByteCountBin
 import com.crossbowffs.quotelock.xposed.LockscreenHook
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
 
 /**
  * UI state for the settings screen.
@@ -68,9 +66,9 @@ sealed class SettingsDialogUiState {
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
-    @ApplicationContext context: Context,
+@KoinViewModel
+class SettingsViewModel(
+    context: Context,
     private val configurationRepository: ConfigurationRepository,
     private val quoteRepository: QuoteRepository,
     private val shareRepository: ShareRepository,

@@ -7,19 +7,19 @@ import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys.PREF_FORTUN
 import com.crossbowffs.quotelock.app.configs.fortune.FortunePrefKeys.PREF_FORTUNE_CATEGORY_STRING
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_LEGACY_TYPE_INT
 import com.crossbowffs.quotelock.app.configs.hitokoto.HitokotoPrefKeys.PREF_HITOKOTO_TYPES_STRING
-import com.crossbowffs.quotelock.di.BrainyDataStore
-import com.crossbowffs.quotelock.di.FortuneDataStore
-import com.crossbowffs.quotelock.di.HitokotoDataStore
+import com.crossbowffs.quotelock.di.BRAINY_DATA_STORE
+import com.crossbowffs.quotelock.di.FORTUNE_DATA_STORE
+import com.crossbowffs.quotelock.di.HITOKOTO_DATA_STORE
 import com.yubyf.datastore.DataStoreDelegate
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.Named
 
-@HiltViewModel
-class ConfigsViewModel @Inject constructor(
-    @HitokotoDataStore private val hitokotoDataStore: DataStoreDelegate,
-    @BrainyDataStore private val brainyDataStore: DataStoreDelegate,
-    @FortuneDataStore private val fortuneDataStore: DataStoreDelegate,
+@KoinViewModel
+class ConfigsViewModel(
+    @Named(HITOKOTO_DATA_STORE) private val hitokotoDataStore: DataStoreDelegate,
+    @Named(BRAINY_DATA_STORE) private val brainyDataStore: DataStoreDelegate,
+    @Named(FORTUNE_DATA_STORE) private val fortuneDataStore: DataStoreDelegate,
 ) : ViewModel() {
 
     fun loadHitokotoTypeIndex() = runBlocking {

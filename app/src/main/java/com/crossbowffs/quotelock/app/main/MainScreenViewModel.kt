@@ -17,14 +17,13 @@ import com.crossbowffs.quotelock.data.version.VersionRepository
 import com.crossbowffs.quotelock.utils.XposedUtils
 import com.crossbowffs.quotelock.utils.XposedUtils.startXposedActivity
 import com.yubyf.quotelockx.R
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
 data class MainUiState(
     val quoteData: QuoteDataWithCollectState,
@@ -43,8 +42,8 @@ sealed class MainDialogUiState {
 /**
  * @author Yubyf
  */
-@HiltViewModel
-class MainScreenViewModel @Inject constructor(
+@KoinViewModel
+class MainScreenViewModel(
     private val quoteRepository: QuoteRepository,
     versionRepository: VersionRepository,
 ) : ViewModel() {
