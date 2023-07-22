@@ -36,8 +36,10 @@ class XposedUtilsHook : IXposedHookLoadPackage {
             // If the app is updated, this value will be changed within the
             // app, but will not be changed here. Thus, we can use this to
             // check whether the app and module versions are out of sync.
-            XposedHelpers.findAndHookMethod(className, lpparam.classLoader, "getModuleVersion",
-                XC_MethodReplacement.returnConstant(MODULE_VERSION))
+            XposedHelpers.findAndHookMethod(
+                className, lpparam.classLoader, "getModuleVersion",
+                XC_MethodReplacement.returnConstant(MODULE_VERSION)
+            )
         }
     }
 }

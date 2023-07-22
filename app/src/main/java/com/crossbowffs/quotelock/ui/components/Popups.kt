@@ -1,15 +1,29 @@
 package com.crossbowffs.quotelock.ui.components
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
@@ -43,7 +57,8 @@ fun AnchorPopup(
             transformOriginState.value = calculateTransformOrigin(parentBounds, popupBounds)
         }
 
-        Popup(popupPositionProvider = popupPositionProvider,
+        Popup(
+            popupPositionProvider = popupPositionProvider,
             onDismissRequest = onDismissRequest,
             properties = properties
         ) {
@@ -204,12 +219,14 @@ private data class AnchorPopupPositionProvider(
                 toBottom < 0 -> 0
                 toBottom + popupContentSize.height > windowSize.height ->
                     windowSize.height - popupContentSize.height
+
                 else -> toBottom
             },
             when {
                 toTop < 0 -> 0
                 toTop + popupContentSize.height > windowSize.height ->
                     windowSize.height - popupContentSize.height
+
                 else -> toTop
             },
             toCenter,

@@ -75,8 +75,10 @@ object XposedUtils {
                 data = Uri.parse(XPOSED_SECTION_MODULES)
             })
         }.onFailure {
-            return executeShellCommand("service call phone 1 s16 \"*%23*%235776733%23*%23*\"",
-                false)
+            return executeShellCommand(
+                "service call phone 1 s16 \"*%23*%235776733%23*%23*\"",
+                false
+            )
         }.onFailure { return false }
         return true
     }

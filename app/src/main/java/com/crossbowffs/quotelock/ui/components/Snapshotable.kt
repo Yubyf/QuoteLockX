@@ -265,12 +265,14 @@ private data class SnapshotTextLayout(
             TextAlign.Left -> if (layoutDirection == Ltr) {
                 Layout.Alignment.ALIGN_NORMAL
             } else Layout.Alignment.ALIGN_OPPOSITE
+
             TextAlign.Start -> Layout.Alignment.ALIGN_NORMAL
             TextAlign.Center -> Layout.Alignment.ALIGN_CENTER
             TextAlign.End -> Layout.Alignment.ALIGN_OPPOSITE
             TextAlign.Right -> if (layoutDirection == Ltr) {
                 Layout.Alignment.ALIGN_OPPOSITE
             } else Layout.Alignment.ALIGN_NORMAL
+
             else -> Layout.Alignment.ALIGN_NORMAL
         },
         direction = when (layoutDirection) {
@@ -417,8 +419,10 @@ class CardSnapshotable(
     internal var elevationPx: Float = 0F
         set(value) {
             field = value
-            shadowPaint.maskFilter = BlurMaskFilter(value * 2,
-                BlurMaskFilter.Blur.OUTER)
+            shadowPaint.maskFilter = BlurMaskFilter(
+                value * 2,
+                BlurMaskFilter.Blur.OUTER
+            )
         }
 
     override val bounds: Rect
@@ -441,10 +445,12 @@ class CardSnapshotable(
             canvas.translate(cardRegion.left, cardRegion.top)
         }
         canvas.drawRoundRect(insideRect.toAndroidRectF(), cornerSizePx, cornerSizePx, shadowPaint)
-        canvas.drawRoundRect(insideRect.toAndroidRectF(),
+        canvas.drawRoundRect(
+            insideRect.toAndroidRectF(),
             cornerSizePx,
             cornerSizePx,
-            backgroundPaint)
+            backgroundPaint
+        )
         canvas.restore()
     }
 }
@@ -474,8 +480,10 @@ fun SnapshotCard(
                 .copy(alpha = CARD_SHADOW_ALPHA)
                 .toArgb()
             style = Paint.Style.FILL
-            maskFilter = BlurMaskFilter(elevationPx * 2,
-                BlurMaskFilter.Blur.OUTER)
+            maskFilter = BlurMaskFilter(
+                elevationPx * 2,
+                BlurMaskFilter.Blur.OUTER
+            )
         })
     }
     val backgroundPaint by remember(containerColor) {
@@ -523,12 +531,16 @@ fun SnapshotCard(
     }
 }
 
-@Preview(name = "Snapshot Text Light",
+@Preview(
+    name = "Snapshot Text Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Snapshot Text Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Snapshot Text Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 fun SnapshotTextPreview() {
     QuoteLockTheme {

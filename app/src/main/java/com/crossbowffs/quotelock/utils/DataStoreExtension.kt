@@ -8,6 +8,7 @@ suspend fun <T> DataStoreDelegate.getValueByDefault(key: String, default: T): T 
     is String,
     is String?,
     -> getStringSuspend(key) ?: default
+
     is Boolean -> getBooleanSuspend(key, default)
     is Float -> getFloatSuspend(key, default)
     is Long -> getLongSuspend(key, default)
@@ -15,5 +16,6 @@ suspend fun <T> DataStoreDelegate.getValueByDefault(key: String, default: T): T 
     is Set<*>,
     -> getStringSetSuspend(key)
         ?: default as Set<String>
+
     else -> throw IllegalArgumentException("Type not supported: ${default?.let { it::class } ?: "null"}")
 } as T

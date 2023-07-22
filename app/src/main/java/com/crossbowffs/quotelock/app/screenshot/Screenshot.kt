@@ -88,46 +88,62 @@ fun LockscreenScreenshotScreen(
     clockFontFamily: FontFamily = FontFamily.Default,
 ) {
     QuoteLockTheme(useDarkTheme = false, dynamicColor = false) {
-        Column(modifier = Modifier
-            .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
-            .background(Color.White)
-            .verticalScroll(rememberScrollState()),
+        Column(
+            modifier = Modifier
+                .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
+                .background(Color.White)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Box(modifier = Modifier.requiredHeight(TITLE_HEIGHT),
-                contentAlignment = Alignment.Center) {
-                Text(text = "Lockscreen",
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier.requiredHeight(TITLE_HEIGHT),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Lockscreen",
                     fontSize = 42.sp,
                     fontFamily = titleFontFamily,
-                    fontWeight = FontWeight.ExtraBold)
+                    fontWeight = FontWeight.ExtraBold
+                )
             }
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .height(SCREENSHOT_HEIGHT)
-                .padding(24.dp)
-                .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(SCREENSHOT_HEIGHT)
+                    .padding(24.dp)
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))
+            ) {
                 Surface {
                     background?.let {
-                        Image(bitmap = it,
+                        Image(
+                            bitmap = it,
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.FillHeight)
+                            contentScale = ContentScale.FillHeight
+                        )
                     }
-                    Box(modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.2F)))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.2F))
+                    )
                     Column(modifier = Modifier.fillMaxSize()) {
                         Spacer(modifier = Modifier.height(32.dp))
-                        Text(text = "5:05",
+                        Text(
+                            text = "5:05",
                             modifier = Modifier.padding(horizontal = 20.dp),
                             fontSize = 68.sp,
                             fontFamily = clockFontFamily,
-                            color = Color(0XFFDAE2FF))
+                            color = Color(0XFFDAE2FF)
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(text = "Tue, May 05",
+                        Text(
+                            text = "Tue, May 05",
                             modifier = Modifier.padding(horizontal = 24.dp),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White)
+                            color = Color.White
+                        )
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
                             text = "Knowledge is power.",
@@ -151,32 +167,42 @@ fun LockscreenScreenshotScreen(
                         )
                         @Composable
                         fun Notification(shape: Shape = RoundedCornerShape(2.dp)) {
-                            Row(modifier = Modifier
-                                .height(72.dp)
-                                .padding(horizontal = 16.dp)
-                                .clip(shape)
-                                .background(Color.White.copy(alpha = 0.9F)),
-                                verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                modifier = Modifier
+                                    .height(72.dp)
+                                    .padding(horizontal = 16.dp)
+                                    .clip(shape)
+                                    .background(Color.White.copy(alpha = 0.9F)),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Box(modifier = Modifier
-                                    .size(24.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.DarkGray.copy(alpha = 0.2F)))
+                                Box(
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.DarkGray.copy(alpha = 0.2F))
+                                )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Column(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp)) {
-                                    Box(modifier = Modifier
-                                        .fillMaxWidth(0.5F)
-                                        .height(14.dp)
-                                        .clip(RoundedCornerShape(2.dp))
-                                        .background(Color.DarkGray.copy(alpha = 0.2F)))
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.5F)
+                                            .height(14.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .background(Color.DarkGray.copy(alpha = 0.2F))
+                                    )
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Box(modifier = Modifier
-                                        .fillMaxWidth(0.9F)
-                                        .height(14.dp)
-                                        .clip(RoundedCornerShape(2.dp))
-                                        .background(Color.DarkGray.copy(alpha = 0.2F)))
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.9F)
+                                            .height(14.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .background(Color.DarkGray.copy(alpha = 0.2F))
+                                    )
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                             }
@@ -184,27 +210,39 @@ fun LockscreenScreenshotScreen(
                         Spacer(modifier = Modifier.height(36.dp))
                         repeat(3) {
                             Spacer(modifier = Modifier.height(2.dp))
-                            Notification(when (it) {
-                                0 -> RoundedCornerShape(topStart = 28.dp,
-                                    topEnd = 28.dp,
-                                    bottomStart = 2.dp,
-                                    bottomEnd = 2.dp)
-                                2 -> RoundedCornerShape(topStart = 2.dp,
-                                    topEnd = 2.dp,
-                                    bottomStart = 28.dp,
-                                    bottomEnd = 28.dp)
-                                else -> RoundedCornerShape(2.dp)
-                            })
+                            Notification(
+                                when (it) {
+                                    0 -> RoundedCornerShape(
+                                        topStart = 28.dp,
+                                        topEnd = 28.dp,
+                                        bottomStart = 2.dp,
+                                        bottomEnd = 2.dp
+                                    )
+
+                                    2 -> RoundedCornerShape(
+                                        topStart = 2.dp,
+                                        topEnd = 2.dp,
+                                        bottomStart = 28.dp,
+                                        bottomEnd = 28.dp
+                                    )
+
+                                    else -> RoundedCornerShape(2.dp)
+                                }
+                            )
                         }
                         Spacer(modifier = Modifier.height(112.dp))
-                        Box(modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .align(Alignment.CenterHorizontally),
-                            contentAlignment = Alignment.Center) {
-                            Icon(Icons.Outlined.Lock, contentDescription = null, modifier = Modifier
-                                .size(32.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .align(Alignment.CenterHorizontally),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Outlined.Lock, contentDescription = null, modifier = Modifier
+                                    .size(32.dp)
+                            )
                         }
                     }
                 }
@@ -217,15 +255,19 @@ fun LockscreenScreenshotScreen(
 @Composable
 fun MainScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
     QuoteLockTheme(useDarkTheme = false, dynamicColor = false) {
-        Column(modifier = Modifier
-            .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
-            .background(Color.White),
+        Column(
+            modifier = Modifier
+                .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Box(modifier = Modifier
-                .weight(1F)
-                .padding(24.dp)
-                .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(24.dp)
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))
+            ) {
                 MainScreen(
                     mainUiState = MainUiState(quoteData = PREF_QUOTE),
                     quoteUiState = QuoteUiState(PREF_CARD_STYLE),
@@ -237,14 +279,18 @@ fun MainScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
             }
             Box(modifier = Modifier.height(TITLE_HEIGHT), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Quote Card",
+                    Text(
+                        text = "Quote Card",
                         fontSize = 42.sp,
                         fontFamily = fontFamily,
-                        fontWeight = FontWeight.ExtraBold)
-                    Text(text = "Collect & Share",
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(
+                        text = "Collect & Share",
                         style = MaterialTheme.typography.headlineSmall,
                         fontFamily = fontFamily,
-                        fontWeight = FontWeight.Medium)
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }
@@ -255,22 +301,28 @@ fun MainScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
 @Composable
 fun LockscreenStyleScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
     QuoteLockTheme(useDarkTheme = false, dynamicColor = false) {
-        Column(modifier = Modifier
-            .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
-            .background(Color.White),
+        Column(
+            modifier = Modifier
+                .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween) {
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
             Box(modifier = Modifier.height(TITLE_HEIGHT), contentAlignment = Alignment.Center) {
-                Text(text = "Lockscreen Style",
+                Text(
+                    text = "Lockscreen Style",
                     fontSize = 42.sp,
                     fontFamily = fontFamily,
-                    fontWeight = FontWeight.ExtraBold)
+                    fontWeight = FontWeight.ExtraBold
+                )
             }
-            Column(modifier = Modifier
-                .weight(1F)
-                .padding(24.dp)
-                .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surface)) {
+            Column(
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(24.dp)
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
                 PreviewScreen(uiState = PreviewUiState(PREF_QUOTE, quoteStyle = QuoteStyle()))
                 LockscreenStylesScreen(uiState = LockscreenStylesUiState(true))
             }
@@ -282,15 +334,19 @@ fun LockscreenStyleScreenshotScreen(fontFamily: FontFamily = FontFamily.Default)
 @Composable
 fun FontCustomizationScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
     QuoteLockTheme(useDarkTheme = false, dynamicColor = false) {
-        Column(modifier = Modifier
-            .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
-            .background(Color.White),
+        Column(
+            modifier = Modifier
+                .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Box(modifier = Modifier
-                .weight(1F)
-                .padding(24.dp)
-                .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(24.dp)
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))
+            ) {
                 val inspectionMode = LocalInspectionMode.current
                 val uiState = runBlocking {
                     FontManagementListUiState(
@@ -312,10 +368,12 @@ fun FontCustomizationScreenshotScreen(fontFamily: FontFamily = FontFamily.Defaul
                     listScrolled = {})
             }
             Box(modifier = Modifier.height(TITLE_HEIGHT), contentAlignment = Alignment.Center) {
-                Text(text = "Font Customize",
+                Text(
+                    text = "Font Customize",
                     fontSize = 42.sp,
                     fontFamily = fontFamily,
-                    fontWeight = FontWeight.ExtraBold)
+                    fontWeight = FontWeight.ExtraBold
+                )
             }
         }
     }
@@ -325,25 +383,33 @@ fun FontCustomizationScreenshotScreen(fontFamily: FontFamily = FontFamily.Defaul
 @Composable
 fun DynamicDarkScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
     QuoteLockTheme(useDarkTheme = false) {
-        Column(modifier = Modifier
-            .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
-            .background(Color.White),
+        Column(
+            modifier = Modifier
+                .size(SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT)
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween) {
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
             Box(modifier = Modifier.height(TITLE_HEIGHT), contentAlignment = Alignment.Center) {
-                Text(text = "Dark & Dynamic",
+                Text(
+                    text = "Dark & Dynamic",
                     fontSize = 42.sp,
                     fontFamily = fontFamily,
-                    fontWeight = FontWeight.ExtraBold)
+                    fontWeight = FontWeight.ExtraBold
+                )
             }
-            Box(modifier = Modifier
-                .width(SCREENSHOT_WIDTH)
-                .weight(1F)) {
+            Box(
+                modifier = Modifier
+                    .width(SCREENSHOT_WIDTH)
+                    .weight(1F)
+            ) {
                 QuoteLockTheme(useDarkTheme = true) {
-                    Surface(modifier = Modifier
-                        .width(SCREENSHOT_WIDTH)
-                        .padding(24.dp)
-                        .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
+                    Surface(
+                        modifier = Modifier
+                            .width(SCREENSHOT_WIDTH)
+                            .padding(24.dp)
+                            .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))
+                    ) {
                         MainScreen(
                             mainUiState = MainUiState(quoteData = PREF_QUOTE),
                             quoteUiState = QuoteUiState(PREF_CARD_STYLE),
@@ -356,11 +422,13 @@ fun DynamicDarkScreenshotScreen(fontFamily: FontFamily = FontFamily.Default) {
                 }
                 Surface(modifier = Modifier.offset(x = SCREENSHOT_WIDTH / 2)) {
                     QuoteLockTheme(useDarkTheme = false) {
-                        Surface(modifier = Modifier
-                            .width(SCREENSHOT_WIDTH)
-                            .offset(x = -SCREENSHOT_WIDTH / 2)
-                            .padding(24.dp)
-                            .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))) {
+                        Surface(
+                            modifier = Modifier
+                                .width(SCREENSHOT_WIDTH)
+                                .offset(x = -SCREENSHOT_WIDTH / 2)
+                                .padding(24.dp)
+                                .shadow(elevation = 16.dp, shape = RoundedCornerShape(12.dp))
+                        ) {
                             MainScreen(
                                 mainUiState = MainUiState(quoteData = PREF_QUOTE),
                                 quoteUiState = QuoteUiState(PREF_CARD_STYLE),

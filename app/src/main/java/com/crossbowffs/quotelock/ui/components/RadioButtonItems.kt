@@ -44,8 +44,12 @@ fun <T> RadioButtonItemList(
     val minHeight = 64.dp
     val minHeightPx = with(LocalDensity.current) { minHeight.toPx() }
     var internalSelectedItemIndex by remember {
-        mutableStateOf(selectedItemIndex.coerceIn(minimumValue = 0,
-            maximumValue = entries.lastIndex))
+        mutableStateOf(
+            selectedItemIndex.coerceIn(
+                minimumValue = 0,
+                maximumValue = entries.lastIndex
+            )
+        )
     }
     var containerHeight by remember {
         mutableStateOf(0)
@@ -92,9 +96,11 @@ fun <T> RadioButtonItemList(
                         onClick = null,
                     )
                     Spacer(modifier = Modifier.width(24.dp))
-                    Text(text = entry,
+                    Text(
+                        text = entry,
                         color = AlertDialogDefaults.textContentColor,
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize)
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                    )
                 }
             }
             if (index != entries.lastIndex) {

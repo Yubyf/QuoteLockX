@@ -31,19 +31,24 @@ class BubbleShape(
             .coerceAtMost(size.minDimension / 2))
         val arrowSize = with(density) { arrowSize.toPx().coerceAtMost(8.dp.toPx()) }
         val path = Path().apply {
-            addRoundRect(RoundRect(0F,
-                0F,
-                size.width - arrowSize,
-                size.height,
-                cornerRadius,
-                cornerRadius,
-                cornerRadius,
-                cornerRadius)
+            addRoundRect(
+                RoundRect(
+                    0F,
+                    0F,
+                    size.width - arrowSize,
+                    size.height,
+                    cornerRadius,
+                    cornerRadius,
+                    cornerRadius,
+                    cornerRadius
+                )
             )
             moveTo(size.width - arrowSize, size.height / 2 - arrowSize)
             lineTo(size.width - arrowSize * 0.2F, size.height / 2 - arrowSize * 0.2F)
-            quadraticBezierTo(size.width, size.height / 2,
-                size.width - arrowSize * 0.2F, size.height / 2 + arrowSize * 0.2F)
+            quadraticBezierTo(
+                size.width, size.height / 2,
+                size.width - arrowSize * 0.2F, size.height / 2 + arrowSize * 0.2F
+            )
             lineTo(size.width - arrowSize, size.height / 2 + arrowSize)
             close()
         }
@@ -55,9 +60,11 @@ class BubbleShape(
 @Composable
 fun BubbleShapePreview() {
     QuoteLockTheme {
-        Surface(shape = BubbleShape(4.dp, 6.dp), modifier = Modifier
-            .width(200.dp)
-            .height(30.dp)) {
+        Surface(
+            shape = BubbleShape(4.dp, 6.dp), modifier = Modifier
+                .width(200.dp)
+                .height(30.dp)
+        ) {
         }
     }
 }

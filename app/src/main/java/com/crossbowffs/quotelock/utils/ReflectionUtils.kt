@@ -57,6 +57,7 @@ private tailrec fun <T> Any.getReflectionField(
         result.isSuccess -> result.getOrNull()
         target.superclass == null ->
             throw NoSuchFieldException("Field $field not found in current class and its superclasses")
+
         else -> getReflectionField(target.superclass, field)
     }
 }
@@ -98,6 +99,7 @@ private tailrec fun <T> Any.invokeReflectionMethod(
         result.isSuccess -> result.getOrNull()
         target.superclass == null ->
             throw NoSuchMethodException("Method $method not found in current class and its superclasses")
+
         else -> invokeReflectionMethod<T>(target.superclass, method, args)
     }
 }

@@ -23,8 +23,10 @@ class AuthenticationService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        Xlog.v(TAG, "getBinder()...  returning the AccountAuthenticator binder for intent "
-                + intent)
+        Xlog.v(
+            TAG, "getBinder()...  returning the AccountAuthenticator binder for intent "
+                    + intent
+        )
         return mAuthenticator.iBinder
     }
 

@@ -6,11 +6,32 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -140,27 +161,32 @@ fun FontListItem(
                 maxLines = 1
             )
         }
-        Row(Modifier
-            .fillMaxWidth(),
+        Row(
+            Modifier
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(Modifier
-                .weight(1F)
-                .wrapContentHeight()
-                .alpha(if (fontInfoWithState.active) 1F else ContentAlpha.disabled)
+            Column(
+                Modifier
+                    .weight(1F)
+                    .wrapContentHeight()
+                    .alpha(if (fontInfoWithState.active) 1F else ContentAlpha.disabled)
             ) {
                 val fontInfo = fontInfoWithState.fontInfo
                 val font by remember {
                     mutableStateOf(fontInfo.composeFontInStyle())
                 }
-                Text(text = with(fontInfo) { LocalConfiguration.current.localeName },
+                Text(
+                    text = with(fontInfo) { LocalConfiguration.current.localeName },
                     fontFamily = font,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth())
-                Text(text = fontInfo.descriptionLatin,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = fontInfo.descriptionLatin,
                     fontFamily = font,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Start,
@@ -168,9 +194,11 @@ fun FontListItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp))
+                        .padding(top = 12.dp)
+                )
                 if (fontInfo.descriptionLocale.isNotBlank()) {
-                    Text(text = fontInfo.descriptionLocale,
+                    Text(
+                        text = fontInfo.descriptionLocale,
                         fontFamily = font,
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Start,
@@ -178,7 +206,8 @@ fun FontListItem(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp))
+                            .padding(top = 8.dp)
+                    )
                 }
             }
             var hintPopupExpanded by remember { mutableStateOf(false) }
@@ -192,8 +221,10 @@ fun FontListItem(
             if (showActiveHint || showVariableFontHint) {
                 Column(modifier = Modifier
                     .onGloballyPositioned { coordinates ->
-                        hintContainerPopupOffset = Offset(coordinates.positionInParent().x,
-                            coordinates.positionInParent().y)
+                        hintContainerPopupOffset = Offset(
+                            coordinates.positionInParent().x,
+                            coordinates.positionInParent().y
+                        )
                     }) {
                     if (showVariableFontHint) {
                         var variableHintRelativeOffsetY by remember { mutableStateOf(0F) }
@@ -211,9 +242,11 @@ fun FontListItem(
                                         coordinates.boundsInParent().center.y
                                 }
                         ) {
-                            Icon(painter = painterResource(id = R.drawable.ic_variable_font_24dp),
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_variable_font_24dp),
                                 contentDescription = "Variable font hint",
-                                modifier = Modifier.alpha(ContentAlpha.medium))
+                                modifier = Modifier.alpha(ContentAlpha.medium)
+                            )
                         }
                     }
                     if (showActiveHint) {
@@ -232,9 +265,11 @@ fun FontListItem(
                                         coordinates.boundsInParent().center.y
                                 }
                         ) {
-                            Icon(Icons.Rounded.ErrorOutline,
+                            Icon(
+                                Icons.Rounded.ErrorOutline,
                                 contentDescription = "Font active hint",
-                                modifier = Modifier.alpha(ContentAlpha.medium))
+                                modifier = Modifier.alpha(ContentAlpha.medium)
+                            )
                         }
                     }
                 }
@@ -243,8 +278,10 @@ fun FontListItem(
                 popped = hintPopupExpanded,
                 onDismissRequest = { hintPopupExpanded = false },
                 anchor = with(LocalDensity.current) {
-                    DpOffset(hintContainerPopupOffset.x.toDp(),
-                        (hintContainerPopupOffset.y + hintRelativePopupOffsetY).toDp())
+                    DpOffset(
+                        hintContainerPopupOffset.x.toDp(),
+                        (hintContainerPopupOffset.y + hintRelativePopupOffsetY).toDp()
+                    )
                 },
                 alignment = Alignment.CenterStart,
                 content = {
@@ -258,11 +295,13 @@ fun FontListItem(
                         tonalElevation = 4.dp,
                         shadowElevation = 4.dp
                     ) {
-                        Text(text = hintText,
+                        Text(
+                            text = hintText,
                             modifier = Modifier
                                 .padding(start = 8.dp, top = 8.dp, end = 14.dp, bottom = 8.dp)
                                 .alpha(ContentAlpha.high),
-                            fontSize = MaterialTheme.typography.labelLarge.fontSize)
+                            fontSize = MaterialTheme.typography.labelLarge.fontSize
+                        )
                     }
                 }
             )
@@ -280,23 +319,33 @@ fun FontListItem(
 
 class FontListItemPreviewParameterProvider : PreviewParameterProvider<FontInfoWithState> {
     override val values: Sequence<FontInfoWithState> = sequenceOf(
-        FontInfoWithState(FontInfo(families = mapOf("en-US" to "Roboto Regular"),
-            descriptionLatin = "Lorem ipsum dolor sit amet",
-            descriptionLocale = " Lorem"
-        ), systemFont = false, active = false),
-        FontInfoWithState(FontInfo(families = mapOf("en-US" to "方正新书宋"),
-            descriptionLatin = "Lorem ipsum dolor sit amet",
-            descriptionLocale = "落霞与孤鹜齐飞，秋水共长天一色"
-        ), systemFont = true, active = true)
+        FontInfoWithState(
+            FontInfo(
+                families = mapOf("en-US" to "Roboto Regular"),
+                descriptionLatin = "Lorem ipsum dolor sit amet",
+                descriptionLocale = " Lorem"
+            ), systemFont = false, active = false
+        ),
+        FontInfoWithState(
+            FontInfo(
+                families = mapOf("en-US" to "方正新书宋"),
+                descriptionLatin = "Lorem ipsum dolor sit amet",
+                descriptionLocale = "落霞与孤鹜齐飞，秋水共长天一色"
+            ), systemFont = true, active = true
+        )
     )
 }
 
-@Preview(name = "Font List Item Light",
+@Preview(
+    name = "Font List Item Light",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Font List Item Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Preview(
+    name = "Font List Item Dark",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 private fun FontListItemPreview(
     @PreviewParameter(FontListItemPreviewParameterProvider::class) entity: FontInfoWithState,

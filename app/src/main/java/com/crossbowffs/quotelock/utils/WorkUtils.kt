@@ -22,39 +22,31 @@ import java.util.concurrent.TimeUnit
 object WorkUtils : KoinComponent {
     private val TAG = className<WorkUtils>()
 
-    /** Reference: https://stackoverflow.com/a/53532456/4985530 */
-    private fun isInternetAvailable(context: Context): Boolean {
-        var result = false
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val actNw =
-                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-            result = when {
+    private val Context.connectivityManager: ConnectivityManager?
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getSystemService(ConnectivityManager::class.java)
+        } else {
+            getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+        }
+
+    /** [Reference](https://stackoverflow.com/a/53532456/4985530) */
+    private fun Context.isInternetAvailable(): Boolean {
+        return connectivityManager?.let { cm ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val networkCapabilities = cm.activeNetwork ?: return false
+                val actNw =
+                    cm.getNetworkCapabilities(networkCapabilities) ?: return false
                 actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
                         || actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-                        || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-
-                else -> false
-            }
-        } else {
-            connectivityManager.run {
+                        || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+            } else {
                 @Suppress("DEPRECATION")
-                connectivityManager.activeNetworkInfo?.run {
-                    isConnected
-                    result = when (type) {
-                        ConnectivityManager.TYPE_WIFI,
-                        ConnectivityManager.TYPE_MOBILE,
-                        ConnectivityManager.TYPE_ETHERNET,
-                        -> true
-
-                        else -> false
-                    }
-                }
+                cm.activeNetworkInfo?.type?.let {
+                    it == ConnectivityManager.TYPE_WIFI || it == ConnectivityManager.TYPE_MOBILE
+                            || it == ConnectivityManager.TYPE_ETHERNET
+                } ?: false
             }
-        }
-        return result
+        } ?: false
     }
 
     fun shouldRefreshQuote(
@@ -70,15 +62,14 @@ object WorkUtils : KoinComponent {
         }
 
         // If we're not connected to the internet, we shouldn't refresh the quote.
-        val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-        if (!isInternetAvailable(context)) {
+        if (!context.isInternetAvailable()) {
             Xlog.d(TAG, "WorkUtils#shouldRefreshQuote: NO (not connected to internet)")
             return false
         }
 
         // Check if we're on a metered connection and act according to the
         // user's preference.
-        if (isUnmeteredNetworkOnly && manager?.isActiveNetworkMetered == true) {
+        if (isUnmeteredNetworkOnly && context.connectivityManager?.isActiveNetworkMetered == true) {
             Xlog.d(
                 TAG,
                 "WorkUtils#shouldRefreshQuote: NO (can only update on unmetered connections)"
@@ -141,15 +132,15 @@ object WorkUtils : KoinComponent {
         val existingWorkPolicy =
             if (recreate) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP
         Xlog.d(TAG, "ExistingWorkPolicy - $existingWorkPolicy")
-        val delay = getQuoteUpdateDelay(context, ensureQuoteRefreshInterval(refreshInterval))
+        val delay = getQuoteUpdateDelay(ensureQuoteRefreshInterval(refreshInterval))
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(getNetworkType(isRequireInternet, isUnmeteredNetworkOnly))
             .build()
         val oneTimeWorkRequest = OneTimeWorkRequestBuilder<QuoteWorker>()
             .setInitialDelay(delay.toLong(), TimeUnit.SECONDS)
             .setBackoffCriteria(
-                BackoffPolicy.LINEAR, (
-                        2 * 1000).toLong(),
+                BackoffPolicy.LINEAR,
+                (2 * 1000).toLong(),
                 TimeUnit.MILLISECONDS
             )
             .setConstraints(constraints)
@@ -162,7 +153,7 @@ object WorkUtils : KoinComponent {
         Xlog.d(TAG, "Scheduled quote download work with delay: %d", delay)
     }
 
-    private fun getQuoteUpdateDelay(context: Context, refreshInterval: Int): Int {
+    private fun getQuoteUpdateDelay(refreshInterval: Int): Int {
         // This compensates for the time since the last update in order
         // to ensure that the quote will be updated in a reasonable time
         // window. If the quote was updated >= refreshInterval time ago,
