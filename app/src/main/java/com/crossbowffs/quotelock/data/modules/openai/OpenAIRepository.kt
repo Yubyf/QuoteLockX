@@ -281,13 +281,16 @@ class OpenAIRepository @Inject internal constructor(
         }
         return request(host)
     }.onFailure {
-        when {
-            it is HttpException && it.status == HttpStatusCode.Unauthorized -> {
-                throw OpenAIException.ApiKeyInvalidException
+        when (it) {
+            is HttpException -> throw when (it.status) {
+                HttpStatusCode.Unauthorized -> OpenAIException.ApiKeyInvalidException
+                HttpStatusCode.TooManyRequests -> OpenAIException.RequestLimitException
+                HttpStatusCode.InternalServerError -> OpenAIException.ServerError
+                HttpStatusCode.ServiceUnavailable -> OpenAIException.EngineOverloadedError
+                else -> OpenAIException.ConnectException
             }
 
-            it is OpenAIException -> throw it
-
+            is OpenAIException -> throw it
             else -> throw OpenAIException.ConnectException
         }
     }.getOrNull()
@@ -302,5 +305,8 @@ sealed class OpenAIException : IOException() {
     data class RegionNotSupportedException(val region: String? = null) : OpenAIException()
     object ApiKeyNotSetException : OpenAIException()
     object ApiKeyInvalidException : OpenAIException()
+    object RequestLimitException : OpenAIException()
+    object ServerError : OpenAIException()
+    object EngineOverloadedError : OpenAIException()
     object ConnectException : OpenAIException()
 }

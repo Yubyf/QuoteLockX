@@ -101,23 +101,33 @@ class OpenAIConfigsViewModel @Inject constructor(
             openAIRepository.fetchAccountInfo()
         }.onFailure {
             Xlog.e(TAG, "Failed to validate API", it)
-            when (it) {
-                is OpenAIException.RegionNotSupportedException -> {
-                    _uiEvent.emit(SnackBarEvent(message = AndroidString.StringRes(R.string.module_openai_not_support_region)))
-                }
+            _uiEvent.emit(
+                SnackBarEvent(
+                    message = AndroidString.StringRes(
+                        when (it) {
+                            is OpenAIException.RegionNotSupportedException ->
+                                R.string.module_openai_not_support_region
 
-                is OpenAIException.ApiKeyNotSetException -> {
-                    _uiEvent.emit(SnackBarEvent(message = AndroidString.StringRes(R.string.module_openai_api_key_not_set)))
-                }
+                            is OpenAIException.ApiKeyNotSetException ->
+                                R.string.module_openai_api_key_not_set
 
-                is OpenAIException.ApiKeyInvalidException -> {
-                    _uiEvent.emit(SnackBarEvent(message = AndroidString.StringRes(R.string.module_openai_api_key_invalid)))
-                }
+                            is OpenAIException.ApiKeyInvalidException ->
+                                R.string.module_openai_api_key_invalid
 
-                else -> {
-                    _uiEvent.emit(SnackBarEvent(message = AndroidString.StringRes(R.string.module_openai_api_connect_error)))
-                }
-            }
+                            is OpenAIException.RequestLimitException ->
+                                R.string.module_openai_api_request_limit
+
+                            is OpenAIException.ServerError ->
+                                R.string.module_openai_api_server_error
+
+                            is OpenAIException.EngineOverloadedError ->
+                                R.string.module_openai_api_engine_overloaded
+
+                            else -> R.string.module_openai_api_connect_error
+                        }
+                    )
+                )
+            )
             _uiState.value = _uiState.value.copy(
                 validateResult = AsyncResult.Error.Message(AndroidString.StringText(""))
             )

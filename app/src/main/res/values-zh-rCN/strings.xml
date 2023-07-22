@@ -179,6 +179,9 @@
     <string name="module_openai_not_support_region">OpenAI 在您的 IP 所在地区不受支持</string>
     <string name="module_openai_api_key_not_set">OpenAI API key 未设置</string>
     <string name="module_openai_api_key_invalid">OpenAI API Key 无效</string>
+    <string name="module_openai_api_request_limit">达到 OpenAI API 请求限制，请检查您的账户或稍后重试</string>
+    <string name="module_openai_api_server_error">OpenAI 服务错误</string>
+    <string name="module_openai_api_engine_overloaded">OpenAI服务当前超载，请稍后重试</string>
     <string name="module_openai_api_connect_error">OpenAI API 连接错误</string>
     <string name="module_openai_expenditure_tooltips">使用 OpenAI 服务可能会产生一定的费用</string>
     <string name="module_openai_incorrect_content_tooltips">GPT 有时会提供带有错误来源的格言</string>

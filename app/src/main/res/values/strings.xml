@@ -165,6 +165,9 @@
     <string name="module_openai_not_support_region">OpenAI is not supported in your IP\'s region</string>
     <string name="module_openai_api_key_not_set">OpenAI API key not set</string>
     <string name="module_openai_api_key_invalid">Invalid OpenAI API key</string>
+    <string name="module_openai_api_request_limit">OpenAI API request limit reached, please check your account or try again later</string>
+    <string name="module_openai_api_server_error">OpenAI server error</string>
+    <string name="module_openai_api_engine_overloaded">OpenAI server is currently overloaded, please try again later</string>
     <string name="module_openai_api_connect_error">OpenAI API connect error</string>
     <string name="module_openai_expenditure_tooltips">Using OpenAI provider may potentially result in certain expenditures</string>
     <string name="module_openai_incorrect_content_tooltips">GPT sometimes provides quotes with erroneous sources</string>
