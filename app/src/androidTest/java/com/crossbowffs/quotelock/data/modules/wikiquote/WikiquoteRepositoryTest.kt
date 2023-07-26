@@ -1,7 +1,9 @@
 package com.crossbowffs.quotelock.data.modules.wikiquote
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.crossbowffs.quotelock.utils.Xlog
+import com.yubyf.quotelockx.R
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
@@ -14,21 +16,12 @@ class WikiquoteRepositoryTest : KoinComponent {
 
     private val repository: WikiquoteRepository by inject()
 
+    private val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+
     @Test
     fun testRequestAllQuotes() {
         runBlocking {
-            sequenceOf(
-                "English",
-                "中文",
-                "日本语",
-                "Deutsch",
-                "Español",
-                "Français",
-                "Italiano",
-                "Português",
-                "Русский",
-                "Esperanto"
-            ).forEach {
+            appContext.resources.getStringArray(R.array.wikiquote_langs).forEach {
                 repository.language = it
                 val quote = repository.fetchWikiquote()
                 Xlog.d("WikiquoteRepositoryTest", "quote in $it: $quote")
