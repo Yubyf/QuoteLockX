@@ -92,6 +92,9 @@
     <string name="pref_detail_title">Detail</string>
     <string name="pref_restart_system_ui_title">Restart System UI</string>
     <string name="pref_debug_restart_system_ui_summary">[ROOT] Re-hook lockscreen</string>
+    <string name="pref_pin_widget_title">App widget</string>
+    <string name="pref_pin_widget_summary">Pin a widget onto home screen</string>
+    <string name="pref_pin_widget_summary_alt">The default launcher does not support pinning app widgets</string>
     <string name="pref_clear_cache">Clear Cache</string>
     <string name="refresh_quote">Refresh</string>
     <string name="quote_download_failed">Failed to download quote</string>

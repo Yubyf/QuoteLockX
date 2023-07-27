@@ -16,6 +16,7 @@
     <string name="preview">预览</string>
     <string name="lockscreen_styles">锁屏样式</string>
     <string name="style">样式</string>
+    <string name="pin_widget">应用微件</string>
     <string name="about">关于</string>
     <string name="close">关闭</string>
     <string name="search">搜索</string>
@@ -85,6 +86,9 @@
     <string name="pref_detail_title">详情</string>
     <string name="pref_restart_system_ui_title">重启 System UI</string>
     <string name="pref_debug_restart_system_ui_summary">[ROOT] 重新挂钩锁屏界面</string>
+    <string name="pref_pin_widget_title">应用小部件</string>
+    <string name="pref_pin_widget_summary">固定应用小部件到主屏幕</string>
+    <string name="pref_pin_widget_summary_alt">默认启动器不支持固定应用小部件</string>
     <string name="pref_clear_cache">清除缓存</string>
     <string name="refresh_quote">刷新</string>
     <string name="quote_download_failed">格言下载失败</string>

@@ -2,7 +2,10 @@
 
 package com.crossbowffs.quotelock.app.settings
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.res.Configuration
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -48,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crossbowffs.quotelock.app.SnackBarEvent
 import com.crossbowffs.quotelock.app.emptySnackBarEvent
+import com.crossbowffs.quotelock.app.widget.QuoteGlanceWidgetReceiver
 import com.crossbowffs.quotelock.data.api.AndroidString
 import com.crossbowffs.quotelock.data.api.QuoteModuleData
 import com.crossbowffs.quotelock.data.api.contextString
@@ -250,6 +254,22 @@ fun SettingsScreen(
                 summaryRes = R.string.pref_debug_restart_system_ui_summary,
                 onClick = onRestartSystemUiItemClicked
             )
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                PreferenceItem(
+                    titleRes = R.string.pref_pin_widget_title,
+                    summaryRes = if (appWidgetManager.isRequestPinAppWidgetSupported)
+                        R.string.pref_pin_widget_summary else R.string.pref_pin_widget_summary_alt,
+                    enabled = appWidgetManager.isRequestPinAppWidgetSupported,
+                    onClick = {
+                        appWidgetManager.requestPinAppWidget(
+                            ComponentName(context, QuoteGlanceWidgetReceiver::class.java),
+                            null,
+                            null
+                        )
+                    }
+                )
+            }
             PreferenceItem(
                 title = stringResource(id = R.string.pref_clear_cache),
                 info = {

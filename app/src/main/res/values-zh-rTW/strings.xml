@@ -88,6 +88,9 @@
     <string name="pref_detail_title">詳情</string>
     <string name="pref_restart_system_ui_title">重啟 System UI</string>
     <string name="pref_debug_restart_system_ui_summary">[ROOT] 重新掛鉤鎖屏介面</string>
+    <string name="pref_pin_widget_title">應用小部件</string>
+    <string name="pref_pin_widget_summary">固定應用小部件到主屏幕</string>
+    <string name="pref_pin_widget_summary_alt">默認啟動器不支持固定應用程序小部件</string>
     <string name="pref_clear_cache">清除緩存</string>
     <string name="refresh_quote">刷新</string>
     <string name="quote_download_failed">格言下載失敗</string>
