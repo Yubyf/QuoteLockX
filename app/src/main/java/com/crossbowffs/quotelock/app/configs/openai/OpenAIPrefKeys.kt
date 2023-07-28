@@ -17,8 +17,7 @@ object OpenAIPrefKeys {
     const val PREF_OPENAI_QUOTE_TYPE_DEFAULT = PREF_OPENAI_QUOTE_TYPE_AI_GENERATED
     const val PREF_OPENAI_API_HOST_DEFAULT = "https://api.openai.com"
     const val PREF_OPENAI_CHAT_API_PATH = "/v1/chat/completions"
-    const val PREF_OPENAI_CHAT_SUB_PATH = "dashboard/billing/subscription"
-    const val PREF_OPENAI_CHAT_USAGE_PATH = "dashboard/billing/usage"
+    const val PREF_OPENAI_MODELS_PATH = "/v1/models"
 
     const val PREF_OPENAI_API_KEY_SUPPORT_LINK = "https://platform.openai.com/account/api-keys"
     const val PREF_OPENAI_API_KEY_PREFIX = "sk-"

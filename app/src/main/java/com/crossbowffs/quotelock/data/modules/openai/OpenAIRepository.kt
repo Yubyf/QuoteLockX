@@ -7,10 +7,10 @@ import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_A
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_API_HOST_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_API_KEY
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_CHAT_API_PATH
-import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_CHAT_SUB_PATH
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_LANGUAGE
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_LANGUAGE_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_MODEL
+import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_MODELS_PATH
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_MODEL_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_SOURCE_DEFAULT
 import com.crossbowffs.quotelock.app.configs.openai.OpenAIPrefKeys.PREF_OPENAI_QUOTE_SYSTEM_PROMPTS
@@ -22,8 +22,8 @@ import com.crossbowffs.quotelock.data.api.OpenAIConfigs
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIChatInput
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIChatMessage
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIChatResponse
+import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIModelsResponse
 import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAIQuote
-import com.crossbowffs.quotelock.data.modules.openai.chat.OpenAISubscriptionResponse
 import com.crossbowffs.quotelock.data.modules.openai.geo.OpenAITraceResponse
 import com.crossbowffs.quotelock.data.modules.openai.geo.SUPPORTED_COUNTRY_CODES
 import com.crossbowffs.quotelock.data.modules.openai.geo.parseTraceResponse
@@ -196,7 +196,7 @@ class OpenAIRepository @Inject internal constructor(
 
     suspend fun fetchAccountInfo() {
         val apiKey = requireApiKey()
-        getSubscription(apiKey) ?: throw OpenAIException.ConnectException
+        getModels(apiKey) ?: throw OpenAIException.ConnectException
     }
 
     suspend fun requestQuote(): OpenAIQuote? {
@@ -233,11 +233,11 @@ class OpenAIRepository @Inject internal constructor(
     }
 
     @Throws(IOException::class)
-    private suspend fun getSubscription(apiKey: String): OpenAISubscriptionResponse? =
+    private suspend fun getModels(apiKey: String): OpenAIModelsResponse? =
         requestOpenAI { host ->
-            httpClient.fetchJson<OpenAISubscriptionResponse>(
+            httpClient.fetchJson<OpenAIModelsResponse>(
                 url = host,
-                path = PREF_OPENAI_CHAT_SUB_PATH,
+                path = PREF_OPENAI_MODELS_PATH,
                 method = HttpMethod.Get,
                 headers = mapOf(
                     HttpHeaders.Authorization to "Bearer $apiKey"
