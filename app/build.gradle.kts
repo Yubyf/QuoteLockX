@@ -1,13 +1,15 @@
 @file:Suppress("UnstableApiUsage")
 
-import Configs.versionCode
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.crossbowffs.quotelock.Configs
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.android.kotlin)
+    alias(libs.plugins.quotelockx.android.application)
+    alias(libs.plugins.quotelockx.android.compose.application)
+    alias(libs.plugins.quotelockx.android.jacoco.application)
+
     alias(libs.plugins.serialization)
     alias(libs.plugins.ksp)
 }
@@ -18,7 +20,7 @@ var keystoreStorePassword: String? = null
 var keystoreAlias: String? = null
 var keystorePassword: String? = null
 // Load the local keystore file first. Configure variables in local.properties.
-keystoreFilepath = gradleLocalProperties(rootDir).let { properties ->
+keystoreFilepath = gradleLocalProperties(rootDir, providers).let { properties ->
     (properties["keystore.path"] as String?)?.let { path ->
         rootDir.absolutePath + File.separatorChar + path
     }?.also {
@@ -35,8 +37,6 @@ keystoreFilepath = gradleLocalProperties(rootDir).let { properties ->
 //endregion
 
 android {
-    compileSdk = Configs.compileSdk
-
     keystoreFilepath?.let { keystore ->
         signingConfigs {
             create("release") {
@@ -49,12 +49,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = Configs.namespace
-        versionCode = Configs.versionCode
-        versionName = Configs.versionName
-        minSdk = Configs.minSdk
-
-        targetSdk = Configs.targetSdk
+        versionCode = 29
+        versionName = "3.2.1"
 
         testInstrumentationRunner = "com.crossbowffs.quotelock.CustomTestRunner"
 
@@ -64,15 +60,11 @@ android {
         resValue("string", "account_type", "${applicationId}.account")
         resValue("string", "account_authority", "${applicationId}.collection.provider")
         resourceConfigurations += arrayOf("en", "zh-rCN", "zh-rTW")
-
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
     }
 
     buildTypes {
         debug {
-            buildConfigField("int", "LOG_LEVEL", "2")
+            buildConfigField("int", "LOG_LEVEL", "4")
             buildConfigField("boolean", "LOG_TO_XPOSED", "false")
         }
 
@@ -101,18 +93,16 @@ android {
                 }
             }
         }
-    }
 
-    buildFeatures {
-        compose = true
-    }
-
-    lint {
-        abortOnError = false
-    }
-    compileOptions {
-        sourceCompatibility = Configs.javaVersion
-        targetCompatibility = Configs.javaVersion
+        applicationVariants.all {
+            outputs.map { it as BaseVariantOutputImpl }.forEach { output ->
+                output.outputFileName = Configs.generatePackageName(
+                    versionName,
+                    buildType.name,
+                    rootDir
+                )
+            }
+        }
     }
 
     packaging {
@@ -127,20 +117,6 @@ android {
             add("META-INF/ASL2.0")
         }
     }
-    kotlinOptions {
-        jvmTarget = Configs.javaVersion.toString()
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.version.get()
-    }
-    sourceSets {
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
-    }
-    namespace = Configs.namespace
-}
-
-kotlin {
-    jvmToolchain(Configs.javaVersion.versionCode)
 }
 
 dependencies {
@@ -164,7 +140,7 @@ dependencies {
     ksp(libs.koin.ksp.compiler)
 
     // Jetpack Compose
-    val composeBom = platform(libs.androidx.compose.bom)
+    val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation(libs.bundles.compose.standard)
