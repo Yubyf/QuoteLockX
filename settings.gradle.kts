@@ -17,6 +17,11 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        // Local repos
+        maven {
+            url = uri("repos")
+        }
+
         google()
         mavenCentral()
 

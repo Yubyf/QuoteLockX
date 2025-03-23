@@ -13,7 +13,6 @@ import android.os.Looper
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
@@ -36,6 +35,10 @@ import de.robv.android.xposed.*
 import de.robv.android.xposed.IXposedHookZygoteInit.StartupParam
 import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.util.*
@@ -78,10 +81,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
     ): Typeface = when (style.family) {
         PREF_COMMON_FONT_FAMILY_LEGACY_DEFAULT,
         PREF_COMMON_FONT_FAMILY_DEFAULT_SANS_SERIF,
-        -> Typeface.SANS_SERIF
+            -> Typeface.SANS_SERIF
 
         PREF_COMMON_FONT_FAMILY_DEFAULT_SERIF,
-        -> Typeface.SERIF
+            -> Typeface.SERIF
 
         else -> runCatching {
             val weight = if (style.supportVariableWeight) style.weight else FontWeight.Normal
@@ -424,11 +427,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
             return
         }
         hookLockscreenLayout(lpparam)
-        hookLockscreenClick(lpparam)
-        if (XposedUtils.isAodHookAvailable) {
-            hookAodLayout(lpparam)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (Build.VERSION.SDK_INT in Build.VERSION_CODES.S..Build.VERSION_CODES.TIRAMISU) {
             // Notifications on Android S will cover a part of quote view.
             // Added a padding to avoid this.
             hookKeyguardClockPositionAlgorithm(lpparam)
@@ -474,16 +473,15 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
 
     private fun hookLockscreenLayout(lpparam: LoadPackageParam) {
         XposedHelpers.findAndHookMethod(
-            "com.android.keyguard.KeyguardStatusView", lpparam.classLoader,
+            "com.android.keyguard.KeyguardSliceView", lpparam.classLoader,
             "onFinishInflate", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    Xlog.i(TAG, "KeyguardStatusView#onFinishInflate() called, injecting views...")
-                    val self = param.thisObject as GridLayout
-                    if (self.childCount != 1) {
+                    Xlog.i(TAG, "KeyguardSliceView#onFinishInflate() called, injecting views...")
+                    val self = param.thisObject as LinearLayout
+                    if (self.childCount != 2) {
                         return
                     }
-                    val linearLayout = self.getChildAt(0) as LinearLayout
-                    val context = linearLayout.context
+                    val context = self.context
                     val layoutInflater = LayoutInflater.from(context)
                     val parser: XmlPullParser = try {
                         sModuleRes.getLayout(RES_LAYOUT_QUOTE_LAYOUT)
@@ -492,7 +490,7 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                         return
                     }
                     val view = layoutInflater.inflate(parser, null)
-                    linearLayout.addView(view)
+                    self.addView(view, 0)
                     try {
                         mQuoteContainer =
                             sModuleRes.findViewById(view, RES_ID_QUOTE_CONTAINER) as LinearLayout
@@ -530,6 +528,10 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                             resetTranslationAnimator()
                         } else {
                             setTranslationAnimator()
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(5000)
+                                resetTranslationAnimator()
+                            }
                         }
                         true
                     }
@@ -559,84 +561,6 @@ class LockscreenHook : IXposedHookZygoteInit, IXposedHookInitPackageResources,
                     refreshLockscreenQuote()
                 }
             })
-    }
-
-    private fun hookLockscreenClick(lpparam: LoadPackageParam) {
-        XposedHelpers.findAndHookMethod(
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-                "com.android.systemui.statusbar.phone.PanelView"
-            else "com.android.systemui.statusbar.phone.PanelViewController",
-            lpparam.classLoader,
-            "onEmptySpaceClick", Float::class.javaPrimitiveType, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    Xlog.i(
-                        TAG,
-                        "PanelViewController#onEmptySpaceClick() called, reset QuoteContainer position..."
-                    )
-                    if (!::mQuoteContainer.isInitialized || !mQuoteContainer.isAttachedToWindow) {
-                        Xlog.e(TAG, "QuoteContainer is empty or not attached to window")
-                        return
-                    }
-                    resetTranslationAnimator()
-                }
-            })
-    }
-
-    private fun hookAodLayout(lpparam: LoadPackageParam) {
-        runCatching {
-            XposedHelpers.findAndHookMethod(
-                "com.oneplus.aod.OpClockViewCtrl", lpparam.classLoader,
-                "initViews", ViewGroup::class.java, object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        Xlog.i(
-                            TAG,
-                            "com.oneplus.aop.OpClockViewCtrl#initViews() called, injecting views..."
-                        )
-                        // This method is not called on UI thread, so the injected views should be refreshed on current thread.
-                        mAodHandler = Handler(Looper.myLooper() ?: Looper.getMainLooper())
-                        val root = param.args[0] as ViewGroup
-                        Xlog.d(TAG, "OpClockViewCtrl root $root")
-                        val context = root.context
-                        val opAodContainer = root.findViewById<View>(
-                            context.resources.getIdentifier(
-                                RES_ID_OP_AOD_CONTAINER,
-                                "id", PACKAGE_SYSTEM_UI
-                            )
-                        ) as LinearLayout
-                        Xlog.d(TAG, "OpClockViewCtrl opAodContainer$opAodContainer")
-                        val layoutInflater = LayoutInflater.from(context)
-                        val parser: XmlPullParser = try {
-                            sModuleRes.getLayout(RES_LAYOUT_QUOTE_LAYOUT)
-                        } catch (e: NotFoundException) {
-                            Xlog.e(TAG, "Could not find quote layout, aborting", e)
-                            return
-                        }
-                        val view = layoutInflater.inflate(parser, null)
-                        opAodContainer.addView(view)
-                        try {
-                            mAodQuoteContainer =
-                                sModuleRes.findViewById(
-                                    view,
-                                    RES_ID_QUOTE_CONTAINER
-                                ) as LinearLayout
-                            mAodQuoteTextView =
-                                sModuleRes.findViewById(view, RES_ID_QUOTE_TEXTVIEW) as TextView
-                            mAodSourceTextView =
-                                sModuleRes.findViewById(view, RES_ID_SOURCE_TEXTVIEW) as TextView
-                            val aodActionContainer =
-                                sModuleRes.findViewById(
-                                    view,
-                                    RES_ID_ACTION_CONTAINER
-                                ) as LinearLayout
-                            aodActionContainer.visibility = View.GONE
-                        } catch (e: NotFoundException) {
-                            Xlog.e(TAG, "Could not find text views, aborting", e)
-                        }
-                    }
-                })
-        }.onFailure {
-            Xlog.e(TAG, "Failed to hook com.oneplus.aod.OpClockViewCtrl#initViews()", it)
-        }
     }
 
     @Throws(Throwable::class)
